@@ -3,3 +3,27 @@
 @tailwind utilities;
 
 
+@layer components{
+    .main-c{
+        @apply flex flex-col gap-6 p-4 pl-8 xl:pl-4
+    }
+    .page{
+        @apply flex flex-col gap-4
+    }
+
+    .table-link{
+        @apply hover:underline text-left dark:underline w-full text-blue-800 cursor-pointer
+    }
+
+    .new-modal{
+        @apply flex w-[90%] md:w-[70%] lg:w-[50%] h-[85%] md:h-fit flex-col  gap-6 py-6 px-10 bg-white rounded dark:bg-black dark:border
+    }
+
+    .info-modal{
+        @apply flex flex-col min-w-72 h-full bg-white dark:bg-black dark:border rounded-l-lg p-4 overflow-y-scroll
+    }
+
+    .flex-center{
+        @apply flex items-center justify-center
+    }
+}

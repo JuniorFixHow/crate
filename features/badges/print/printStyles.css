@@ -1,0 +1,131 @@
+/* printStyles.css */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.shadow {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.w-60 {
+    width: 15rem; /* 240px */
+}
+
+.w-full {
+    width: 100%;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+/* .from-[#A61C5B] {
+    --tw-gradient-from: #a61c5b;
+}
+
+.to-[#0A138E] {
+    --tw-gradient-to: #0a138e;
+} */
+
+.bg-white {
+    background-color: #ffffff;
+}
+
+.w-20 {
+    width: 5rem; /* 80px */
+}
+
+.py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.h-48 {
+    height: 12rem; /* 192px */
+}
+
+.relative {
+    position: relative;
+}
+
+.bg-cover {
+    background-size: cover;
+}
+
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: absolute; /* Make sure this is absolute */
+}
+
+.bg {
+    background: inherit; /* Ensure it inherits background properties */
+}
+
+.filter {
+    filter: inherit;
+}
+
+.brightness-0 {
+    filter: brightness(0);
+}
+
+.invert {
+    filter: invert(1);
+}
+
+.opacity-30 {
+    opacity: 0.3;
+}
+
+.gap-4 {
+    gap: 1rem; /* 16px */
+}
+
+.text-white {
+    color: #ffffff;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.w-28 {
+    width: 7rem; /* 112px */
+}
+
+.h-32 {
+    height: 8rem; /* 128px */
+}
+
+.rounded {
+    border-radius: 0.25rem; /* 4px */
+}

@@ -31,7 +31,7 @@ const page = () => {
 
                 <div className="flex gap-4 w-full flex-col">
                     <button type='submit' className='bg-[#21409A] hover:bg-blue-500 text-white text-[0.9rem] font-semibold py-1' >Proceed</button>
-                    <Link className='flex flex-row gap-4 w-full justify-center' href='/login' >
+                    <Link className='flex flex-row gap-4 w-full justify-center' href='/' >
                       <FaArrowLeftLong className='text-slate-400' />
                       <span className='text-xs cursor-pointer text-slate-300 hover:underline font-semibold'>Back to Sign In</span>
                     </Link>
