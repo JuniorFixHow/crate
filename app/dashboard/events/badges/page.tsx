@@ -1,13 +1,10 @@
-import BadgeTop from '@/features/badges/BadgeTop'
-import Title from '@/features/Title'
-import BadgesTable from '@/tables/BadgesTable'
+import BadgesMain from '@/components/features/badges/BadgesMain'
+
 
 const page = () => {
   return (
     <div className='main-c relative' >
-      <Title text='Badges' />
-      <BadgeTop  />
-      <BadgesTable/>
+      <BadgesMain/>
     </div>
   )
 }

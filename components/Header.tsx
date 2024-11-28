@@ -1,5 +1,5 @@
 'use client'
-import { Grey } from '@/Dummy/contants'
+import { Grey } from '@/components/Dummy/contants'
 import { useTheme } from '@/hooks/useTheme';
 import Image from 'next/image'
 import React from 'react'

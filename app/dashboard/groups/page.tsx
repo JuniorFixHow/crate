@@ -1,4 +1,4 @@
-import GroupMain from '@/pages/group/GroupMain'
+import GroupMain from '@/components/pages/group/GroupMain'
 import React from 'react'
 
 const   page = () => {

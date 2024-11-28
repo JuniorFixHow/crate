@@ -1,4 +1,4 @@
-import SingleAssignment from "@/pages/room/assignments/single/SingleAssignment"
+import SingleAssignment from "@/components/pages/room/assignments/single/SingleAssignment"
 
 const page = async({params}:{params:Promise<{id:string}>}) => {
     const {id} = await params;

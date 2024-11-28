@@ -1,5 +1,5 @@
 'use client'
-import { NavItems } from '@/Dummy/Data'
+import { NavItems } from '@/components/Dummy/Data'
 import { NavigationProps } from '@/types/Types'
 import Image from 'next/image'
 // import Link from 'next/link'
@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { FaRegUser } from "react-icons/fa";
 import { CiLogout } from "react-icons/ci";
 import Link from 'next/link'
-import NavSwitch from '@/features/NavSwitch';
+import NavSwitch from '@/components/features/NavSwitch';
 import {  IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import {  usePathname, useRouter } from 'next/navigation'
 
@@ -66,6 +66,11 @@ const Navbar = () => {
     router.push(link)
   }
 
+  const handleProfile = ()=>{
+    setCurrentTitle({parent:'Account & Settings'});
+    router.push('/dashboard/profile')
+  }
+
   return (
     <div className={`flex  xl:p-4 z-20 min-h-full absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${toggle? 'pt-4':'p-4'} bg-white dark:bg-black shadow-xl rounded-lg`} >
       <div className="flex flex-col gap-6 relative h-fit">
@@ -118,7 +123,7 @@ const Navbar = () => {
 
               <div className="flex flex-col gap-4">
                 <span className='text-[1rem] text-[#949191] font-medium' >Account</span>
-                <div onClick={()=>setCurrentTitle({parent:'Account & Settings'})}  className={`flex items-center flex-row hover:text-[#3C60CA] cursor-pointer gap-2 dark:${currentTtitle.parent === 'Account & Settings' ?'#3C60CA':'text-slate-200'} ${currentTtitle.parent === 'Account & Settings' ? 'text-[#3C60CA]':'text-black'}`}  >
+                <div onClick={handleProfile}  className={`flex items-center flex-row hover:text-[#3C60CA] cursor-pointer gap-2 dark:${currentTtitle.parent === 'Account & Settings' ?'#3C60CA':'text-slate-200'} ${currentTtitle.parent === 'Account & Settings' ? 'text-[#3C60CA]':'text-black'}`}  >
                   <FaRegUser/>
                   <span className='text-[0.9rem] font-medium' >Account & Settings</span>
                 </div>

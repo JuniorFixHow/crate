@@ -1,6 +1,6 @@
-import PrintBage from "@/features/badges/print/PrintBage"
-import Subtitle from "@/features/Subtitle"
-import Title from "@/features/Title"
+import PrintBage from "@/components/features/badges/print/PrintBage"
+import Subtitle from "@/components/features/Subtitle"
+import Title from "@/components/features/Title"
 import { IoIosArrowForward } from "react-icons/io"
 
 const page = () => {

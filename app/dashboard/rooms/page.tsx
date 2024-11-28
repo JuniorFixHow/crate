@@ -1,4 +1,4 @@
-import RoomMain from '@/pages/room/RoomMain'
+import RoomMain from '@/components/pages/room/RoomMain'
 import React from 'react'
 
 const page = () => {

@@ -1,5 +1,5 @@
-import Title from '@/features/Title'
-import NewSessions from '@/pages/session/NewSessions'
+import Title from '@/components/features/Title'
+import NewSessions from '@/components/pages/session/NewSessions'
 import React from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 

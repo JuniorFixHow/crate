@@ -1,4 +1,4 @@
-import ChurchMain from '@/pages/churches/ChurchMain'
+import ChurchMain from '@/components/pages/churches/ChurchMain'
 import React from 'react'
 
 const page = () => {

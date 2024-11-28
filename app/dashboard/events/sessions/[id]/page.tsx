@@ -1,5 +1,5 @@
-import Title from "@/features/Title"
-import EditSession from "@/pages/session/EditSession"
+import Title from "@/components/features/Title"
+import EditSession from "@/components/pages/session/EditSession"
 import { IoIosArrowForward } from "react-icons/io"
 
 const page = async({params}:{params:Promise<{id:string}>}) => {

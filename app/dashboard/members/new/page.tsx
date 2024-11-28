@@ -1,5 +1,5 @@
-import Title from "@/features/Title"
-import MRegisteration from "@/misc/MRegisteration";
+import Title from "@/components/features/Title"
+import MRegisteration from "@/components/misc/MRegisteration";
 import { IoIosArrowForward } from "react-icons/io";
 
 const NewMember = () => {

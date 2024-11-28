@@ -1,5 +1,5 @@
-import Title from "@/features/Title"
-import Scanner from "@/pages/session/Scanner"
+import Title from "@/components/features/Title"
+import Scanner from "@/components/pages/session/Scanner"
 import { IoIosArrowForward } from "react-icons/io"
 
 const page = () => {

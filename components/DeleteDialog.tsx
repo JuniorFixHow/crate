@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 export type DeleteDialogProps = {
     title:string,
     message:string,
-    onTap:()=>void
+    onTap:()=>Promise<void>
 } & BooleanStateProp
 
 export default function DeleteDialog({value, setValue, title, message, onTap}:DeleteDialogProps) {

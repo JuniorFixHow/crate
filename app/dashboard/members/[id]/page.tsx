@@ -1,7 +1,8 @@
-import AddButton from "@/features/AddButton";
-import Subtitle from "@/features/Subtitle";
-import Title from "@/features/Title"
-import MDetails from "@/misc/MDetails";
+import AddButton from "@/components/features/AddButton";
+import Subtitle from "@/components/features/Subtitle";
+import Title from "@/components/features/Title"
+import MDetails from "@/components/misc/MDetails";
+import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
 
 const SingleMember = async({params}:{params:Promise<{id:string}>}) => {
@@ -15,7 +16,9 @@ const SingleMember = async({params}:{params:Promise<{id:string}>}) => {
           <IoIosArrowForward/>
           <Title text="Member Info" />
         </div>
-        <AddButton text='Add Member' className="w-fit" />
+        <Link href='/dashboard/members/new' >
+          <AddButton text='Add Member' className="w-fit" />
+        </Link>
       </div>
 
       <div className="flex flex-col">

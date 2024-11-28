@@ -1,4 +1,4 @@
-import NewGroup from '@/pages/group/new/NewGroup'
+import NewGroup from '@/components/pages/group/new/NewGroup'
 import React from 'react'
 
 const page = () => {

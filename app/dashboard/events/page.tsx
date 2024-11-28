@@ -1,5 +1,5 @@
-import Title from '@/features/Title'
-import EventsTable from '@/tables/EventsTable'
+import Title from '@/components/features/Title'
+import EventsTable from '@/components/tables/EventsTable'
 import React from 'react'
 
 const page = () => {

@@ -51,12 +51,19 @@ export type GroupProps = {
    id:string,
    name:string,
    groupNumber:string,
-   type:'Family'|'Group',
+   type:'Family'|'Group'|'Couple',
    eventId:string /* this will be ab object later*/
    members:string[],
    checkInStatus:string, /* This is going to be a fraction of the total members. For instance, 2/5 Ahecked in, All checked in */
    room:string, /* This is going to be an object of a room */
 }
+
+export type ErrorProps = {
+   message:string,
+   error:boolean,
+   payload?:object,
+   code?:number
+} | null
 
 export type EventProps = {
    id:string,
@@ -76,7 +83,7 @@ export type EventProps = {
 export type EventRegProps = {
    id:string,
    memberId:string, /*this will be an object later*/
-   regType: 'Individual'|'Group'|'Family',
+   regType: 'Individual'|'Group'|'Family'|'Couple',
    status:'Pending'|'Checked-in',
    badgeIssued:'Yes'|'No',
    groupId?:string /*this will be an object later*/

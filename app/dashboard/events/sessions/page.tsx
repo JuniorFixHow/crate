@@ -1,5 +1,5 @@
-import Title from '@/features/Title'
-import Sessions from '@/pages/session/Sessions'
+import Title from '@/components/features/Title'
+import Sessions from '@/components/pages/session/Sessions'
 import React from 'react'
 
 const pages = () => {

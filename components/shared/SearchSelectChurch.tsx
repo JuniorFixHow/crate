@@ -1,13 +1,20 @@
 'use client'
-import { ChurchData } from '@/pages/churches/ChurchData'
-import { SearchChurchWithoutZone } from '@/pages/vendor/fxn'
-import { ComponentProps, useState } from 'react'
+import { SearchChurchWithoutZone } from '@/components/pages/vendor/fxn'
+import { useFetchChurches } from '@/hooks/fetch/useChurch'
+import { ComponentProps, Dispatch, SetStateAction, useState } from 'react'
 import { IoCloseSharp } from 'react-icons/io5'
 
 
-const SearchSelectChurch = ({isGeneric, className, ...props}:{isGeneric?:boolean}&ComponentProps<'div'>) => {
+type SearchSelectChurchProps = {
+  isGeneric?:boolean,
+  require?:boolean,
+  setSelect?:Dispatch<SetStateAction<string>>
+} & ComponentProps<'div'>
+
+const SearchSelectChurch = ({isGeneric, require, setSelect, className, ...props}:SearchSelectChurchProps) => {
     const [search, setSearch] = useState<string>('');
     const [showSearch, setShowSearch] = useState<boolean>(false);
+    const {churches} = useFetchChurches();
   return (
     <div {...props}  className={`flex flex-col ${className}`} >
         {
@@ -17,10 +24,11 @@ const SearchSelectChurch = ({isGeneric, className, ...props}:{isGeneric?:boolean
                 <IoCloseSharp onClick={()=>setShowSearch(false)} size={20} className='text-red-700 cursor-pointer' />
             </div>
         }
-      <select defaultValue={ChurchData[0]?.id} onClick={()=>setShowSearch(true)}  className={`border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent outline-none`} >
+      <select required={require} onChange={(e)=>setSelect!(e.target.value)}  onClick={()=>setShowSearch(true)}  className={`border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent outline-none`} >
+        <option className='bg-white text-black dark:text-white dark:bg-black' value=''  >Churches</option>
         {
-            SearchChurchWithoutZone(ChurchData, search).map((event)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-black' key={event?.id} value={event?.id}>{event?.name}</option>
+            SearchChurchWithoutZone(churches, search).map((church)=>(
+              <option className='bg-white text-black dark:text-white dark:bg-black' key={church?._id} value={church?._id}>{church?.name}</option>
             ))
         }
       </select>

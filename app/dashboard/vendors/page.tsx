@@ -1,4 +1,4 @@
-import VendorsMain from '@/pages/vendor/VendorsMain'
+import VendorsMain from '@/components/pages/vendor/VendorsMain'
 
 const page = () => {
   return (

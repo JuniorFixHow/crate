@@ -1,4 +1,4 @@
-import ZonesMain from '@/pages/zones/ZonesMain'
+import ZonesMain from '@/components/pages/zones/ZonesMain'
 import React from 'react'
 
 const page = () => {

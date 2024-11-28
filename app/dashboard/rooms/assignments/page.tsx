@@ -1,4 +1,4 @@
-import AssignmentMain from "@/pages/room/assignments/AssignmentMain"
+import AssignmentMain from "@/components/pages/room/assignments/AssignmentMain"
 
 const page = () => {
   return (
