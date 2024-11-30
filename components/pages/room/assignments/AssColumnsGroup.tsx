@@ -1,31 +1,31 @@
 import AddButton from "@/components/features/AddButton";
-import { IRegistration } from "@/lib/database/models/registration.model";
+import { IGroup } from "@/lib/database/models/group.model";
 import {  GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
-export const AssignmentColumns =(
-    handleUnassign:(data:IRegistration)=>void,
+export const AssColumnsGroup =(
+    handleUnassign:(data:IGroup)=>void,
     loading:boolean
 ) => [
     {
-        field:'memberId',
-        headerName:'Member',
+        field:'name',
+        headerName:'Group',
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?.memberId?._id}}} >{params?.row?.memberId?.name}</Link>
+                <Link className="table-link" href={`/dashboard/gruops/${params?.row._id}`} >{params?.row?.name}</Link>
             )
         }
 
     },
     {
-        field:'regType',
-        headerName:'Type',
+        field:'members',
+        headerName: 'No. of members',
         width:150,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full items-center">
-                    <span>{params?.row?.groupId ? 'Group':'Individual'}</span>
+                    <span>{params?.row?.members.length}</span>
                 </div>
             )
         }
@@ -43,7 +43,7 @@ export const AssignmentColumns =(
         }
     },
     {
-        field:'id',
+        field:'_id',
         headerName:'Action',
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
@@ -52,11 +52,11 @@ export const AssignmentColumns =(
                     {
                         (!params?.row?.roomIds || params?.row?.roomIds?.length === 0) ?
 
-                        <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Member'}}} >
-                            <AddButton text="Assign room" smallText noIcon className="h-[2rem] px-2 rounded" />
+                        <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Group'}}} >
+                            <AddButton disabled={loading} text={loading ? "loading":"Assign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
                         </Link>
                         :
-                        <AddButton onClick={()=>handleUnassign(params?.row)} disabled={loading} text={loading ? "loading":"Unassign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
+                        <AddButton onClick={()=>handleUnassign(params?.row)} text="Unassign room" smallText noIcon className="h-[2rem] px-2 rounded" />
                     }
                 </div>
             )

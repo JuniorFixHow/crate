@@ -4,16 +4,39 @@ import Subtitle from "../Subtitle"
 import { MdOutlineEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa6";
 import { PiUserLight } from "react-icons/pi";
-import { ComponentProps } from "react";
+import { ComponentProps, Dispatch, SetStateAction, useState } from "react";
 import Link from "next/link";
 import { IMember } from "@/lib/database/models/member.model";
+import { ErrorProps } from "@/types/Types";
+import { addMemberToGroup } from "@/lib/actions/group.action";
+import { IGroup } from "@/lib/database/models/group.model";
 
 export type BadgeSearchItemProps = {
     member:IMember,
+    setResponse?:Dispatch<SetStateAction<ErrorProps>>,
+    currentGroup?:IGroup
     isGroupItem?:boolean
 } & ComponentProps<'div'>
 
-const BadgeSearchItem = ({member, isGroupItem, ...props}:BadgeSearchItemProps ) => {
+const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...props}:BadgeSearchItemProps ) => {
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const handleAddToGroup = async()=>{
+        setResponse!(null);
+        try {
+            setLoading(true);
+            if(currentGroup){
+                const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id;
+                const res:ErrorProps =  await addMemberToGroup(currentGroup._id, member._id, eventId.toString());
+                setResponse!(res);
+            }
+        } catch (error) {
+            console.log(error);
+            setResponse!({message:'Error occured add member to group', error:true})
+        }finally{
+            setLoading(false);
+        }
+    }
    
   return (
     <div {...props}  className="flex w-full flex-col gap-4 md:flex-row dark:bg-black justify-between items-start md:items-center bg-[#d6d6d6] p-2 rounded border-slate-400 border" >
@@ -36,7 +59,7 @@ const BadgeSearchItem = ({member, isGroupItem, ...props}:BadgeSearchItemProps ) 
         </div>
         {
             isGroupItem ?
-            <AddButton text="Add to group" noIcon smallText className="rounded w-fit justify-center py-1 md:py-2 self-end md:self-center" />
+            <AddButton disabled={loading} onClick={handleAddToGroup} text={loading ? "adding...":"Add to group"} noIcon smallText className="rounded w-fit justify-center py-1 md:py-2 self-end md:self-center" />
             :
             <Link className="flex self-end md:self-center" href={{pathname:'/dashboard/events/badges/new/print', query:{memberId:member._id}}} >
                 <AddButton text="Open" noIcon smallText className="rounded w-fit justify-center" />

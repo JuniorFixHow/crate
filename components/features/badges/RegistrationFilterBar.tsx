@@ -48,8 +48,8 @@ const RegistrationFilterBar = ({ setRoom, setBadge, reset,  setDate}:Registratio
         </select>
         <select onChange={(e)=>setRoom(e.target.value)} defaultValue='room'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">
             <option className="dark:bg-black" value="">Room</option>
-            <option className="dark:bg-black" value="Checked-in">Assigned</option>
-            <option className="dark:bg-black" value="Pending">Pending</option>
+            <option className="dark:bg-black" value="Assigned">Assigned</option>
+            <option className="dark:bg-black" value="Unassigned">Pending</option>
         </select>
 
         <div onClick={reset}  className="border border-slate-400 gap-2 cursor-pointer hover:bg-slate-100 bg-white dark:bg-transparent flex-row flex items-center p-2">

@@ -28,7 +28,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
     // const router = useRouter();
     const {attendances, loading, error} = useFetchAttendances(currentSession?._id);
 
-
+    if(!currentSession) return null
     const handleDelete = (data:IAttendance)=>{
         setDeleteMode(true);
         setCurrentAttendance(data);

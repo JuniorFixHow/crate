@@ -1,4 +1,4 @@
-import { RoomProps } from '@/types/Types'
+import { IRoom } from '@/lib/database/models/room.model'
 import { Modal } from '@mui/material'
 import React, { Dispatch, SetStateAction } from 'react'
 import { IoIosArrowRoundBack } from 'react-icons/io'
@@ -6,8 +6,8 @@ import { IoIosArrowRoundBack } from 'react-icons/io'
 export type RoomInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
-    currentRoom:RoomProps|null,
-    setCurrentRoom:Dispatch<SetStateAction<RoomProps|null>>
+    currentRoom:IRoom|null,
+    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>
 }
 
 const RoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoModalProps) => {

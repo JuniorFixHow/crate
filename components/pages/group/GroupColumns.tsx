@@ -10,17 +10,17 @@ export const GroupColumns:GridColDef[]=[
     {
         field:'name',
         headerName:'Name',
-        width:140,
+        width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/groups/${params?.row?.id}`}  className="table-link" >{params?.row?.name}</Link>
+                <Link href={`/dashboard/groups/${params?.row?._id}`}  className="table-link" >{params?.row?.name}</Link>
             )
         }
     },
     {
         field:'members',
         headerName:'Members',
-        width:100,
+        width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <span className="text-center" >{params?.row?.members?.length}</span>
@@ -31,7 +31,12 @@ export const GroupColumns:GridColDef[]=[
     {
         field:'checkInStatus',
         headerName:'Check-in Status',
-        width:120
+        width:120,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="text-center" >{params?.row?.room ? 'Checked-in':'Pending' }</span>
+            )
+        }
     },
     {
         field:'type',
@@ -47,7 +52,7 @@ export const GroupColumns:GridColDef[]=[
                 <div className="flex-center">
                     {
                         params?.row?.room ? 
-                        <Link href={`/dashboard/rooms/${params?.row?.id}`}  className="table-link text-center" >{params?.row?.room}</Link>
+                        <Link href={`/dashboard/rooms/${params?.row?.roomIds[0]?._id}`}  className="table-link text-center" >{params?.row?.room[0]?.venue}</Link>
                         :
                         <span className="text-center" >Not yet</span>
                     }

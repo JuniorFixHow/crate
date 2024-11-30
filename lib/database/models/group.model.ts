@@ -10,7 +10,6 @@ export interface IGroup extends Document{
     type:'Family'|'Group'|'Couple';
     eventId:Types.ObjectId|string|IEvent;
     members:[Types.ObjectId]|string[]|IMember[];
-    checkInStatus:string;
     roomIds?:[Types.ObjectId]|string[]|IRoom[];
     createdAt?: Date;
     updatedAt?: Date;
@@ -18,11 +17,10 @@ export interface IGroup extends Document{
 
 const GroupSchema = new Schema<IGroup>({
     name:{type:String, required:true},
-    groupNumber:Number,
+    groupNumber:{type: Number, required:true},
     type:String,
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},
     members:[{type:Schema.Types.ObjectId, ref:'Member'}],
-    checkInStatus:String,
     roomIds:[{type:Schema.Types.ObjectId, ref:'Room'}],
 
 },{timestamps:true})

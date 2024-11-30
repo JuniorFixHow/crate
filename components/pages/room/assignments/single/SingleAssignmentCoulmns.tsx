@@ -1,14 +1,14 @@
 import CustomCheck from "@/components/pages/group/new/CustomCheck";
 import {  GridRenderCellParams } from "@mui/x-data-grid";
 import CustomRadio from "./CustomRadio";
-import { EventRegProps } from "@/types/Types";
+import { IRoom } from "@/lib/database/models/room.model";
 
 export const SingleAssignmentCoulmns =(
-    rooms:string[],
+    roomIds:string[],
     handleSelect:(id:string)=>void,
-    currendId:string,
-    handleRadio:(id:string)=>void,
-    data:EventRegProps
+    currendRoom:IRoom,
+    handleRadio:(data:IRoom)=>void,
+    type:string
 ) => [
     {
         field:'id',
@@ -18,10 +18,10 @@ export const SingleAssignmentCoulmns =(
             return(
                 <div className="h-full flex-center" >
                 {
-                    data?.regType === 'Individual' ?
-                    <CustomRadio onClick={()=>handleRadio(params?.row?.id)} checked={currendId === params?.row?.id} />
+                    type === 'Member' ?
+                    <CustomRadio onClick={()=>handleRadio(params?.row)} checked={currendRoom?._id === params?.row?._id} />
                     :
-                    <CustomCheck onClick={()=>handleSelect(params?.row?.id)} checked={rooms.includes(params?.row?.id)} />
+                    <CustomCheck onClick={()=>handleSelect(params?.row?._id)} checked={roomIds.includes(params?.row?._id)} />
                 }
                 </div>
             )

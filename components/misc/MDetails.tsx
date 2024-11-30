@@ -84,13 +84,14 @@ const MDetails = ({id}:MDetailsProps) => {
                     memberId:currentMember._id,
                     eventId,
                     badgeIssued:'No',
-                    status:'Pending'
                 } 
                 const res:ErrorProps = await createRegistration(currentMember._id, eventId, data);
                 setRegError(res);
-                const groups:IGroup[] = await getEventGroups(eventId);
-                if(groups.length){
-                    openGroupReg();
+                if(res?.code === 201){
+                  const groups:IGroup[] = await getEventGroups(eventId);
+                  if(groups.length){
+                      openGroupReg();
+                  }
                 }
             }
         } catch (error) {
@@ -106,12 +107,8 @@ const MDetails = ({id}:MDetailsProps) => {
         try {
             if(currentMember){
                 setRegLoading(true);
-                await addMemberToGroup(groupId, currentMember._id, eventId)
-                setRegError({message:'Member added successfully', error:false});
-                const groups:IGroup[] = await getEventGroups(eventId);
-                if(groups.length){
-                    openGroupReg();
-                }
+                const res:ErrorProps = await addMemberToGroup(groupId, currentMember._id, eventId)
+                setRegError(res);
             }
         } catch (error) {
             console.log(error);

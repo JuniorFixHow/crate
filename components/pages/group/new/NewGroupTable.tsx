@@ -1,22 +1,27 @@
 'use client'
-import { EventsData, members } from '@/components/Dummy/Data'
 import SearchBar from '@/components/features/SearchBar'
 import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import Subtitle from '@/components/features/Subtitle'
-import { searchMember } from '@/functions/search'
-import { Paper } from '@mui/material'
+import { LinearProgress, Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NewGroupColumns } from './NewGroupColumns'
 import NewGroupDown from './NewGroupDown'
+import {  useFetchRegistrationsWithEvents } from '@/hooks/fetch/useRegistration'
+import { getNextGroupNumber } from '@/lib/actions/misc'
+import { IRegistration } from '@/lib/database/models/registration.model'
+import { SearchMemberForNewGroup } from './fxn'
+import { useFetchEvents } from '@/hooks/fetch/useEvent'
 
 const NewGroupTable = () => {
-  const event1 = EventsData[0]?.id;
-  const [eventId, setEventId] = useState<string>(event1);
+  const [eventId, setEventId] = useState<string>('');
   const [membersId, setMembersId] = useState<string[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<string>('');
+  const [number, setNumber] = useState<number>(0);
 
-  console.log(eventId)
+  const {eventRegistrations, loading} = useFetchRegistrationsWithEvents(eventId);
+  const {events} = useFetchEvents();
+
   const handleCheckClick = (id:string)=>{
     setMembersId((prev)=>(
       prev.includes(id) ?
@@ -26,6 +31,24 @@ const NewGroupTable = () => {
     ))
   }
 
+  useEffect(()=>{
+    const fetchNextNumber = async()=>{
+      try {
+        const {nextGroupNumber} = await getNextGroupNumber();
+        setNumber(nextGroupNumber);
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchNextNumber();
+  },[])
+
+  useEffect(()=>{
+    if(events.length>0){
+      setEventId(events[0]._id);
+    }
+  },[events])
+
   const paginationModel = { page: 0, pageSize: 10 };
   return (
     <div className='w-full flex flex-col' >
@@ -34,7 +57,7 @@ const NewGroupTable = () => {
       </div>
       <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-black p-4">
         <div className="flex items-center justify-between">
-          <span className='text-[0.9rem]' >Group number: <span className='font-semibold' >22</span></span>
+          <span className='text-[0.9rem]' >Group number: <span className='font-semibold' >{number}</span></span>
           <div className="flex-center px-3 py-2 rounded border">
             <span className='text-[0.9rem]' >Members selected: <span className='font-semibold' >{membersId.length}</span></span>
           </div>
@@ -47,20 +70,29 @@ const NewGroupTable = () => {
           </div>
 
           <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 480, }}>
-                <DataGrid
-                  rows={searchMember(search, members)}
-                  columns={NewGroupColumns(membersId, handleCheckClick)}
-                  initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10]}
-                  // checkboxSelection
-                  className='dark:bg-black dark:border dark:text-blue-800'
-                  sx={{ border: 0 }}
-                />
-            </Paper>
+            {
+              loading ? 
+              <LinearProgress className='w-full' />
+              :
+              <Paper className='w-full' sx={{ height: 480, }}>
+                  <DataGrid
+                    getRowId={(row:IRegistration)=>row._id}
+                    rows={SearchMemberForNewGroup(eventRegistrations, search)}
+                    columns={NewGroupColumns(membersId, handleCheckClick)}
+                    initialState={{ pagination: { paginationModel } }}
+                    pageSizeOptions={[5, 10]}
+                    // checkboxSelection
+                    className='dark:bg-black dark:border dark:text-blue-800'
+                    sx={{ border: 0 }}
+                  />
+              </Paper>
+            }
           </div>
 
-          <NewGroupDown/>
+          {
+            membersId.length > 0 &&
+            <NewGroupDown eventId={eventId} members={membersId} />
+          }
         </div>
       </div>
     </div>

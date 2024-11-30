@@ -14,7 +14,7 @@ export const NewGroupColumns = (
             return(
                 <div className="flex-center h-full">
 
-                <CustomCheck onClick={()=>handleCheckClick(params?.row?.id)} checked ={members.includes(params.row?.id)} />
+                <CustomCheck onClick={()=>handleCheckClick(params?.row?.memberId._id)} checked ={members.includes(params.row?.memberId._id)} />
                 </div>
             )
         }
@@ -25,7 +25,7 @@ export const NewGroupColumns = (
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/members/${params?.row?.id}`} className="table-link text-center" >{params?.row?.name}</Link>
+                <Link href={`/dashboard/members/${params?.row?.memberId._id}`} className="table-link text-center" >{params?.row?.memberId.name}</Link>
             )
         }
     },
@@ -33,20 +33,40 @@ export const NewGroupColumns = (
         field:'country',
         headerName:'Country',
         width:100,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span   >{params?.row?.memberId?.church?.zoneId?.country}</span>
+            )
+        }
     },
     {
         field:'church',
         headerName:'Church',
         width:140,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link href={{pathname:'/dashboard/churches', query:{id:params?.row?.memberId?.church?._id}}}  className="table-link" >{params?.row?.memberId?.church?.name}</Link>
+            )
+        }
     },
     {
         field:'email',
         headerName:'Email',
         width:140,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="" >{params?.row?.memberId?.email}</span>
+            )
+        }
     },
     {
         field:'status',
         headerName:'Status',
-        width:80,
+        width:120,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="" >{params?.row?.memberId?.status}</span>
+            )
+        }
     },
 ]

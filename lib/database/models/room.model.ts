@@ -1,5 +1,6 @@
 import mongoose, { model, models } from "mongoose";
 import { Document, Schema } from "mongoose";
+import { IEvent } from "./event.model";
 
 export interface IRoom extends Document {
     _id:string;
@@ -11,7 +12,7 @@ export interface IRoom extends Document {
     bedType?:string,
     features?:string,
     full:boolean,
-    eventId:mongoose.Types.ObjectId,
+    eventId:mongoose.Types.ObjectId | string | IEvent,
     createdAt?:Date,
     updatedAt?:Date,
 }

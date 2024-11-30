@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useFetchSessions } from '@/hooks/fetch/useSession'
 import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { ISession } from '@/lib/database/models/session.model'
+import { LinearProgress } from '@mui/material'
 
 const Sessions = () => {
   const date = new Date();
@@ -29,7 +30,8 @@ const Sessions = () => {
     }
   },[eventId, selectedTime, sessions])
   const router = useRouter();
-  if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
+
+  if(loading) return <div className='w-full' ><LinearProgress   className={`${loading ? 'flex-center':'hidden'}`}   /></div> 
 
 
 

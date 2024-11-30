@@ -3,8 +3,9 @@ import Group from "../database/models/group.model";
 import Registration from "../database/models/registration.model";
 import Room, { IRoom } from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
+import { handleResponse } from "../misc";
 
-export async function createRoom(room:IRoom){
+export async function createRoom(room:Partial<IRoom>){
     try {
         await connectDB();
         const newRoom = await Room.create(room);
@@ -20,7 +21,7 @@ export async function createRoom(room:IRoom){
     }
 }
 
-export async function updateRoom(id:string, room:IRoom){
+export async function updateRoom(id:string, room:Partial<IRoom>){
     try {
         const rm = await Room.findByIdAndUpdate(id, room, {new:true});
         return JSON.parse(JSON.stringify(rm));
@@ -89,23 +90,23 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
         // Check if the member already has a room assigned
         const existingRegistration = await Registration.findOne({ memberId });
         if (!existingRegistration) {
-            throw new Error('Member registration not found');
+            return handleResponse('Member registration not found', true, {}, 404);
         }
 
         // Check if the member already has a room assigned
         if (existingRegistration.roomIds && existingRegistration.roomIds.length > 0) {
-            throw new Error('Member already assigned to a room');
+            return handleResponse('Member already assigned to a room', true, {}, 403);
         }
 
         // Check if the room is full based on nob
         const room = await Room.findById(roomId);
         if (!room) {
-            throw new Error('Room not found');
+            return handleResponse('Room not found', true, {}, 404);
         }
 
         const currentRoomCount = await Registration.countDocuments({ roomIds: roomId });
         if (currentRoomCount >= room.nob) {
-            throw new Error('Room is already full');
+            return handleResponse('Room is already full', true, {}, 403);
         }
 
         // Special case handling if the member is part of a "Couple" group
@@ -116,7 +117,7 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
                 if (room.nob === 1 && currentRoomCount === 1) {
                     const spouseRegistration = await Registration.findOne({ roomIds: roomId, groupId: group._id });
                     if (!spouseRegistration) {
-                        throw new Error('Room with one bed can only accommodate a couple');
+                        return handleResponse('Room with one bed can only accommodate a couple', true, {}, 403);
                     }
                 }
             }
@@ -127,10 +128,10 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
             $set: { roomIds: [roomId] }
         });
 
-        return 'Member successfully assigned to the room';
+        return handleResponse('Member successfully assigned to the room', false, {}, 201);
     } catch (error) {
         console.error('Error adding member to room:', error);
-        throw new Error('Error occurred while adding member to room');
+        handleResponse('Error occurred while adding member to room',true, {}, 500);
     }
 }
 
@@ -141,7 +142,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         // Find the group and validate existence
         const group = await Group.findById(groupId).populate('members');
         if (!group) {
-            throw new Error('Group not found');
+            return handleResponse('Group not found', true, {}, 404);
         }
 
         const totalMembers = group.members.length;
@@ -151,7 +152,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         for (const roomId of roomIds) {
             const room = await Room.findById(roomId);
             if (!room) {
-                throw new Error(`Room with ID ${roomId} not found`);
+                return handleResponse(`Room with ID ${roomId} not found`, true, {}, 404);
             }
 
             // Count how many members are already in this room
@@ -159,7 +160,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
             const availableBeds = room.nob - assignedMembers;
 
             if (availableBeds <= 0) {
-                throw new Error(`Room ${roomId} is already full`);
+                return handleResponse(`Room ${roomId} is already full`, true, {}, 403);
             }
 
             totalBedsAvailable += availableBeds;
@@ -167,7 +168,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
 
         // Ensure enough beds are available for the group
         if (totalBedsAvailable < totalMembers) {
-            throw new Error('Not enough available beds to accommodate the entire group. Please add more rooms.');
+            return handleResponse(`Not enough available beds to accommodate the entire group. Please add more rooms.`, true, {}, 403);
         }
 
         // Update registrations to include rooms for the group members
@@ -179,7 +180,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
             );
         }
 
-        return `Group successfully assigned to rooms: ${roomIds.join(', ')}`;
+        return handleResponse(`Group successfully assigned to room(s)`, false, {}, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error adding group to room:', error.message);
@@ -199,7 +200,7 @@ export async function removeMemberFromRoom(memberId: string) {
         // Check if the member has a registration
         const existingRegistration = await Registration.findOne({ memberId });
         if (!existingRegistration || !existingRegistration.roomIds || existingRegistration.roomIds.length === 0) {
-            throw new Error('Member is not assigned to any room');
+            return handleResponse(`Member is not assigned to any room`, true, {}, 422);
         }
 
         // Remove the room assignment
@@ -207,10 +208,10 @@ export async function removeMemberFromRoom(memberId: string) {
             $set: { roomIds: [] }
         });
 
-        return 'Member successfully removed from the room';
+        return handleResponse(`Member successfully removed from the room`, false, {}, 201);
     } catch (error) {
         console.error('Error removing member from room:', error);
-        throw new Error('Error occurred while removing member from room');
+        return handleResponse(`Error occurred while removing member from room`, true, {}, 500);
     }
 }
 
@@ -251,13 +252,13 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
         // Find the room by its ID
         const room = await Room.findById(roomId);
         if (!room) {
-            throw new Error('Room not found');
+            return handleResponse(`Room not found`, true, {}, 404);
         }
 
         // Check if the room has the specified groupId
         const group = await Group.findById(groupId);
         if (!group) {
-            throw new Error('Group not found');
+            return handleResponse(`Group not found`, true, {}, 404);
         }
 
         // Remove the group reference from the room
@@ -268,7 +269,7 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
         );
 
         if (!updatedRoom) {
-            throw new Error('Failed to update room');
+            return handleResponse(`Failed to update room`, true, {}, 304);
         }
 
         // Find all registrations that belong to the group for this room
@@ -280,7 +281,7 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
             );
         }
 
-        return 'Group removed from room successfully';
+        return handleResponse(`Group removed from room successfully`, false, {}, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error removing group from room:', error.message);
@@ -291,6 +292,84 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
         }
     }
 }
+
+// export async function removeGroupFromAllRooms(groupId: string) {
+//     try {
+//         await connectDB();
+
+//         // Find the group by its ID and populate its rooms and members
+//         const group = await Group.findById(groupId).populate<{ roomIds: IRoom[]; members: IMember[] }>([
+//             { path: 'roomIds' },
+//             { path: 'members' }
+//         ]);
+//         if (!group) {
+//             return handleResponse(`Group not found`, true, {}, 404);
+//         }
+
+//         const { roomIds, members } = group;
+
+//         if (!roomIds || roomIds.length === 0) {
+//             return handleResponse(`No rooms associated with this group`, false, {}, 404);
+//         }
+
+//         // Remove the group ID from all associated rooms
+//         await Room.updateMany(
+//             { _id: { $in: roomIds.map((room:IRoom) => room._id) } },
+//             { $pull: { roomIds: groupId } }
+//         );
+
+//         // Remove room references from all group members' registrations
+//         const memberIds = members.map((member:IMember) => member._id);
+//         await Registration.updateMany(
+//             { memberId: { $in: memberIds }, roomIds: { $exists: true, $ne: [] } },
+//             { $pull: { roomIds: { $in: roomIds.map((room:IRoom) => room._id) } } }
+//         );
+
+//         return handleResponse(`Group removed from all associated rooms successfully`, false, {}, 201);
+//     } catch (error) {
+//         if (error instanceof Error) {
+//             console.error('Error removing group from all rooms:', error.message);
+//             throw new Error(`Error occurred while removing group from all rooms: ${error.message}`);
+//         } else {
+//             console.error('Unknown error:', error);
+//             throw new Error('Error occurred while removing group from all rooms');
+//         }
+//     }
+// }
+
+
+export async function removeGroupFromAllRooms(groupId: string) {
+    try {
+        await connectDB();
+
+        // Find the group
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return handleResponse(`Group not found`, true, {}, 404);
+        }
+
+        // Clear roomIds from the group
+        await Group.findByIdAndUpdate(groupId, { $set: { roomIds: [] } });
+
+        // Update registrations for members in the group to remove roomIds
+        await Registration.updateMany(
+            { groupId: groupId },
+            { $set: { roomIds: [] } }
+        );
+
+        return handleResponse(`Group removed from all rooms successfully`, false, {}, 201);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error removing group from all rooms:', error.message);
+            throw new Error(`Error occurred while removing group from all rooms: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred while removing group from all rooms');
+        }
+    }
+}
+
+
 
 
 
@@ -358,3 +437,41 @@ export async function isRoomFull(roomId: string): Promise<boolean> {
         }
     }
 }
+
+
+
+export async function getAvailableRooms(eventId: string) {
+    try {
+        await connectDB(); // Ensure the DB connection is made
+
+        // Find all rooms for the given eventId
+        const rooms = await Room.find({ eventId });
+
+        if (!rooms || rooms.length === 0) {
+            return handleResponse('No rooms found for this event', true, {}, 404);
+        }
+
+        // Filter rooms that are not full (i.e., current count of registrations < room capacity)
+        const availableRooms: IRoom[] = [];
+
+        for (const room of rooms) {
+            const currentRoomCount = await Registration.countDocuments({ roomIds: room._id });
+
+            if (currentRoomCount < room.nob) {
+                availableRooms.push(room);
+            }
+        }
+
+        // Return available rooms if any found
+        if (availableRooms.length > 0) {
+            return handleResponse('Available rooms found', false, availableRooms, 200);
+        } else {
+            return handleResponse('No available rooms found for this event', true, {}, 404);
+        }
+
+    } catch (error) {
+        console.error('Error fetching available rooms:', error);
+        return handleResponse('Error occurred while fetching available rooms', true, {}, 500);
+    }
+}
+

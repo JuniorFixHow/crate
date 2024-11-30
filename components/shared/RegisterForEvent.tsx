@@ -4,7 +4,6 @@ import { Dispatch, SetStateAction } from 'react'
 import '../features/customscroll.css';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import SearchSelectGroups from '@/components/features/SearchSelectGroups';
-import { IMember } from '@/lib/database/models/member.model';
 import { ErrorProps } from '@/types/Types';
 
 type NewMemberProps = {
@@ -34,7 +33,7 @@ const RegisterForEvent = ({
         setShowEvent(false);
         setShowGroup(false);
     }
-    // console.log(currentMember?.id);
+    // console.log('Group Id: ',groupId);
   return (
     <Modal
         open={open}

@@ -78,13 +78,14 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     memberId:newMember._id,
                     eventId,
                     badgeIssued:'No',
-                    status:'Pending'
                 } 
                 const res:ErrorProps = await createRegistration( newMember._id, eventId, data);
                 setRegError(res);
-                const groups:IGroup[] = await getEventGroups(eventId);
-                if(groups.length){
-                    openGroupReg();
+                if(res?.code === 201){
+                    const groups:IGroup[] = await getEventGroups(eventId);
+                    if(groups.length){
+                        openGroupReg();
+                    }
                 }
             }
         } catch (error) {
@@ -100,12 +101,8 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
         try {
             if(newMember){
                 setRegLoading(true);
-                await addMemberToGroup(groupId, newMember._id, eventId)
-                setRegError({message:'Member added successfully', error:false});
-                const groups:IGroup[] = await getEventGroups(eventId);
-                if(groups.length){
-                    openGroupReg();
-                }
+                const res:ErrorProps = await addMemberToGroup(groupId, newMember._id, eventId)
+                setRegError(res);  
             }
         } catch (error) {
             console.log(error);
@@ -173,7 +170,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     }
 
 
-    // console.log(currentMemeber);
+    // console.log('GID: ', groupId);
 
   return (
     <form ref={formRef} onSubmit={currentMemeber ? handleUpdateMember : handleNewMember}   className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
@@ -201,6 +198,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                 showGroup={openG}
                 handleEvent={handleEventReg}
                 setSelectGroupId={setGroupId}
+                groupId={groupId}
                 setShowGroup={setOpenG}
                 loading={regLoading}
                 error={regError}

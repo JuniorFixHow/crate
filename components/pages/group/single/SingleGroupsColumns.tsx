@@ -1,15 +1,18 @@
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { IMember } from "@/lib/database/models/member.model";
+import {  GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
-export const SingleGroupColumns:GridColDef[] =[
+export const SingleGroupColumns =(
+    handleDelete:(data:IMember)=>void
+) =>[
     {
         field:'memberId',
         headerName:'Member',
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link text-center" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row?.id}}} >Member Name</Link>
+                <Link className="table-link text-center" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row?._id}}} >{params?.row?.memberId.name}</Link>
             )
         }
     },
@@ -20,9 +23,7 @@ export const SingleGroupColumns:GridColDef[] =[
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex-center h-full">
-                    <span>{params?.row?.status === 'Pending'? 'No':'Yes'}</span>
-                </div>
+                <span>{params?.row?.roomIds?.length  === 0 ? 'No':'Yes'}</span>
             )
         }
     },
@@ -44,10 +45,10 @@ export const SingleGroupColumns:GridColDef[] =[
         headerName:'Action',
         width:80,
         // params:GridRenderCellParams
-        renderCell:()=>{
+        renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex-center h-full">
-                    <RiDeleteBin6Line className="cursor-pointer" />
+                    <RiDeleteBin6Line onClick={()=>handleDelete(params?.row.memberId)}  className="cursor-pointer" />
                 </div>
             )
         }

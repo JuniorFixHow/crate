@@ -53,23 +53,20 @@ export function getTimeOfDay(datetime: Date | string): string {
 }
 
 
-export function getActivityStatus(start: Date | string, end: Date | string): string {
+export function getActivityStatus(start: Date | string, end: Date | string): 'Ongoing' | 'Upcoming' | 'Completed' {
     const now = new Date();
     const startDate = new Date(start);
     const endDate = new Date(end);
 
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        throw new Error('Invalid start or end date');
-    }
-
-    if (now < startDate) {
-        return 'Upcoming';  // Current time is before the start date
-    } else if (now >= startDate && now <= endDate) {
-        return 'Ongoing';   // Current time is within the start and end dates
+    if (now >= startDate && now <= endDate) {
+        return 'Ongoing';
+    } else if (now < startDate) {
+        return 'Upcoming';
     } else {
-        return 'Completed'; // Current time is after the end date
+        return 'Completed';
     }
 }
+
 
 
 export function formatTimeRange(start: Date | string, end: Date | string): string {

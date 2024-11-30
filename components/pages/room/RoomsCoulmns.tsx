@@ -1,12 +1,12 @@
-import { RoomProps } from "@/types/Types";
+import { IRoom } from "@/lib/database/models/room.model";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
 
 export const RoomsColumns = (
-    handleInfo:(data:RoomProps)=>void,
-    handleDelete:(data:RoomProps)=>void,
-    handleNew:(data:RoomProps)=>void,
+    handleInfo:(data:IRoom)=>void,
+    handleDelete:(data:IRoom)=>void,
+    handleNew:(data:IRoom)=>void,
 ) => [
     {
         field:'venue',
@@ -41,7 +41,7 @@ export const RoomsColumns = (
         width:120,
     },
     {
-        field:'id',
+        field:'_id',
         headerName:'Actions',
         width:120,
         renderCell:(params:GridRenderCellParams)=>{

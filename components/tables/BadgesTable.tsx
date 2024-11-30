@@ -3,13 +3,12 @@ import { BadgesColumns } from '@/components/Dummy/contants'
 import BadgeInfoModal from '@/components/features/badges/BadgeInfoModal'
 import SearchBar from '@/components/features/SearchBar'
 import { searchBadge } from '@/functions/search'
-import { Alert, Paper } from '@mui/material'
+import { Alert, LinearProgress, Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import RegistrationFilterBar from '../features/badges/RegistrationFilterBar'
 import { useFetchRegistrations } from '@/hooks/fetch/useRegistration'
-import CircularIndeterminate from '../misc/CircularProgress'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { deleteReg, getReg } from '@/lib/actions/registration.action'
 import DeleteDialog from '../DeleteDialog'
@@ -35,7 +34,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
     const paginationModel = { page: 0, pageSize: 10 };
     const router = useRouter();
 
-    const {registrations, loading, error} = useFetchRegistrations();
+    const {registrations, loading} = useFetchRegistrations();
 
     const reset = ()=>{
         setRoom('');
@@ -90,7 +89,6 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
 
     const message = `You're about to remove this member from the event registration. This will delete their attendance records as well. Are you sure of what you're doing?`
 
-    if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
   return (
     <div className='flex flex-col gap-4 w-full' >
@@ -120,18 +118,23 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
             <Alert onClose={()=>setDeleteError(null)} severity={deleteError.error ? 'error':'success'} >{deleteError.message}</Alert>
         }
         <div className="flex w-full">
-            <Paper  className='w-full' sx={{ height: 480, }}>
-                <DataGrid
-                    getRowId={(row:IRegistration)=>row._id}
-                    rows={searchBadge(registrations, eventId, badge, date, room, search)}
-                    columns={BadgesColumns(handleInfo, handleDelete)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-orange-800'
-                    sx={{ border: 0 }}
-                />
-            </Paper>
+            {
+                loading ?
+                <LinearProgress className='w-full' />
+                :
+                <Paper  className='w-full' sx={{ height: 480, }}>
+                    <DataGrid
+                        getRowId={(row:IRegistration)=>row._id}
+                        rows={searchBadge(registrations, eventId, badge, date, room, search)}
+                        columns={BadgesColumns(handleInfo, handleDelete)}
+                        initialState={{ pagination: { paginationModel } }}
+                        pageSizeOptions={[5, 10]}
+                        // checkboxSelection
+                        className='dark:bg-black dark:border dark:text-orange-800'
+                        sx={{ border: 0 }}
+                    />
+                </Paper>
+            }
         </div>
     </div>
     </div>

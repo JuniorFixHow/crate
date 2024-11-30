@@ -213,14 +213,19 @@ export const BadgesColumns =(
         width:120,
         renderCell:(params:GridRenderCellParams) =>{
             return(
-                <span >{params?.row.groupId ? 'Grooup':'Individual'}</span>
+                <span >{params?.row.groupId ? 'Group':'Individual'}</span>
             )
         }
     },
     {
         field:'status',
         headerName:'Check-in status',
-        width:130
+        width:130,
+        renderCell:(params:GridRenderCellParams) =>{
+            return(
+                <span >{params?.row.roomIds.length > 0 ? 'Checked-in':'Pending'}</span>
+            )
+        }
     },
     {
         field:'badgeIssued',
@@ -233,7 +238,7 @@ export const BadgesColumns =(
         width:130,
         renderCell:(params:GridRenderCellParams) => {
           return(
-            <div className="flex items-center justify-center">
+            <div className="flex">
                 {
                     params?.row?.groupId?
                     <Link href={`/dashboard/groups/${params?.row?.groupId._id}`}  className='table-link' >{params?.row?.groupId.name}</Link>
@@ -250,10 +255,10 @@ export const BadgesColumns =(
         width:120,
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
+              <div className="flex">
                   {
-                      params?.row?.roomId?
-                      <Link href={`/dashboard/rooms/${params?.row?.room._id}`}  className='table-link' >{params?.row?.roomId.number}</Link>
+                      params?.row?.roomIds?.length > 0?
+                      <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className='table-link' >{params?.row?.roomIds[0]?.number}</Link>
                       :
                       <span >Unallocated</span>
                   }

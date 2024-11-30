@@ -1,8 +1,10 @@
-import { RoomProps } from "@/types/Types";
+import { IRoom } from "@/lib/database/models/room.model";
 
-export const SearchRoom = (rooms:RoomProps[], search:string, eventId:string):RoomProps[]=>{
+export const SearchRoom = (rooms:IRoom[], search:string, eventId:string):IRoom[]=>{
     const data = rooms.filter((item)=>{
-        return eventId === '' ? item : item.eventId === eventId
+        if(typeof item.eventId === 'object'){
+            return eventId === ''? item : item.eventId._id.toString() === eventId
+        }
     }).filter((room)=>{
         return search === '' ? room : Object.values(room)
         .join(' ')

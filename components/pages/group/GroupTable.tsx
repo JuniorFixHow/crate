@@ -2,19 +2,35 @@
 import AddButton from '@/components/features/AddButton';
 import SearchBar from '@/components/features/SearchBar';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
-import { Paper } from '@mui/material';
+import { LinearProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { GroupColumns } from './GroupColumns';
-import { EventsData } from '@/components/Dummy/Data';
-import { GroupData } from './GroupData';
-import { SearchGroup } from './fxn';
+import {  SearchGroupWithoutEvent } from './fxn';
+import { useFetchEvents } from '@/hooks/fetch/useEvent';
+import { useFetchGroups } from '@/hooks/fetch/useGroups';
+import { IGroup } from '@/lib/database/models/group.model';
 
-const GroupTable = () => {
-    const event1 = EventsData[0].id;
+type GroupTableProps = {
+  eventId:string,
+  setEventId:Dispatch<SetStateAction<string>>
+}
+
+const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const [search, setSearch] = useState<string>('');
-    const [eventId, setEventId] = useState<string>(event1);
+    const {events} = useFetchEvents();
+    const {groups, loading} = useFetchGroups(eventId);
+    // console.log('Groups here: ',groups)
+
+    // console.log('EventID: ', eventId)
+
+    useEffect(()=>{
+      if(events.length>0){
+        setEventId(events[0]._id)
+      }
+    },[events, setEventId])
+    
     const paginationModel = { page: 0, pageSize: 10 };
     const router = useRouter()
   return (
@@ -28,9 +44,14 @@ const GroupTable = () => {
         </div> 
        
         <div className="flex w-full">
+          {
+            loading ?
+            <LinearProgress className='w-full' />
+            :
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
-                    rows={SearchGroup(GroupData, search, eventId)}
+                    rows={SearchGroupWithoutEvent(groups, search)}
+                    getRowId={(row:IGroup)=>row._id}
                     columns={GroupColumns}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
@@ -39,6 +60,7 @@ const GroupTable = () => {
                     sx={{ border: 0 }}
                 />
             </Paper>
+          }
         </div>
 
     </div>

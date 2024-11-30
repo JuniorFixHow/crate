@@ -2,13 +2,11 @@
 import DeleteDialog from '@/components/DeleteDialog';
 import { MemberColumns } from '@/components/Dummy/contants';
 import SearchBar from '@/components/features/SearchBar';
-import { searchMember } from '@/functions/search';
 import { useFetchMembers } from '@/hooks/fetch/useMember';
 import { IMember } from '@/lib/database/models/member.model';
-import { Alert, Paper } from '@mui/material';
+import { Alert, LinearProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import React, { Dispatch, SetStateAction,  useState } from 'react'
-import CircularIndeterminate from '../misc/CircularProgress';
 import { ErrorProps } from '@/types/Types';
 import { deleteMember } from '@/lib/actions/member.action';
 import { SearchMemberWithEverything } from '../pages/members/fxns';
@@ -33,7 +31,7 @@ const MembersTable = ({
     const paginationModel = { page: 0, pageSize: 5 };
     // console.log(searchMember(search, members))
 
-    const {members, loading, error} = useFetchMembers();
+    const {members, loading} = useFetchMembers();
     
 
     // I may do this in a hook
@@ -67,7 +65,6 @@ const MembersTable = ({
         }
       }
 
-      if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
 
     const message=`Are you sure you want to delete this member?`
@@ -86,18 +83,23 @@ const MembersTable = ({
         <DeleteDialog title={`Delete ${currentMember?.name}`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
 
         <div className="flex lg:w-full w-2/3 relative">
-            <Paper className='' sx={{ height: 400, width:'100%' }}>
-                <DataGrid
-                    rows={SearchMemberWithEverything(members, gender, status, age, date, search)}
-                    getRowId={(row:IMember):string=>row._id}
-                    columns={MemberColumns(handleDelete)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-black dark:border-slate-200 dark:border dark:text-[#3C60CA]'
-                    sx={{ border: 0 }}
-                />
-            </Paper>
+        {
+          loading ? 
+          <LinearProgress className='w-full' />
+          :
+          <Paper className='' sx={{ height: 400, width:'100%' }}>
+              <DataGrid
+                  rows={SearchMemberWithEverything(members, gender, status, age, date, search)}
+                  getRowId={(row:IMember):string=>row._id}
+                  columns={MemberColumns(handleDelete)}
+                  initialState={{ pagination: { paginationModel } }}
+                  pageSizeOptions={[5, 10]}
+                  // checkboxSelection
+                  className='dark:bg-black dark:border-slate-200 dark:border dark:text-[#3C60CA]'
+                  sx={{ border: 0 }}
+              />
+          </Paper>
+        }
         </div>
     </div>
   )

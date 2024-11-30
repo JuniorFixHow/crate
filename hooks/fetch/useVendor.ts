@@ -8,10 +8,10 @@ export const useFetchVendors = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchChurches = async () => {
+        const fetchVendors = async () => {
             try {
-                const fetchedChurches: IVendor[] = await getVendors();
-                setVendors(fetchedChurches.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
+                const fetchedVendors: IVendor[] = await getVendors();
+                setVendors(fetchedVendors.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
                 setError(null);
             } catch (err) {
                 setError('Error fetching vendors');
@@ -21,8 +21,8 @@ export const useFetchVendors = () => {
             }
         };
 
-        fetchChurches();
-    }, []); // Empty dependency array means this runs once when the component mounts
+        fetchVendors();
+    }, []);
 
     return { vendors, loading, error };
 };

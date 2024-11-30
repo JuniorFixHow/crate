@@ -16,13 +16,15 @@ export async function createRegistration(memberId:string, eventId:string, regist
             res = {
                 message:'Member has already registered for this event',
                 error:true,
+                code:422
             }
         }else{
             const newReg = await Registration.create(registration);
             res = {
                 message:'Member registered successfully',
                 error:false,
-                payload:newReg
+                payload:newReg,
+                code:201
             }
         }
         return JSON.parse(JSON.stringify(res));
@@ -71,7 +73,17 @@ export async function getRegs(){
         await connectDB();
         const regs = await Registration.find()
         .populate('groupId')
-        .populate('memberId')
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
         .populate('eventId')
         .populate('roomIds')
         .lean();
@@ -86,6 +98,67 @@ export async function getRegs(){
         }
     }
 }
+
+export async function getRegsWithEventId(eventId:string){
+    try {
+        await connectDB();
+        const regs = await Registration.find({eventId})
+        .populate('groupId')
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
+        .populate('eventId')
+        .populate('roomIds')
+        .lean();
+        return JSON.parse(JSON.stringify(regs));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching registrations:', error.message);
+            throw new Error(`Error occurred during registrations fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during registrations fetch');
+        }
+    }
+}
+
+export async function getRegistrationsWithoutGroups(eventId: string) {
+    try {
+        await connectDB();
+
+        // Find registrations where groupId is null or undefined for the specified event
+        const registrations = await Registration.find({ 
+            eventId, 
+            groupId: { $exists: false } 
+        })
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
+        .lean()
+
+        return JSON.parse(JSON.stringify(registrations));
+    } catch (error) {
+        console.error('Error fetching registrations without groups:', error);
+        throw new Error('Error occurred while fetching registrations without groups');
+    }
+}
+
 
 
 

@@ -1,28 +1,34 @@
 'use client'
 import LongSearchbar from '@/components/features/badges/LongSearchbar'
 import Subtitle from '@/components/features/Subtitle'
-import { GroupProps } from '@/types/Types'
-import { Modal } from '@mui/material'
+import { Alert, LinearProgress, Modal } from '@mui/material'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { MdClose } from 'react-icons/md'
 import { SearchMemberReversed } from './fxn'
-import { members } from '@/components/Dummy/Data'
 import BadgeSearchItem from '@/components/features/badges/BadgeSearchItem'
 import '../../../../components/features/customscroll.css'
+import { IGroup } from '@/lib/database/models/group.model'
+import { useFetchFreeMembers } from '@/hooks/fetch/useMember'
+import { ErrorProps } from '@/types/Types'
 
 export type NewGroupMemberProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
-    currentGroup:GroupProps|null,
-    setCurrentGroup:Dispatch<SetStateAction<GroupProps|null>>
+    currentGroup:IGroup|null,
+    setCurrentGroup:Dispatch<SetStateAction<IGroup|null>>
 }
 
 const NewGroupMember = ({infoMode, setInfoMode, currentGroup, setCurrentGroup}:NewGroupMemberProps) => {
     const [search, setSearch] = useState<string>('');
+    const [response, setResponse] = useState<ErrorProps>(null);
+    const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id;
+    const {members, loading} = useFetchFreeMembers(eventId.toString());
     const handleClose = ()=>{
         setInfoMode(false);
         setSearch('');
     }
+
+
   return (
     <Modal
         open={infoMode}
@@ -37,11 +43,20 @@ const NewGroupMember = ({infoMode, setInfoMode, currentGroup, setCurrentGroup}:N
                     <Subtitle text={`Add member`} />
                     <MdClose onClick={handleClose}  size={24} className='cursor-pointer' />
                 </div>
-                <LongSearchbar setSearch={setSearch} reversed={false} />
+                {
+                    response?.message &&
+                    <Alert onClose={()=>setResponse(null)} severity={response.error?'error':'success'} >{response.message}</Alert>
+                }
+                {
+                    loading ?
+                    <LinearProgress/>
+                    :
+                    <LongSearchbar setSearch={setSearch} reversed={false} />
+                }
 
                 {
                     SearchMemberReversed(members, search).map((item)=>(
-                        <BadgeSearchItem key={item?.id} member={item} isGroupItem />
+                        <BadgeSearchItem currentGroup={currentGroup!} setResponse={setResponse}  key={item?._id} member={item} isGroupItem />
                     ))
                 }
 

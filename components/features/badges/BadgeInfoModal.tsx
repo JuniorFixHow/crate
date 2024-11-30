@@ -49,7 +49,7 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Chek-in status</span>
-                    <span className='text-[0.9rem]' >{currentEventReg?.status}</span>
+                    <span className='text-[0.9rem]' >{currentEventReg?.roomIds?.length === 0 ? 'Pending':'Checked-in'}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Badge Issued</span>
@@ -71,10 +71,10 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Room</span>
                     {
-                        currentEventReg?.status === 'Pending' ?
+                        currentEventReg?.roomIds?.length  === 0 ?
                         <span className='text-[0.9rem]' >N/A</span>:
                         typeof currentEventReg?.roomIds?.[0] === 'object' && '_id' in currentEventReg?.roomIds?.[0] && currentEventReg?.roomIds.map((item)=>(
-                            <Link key={typeof  item === 'object' && '_id' in item ? item?._id.toString():''} href={`/dashboard/rooms/${typeof  item === 'object' && '_id' in item && item?._id.toString()}`}   className='text-[0.9rem] table-link' >{
+                            <Link key={typeof  item === 'object' && '_id' in item ? item?._id.toString():''} href={{pathname:`/dashboard/rooms`, query:{id:typeof  item === 'object' && '_id' in item && item?._id.toString()}}}   className='text-[0.9rem] table-link' >{
                                 typeof item === 'object' && 'number' in item && item.number
                             }</Link>   
                         ))
@@ -83,7 +83,7 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link href={`/dashboard/events/${typeof currentEventReg?.eventId === 'object' && '_id' in currentEventReg.eventId && currentEventReg?.eventId._id}`}   className='text-[0.9rem] table-link' >{
+                    <Link href={`/dashboard/events/${typeof currentEventReg?.eventId === 'object' && '_id' in currentEventReg.eventId && currentEventReg?.eventId._id}`}   className='text-[0.9rem] dark:text-white table-link' >{
                         typeof currentEventReg?.eventId === 'object' && 'name' in currentEventReg.eventId && currentEventReg?.eventId.name
                     }</Link>
                 </div>

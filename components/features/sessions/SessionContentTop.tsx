@@ -1,5 +1,5 @@
 'use client'
-import { formatTimeRange, getPercentage } from '@/components/pages/session/fxn';
+import { formatTimeRange, getActivityStatus, getPercentage } from '@/components/pages/session/fxn';
 import { getSessionMetadata } from '@/lib/actions/session.action';
 import { ISession } from '@/lib/database/models/session.model';
 import React, { useEffect, useState } from 'react'
@@ -43,12 +43,13 @@ const SessionContentTop = ({currentSession, eventId}:SessionContentTopProps) => 
         fetchMetaData();
     }, [currentSession, eventId]);
     
+    const live = currentSession?.from && currentSession?.to && getActivityStatus(currentSession.from, currentSession.to);
 
   return (
     <div className='flex flex-col rounded gap-2 bg-white border dark:bg-black px-1 pt-1 py-4' >
         <div className="flex flex-row items-center gap-4">
             <span className='font-semibold' >Attendance Overview</span>
-            <TbLivePhotoFilled className='text-blue-700' />
+            <TbLivePhotoFilled className={`${live === 'Upcoming'?'text-blue-700':live==='Ongoing'? 'text-green-700':'text-slate-400'}`} />
             <div className="flex flex-row items-center gap-2">
                 <span className='font-medium text-[0.8rem]' >Time:</span>
                 <span className='font-medium text-[0.8rem] text-blue-700' >{currentSession?.from && currentSession?.to && formatTimeRange(currentSession.from!, currentSession.to!)}</span>

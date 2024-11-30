@@ -1,4 +1,4 @@
-import { getTimeOfDay } from "@/components/pages/session/fxn"
+import { getActivityStatus, getTimeOfDay } from "@/components/pages/session/fxn"
 import { IAttendance } from "@/lib/database/models/attendance.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IMember } from "@/lib/database/models/member.model"
@@ -103,7 +103,13 @@ export const searchBadge = (
       return date === '' ? item : item.createdAt && new Date(item?.createdAt).toLocaleDateString() === new Date(date).toLocaleDateString()
     })
     .filter((item)=>{
-      return room === '' ? item : item.status === room
+      if(room === ''){
+        return item
+      }else if(room === 'Assigned'){
+        return item.roomIds && item.roomIds?.length > 0
+      }else if(room === 'Unassigned'){
+        return item?.roomIds === undefined || item.roomIds?.length === 0
+      }
     })
     .filter((item)=>{
       return search === '' ? item : Object.values(item)
@@ -125,15 +131,27 @@ export const searchAttenance = (text:string, attendances:IAttendance[]):IAttenda
     return atts
 }
 
-export const searchSession = (time:string, eventId:string, sessions:ISession[]):ISession[]=>{
-    const sess = sessions.filter((item)=>{
-      if(typeof item.eventId === 'object'){
-        return eventId === '' ? item : item.eventId._id === eventId
-      }
-    })
-    .filter((ses)=>{
-      return time === 'All' ? ses : getTimeOfDay(ses.from!) === time
-    })
-    return sess
-    // DON'T FORGET TO ADD EVENT ID LATER. FILTER FOR THE EVENT FIRST
-}
+export const searchSession = (time: string, eventId: string, sessions: ISession[]): ISession[] => {
+  const sess = sessions
+      .filter((item) => {
+          if (typeof item.eventId === 'object') {
+              return eventId === '' ? item : item.eventId._id === eventId;
+          }
+          return false; // Ensure all paths return a boolean
+      })
+      .filter((ses) => {
+          return time === 'All' ? ses : getTimeOfDay(ses.from!) === time;
+      })
+      .sort((a, b) => {
+          // Sort by date ascending
+          return new Date(a.from!) > new Date(b.from!) ? 1 : -1;
+      })
+      .sort((a, b) => {
+          // Sort by activity status in the order of 'Ongoing', 'Upcoming', 'Completed'
+          const order = { 'Ongoing': 0, 'Upcoming': 1, 'Completed': 2 };
+
+          return order[getActivityStatus(a.from, a.to)] - order[getActivityStatus(b.from, b.to)];
+      });
+
+  return sess;
+};
