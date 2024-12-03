@@ -71,6 +71,11 @@ const RoomTable = () => {
         }
     }
 
+    const handleOpenNew = () =>{
+        setNewMode(true);
+        setCurrentRoom(null);
+    }
+
     const message = `Deleting a room will also unassign all members allocated to it. You're rather advised to edit the room or unassign the unwanted members. Do you want to continue?`
     return (
       <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-black dark:border rounded' >
@@ -78,7 +83,7 @@ const RoomTable = () => {
             <SearchSelectEvents setSelect={setEventId} isGeneric />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
-                <AddButton onClick={()=>setNewMode(true)} smallText text='Add Room' noIcon className='rounded py-2' />
+                <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-2' />
                 <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button>
             </div>
           </div> 

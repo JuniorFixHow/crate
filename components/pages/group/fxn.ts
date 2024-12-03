@@ -4,7 +4,7 @@ export const SearchGroup=(groups:IGroup[], text:string, eventId:string):IGroup[]
     const data = groups
     .filter((group)=>{
         if(typeof group.eventId === 'object'){
-            return group.eventId._id.toString() === eventId
+            return group.eventId._id === eventId
         }
     })
     .filter((item)=>{

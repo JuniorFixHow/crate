@@ -7,46 +7,54 @@ import Member from "../database/models/member.model";
 import Session from "../database/models/session.model";
 import Event from "../database/models/event.model";
 import { revalidatePath } from "next/cache";
+import { handleResponse } from "../misc";
 
 export async function createVendor(vendor: Partial<IVendor>) {
     try {
         await connectDB();
 
         // Create the new vendor
-        const newVendor = await Vendor.create(vendor);
+        const {email} = vendor;
+        const v = await Vendor.findOne({email});
+        if(v){
+            return handleResponse('Another vendor exists with this email address', true, {}, 422);
+        }else{
 
-        // Find the church associated with the new vendor
-        const church = await Church.findById(newVendor.church);
-        if (!church) {
-            throw new Error('Church not found');
+            const newVendor = await Vendor.create(vendor);
+    
+            // Find the church associated with the new vendor
+            const church = await Church.findById(newVendor.church);
+            if (!church) {
+                throw new Error('Church not found');
+            }
+    
+            // Count coordinators and volunteers concurrently for the specific church
+            const [coordCount, volCount, adminCount] = await Promise.all([
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Coordinator' } }),
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Volunteer' } }),
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Admin' } })
+            ]);
+            // Update the church information
+            await Church.findByIdAndUpdate(church._id, {
+                $set: { coordinators: coordCount, volunteers: volCount, admins:adminCount }
+            }, { new: true });
+    
+            // Find the zone associated with the church
+            const zone = await Zone.findById(church.zoneId);
+            if (!zone) {
+                throw new Error('Zone not found');
+            }
+    
+            // Increment the correct field in the zone
+            const incrementField = vendor.role === 'Admin' ? 'admins' : vendor.role === 'Coordinator' ? 'coordinators' : 'volunteers';
+            await Zone.findByIdAndUpdate(zone._id, {
+                $inc: { [incrementField]: 1 }
+            }, { new: true });
+    
+            revalidatePath('/dashboard/vendors')
+            return handleResponse('Vendor created successfully. They should check their email to verify their account', false, newVendor, 201);
         }
 
-        // Count coordinators and volunteers concurrently for the specific church
-        const [coordCount, volCount, adminCount] = await Promise.all([
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Coordinator' } }),
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Volunteer' } }),
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Admin' } })
-        ]);
-
-        // Update the church information
-        await Church.findByIdAndUpdate(church._id, {
-            $set: { coordinators: coordCount, volunteers: volCount, admins:adminCount }
-        }, { new: true });
-
-        // Find the zone associated with the church
-        const zone = await Zone.findById(church.zoneId);
-        if (!zone) {
-            throw new Error('Zone not found');
-        }
-
-        // Increment the correct field in the zone
-        const incrementField = vendor.role === 'Admin' ? 'admins' : vendor.role === 'Coordinator' ? 'coordinators' : 'volunteers';
-        await Zone.findByIdAndUpdate(zone._id, {
-            $inc: { [incrementField]: 1 }
-        }, { new: true });
-
-        revalidatePath('/dashboard/vendors')
-        return JSON.parse(JSON.stringify(newVendor));
 
     } catch (error) {
         if (error instanceof Error) {
@@ -66,51 +74,58 @@ export async function updateVendor(id: string, vendor: Partial<IVendor>) {
     try {
         await connectDB();
 
-        // Find and update the vendor
-        const v = await Vendor.findByIdAndUpdate(id, vendor, { new: true });
-        if (!v) {
-            throw new Error('Vendor not found');
+        const {email} = vendor;
+        const vend = await Vendor.find({email})
+        if(vend.length >= 1 && vend[0].email !== email){
+            return handleResponse('This email is already used.', true, {}, 422);
+        }else{
+            // Find and update the vendor
+            const v = await Vendor.findByIdAndUpdate(id, vendor, { new: true });
+            if (!v) {
+                throw new Error('Vendor not found');
+            }
+    
+            // Find the church associated with the updated member
+            const church = await Church.findById(v.church);
+            if (!church) {
+                throw new Error('Church not found');
+            }
+
+            // Count coordinators and volunteers for the specific church
+            const [coordCount, volCount, adminCount] = await Promise.all([
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Coordinator' } }),
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Volunteer' } }),
+                Vendor.countDocuments({ church: church._id, role: { $eq: 'Admin' } }),
+            ]);
+    
+            // Update the church information with the latest counts
+            await Church.findByIdAndUpdate(church._id, {
+                $set: { coordinators: coordCount, volunteers: volCount, admin:adminCount }
+            }, { new: true });
+    
+            // Find the zone associated with the church
+            const zone = await Zone.findById(church.zoneId);
+            if (!zone) {
+                throw new Error('Zone not found');
+            }
+            // Count the coordinators and volunteers for all churches in the zone
+            const [zoneCoordCount, zoneVolCount, zoneAdminCount] = await Promise.all([
+                Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Coordinator' } }),
+                Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Volunteer' } }),
+                Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Admin' } })
+            ]);
+    
+            // Update the zone information with the total counts
+            await Zone.findByIdAndUpdate(zone._id, {
+                $set: { coordinators: zoneCoordCount, volunteers: zoneVolCount, admins:zoneAdminCount }
+            }, { new: true });
+    
+            revalidatePath('/dashboard/vendors')
+    
+            return handleResponse('Vendor updated successfully', false, v, 201);
         }
 
-        // Find the church associated with the updated member
-        const church = await Church.findById(v.church);
-        if (!church) {
-            throw new Error('Church not found');
-        }
 
-        // Count coordinators and volunteers for the specific church
-        const [coordCount, volCount, adminCount] = await Promise.all([
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Coordinator' } }),
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Volunteer' } }),
-            Vendor.countDocuments({ church: church._id, role: { $eq: 'Admin' } }),
-        ]);
-
-        // Update the church information with the latest counts
-        await Church.findByIdAndUpdate(church._id, {
-            $set: { coordinators: coordCount, volunteers: volCount, admin:adminCount }
-        }, { new: true });
-
-        // Find the zone associated with the church
-        const zone = await Zone.findById(church.zoneId);
-        if (!zone) {
-            throw new Error('Zone not found');
-        }
-
-        // Count the coordinators and volunteers for all churches in the zone
-        const [zoneCoordCount, zoneVolCount, zoneAdminCount] = await Promise.all([
-            Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Coordinator' } }),
-            Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Volunteer' } }),
-            Vendor.countDocuments({ church: { $in: await Church.find({ zoneId: zone._id }).distinct('_id') }, role: { $eq: 'Admin' } })
-        ]);
-
-        // Update the zone information with the total counts
-        await Zone.findByIdAndUpdate(zone._id, {
-            $set: { coordinators: zoneCoordCount, volunteers: zoneVolCount, admins:zoneAdminCount }
-        }, { new: true });
-
-        revalidatePath('/dashboard/vendors')
-
-        return JSON.parse(JSON.stringify(v));
 
     } catch (error) {
         console.error('Error occurred updating vendor:', error);
@@ -157,7 +172,6 @@ export async function getVendor(id:string){
                 model: 'Zone'       // Specify the model for the 'zoneId' reference
             }
         }).lean()
-        .populate('registeredBy'); 
         return JSON.parse(JSON.stringify(vendor));
     } catch (error) {
         console.log(error);

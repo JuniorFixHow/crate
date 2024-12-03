@@ -1,3 +1,4 @@
+import { IRoom } from "@/lib/database/models/room.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
@@ -34,7 +35,7 @@ export const GroupColumns:GridColDef[]=[
         width:120,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span className="text-center" >{params?.row?.room ? 'Checked-in':'Pending' }</span>
+                <span className="text-center" >{params?.row?.roomIds?.length > 0 ? 'Checked-in':'Pending' }</span>
             )
         }
     },
@@ -46,13 +47,15 @@ export const GroupColumns:GridColDef[]=[
     {
         field:'room',
         headerName:'Room Assigned',
-        width:100,
+        width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex-center">
                     {
-                        params?.row?.room ? 
-                        <Link href={`/dashboard/rooms/${params?.row?.roomIds[0]?._id}`}  className="table-link text-center" >{params?.row?.room[0]?.venue}</Link>
+                        params?.row?.roomIds?.length > 0 ? 
+                        params?.row?.roomIds?.map((room:IRoom)=>(
+                            <Link key={room._id} href={{pathname:`/dashboard/rooms/`, query:{id:room?._id}}}  className="table-link text-center" >{room?.venue}</Link>
+                        ))
                         :
                         <span className="text-center" >Not yet</span>
                     }

@@ -1,16 +1,24 @@
-import { getEvents } from "@/lib/actions/event.action";
+import { getEvents, getUserEvents } from "@/lib/actions/event.action";
 import { IEvent } from "@/lib/database/models/event.model"
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"
 
 export const useFetchEvents = ()=>{
     const [events, setEvents] = useState<IEvent[]>([]);
     const [error, setError] = useState<string|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const searchParams = useSearchParams();
 
     useEffect(()=>{
         const fetchEvents = async()=>{
+            const id = searchParams.get('id');
             try {
-                const evts:IEvent[] = await getEvents();
+                let evts:IEvent[];
+                if(id){
+                    evts = await getUserEvents(id);
+                }else{
+                    evts = await getEvents();
+                }
                 setEvents(evts);
                 setError(null); 
             } catch (error) {
@@ -22,6 +30,6 @@ export const useFetchEvents = ()=>{
         }
 
         fetchEvents();
-    },[])
+    },[searchParams])
     return {events, error, loading}
 }

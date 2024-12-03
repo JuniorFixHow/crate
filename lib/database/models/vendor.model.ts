@@ -23,6 +23,7 @@ const VendorSchema = new Schema<IVendor>({
     church:{type:Schema.Types.ObjectId, ref:'Church'},
     role:String,
     gender:String,
+    phone:String,
     password:String,
     registrants:Number
 },{timestamps:true})

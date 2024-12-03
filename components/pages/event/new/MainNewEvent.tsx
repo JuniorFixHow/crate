@@ -1,6 +1,7 @@
 'use client'
 import AddButton from '@/components/features/AddButton'
 import { today } from '@/functions/dates'
+import { useAuth } from '@/hooks/useAuth'
 import { createEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
@@ -14,13 +15,15 @@ const MainNewEvent = () => {
     const [error, setError] = useState<ErrorProps>(null);
 
     const formRef = useRef<HTMLFormElement>(null);
+    const {user} = useAuth();
 
     const router = useRouter();
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
         const {name, value} = e.target;
         setData((pre)=>({
             ...pre,
-            [name]:value
+            [name]:value,
+            createdBy:user?.userId
         }));
     }
 

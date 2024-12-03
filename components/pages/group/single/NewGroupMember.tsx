@@ -21,8 +21,8 @@ export type NewGroupMemberProps = {
 const NewGroupMember = ({infoMode, setInfoMode, currentGroup, setCurrentGroup}:NewGroupMemberProps) => {
     const [search, setSearch] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
-    const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id;
-    const {members, loading} = useFetchFreeMembers(eventId.toString());
+    const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id.toString();
+    const {members, loading} = useFetchFreeMembers(eventId ? eventId:'');
     const handleClose = ()=>{
         setInfoMode(false);
         setSearch('');

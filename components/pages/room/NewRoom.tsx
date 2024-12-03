@@ -107,7 +107,8 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
                     <div className="flex gap-12">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Room type</span>
-                            <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom? currentRoom.roomType:'Standard'} name="roomType">
+                            <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom?.roomType} name="roomType">
+                                <option className='dark:bg-black dark:text-white' value="">select</option>
                                 <option className='dark:bg-black dark:text-white' value="Standard">Standard</option>
                                 <option className='dark:bg-black dark:text-white' value="Deluxe">Deluxe</option>
                                 <option className='dark:bg-black dark:text-white' value="Junior Suite">Junior Suite</option>
@@ -115,7 +116,8 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
                         </div>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Bed type</span>
-                            <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom? currentRoom.bedType:'Standard'} name="bedType">
+                            <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom?.bedType} name="bedType">
+                                <option className='dark:bg-black dark:text-white' value="">select</option>
                                 <option className='dark:bg-black dark:text-white' value="Standard">Standard</option>
                                 <option className='dark:bg-black dark:text-white' value="Queen size">Queen size</option>
                                 <option className='dark:bg-black dark:text-white' value="King size">King size</option>

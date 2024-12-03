@@ -8,6 +8,7 @@ import { ChangeEvent, FormEvent, useRef, useState } from 'react'
 import { minTime } from './fxn'
 import { createSession } from '@/lib/actions/session.action'
 import { Alert } from '@mui/material'
+import { useAuth } from '@/hooks/useAuth'
 
 const NewSessions = () => {
   const [data, setData] = useState<Partial<ISession>>({});
@@ -17,6 +18,7 @@ const NewSessions = () => {
   const [from, setFrom] = useState<Date>(new Date());
   const [to, setTo] = useState<Date>(new Date());
   const formRef = useRef<HTMLFormElement>(null);
+  const {user} = useAuth()
   const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
     setData((prev)=>({
@@ -35,7 +37,7 @@ const NewSessions = () => {
         eventId,
         from:from.toISOString(),
         to:to.toISOString(),
-        createdBy:'6745c9275d5ff95197716f0d'
+        createdBy:user?.userId
       }
       const res = await createSession(body);
       console.log(res);

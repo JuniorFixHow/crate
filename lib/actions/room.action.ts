@@ -135,6 +135,12 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
     }
 }
 
+
+
+
+
+
+
 export async function addGroupToRoom(roomIds: string[], groupId: string, eventId: string) {
     try {
         await connectDB();
@@ -146,29 +152,37 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         }
 
         const totalMembers = group.members.length;
-        let totalBedsAvailable = 0;
 
-        // Check if each room has enough available beds
-        for (const roomId of roomIds) {
-            const room = await Room.findById(roomId);
-            if (!room) {
-                return handleResponse(`Room with ID ${roomId} not found`, true, {}, 404);
+        if (group.type !== 'Couple') {
+            let totalBedsAvailable = 0;
+
+            // Check if each room has enough available beds
+            for (const roomId of roomIds) {
+                const room = await Room.findById(roomId);
+                if (!room) {
+                    return handleResponse(`Room with ID ${roomId} not found`, true, {}, 404);
+                }
+
+                // Count how many members are already in this room
+                const assignedMembers = await Registration.countDocuments({ roomIds: roomId });
+                const availableBeds = room.nob - assignedMembers;
+
+                if (availableBeds <= 0) {
+                    return handleResponse(`Room ${roomId} is already full`, true, {}, 403);
+                }
+
+                totalBedsAvailable += availableBeds;
             }
 
-            // Count how many members are already in this room
-            const assignedMembers = await Registration.countDocuments({ roomIds: roomId });
-            const availableBeds = room.nob - assignedMembers;
-
-            if (availableBeds <= 0) {
-                return handleResponse(`Room ${roomId} is already full`, true, {}, 403);
+            // Ensure enough beds are available for non-couple groups
+            if (totalBedsAvailable < totalMembers) {
+                return handleResponse(
+                    `Not enough available beds to accommodate the entire group. Please add more rooms.`,
+                    true,
+                    {},
+                    403
+                );
             }
-
-            totalBedsAvailable += availableBeds;
-        }
-
-        // Ensure enough beds are available for the group
-        if (totalBedsAvailable < totalMembers) {
-            return handleResponse(`Not enough available beds to accommodate the entire group. Please add more rooms.`, true, {}, 403);
         }
 
         // Update registrations to include rooms for the group members
@@ -179,6 +193,13 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
                 { new: true, upsert: true }
             );
         }
+
+        // Update the group with the assigned roomIds
+        await Group.findByIdAndUpdate(
+            groupId,
+            { $addToSet: { roomIds: { $each: roomIds } } }, // Ensure unique roomIds in the array
+            { new: true }
+        );
 
         return handleResponse(`Group successfully assigned to room(s)`, false, {}, 201);
     } catch (error) {
@@ -191,6 +212,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         }
     }
 }
+
 
 
 export async function removeMemberFromRoom(memberId: string) {
@@ -440,6 +462,7 @@ export async function isRoomFull(roomId: string): Promise<boolean> {
 
 
 
+
 export async function getAvailableRooms(eventId: string) {
     try {
         await connectDB(); // Ensure the DB connection is made
@@ -451,27 +474,47 @@ export async function getAvailableRooms(eventId: string) {
             return handleResponse('No rooms found for this event', true, {}, 404);
         }
 
-        // Filter rooms that are not full (i.e., current count of registrations < room capacity)
-        const availableRooms: IRoom[] = [];
+        // Retrieve all registrations for the given event
+        const registrations = await Registration.find({ eventId }).populate('groupId');
 
-        for (const room of rooms) {
-            const currentRoomCount = await Registration.countDocuments({ roomIds: room._id });
+        // Map to track room occupancy considering groups
+        const roomOccupancyMap = new Map<string, number>();
 
-            if (currentRoomCount < room.nob) {
-                availableRooms.push(room);
+        // Calculate occupancy for each room
+        for (const registration of registrations) {
+            const group = registration.groupId;
+
+            for (const roomId of registration.roomIds) {
+                const currentOccupancy = roomOccupancyMap.get(roomId.toString()) || 0;
+
+                // Only count the group once for room occupancy
+                if (group) {
+                    if (roomOccupancyMap.has(`group:${group._id}`)) {
+                        continue; // Skip if this group's occupancy is already counted
+                    }
+                    roomOccupancyMap.set(`group:${group._id}`, group.members.length);
+                    roomOccupancyMap.set(roomId.toString(), currentOccupancy + group.members.length);
+                } else {
+                    roomOccupancyMap.set(roomId.toString(), currentOccupancy + 1);
+                }
             }
         }
 
-        // Return available rooms if any found
+        // Filter rooms based on their available capacity
+        const availableRooms: IRoom[] = rooms.filter((room) => {
+            const occupiedBeds = roomOccupancyMap.get(room._id.toString()) || 0;
+            return occupiedBeds < room.nob;
+        });
+
         if (availableRooms.length > 0) {
             return handleResponse('Available rooms found', false, availableRooms, 200);
         } else {
             return handleResponse('No available rooms found for this event', true, {}, 404);
         }
-
     } catch (error) {
         console.error('Error fetching available rooms:', error);
         return handleResponse('Error occurred while fetching available rooms', true, {}, 500);
     }
 }
+
 

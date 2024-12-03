@@ -7,11 +7,19 @@ import Church from "../database/models/church.model";
 import Attendance from "../database/models/attendance.model";
 import Registration from "../database/models/registration.model";
 import Group from "../database/models/group.model";
+import { handleResponse } from "../misc";
 
 export async function createMember(member: Partial<IMember>) {
     try {
         await connectDB();
 
+        const {email} = member;
+        if(email){
+            const mem = await Member.findOne({email})
+            if(mem){
+                return handleResponse('Email is associated with another member', true, {}, 422);
+            }
+        }
         // Create the new member
         const newMember = await Member.create(member);
 
@@ -47,7 +55,7 @@ export async function createMember(member: Partial<IMember>) {
             $set: { youth: youthCount } // Update the youth count in church
         }, { new: true });
 
-        return JSON.parse(JSON.stringify(newMember));
+        return handleResponse('Member created successfully',false, newMember, 201);
 
     } catch (error) {
         console.log(error);
@@ -60,6 +68,13 @@ export async function updateMember(id: string, member: Partial<IMember>) {
     try {
         await connectDB();
 
+        const {email} = member;
+        if(email){
+            const mem = await Member.find({email});
+            if(mem.length >= 1 && mem[0]?.email !== email){
+                return handleResponse('Another member exists with this email', true, {}, 422);
+            }
+        }
         // Find and update the member
         const m = await Member.findByIdAndUpdate(id, member, { new: true });
         if (!m) {
@@ -106,7 +121,7 @@ export async function updateMember(id: string, member: Partial<IMember>) {
             registrants: totalZoneRegistrants
         }, { new: true });
 
-        return JSON.parse(JSON.stringify(m)); // Return the updated member
+        return handleResponse('Member updated successfully', false, m, 201); // Return the updated member
 
     } catch (error) {
         console.error('Error occurred updating member:', error);

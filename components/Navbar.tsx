@@ -10,6 +10,10 @@ import Link from 'next/link'
 import NavSwitch from '@/components/features/NavSwitch';
 import {  IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import {  usePathname, useRouter } from 'next/navigation'
+import { deleteSession } from '@/lib/session'
+import { IVendor } from '@/lib/database/models/vendor.model'
+import { useAuth } from '@/hooks/useAuth'
+import { getVendor } from '@/lib/actions/vendor.action'
 
 type TitleProps ={
   parent:string,
@@ -24,6 +28,23 @@ const Navbar = () => {
 
   const [collapse, setCollapse] =  useState<boolean>(false);
   const [toggle, setToggle] =  useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<IVendor|null>(null);
+  const {user} = useAuth();
+
+  useEffect(()=>{
+    const fetchUserData = async()=>{
+      if(user){
+        try {
+          const res = await getVendor(user?.userId);
+          setCurrentUser(res);
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    fetchUserData();
+  },[user])
+
   const router = useRouter();
   const path = usePathname();
 
@@ -71,6 +92,8 @@ const Navbar = () => {
     router.push('/dashboard/profile')
   }
 
+  // console.log('USEr', currentUser)
+
   return (
     <div className={`flex  xl:p-4 z-20 min-h-full absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${toggle? 'pt-4':'p-4'} bg-white dark:bg-black shadow-xl rounded-lg`} >
       <div className="flex flex-col gap-6 relative h-fit">
@@ -78,7 +101,7 @@ const Navbar = () => {
         <div className="flex flex-row items-center w-full justify-between">
           <Link href='/dashboard' className={`${toggle? 'hidden':'flex'} xl:flex flex-col cursor-pointer`}>
             <Image src='/logo.png' alt='logo' width={100} height={10} />
-            <span className='text-xs text-[#949191] font-medium' >Accra Philadelphia</span>
+            <span className='text-xs text-[#949191] font-medium' >{typeof currentUser?.church === 'object' && 'name' in currentUser?.church && currentUser?.church?.name}</span>
           </Link>
           <NavSwitch value={toggle} setValue={setToggle} />
         </div>
@@ -94,7 +117,7 @@ const Navbar = () => {
 
                       <div onClick={()=>handleParentClick(item)}  className={`flex items-center flex-row hover:text-[#3C60CA] cursor-pointer gap-2 dark:${currentTtitle.parent === item.title ?'#3C60CA':'text-slate-200'} ${currentTtitle.parent === item.title ? 'text-[#3C60CA]':'text-black'}`}  >
                         {item.icon}
-                        <span className='text-[0.9rem] font-medium' >{item.title}</span>
+                        <span className='text-[0.9rem] dark:text-[0.8rem] font-medium' >{item.title}</span>
                         {
                           item?.children?.length && 
                           <>
@@ -132,10 +155,10 @@ const Navbar = () => {
             </div>
 
             <div className="flex flex-col gap-4">
-              <Link href='/' className='flex flex-row gap-2 dark:text-slate-200 hover:text-[#3C60CA] items-center cursor-pointer'  >
+              <div onClick={async()=>await deleteSession()}  className='flex flex-row gap-2 dark:text-slate-200 hover:text-[#3C60CA] items-center cursor-pointer'  >
                 <CiLogout/>
                 <span className='text-[0.9rem] font-medium' >Logout</span>
-              </Link>
+              </div>
             </div>
         </div>
       </div>

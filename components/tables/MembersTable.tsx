@@ -67,7 +67,7 @@ const MembersTable = ({
 
 
 
-    const message=`Are you sure you want to delete this member?`
+    const message=`Are you sure you want to delete this member? This will delete their event registrations as well as attendance records.`
 
   return (
     <div className='xl:w-[67rem] gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-black dark:border' >
@@ -82,7 +82,7 @@ const MembersTable = ({
         }
         <DeleteDialog title={`Delete ${currentMember?.name}`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
 
-        <div className="flex lg:w-full w-2/3 relative">
+        <div className="table-main">
         {
           loading ? 
           <LinearProgress className='w-full' />

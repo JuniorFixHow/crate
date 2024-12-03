@@ -109,41 +109,40 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
             return handleResponse('Member is already assigned to a group for this event', true, {}, 403);
         }
 
-        // Find the group to ensure it exists and validate its type
+        // Find the group and validate existence
         const group = await Group.findById(groupId).populate('members');
         if (!group) {
             return handleResponse('Group not found', true, {}, 404);
         }
 
-        // Check if the group type is "Couple" and restrict to 2 members
+        // Validate group type "Couple" capacity (2 members max)
         if (group.type === 'Couple' && group.members.length >= 2) {
             return handleResponse('Couple groups can only have 2 members', true, {}, 403);
         }
 
-        // Retrieve the registrations of members in the group to check room assignments
-        const groupRegistrations = await Registration.find({ groupId: group._id });
+        // Get roomIds assigned to the group from the first registration
+        const firstGroupRegistration = await Registration.findOne({ groupId: group._id });
+        const groupRoomIds = firstGroupRegistration ? firstGroupRegistration.roomIds : [];
 
-        // **NEW CHECK**: Skip room capacity validation if no rooms are assigned
-        const roomIds = [...new Set(groupRegistrations.flatMap((registration) => registration.roomIds))];
+        // Check if any roomIds are assigned
+        if (groupRoomIds.length > 0) {
+            // Sum the nob (beds) of all rooms assigned to the first registration
+            let totalBedsAvailable = 0;
+            for (const roomId of groupRoomIds) {
+                const room = await Room.findById(roomId);
+                if (room) {
+                    totalBedsAvailable += room.nob; // Add the number of beds in each room
+                } else {
+                    return handleResponse(`Room with ID ${roomId} not found`, true, {}, 404);
+                }
+            }
 
-        if (roomIds.length > 0) {
-            // Perform the room occupancy check only if there are roomIds
-            const roomOccupancyCheck = await Promise.all(
-                roomIds.map(async (roomId: string) => {
-                    const room = await Room.findById(roomId);
-                    if (room) {
-                        const currentRoomCount = await Registration.countDocuments({ roomIds: roomId });
-                        return currentRoomCount >= room.nob; // True if room is full
-                    }
-                    return false; // Room is not full or does not exist
-                })
-            );
+            // Check if the total available beds are enough to accommodate the group
+            const totalGroupMembers = group.members.length + 1; // Include the new member being added
 
-            // Determine if all checked rooms are full
-            const allRoomsFull = roomOccupancyCheck.every((isFull) => isFull);
-            if (allRoomsFull) {
+            if (totalBedsAvailable < totalGroupMembers) {
                 return handleResponse(
-                    'All rooms occupied by the group are full. Please add more rooms to accommodate additional members.',
+                    'Not enough available beds to accommodate the new member in the group.',
                     true,
                     {},
                     403
@@ -151,31 +150,14 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
             }
         }
 
-        // If the member has existing room assignments, clear them
-        if (existingRegistration && existingRegistration.roomIds.length > 0) {
-            await Registration.findByIdAndUpdate(existingRegistration._id, {
-                $set: { roomIds: [] }
-            });
-        }
+        // Assign member to group's rooms and groupId
+        await Registration.findOneAndUpdate(
+            { memberId, eventId },
+            { roomIds: groupRoomIds, groupId },
+            { new: true, upsert: true } // Add member to group and reassign rooms
+        );
 
-        // Assign the member to the rooms occupied by the group
-        const groupRoomIds = roomIds; // Use the current group roomIds
-        if (groupRoomIds.length > 0) {
-            await Registration.findOneAndUpdate(
-                { memberId, eventId },
-                { roomIds: groupRoomIds, groupId },
-                { new: true, upsert: true } // upsert: true will create the registration if it does not exist
-            );
-        } else {
-            // Update the member's registration to assign them to the new group without room assignment
-            await Registration.findOneAndUpdate(
-                { memberId, eventId },
-                { groupId },
-                { new: true, upsert: true }
-            );
-        }
-
-        // Add the member to the group's members array if not already there
+        // Add member to group's member list
         if (!group.members.includes(memberId)) {
             group.members.push(memberId);
             await group.save();
@@ -183,15 +165,12 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
 
         return handleResponse('Member added successfully', false, group, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error adding member to group:', error.message);
-            throw new Error(`Error occurred while adding member to group: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred while adding member to group');
-        }
+        console.error('Error adding member to group:', error instanceof Error ? error.message : error);
+        throw new Error(`Error occurred while adding member to group`);
     }
 }
+
+
 
 
 
@@ -371,21 +350,30 @@ export async function getGroup(id:string){
 }
 
 
+
+
 export async function deleteGroup(id: string) {
     try {
         await connectDB();
-        
+
         // Find the group by its ID
         const group = await Group.findById(id);
         if (!group) {
-            throw new Error('Group not found');
+            return handleResponse('Group not found', true, {}, 404);
         }
 
-        // Remove the group reference from all registrations
+        // Remove the group reference and roomIds from all associated registrations
         await Registration.updateMany(
-            { groupId: group._id },  // Find all registrations that reference this group
-            { $unset: { groupId: "" } } // Remove the group reference (unset)
+            { groupId: group._id },
+            { 
+                $unset: { groupId: '' },  // Remove the group reference
+                $set: { roomIds: [] }     // Clear roomIds
+            }
         );
+
+        // Clear roomIds from the group
+        group.roomIds = [];
+        await group.save();
 
         // Delete the group itself
         await Group.findByIdAndDelete(group._id);
@@ -401,4 +389,5 @@ export async function deleteGroup(id: string) {
         }
     }
 }
+
 

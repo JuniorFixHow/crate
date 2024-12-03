@@ -14,6 +14,7 @@ import { IRegistration } from '@/lib/database/models/registration.model';
 import { createRegistration } from '@/lib/actions/registration.action';
 import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
 import { IGroup } from '@/lib/database/models/group.model';
+import { useAuth } from '@/hooks/useAuth';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -35,11 +36,13 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     const [church, setChurch] = useState<string>('');
     const [data, setData] = useState<Partial<IMember>>({
         email:'', name:'', ageRange:'', 
-        registeredBy:'6745c9275d5ff95197716f0d', note:'', marital:'Single',
+         note:'', marital:'Single',
         allergy:'', voice:'None', status:'Mmeber', password:'',
     });
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
 
+
+    const {user} = useAuth();
 
     const {events} = useFetchEvents();
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -119,10 +122,12 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
         setError({message:'', error:false});
         try {
             const body:Partial<IMember> = {
-                ...data, password:getPassword(data.name!, data.phone!)
+                ...data, password:getPassword(data.name!, data.phone!),
+                registeredBy:user?.userId
             } 
             const res = await createMember(body);
-            setNewMember(res);
+            const response = res?.payload as IMember
+            setNewMember(response);
             setError({message:'Member created successfully', error:false});
             formRef.current?.reset();
             if(events.length){
@@ -155,9 +160,10 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     ageRange:data.ageRange || currentMemeber.ageRange,
                     church:church||currentMemeber.church
                 } 
-                const res:IMember = await updateMember(currentMemeber._id, body);
+                const res = await updateMember(currentMemeber._id, body);
+                const response = res?.payload as IMember;
                 setError({message:'Member updated successfully', error:false})
-                setCurrentMember!(res);
+                setCurrentMember!(response);
                 router.refresh();
             }
         } catch (error) {

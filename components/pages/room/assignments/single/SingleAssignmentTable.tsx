@@ -12,7 +12,7 @@ import { useFetchAvailableRooms } from '@/hooks/fetch/useRoom';
 import { IGroup } from '@/lib/database/models/group.model';
 import { IRegistration } from '@/lib/database/models/registration.model';
 import { ErrorProps } from '@/types/Types';
-import { addMemberToRoom } from '@/lib/actions/room.action';
+import { addGroupToRoom, addMemberToRoom } from '@/lib/actions/room.action';
 
 type SingleAssignmentTableProps = {
     type:string,
@@ -66,6 +66,24 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
         }
     }
 
+    const handleAssignGroup = async()=>{
+        try {
+            setResponse(null);
+            setAddLoading(true);
+            if(currentGroup && eventId){
+                const res = await addGroupToRoom(roomIds, currentGroup._id, eventId);
+                if(res){
+                    setResponse(res!);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            setResponse({message:'Error occured adding group to room',error:true});
+        }finally{
+            setAddLoading(false);
+        }
+    }
+
   return (
     <div className='flex flex-1 flex-col gap-2' >
         <Subtitle text={type === 'Member' ? 'Pick Room':'Pick Rooms'} />
@@ -110,7 +128,7 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
         }
         {
             type === 'Group' && roomIds.length > 0 &&
-            <AddButton disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+            <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
         }
     </div>
   )

@@ -2,7 +2,7 @@
 import AddButton from '@/components/features/AddButton';
 import SearchBar from '@/components/features/SearchBar'
 import React, { useEffect, useState } from 'react'
-import { Alert, Paper } from '@mui/material';
+import { Alert, LinearProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { SearchChurch } from './fxn';
 import { ChurchColumns } from './ChurchColumns';
@@ -12,7 +12,6 @@ import NewChurch from './NewChurch';
 import { useSearchParams } from 'next/navigation';
 import { useFetchZones } from '@/hooks/fetch/useZone';
 import { useFetchChurches } from '@/hooks/fetch/useChurch';
-import CircularIndeterminate from '@/components/misc/CircularProgress';
 import { IChurch } from '@/lib/database/models/church.model';
 import { deleteChurch, getChurch } from '@/lib/actions/church.action';
 import SearchSelectZones from '@/components/features/SearchSelectZones';
@@ -30,7 +29,7 @@ const ChurchTable = () => {
     // console.log('zone: ', zone)
 
     const {zones} = useFetchZones();
-    const {churches, loading, error} = useFetchChurches();
+    const {churches, loading} = useFetchChurches();
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -86,7 +85,6 @@ const ChurchTable = () => {
         }
       }
 
-    if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
     const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
   return (
@@ -116,6 +114,10 @@ const ChurchTable = () => {
         }
 
         <div className="flex w-full">
+          {
+            loading ?
+            <LinearProgress className='w-full' />
+            :
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
                     getRowId={(row:IChurch):string=> row?._id as string}
@@ -128,6 +130,7 @@ const ChurchTable = () => {
                     sx={{ border: 0 }}
                 />
             </Paper>
+          }
         </div>
 
     </div>

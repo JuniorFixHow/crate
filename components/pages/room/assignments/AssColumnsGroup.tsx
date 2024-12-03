@@ -13,7 +13,7 @@ export const AssColumnsGroup =(
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/gruops/${params?.row._id}`} >{params?.row?.name}</Link>
+                <Link className="table-link" href={{pathname:`/dashboard/groups/${params?.row._id}`}} >{params?.row?.name}</Link>
             )
         }
 

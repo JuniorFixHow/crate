@@ -1,3 +1,5 @@
+import { FieldValue } from "firebase/firestore"
+import mongoose from "mongoose"
 import { Dispatch, ReactNode, SetStateAction } from "react"
 
 export type NavigationProps = {
@@ -172,3 +174,18 @@ export type VendorProps={
 }
 
 
+export interface IUser {
+   id:string,
+   email:string,
+   name:string,
+   photo:string,
+   emailVerified:boolean,
+   isAdmin:boolean,
+   role:'Admin'|'Coordinator'|'Volunteer'
+   createdAt?:FieldValue
+}
+
+
+export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
+   [P in K]: T[P] | (T[P] extends mongoose.Types.ObjectId ? any : never);
+ };

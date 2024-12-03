@@ -117,7 +117,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
             deleteError?.message &&
             <Alert onClose={()=>setDeleteError(null)} severity={deleteError.error ? 'error':'success'} >{deleteError.message}</Alert>
         }
-        <div className="flex w-full">
+        <div className="table-main">
             {
                 loading ?
                 <LinearProgress className='w-full' />

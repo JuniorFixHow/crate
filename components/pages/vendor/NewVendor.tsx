@@ -1,7 +1,7 @@
 'use client'
 import SearchSelectChurch from '@/components/shared/SearchSelectChurch'
 import AddButton from '@/components/features/AddButton'
-import { ErrorProps } from '@/types/Types'
+import { ErrorProps, IUser } from '@/types/Types'
 import { Alert, Modal } from '@mui/material'
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import '../../../components/features/customscroll.css';
@@ -9,6 +9,8 @@ import { IVendor } from '@/lib/database/models/vendor.model'
 import { getPassword } from '@/functions/misc'
 import { createVendor, updateVendor } from '@/lib/actions/vendor.action'
 import { useRouter } from 'next/navigation'
+import { serverTimestamp } from 'firebase/firestore'
+import { signupUser } from '@/lib/firebase/auth'
 
 type NewVendorProps = {
     openVendor:boolean,
@@ -41,13 +43,28 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
     const handleNewVendor = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setError({message:'', error:false});
+        const password = getPassword(data.name!, data.phone!)
         try {
             setLoading(true);
             const body:Partial<IVendor> = {
-                ...data, password:getPassword(data.name!, data.phone!)
+                ...data, password
             }
-            await createVendor(body);
-            setError({message:'Vendor added successfully', error:false});
+            const res = await createVendor(body);
+            if(res?.code === 201){
+                const response = res.payload as IVendor;
+                const fbData:IUser = {
+                    email:data.email!,
+                    name:data.name!,
+                    photo:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
+                    id:response._id,
+                    emailVerified:false,
+                    isAdmin:true,
+                    role:data.role!,
+                    createdAt:serverTimestamp()
+                }
+                await signupUser(data.email!, password, fbData);
+            }
+            setError(res);
             formRef.current?.reset();
             router.refresh();
         } catch (error) {
@@ -73,12 +90,11 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     gender:data.gender || currentVendor?.gender,
                     church: church || currentVendor?.church
                 }
-                const res = await updateVendor(currentVendor?._id, body);
-                setCurrentVendor(res);
+                const res:ErrorProps = await updateVendor(currentVendor?._id, body);
+                const response = res?.payload as IVendor
+                setCurrentVendor(response);
                 router.refresh();
-                setError({message:'Vendor updated successfully', error:false});
-                console.log(res);
-                formRef.current?.reset();
+                setError(res);
             }
         } catch (error) {
             console.log(error);

@@ -4,6 +4,7 @@ import { IoCloseSharp } from 'react-icons/io5';
 import './customscroll.css';
 import { SearchGroup } from '@/components/pages/group/fxn';
 import { useFetchGroups } from '@/hooks/fetch/useGroups';
+import { LinearProgress } from '@mui/material';
 
 export type SearchSelectGroupProps = {
   isGeneric?:boolean,
@@ -14,7 +15,8 @@ export type SearchSelectGroupProps = {
 const SearchSelectGroups = ({isGeneric, eventId, setSelect, className, ...props}:SearchSelectGroupProps) => {
     const [search, setSearch] = useState<string>('');
     const [showSearch, setShowSearch] = useState<boolean>(false);
-    const {groups} = useFetchGroups()
+    const {groups, loading} = useFetchGroups()
+    // console.log('groups: ', groups)
   return (
     <div {...props}  className={`flex flex-col ${className}`} >
         {
@@ -24,14 +26,19 @@ const SearchSelectGroups = ({isGeneric, eventId, setSelect, className, ...props}
                 <IoCloseSharp onClick={()=>setShowSearch(false)} size={20} className='text-red-700 cursor-pointer' />
             </div>
         }
-      <select onChange={(e)=>setSelect!(e.target.value)}  onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
-        <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Groups</option>
         {
-            SearchGroup(groups, search, eventId).map((event)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{event?.name}</option>
-            ))
+          loading ?
+          <LinearProgress className='w-full' />
+          :
+          <select onChange={(e)=>setSelect!(e.target.value)}  onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
+            <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Groups</option>
+            {
+                SearchGroup(groups, search, eventId).map((event)=>(
+                    <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{event?.name}</option>
+                ))
+            }
+          </select>
         }
-      </select>
     </div>
   )
 }

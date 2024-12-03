@@ -10,7 +10,7 @@ export interface IRegistration extends Document{
     badgeIssued:'Yes'|'No';
     groupId?:Types.ObjectId | string | IGroup;
     roomIds?:[Types.ObjectId] | string[] | IRoom[];
-    eventId?:Types.ObjectId | string | IEvent;
+    eventId:Types.ObjectId | string | IEvent;
     createdAt?: Date;
     updatedAt?: Date;
 }

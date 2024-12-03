@@ -6,9 +6,12 @@ import { CiCirclePlus } from 'react-icons/ci'
 import { RiQrScan2Line } from 'react-icons/ri'
 import DashboardGlobal from './DashboardGlobal'
 import DashboardEvent from './DashboardEvent'
+// import { useAuth } from '@/hooks/useAuth'
 
 const DashboardMain = () => {
   const [viewMode, setViewMode] = useState<string>('Global')
+  // const {user} = useAuth()
+  // console.log(user)
   return (
     <div className='page' >
         <div className="flex flex-wrap flex-row items-center justify-between">
@@ -24,10 +27,10 @@ const DashboardMain = () => {
               <BsCashCoin />
                 <span className='font-semibold' >Make Payment</span>
             </div>
-            <div className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
+            <Link href={`/dashboard/events/sessions/scan`}  className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
                 <RiQrScan2Line/>
                 <span className='font-semibold' >Scan Badge</span>
-            </div>
+            </Link>
 
             <Link href='/dashboard/members/new'  className={`flex bg-[#3C60CA] dark:bg-transparent text-white dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center`}>
                 <CiCirclePlus size={20} />

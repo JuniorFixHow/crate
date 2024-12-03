@@ -4,6 +4,7 @@ import { IEvent } from "@/lib/database/models/event.model"
 import { IMember } from "@/lib/database/models/member.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { ISession } from "@/lib/database/models/session.model"
+import { IVendor } from "@/lib/database/models/vendor.model"
 import { EventProps, GroupProps, MemberProps } from "@/types/Types"
 
 export const searchMember = (text:string, members:IMember[]):IMember[]=>{
@@ -28,6 +29,16 @@ export const searchMemberInversed = (text:string, members:IMember[]):IMember[]=>
 export const searchEvent = (text:string, events:IEvent[]):IEvent[]=>{
     const evts = events.filter((event)=>{
         return text === '' ? event : Object.values(event)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
+export const searchVednor = (text:string, vendors:IVendor[]):IVendor[]=>{
+    const evts = vendors.filter((vendor)=>{
+        return text === '' ? vendor : Object.values(vendor)
         .join(' ')
         .toLowerCase()
         .includes(text.toLowerCase())
@@ -112,7 +123,7 @@ export const searchBadge = (
       }
     })
     .filter((item)=>{
-      return search === '' ? item : Object.values(item)
+      return search === '' ? item : Object.values(item.memberId)
       .join(' ').toLowerCase().includes(search.toLowerCase()) 
     })
     return bdg

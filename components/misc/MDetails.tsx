@@ -44,6 +44,7 @@ const MDetails = ({id}:MDetailsProps) => {
               setError(null);
             } 
           } catch (error) {
+            console.log(error)
             setError('Error occured fetching member data')
           }finally{
             setFetchLoading(false)

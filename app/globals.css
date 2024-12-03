@@ -26,4 +26,7 @@
     .flex-center{
         @apply flex items-center justify-center
     }
+    .table-main{
+        @apply flex w-full bg-white dark:bg-transparent dark:border p-4 rounded
+    }
 }
