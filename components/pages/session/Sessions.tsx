@@ -9,17 +9,15 @@ import { useEffect, useState } from 'react'
 import { searchSession } from '@/functions/search'
 import { useRouter } from 'next/navigation'
 import { useFetchSessions } from '@/hooks/fetch/useSession'
-import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { ISession } from '@/lib/database/models/session.model'
 import { LinearProgress } from '@mui/material'
 
 const Sessions = () => {
-  const date = new Date();
   // const [selectedDate, setSelectedDate] = useState<string>(date.toLocaleDateString())
   const [selectedTime, setSelectedTime] = useState<string>('All');
   const [eventId, setEventId] = useState<string>('');
   const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
-  const {sessions, loading, error} = useFetchSessions();
+  const {sessions, loading} = useFetchSessions();
   
   // const ses = searchSession(selectedTime, SessionsData)[0]
   const [currentSession, setCuurentSession] = useState<ISession|null>(null);

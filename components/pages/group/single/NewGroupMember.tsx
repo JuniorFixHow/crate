@@ -15,10 +15,9 @@ export type NewGroupMemberProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentGroup:IGroup|null,
-    setCurrentGroup:Dispatch<SetStateAction<IGroup|null>>
 }
 
-const NewGroupMember = ({infoMode, setInfoMode, currentGroup, setCurrentGroup}:NewGroupMemberProps) => {
+const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProps) => {
     const [search, setSearch] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
     const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id.toString();

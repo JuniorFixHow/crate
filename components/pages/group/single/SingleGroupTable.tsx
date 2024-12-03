@@ -107,7 +107,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
       <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-black p-4">
         <DeleteDialog onTap={handleDeleteGroup} message={message} setValue={setDeleteMode} value={deleteMode} title={`Delete ${currentGroup?.name}`} />
         <DeleteDialog onTap={handleRemoveMember} message={warn} setValue={setRemoveMode} value={removeModde} title={`Remove ${currentMember?.name}`} />
-        <NewGroupMember infoMode={newMode} setInfoMode={setNewMode} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} />
+        <NewGroupMember infoMode={newMode} setInfoMode={setNewMode} currentGroup={currentGroup} />
         <div className="flex flex-col gap-2">
           {
             response?.message &&

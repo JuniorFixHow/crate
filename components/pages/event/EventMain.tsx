@@ -62,7 +62,7 @@ const EventMain = ({eventId}:{eventId:string}) => {
               childPrice:data.childPrice||event.childPrice,
               adultPrice:data.adultPrice||event.adultPrice,
             }
-            const evt = await updateEvent(event._id, body);
+            await updateEvent(event._id, body);
             setEvent(event);
             setError({message:'Event updated successfully', error:false});
   
