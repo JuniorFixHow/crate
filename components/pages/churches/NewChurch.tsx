@@ -95,7 +95,7 @@ const NewChurch = ({currentChurch, setCurrentChurch, infoMode, setInfoMode}:Chur
                 </div>
 
                 {
-                    error.message &&
+                    error?.message &&
                     <Alert severity={error.error ? `error`:'success'} >{error.message}</Alert>
                 }
 
