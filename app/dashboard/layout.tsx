@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import Navbar from '@/components/Navbar'
-import {ReactNode} from 'react'
+import {ReactNode, Suspense} from 'react'
 
 export default function RootLayout({children}:Readonly<{children:ReactNode}>) {
   return (
@@ -8,7 +8,9 @@ export default function RootLayout({children}:Readonly<{children:ReactNode}>) {
       <Navbar/>
       <div className="flex flex-col grow">
         <Header/>
-        {children}
+        <Suspense>
+          {children}
+        </Suspense>
       </div>
   </div>
   )
