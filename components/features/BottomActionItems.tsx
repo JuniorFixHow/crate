@@ -2,8 +2,6 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import AddButton from './AddButton'
 import DeleteDialog from '@/components/DeleteDialog';
-import { Alert } from '@mui/material';
-import CheckIcon  from '@mui/icons-material/Check'
 import { IEvent } from '@/lib/database/models/event.model';
 import { ErrorProps } from '@/types/Types';
 import { deleteEvent, } from '@/lib/actions/event.action';
@@ -27,6 +25,7 @@ const BottomActionItems = ({event,  setError, updateLoading}:BottomActionItemsPr
         router.push('/dashboard/events');
         setError({message:'Event deleted successfully.', error:false});
       } catch (error) {
+        console.log(error)
         setError({message:'Error occured deleting the event.', error:true});
       }finally{
         setLoading(false);

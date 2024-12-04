@@ -8,7 +8,6 @@ import AddButton from '../AddButton'
 import { useFetchSessions } from '@/hooks/fetch/useSession'
 import { searchSessionWithEvent } from '@/components/pages/session/fxn'
 import { ISession } from '@/lib/database/models/session.model'
-import CircularIndeterminate from '@/components/misc/CircularProgress';
 import { LinearProgress } from '@mui/material';
 
 type SelectSessionScanProps = {
@@ -19,7 +18,7 @@ type SelectSessionScanProps = {
 
 const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectSessionScanProps) => {
     const [eventId, setEventId] = useState<string>('');
-    const {sessions, loading, error} = useFetchSessions();
+    const {sessions, loading} = useFetchSessions();
     
   return (
     <div className='flex flex-col gap-6 bg-white border rounded dark:bg-black p-4' >

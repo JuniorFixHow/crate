@@ -12,7 +12,7 @@ type ScanSuccessProps = {
 }
 
 const ScanSuccess = ({setStage, loading, result}:ScanSuccessProps) => {
-  const res:Partial<IMember> = result?.payload!;
+  const res:Partial<IMember>|undefined = result?.payload;
 
   return (
     <div className='flex-center gap-5 flex-col h-[50vh] bg-white border rounded dark:bg-black p-4' >

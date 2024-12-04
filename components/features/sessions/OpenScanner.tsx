@@ -49,6 +49,7 @@ const OpenScanner = ({setStage, currentSession, setResult, setLoading}:OpenScann
                     }
                 }
             } catch (error) {
+                console.log(error)
                 setResult({message:'Error occured during the scan', error:true})
             }finally{
                 setLoading(false);
