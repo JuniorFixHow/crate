@@ -100,7 +100,7 @@ const Navbar = () => {
 
         <div className="flex flex-row items-center w-full justify-between">
           <Link href='/dashboard' className={`${toggle? 'hidden':'flex'} xl:flex flex-col cursor-pointer`}>
-            <Image src='/logo.png' alt='logo' width={100} height={10} />
+            <Image src='/Logo.png' alt='logo' width={100} height={10} />
             <span className='text-xs text-[#949191] font-medium' >{typeof currentUser?.church === 'object' && 'name' in currentUser?.church && currentUser?.church?.name}</span>
           </Link>
           <NavSwitch value={toggle} setValue={setToggle} />

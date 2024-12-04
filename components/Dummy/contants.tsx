@@ -294,7 +294,7 @@ export const AttendanceColumns = (
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
-                <span className='hover:underline text-left w-full text-blue-800 cursor-pointer' >{params?.row?.member?.name}</span>
+                <Link href={params?.row?.member?._id}  className='table-link' >{params?.row?.member?.name}</Link>
               </div>
             )  
         },
