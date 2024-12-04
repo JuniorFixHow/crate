@@ -55,7 +55,7 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
             setRegLoading(true);
             if(memberId){
                 const data:Partial<IRegistration> ={
-                    eventId, memberId, badgeIssued:'No', status:'Pending'
+                    eventId, memberId, badgeIssued:'No',
                 } 
                 const res = await createRegistration(memberId, eventId, data);
                 setCurrentReg(res);
