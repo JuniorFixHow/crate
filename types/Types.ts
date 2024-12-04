@@ -187,5 +187,5 @@ export interface IUser {
 
 
 export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
-   [P in K]: T[P] | (T[P] extends mongoose.Types.ObjectId ? any : never);
+   [P in K]: T[P] | (T[P] extends mongoose.Types.ObjectId ? never : never);
  };
