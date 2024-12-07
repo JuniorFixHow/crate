@@ -9,11 +9,26 @@ import { useAuth } from '@/hooks/useAuth'
 import SearchSelectVendors from '@/components/features/SearchSelectVendors'
 import { useFetchVendorStats } from '@/hooks/fetch/useVendor'
 import { CircularProgress } from '@mui/material'
+import { IEvent } from '@/lib/database/models/event.model'
+import { IMember } from '@/lib/database/models/member.model'
+import { IRegistration } from '@/lib/database/models/registration.model'
+import { IChurch } from '@/lib/database/models/church.model'
+import { IZone } from '@/lib/database/models/zone.model'
 
-const DashboardGlobal = ({className, ...props}:ComponentProps<'div'>) => {
+type DashboardGlobalProps = {
+  events:IEvent[],
+  members:IMember[],
+  registrations:IRegistration[]
+  loading:boolean,
+  churches:IChurch[],
+  zones:IZone[],
+
+} & ComponentProps<'div'>
+
+const DashboardGlobal = ({events, zones, churches, registrations, members, loading, className, ...props}:DashboardGlobalProps) => {
   const {user} = useAuth()
   const [vendorId, setVendorId] = useState<string>('');
-  const {stats, loading} = useFetchVendorStats(vendorId);
+  const {stats, statsLoading} = useFetchVendorStats(vendorId);
   useEffect(()=>{
     if(user){
       setVendorId(user.userId);
@@ -22,16 +37,24 @@ const DashboardGlobal = ({className, ...props}:ComponentProps<'div'>) => {
   return (
     <div {...props}  className={`${className} flex-col gap-8`} >
       <div className='flex flow-row w-full items-start gap-4'>
-        <CBar className="" />
+        <CBar 
+          loading={loading} 
+          events={events}
+          members={members}
+          registrations={registrations}
+          zones={zones}
+          churches={churches}
+          className='grow'
+        />
 
         <div className="flex flex-row  gap-4 items-start">
-          <CPie />
+          <CPie members={members} registrations={registrations} loading={loading} />
 
           <div className="hidden lg:flex flex-col gap-[0.5rem]">
           <span className='text-[#3C60CA] font-bold text-[0.9rem] text-center' >Activities in the last 7 days</span>
           <SearchSelectVendors setSelect={setVendorId} />
           {
-            loading ?
+            statsLoading ?
             <div className="flex-center">
               <CircularProgress size='2rem' />
             </div>

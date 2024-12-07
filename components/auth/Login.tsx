@@ -72,11 +72,11 @@ const Login = () => {
     // auth.signOut()
 
   return (
-    <div className='h-screen w-full flex bg-white relative items-center justify-center overflow-hidden' >
-    <Image className='hidden md:block absolute -left-40 -top-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' />
+    <div className='h-screen w-full flex bg-[url(/bg.jpg)] relative items-center justify-center overflow-hidden' >
+    {/* <Image className='hidden md:block absolute -left-40 -top-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' /> */}
     
-    <div className="flex flex-col items-center z-10">
-        <Image src='/icon2.png' height={1} width={120} alt='logo' />
+    <div className="flex flex-col items-center z-10 bg-white pt-4 rounded">
+        <Image src='/Logo.png' height={100} width={150} alt='logo' />
         <form onSubmit={handleLogin}  className='w-[18rem] rounded-lg shadow-xl p-8 flex flex-col gap-4 items-center' >
             <span className='text-2xl font-bold' >Sign In</span>
     
@@ -105,7 +105,7 @@ const Login = () => {
         </form>
     </div>
     
-    <Image className='hidden md:block absolute -right-40 -bottom-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' />
+    {/* <Image className='hidden md:block absolute -right-40 -bottom-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' /> */}
     </div>
   )
 }

@@ -1,32 +1,45 @@
 'use client'
 import CDropDown from '@/components/features/CDropDown'
 import SearchSelectEvents from '@/components/features/SearchSelectEvents'
-import { useFetchEverything } from '@/hooks/fetch/useEverything'
+import { IChurch } from '@/lib/database/models/church.model'
+import { IEvent } from '@/lib/database/models/event.model'
+import { IMember } from '@/lib/database/models/member.model'
+import { IRegistration } from '@/lib/database/models/registration.model'
+import { IZone } from '@/lib/database/models/zone.model'
 import { CircularProgress } from '@mui/material'
 import { AxisConfig, BarChart, ChartsXAxisProps } from '@mui/x-charts'
 import React, { ComponentProps, Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 export type CBarProps = {
     isEvent?:boolean,
+    loading?:boolean,
     eventId?:string,
+    events:IEvent[],
+    members:IMember[],
+    churches:IChurch[],
+    zones:IZone[],
+    registrations:IRegistration[],
     setEventId?:Dispatch<SetStateAction<string>>
 } & ComponentProps<'div'>
 
-const CBar = ({isEvent, eventId, setEventId, ...props}:CBarProps) => {
+const CBar = ({
+    isEvent, events, loading, eventId, setEventId,
+    members, churches, zones, registrations, className,
+     ...props}:CBarProps) => {
     const [xAxis, setXaxis] = useState<string[]>([])
     const [yAxis, setYaxis] = useState<number[]>([])
     const [xEventAxis, setEventXaxis] = useState<string[]>([])
     const [yEventAxis, setEventYaxis] = useState<number[]>([])
 
     // console.log('Xaxis: ', xEventAxis)
-    const {events, loading} = useFetchEverything()
+    
     useEffect(()=>{
         if(events.length && isEvent){
             setEventId!(events[0]?._id)
         }
     },[events, isEvent, setEventId])
   return (
-    <div {...props}  className='p-4 lg:w-[40rem] h-[21.8rem] flex flex-col shadow-xl bg-white dark:border rounded dark:bg-black' >
+    <div {...props}  className={`p-4 h-[21.8rem] flex flex-col shadow-xl bg-white dark:border rounded dark:bg-black ${className}`} >
         <div className="flex flex-row w-full items-start justify-between">
             <span className='text-xl font-bold' >Registration Stats</span>
             <div className="flex gap-5 items-start">
@@ -34,7 +47,18 @@ const CBar = ({isEvent, eventId, setEventId, ...props}:CBarProps) => {
                     isEvent &&
                     <SearchSelectEvents setSelect={setEventId!} isGeneric />
                 }
-                <CDropDown isEvent={isEvent!} eventId={eventId!} setEventXaxis={setEventXaxis} setEventYaxis={setEventYaxis} setYaxis={setYaxis} setXaxis={setXaxis} />
+                <CDropDown 
+                    isEvent={isEvent!} 
+                    eventId={eventId!} 
+                    setEventXaxis={setEventXaxis} 
+                    setEventYaxis={setEventYaxis} 
+                    setYaxis={setYaxis} 
+                    setXaxis={setXaxis} 
+                    members={members}
+                    zones={zones}
+                    churches={churches}
+                    registrations={registrations}
+                />
             </div>
         </div>
 

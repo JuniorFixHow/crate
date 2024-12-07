@@ -36,7 +36,7 @@ export const useFetchVendorStats = (id:string)=>{
         sessions:number
     }
     const [stats, setStats] = useState<StatsProps>({members:0, events:0, sessions:0});
-    const [loading, setLoading] = useState<boolean>(true);
+    const [statsLoading, setStatsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(()=>{
@@ -49,12 +49,12 @@ export const useFetchVendorStats = (id:string)=>{
                 setError('Error occured while loading data.')
                 console.log(error)
             }finally{
-                setLoading(false);
+                setStatsLoading(false);
             }
         }
         fetchStats();
     },[id])
 
 
-    return {stats, error, loading}
+    return {stats, error, statsLoading}
 }

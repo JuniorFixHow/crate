@@ -1,17 +1,20 @@
 'use client'
 import { getFemales, getGenderPercentageForEvent, getMales, getMaleValue } from "@/functions/filter"
-import { useFetchEverything } from "@/hooks/fetch/useEverything";
+import { IMember } from "@/lib/database/models/member.model";
+import { IRegistration } from "@/lib/database/models/registration.model";
 import { CircularProgress } from "@mui/material";
 import { Gauge, gaugeClasses } from "@mui/x-charts";
 import {ComponentProps } from "react"
 
 type CPieProps = {
     eventId?:string,
-    isEvent?:boolean
+    isEvent?:boolean,
+    loading:boolean,
+    members:IMember[],
+    registrations:IRegistration[],
 } & ComponentProps<'div'>
 
-const CPie = ({isEvent, eventId, ...props}:CPieProps) => {
-    const {members, registrations, loading} = useFetchEverything()
+const CPie = ({isEvent, loading, members, registrations, eventId, ...props}:CPieProps) => {
   return (
     <div {...props}  className="p-4 hidden h-[21.7rem] dark:bg-transparent bg-white md:flex w-[12rem] md:w-[13rem] flex-col shadow-xl rounded-lg dark:border" >
         {

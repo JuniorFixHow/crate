@@ -28,12 +28,12 @@ const Reset = () => {
   }
 
   return (
-    <div className='h-screen w-full flex bg-white relative items-center justify-center overflow-hidden' >
-        <Image className='hidden md:block absolute -left-40 -top-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' />
+    <div className='h-screen w-full flex bg-[url(/bg.jpg)] relative items-center justify-center overflow-hidden' >
+        {/* <Image className='hidden md:block absolute -left-40 -top-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' /> */}
 
-        <div className="flex flex-col items-center z-10">
-            <Image src='/icon2.png' height={1} width={120} alt='logo' />
-            <form onSubmit={resetRequest}  className='md:w-[24rem] w-[90%] rounded-lg shadow-xl p-16 flex flex-col gap-4 items-center' >
+        <div className="flex flex-col items-center z-10 bg-white pt-4 rounded">
+            <Image src='/Logo.png' height={1} width={120} alt='logo' />
+            <form onSubmit={resetRequest}  className='w-[90%] md:w-[24rem]  rounded-lg shadow-xl p-16 flex flex-col gap-4 items-center' >
               <div className="flex relative flex-row gap-4 items-start w-full">
                 <Image className='absolute -left-14' src='/key.png' width={46} height={46} alt='key' />
                 {/* <IoMdKey className='absolute -left-14 -top-2' color='#21409A' size={40} /> */}
@@ -66,7 +66,7 @@ const Reset = () => {
             </form>
         </div>
 
-        <Image className='hidden md:block absolute -right-40 -bottom-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' />
+        {/* <Image className='hidden md:block absolute -right-40 -bottom-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' /> */}
     </div>
   )
 }

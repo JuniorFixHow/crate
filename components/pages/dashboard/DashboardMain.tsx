@@ -6,10 +6,13 @@ import { CiCirclePlus } from 'react-icons/ci'
 import { RiQrScan2Line } from 'react-icons/ri'
 import DashboardGlobal from './DashboardGlobal'
 import DashboardEvent from './DashboardEvent'
+import { useFetchEverything } from '@/hooks/fetch/useEverything'
 // import { useAuth } from '@/hooks/useAuth'
 
 const DashboardMain = () => {
-  const [viewMode, setViewMode] = useState<string>('Global')
+  const [viewMode, setViewMode] = useState<string>('Global');
+  const {members, registrations, events, zones, churches, loading} = useFetchEverything();
+
   // const {user} = useAuth()
   // console.log(user)
   return (
@@ -40,8 +43,22 @@ const DashboardMain = () => {
           </div>
       </div>
 
-        <DashboardGlobal className={`${viewMode === 'Global' ? 'flex':'hidden'}`} />
-        <DashboardEvent className={`${viewMode === 'Event' ? 'flex':'hidden'}`} />
+        <DashboardGlobal
+          members={members}
+          zones={zones}
+          churches={churches}
+          registrations={registrations}
+          events={events}
+          loading={loading} 
+        className={`${viewMode === 'Global' ? 'flex':'hidden'}`} />
+        <DashboardEvent
+          members={members}
+          zones={zones}
+          churches={churches}
+          registrations={registrations}
+          events={events}
+          loading={loading} 
+        className={`${viewMode === 'Event' ? 'flex':'hidden'}`} />
       
     </div>
   )

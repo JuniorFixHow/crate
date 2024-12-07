@@ -1,7 +1,10 @@
 // 'use client'
 import { CBarFilters, CBarFiltersEvent } from '@/components/Dummy/Data'
 import { countMembers,  getCountsForEvent, getUniqueValues, getUniqueValuesForEvent } from '@/functions/filter'
-import { useFetchEverything } from '@/hooks/fetch/useEverything'
+import { IChurch } from '@/lib/database/models/church.model'
+import { IMember } from '@/lib/database/models/member.model'
+import { IRegistration } from '@/lib/database/models/registration.model'
+import { IZone } from '@/lib/database/models/zone.model'
 
 import React, { ChangeEvent, Dispatch, SetStateAction, useEffect } from 'react'
 
@@ -12,13 +15,19 @@ export type xAxisProps = {
     setYaxis:Dispatch<SetStateAction<number[]>>,
     setEventYaxis:Dispatch<SetStateAction<number[]>>,
     setEventXaxis:Dispatch<SetStateAction<string[]>>,
+    members:IMember[],
+    churches:IChurch[],
+    zones:IZone[],
+    registrations:IRegistration[]
 
 }
 
 type FilterProps = 'Age Range'|'Gender'|'Church'
 
-const CDropDown = ({setXaxis, setYaxis, eventId,  setEventXaxis, setEventYaxis, isEvent}:xAxisProps) => {
-    const {members, churches, zones, registrations} = useFetchEverything()
+const CDropDown = ({
+    setXaxis, setYaxis, eventId,  setEventXaxis, setEventYaxis, isEvent,
+    members, churches, zones, registrations,
+}:xAxisProps) => {
 
     const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
