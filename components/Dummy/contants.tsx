@@ -50,7 +50,7 @@ export const RegColumns:GridColDef[] = [
         }
     },
     {
-        field:'registerType',
+        field:'status',
         headerName:'Type',
         width:90
     },
@@ -64,7 +64,7 @@ export const RegColumns:GridColDef[] = [
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <Link href={`/dashboard/members/${params?.row?.id}`} >
+                    <Link href={`/dashboard/members/${params?.row?._id}`} >
                         <MdOpenInNew className="cursor-pointer" color={Blue} />
                     </Link>
                 </div>
