@@ -16,7 +16,7 @@ const SingleMember = async({params}:{params:Promise<{id:string}>}) => {
           <IoIosArrowForward/>
           <Title text="Member Info" />
         </div>
-        <Link href='/dashboard/members/new' >
+        <Link className="w-fit" href='/dashboard/members/new' >
           <AddButton text='Add Member' className="w-fit" />
         </Link>
       </div>

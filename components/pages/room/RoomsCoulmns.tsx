@@ -41,6 +41,11 @@ export const RoomsColumns = (
         width:120,
     },
     {
+        field:'nob',
+        headerName:'No. of Beds',
+        width:120,
+    },
+    {
         field:'_id',
         headerName:'Actions',
         width:120,
