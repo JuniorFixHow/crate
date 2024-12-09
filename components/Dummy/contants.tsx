@@ -228,6 +228,16 @@ export const BadgesColumns =(
         }
     },
     {
+        field:'voice',
+        headerName:'Member voice',
+        width:120,
+        renderCell:(params:GridRenderCellParams) =>{
+            return(
+                <span >{params?.row.eventId.type === 'Convension' ? params?.row.memberId.voice :'NA'}</span>
+            )
+        }
+    },
+    {
         field:'badgeIssued',
         headerName:'Badge issued',
         width:140

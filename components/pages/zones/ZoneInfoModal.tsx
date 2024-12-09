@@ -38,13 +38,10 @@ const ZoneInfoModal = ({infoMode, setInfoMode, currentZone, setCurrentZone}:Zone
                 
                 
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Country</span>
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Location</span>
                     <span className='text-[0.9rem]' >{currentZone?.country}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >State/Region</span>
-                    <span className='text-[0.9rem]' >{currentZone?.state}</span>
-                </div>
+                
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Churches</span>
                     <Link href={{pathname:'/dashboard/churches', query:{zoneId:currentZone?._id}}}  className='text-[0.9rem] table-link' >{currentZone?.churches}</Link>

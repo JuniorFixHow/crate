@@ -1,7 +1,7 @@
 "use client"
 import AddButton from '@/components/features/AddButton';
 import SearchBar from '@/components/features/SearchBar'
-import { Alert, Paper } from '@mui/material';
+import { Alert, LinearProgress, Paper } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { SearchZone } from './fxn';
 import { DataGrid } from '@mui/x-data-grid';
@@ -11,7 +11,6 @@ import DeleteDialog from '@/components/DeleteDialog';
 import ZoneInfoModal from './ZoneInfoModal';
 import { IZone } from '@/lib/database/models/zone.model';
 import { useFetchZones } from '@/hooks/fetch/useZone';
-import CircularIndeterminate from '@/components/misc/CircularProgress';
 import { deleteZone, getZone } from '@/lib/actions/zone.action';
 import { ErrorProps } from '@/types/Types';
 import { useSearchParams } from 'next/navigation';
@@ -25,7 +24,7 @@ const ZonesTable = () => {
   const paginationModel = { page: 0, pageSize: 10 };
   const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
   
-  const {zones, loading, error} =  useFetchZones();
+  const {zones, loading} =  useFetchZones();
   const searchParams = useSearchParams();
   // console.log(zones)
   const handleZoneClick = (data:IZone)=>{
@@ -52,7 +51,6 @@ const ZonesTable = () => {
         fetchChurch(); // Call the async function
       }, [searchParams]);
 
-  if(loading) return <CircularIndeterminate error={error}  className={`${loading?'flex-center':'hidden'}`} />
 
   const message = `Deleting a zone will also delete its dependants such as churches and members. This is very critical and you're advised to rather delete the members or churches that are no longer required. Do you still want to delete this zone?`;
   const handleDeleteModal = (data:IZone)=>{
@@ -95,18 +93,23 @@ const ZonesTable = () => {
       <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentZone?.name}`} message={message} onTap={handleDeleteZone} />
       
       <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 480, }}>
-                <DataGrid
-                    getRowId={(row:IZone):string=>row?._id as string}
-                    rows={SearchZone(zones, search)}
-                    columns={ZoneColumns(handleZoneClick, handleDeleteModal, handleInfoClick)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-blue-800'
-                    sx={{ border: 0 }}
-                />
-            </Paper>
+        {
+          loading ? 
+          <LinearProgress className='w-full' />
+          :
+          <Paper className='w-full' sx={{ height: 480, }}>
+              <DataGrid
+                  getRowId={(row:IZone):string=>row?._id as string}
+                  rows={SearchZone(zones, search)}
+                  columns={ZoneColumns(handleZoneClick, handleDeleteModal, handleInfoClick)}
+                  initialState={{ pagination: { paginationModel } }}
+                  pageSizeOptions={[5, 10]}
+                  // checkboxSelection
+                  className='dark:bg-black dark:border dark:text-blue-800'
+                  sx={{ border: 0 }}
+              />
+          </Paper>
+        }
         </div>
     </div>
   )

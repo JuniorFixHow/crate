@@ -178,6 +178,7 @@ export interface IUser {
    id:string,
    email:string,
    name:string,
+   country:string,
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,

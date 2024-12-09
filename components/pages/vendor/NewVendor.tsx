@@ -55,6 +55,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                 const fbData:IUser = {
                     email:data.email!,
                     name:data.name!,
+                    country:data.country!,
                     photo:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
                     id:response._id,
                     emailVerified:false,
@@ -86,6 +87,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     name:data.name || currentVendor?.name,
                     email:data.email || currentVendor?.email,
                     phone:data.phone || currentVendor?.phone,
+                    country:data.country || currentVendor?.country,
                     role:data.role || currentVendor?.role,
                     gender:data.gender || currentVendor?.gender,
                     church: church || currentVendor?.church
@@ -133,6 +135,18 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                             </div>
                         </div>
                     </div>
+
+
+                    <div className="flex flex-col gap-2">
+                        <span className='text-slate-500 text-[0.8rem]' >Country</span>
+                        <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.country : ''}  className='border rounded py-1 dark:bg-transparent outline-none' name="country" >
+                            <option className='bg-white text-black dark:text-white dark:bg-black' value="">select</option>
+                            <option className='bg-white text-black dark:text-white dark:bg-black' value="Volunteer">USA</option>
+                            <option className='bg-white text-black dark:text-white dark:bg-black' value="Coordinator">Ghana</option>
+                        </select>
+                    </div>
+
+
 
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Email</span>

@@ -2,6 +2,7 @@ import {  GridRenderCellParams } from "@mui/x-data-grid"
 import { IoTrashBinOutline } from "react-icons/io5"
 import { GoInfo } from "react-icons/go";
 import { IChurch } from "@/lib/database/models/church.model";
+import Link from "next/link";
 
 export const ChurchColumns = (
     handleInfo:(data:IChurch)=>void, 
@@ -22,8 +23,8 @@ export const ChurchColumns = (
     },
     {
         field:'country',
-        headerName:'Country',
-        width:120,
+        headerName:'Location',
+        width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <span>{params.row.zoneId.country}</span>
@@ -32,24 +33,14 @@ export const ChurchColumns = (
         }
         
     },
-    {
-        field:'state',
-        headerName:'State',
-        width:90,
-        renderCell:(params:GridRenderCellParams)=>{
-            return(
-                <span>{params.row.zoneId.state}</span>
-                
-            )
-        }
-    },
+    
     {
         field:'zone',
         headerName:"Zone",
         width:100, 
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span>{params.row.zoneId.name}</span>
+                <Link className="table-link" href={{pathname:'/dashboard/zones', query:{id:params.row.zoneId._id}}} >{params.row.zoneId.name}</Link>
                 
             )
         }

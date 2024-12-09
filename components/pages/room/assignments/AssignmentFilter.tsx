@@ -8,12 +8,12 @@ type AssignmentFilterProps = {
 
 const AssignmentFilter = ({setSelect}:AssignmentFilterProps) => {
   return (
-    <div className='border rounded flex flex-row items-center' >
+    <div className='border rounded flex flex-row items-center h-fit' >
         {/* <div className="flex flex-row gap-3 dark:bg-transparent bg-slate-200 px-3 py-1 border-r border-r-slate-300">
            <CiFilter className="text-slate-400" size={20} /> 
            <span className="text-slate-400 text-[0.8rem]" >Filter</span>
         </div> */}
-        <select onChange={(e)=>setSelect(e.target.value)} defaultValue='All'  className="gap-3 h-full px-3 text-[0.8rem] outline-none border dark:bg-black" name="assignment">
+        <select onChange={(e)=>setSelect(e.target.value)} defaultValue='All'  className="gap-3 h-full px-3 py-[0.3rem] text-[0.8rem] outline-none border dark:bg-black" name="assignment">
             <option className="dark:bg-black dark:text-slate-300" value="">All</option>
             <option className="dark:bg-black dark:text-slate-300" value="Pending">Unassigned</option>
             <option className="dark:bg-black dark:text-slate-300" value="Assigned">Assigned</option>

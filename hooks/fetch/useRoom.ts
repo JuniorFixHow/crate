@@ -1,4 +1,5 @@
-import { getAvailableRooms, getRooms } from "@/lib/actions/room.action";
+import { getAvailableRooms, getMembersInRoom, getRooms } from "@/lib/actions/room.action";
+import { IMember } from "@/lib/database/models/member.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import { ErrorProps } from "@/types/Types";
 import { useEffect, useState } from "react";
@@ -66,3 +67,32 @@ export const useFetchAvailableRooms = (eventId: string) => {
 
     return { rooms, loading, error };
 };
+
+
+
+
+export const useFetchMembersInRoom = (roomId:string)=>{
+    const [members, setMembers] = useState<IMember[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string|null>(null);
+
+    useEffect(()=>{
+        if(!roomId) return;
+        const fetchKeys = async() =>{
+            try {
+                const res:IMember[] = await getMembersInRoom(roomId);
+                setMembers(res.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()));
+                setError(null);
+            } catch (error) {
+                console.log(error);
+                setError('Error occured trying to fetch members.')
+            }finally{
+                setLoading(false);
+            }
+        }
+
+        fetchKeys()
+    },[roomId])
+
+    return {members, loading, error}
+}

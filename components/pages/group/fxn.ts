@@ -15,7 +15,7 @@ export const SearchGroup=(groups:IGroup[], text:string, eventId:string):IGroup[]
     })
     return data;
 }
-export const SearchGroupWithoutEvent=(groups:IGroup[], text:string, ):IGroup[]=>{
+export const SearchGroupWithoutEvent=(groups:IGroup[], text:string ):IGroup[]=>{
     const data = groups
     .filter((item)=>{
         return text === '' ? item : Object.values(item)

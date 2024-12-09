@@ -22,15 +22,11 @@ export const ZoneColumns =(
     },
     {
         field:'country',
-        headerName:'Country',
-        width:120,
+        headerName:'Location',
+        width:200,
         
     },
-    {
-        field:'state',
-        headerName:'State',
-        width:90
-    },
+    
    
     {
         field:'registrants',

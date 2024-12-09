@@ -102,7 +102,7 @@ const AssignmentTable = () => {
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} onTap={currentAssGroup ? handleRemoveGroup:handleRemoveMember} title='Unassign room' message={currentAssignment ? message:message2} />
         <div className="flex flex-col gap-5 bg-white dark:bg-black rounded border p-4">
             <div className="flex justify-between items-center">
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-end">
                     <SearchSelectEvents isGeneric setSelect={setEventId} />
                     <AssignmentFilter setSelect={setStatus} />
                 </div>

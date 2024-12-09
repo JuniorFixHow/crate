@@ -32,6 +32,11 @@ export const VendorsColumns = (
         width:120,
     },
     {
+        field:'country',
+        headerName:'Country',
+        width:120,
+    },
+    {
         field:'church',
         headerName:'Church',
         width:100,

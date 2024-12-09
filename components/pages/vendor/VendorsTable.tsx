@@ -5,7 +5,7 @@ import AddButton from '@/components/features/AddButton'
 import { SearchVendor } from './fxn'
 import { VendorsColumns } from './VendorColumns'
 import { DataGrid } from '@mui/x-data-grid'
-import { Alert, Paper } from '@mui/material'
+import { Alert, LinearProgress, Paper } from '@mui/material'
 import '../../../components/features/customscroll.css'
 import VendorInfoModal from './VendorInfoModal'
 import DeleteDialog from '@/components/DeleteDialog'
@@ -15,7 +15,6 @@ import { useFetchVendors } from '@/hooks/fetch/useVendor'
 import SearchSelectChurch from '@/components/shared/SearchSelectChurch'
 import { useFetchChurches } from '@/hooks/fetch/useChurch'
 import { ErrorProps } from '@/types/Types'
-import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { deleteVendor } from '@/lib/actions/vendor.action'
 import { useRouter } from 'next/navigation'
 
@@ -28,7 +27,7 @@ const VendorsTable = () => {
     const [newMode, setNewMode] = useState<boolean>(false);
     const [noChurch, setNoChurch] = useState<boolean>(false);
     const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
-    const {vendors, error, loading} = useFetchVendors();
+    const {vendors,  loading} = useFetchVendors();
     const {churches} = useFetchChurches();
 
     const hadndleInfo = (data:IVendor)=>{
@@ -73,7 +72,6 @@ const VendorsTable = () => {
         }
       }
 
-      if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
   return (
     <div className='flex flex-col gap-5 rounded bg-white border dark:bg-black p-4 w-full overflow-x-scroll scrollbar-custom' >
@@ -98,18 +96,23 @@ const VendorsTable = () => {
         <NewVendor openVendor={newMode} setOpenVendor={setNewMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
         <div className="flex">
-            <Paper className='w-full' sx={{ height: 480, }}>
-                <DataGrid
-                    getRowId={(row:IVendor):string=>row?._id}
-                    rows={SearchVendor(vendors, search, church)}
-                    columns={VendorsColumns(hadndleInfo, hadndleDelete, hadndleNew)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-blue-800 scrollbar-custom'
-                    sx={{ border: 0 }}
-                />
-            </Paper>
+            {
+                loading ? 
+                <LinearProgress className='w-full' />
+                :
+                <Paper className='w-full' sx={{ height: 480, }}>
+                    <DataGrid
+                        getRowId={(row:IVendor):string=>row?._id}
+                        rows={SearchVendor(vendors, search, church)}
+                        columns={VendorsColumns(hadndleInfo, hadndleDelete, hadndleNew)}
+                        initialState={{ pagination: { paginationModel } }}
+                        pageSizeOptions={[5, 10]}
+                        // checkboxSelection
+                        className='dark:bg-black dark:border dark:text-blue-800 scrollbar-custom'
+                        sx={{ border: 0 }}
+                    />
+                </Paper>
+            }
         </div>
 
     </div>

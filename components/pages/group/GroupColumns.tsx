@@ -1,4 +1,3 @@
-import { IRoom } from "@/lib/database/models/room.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
@@ -52,10 +51,11 @@ export const GroupColumns:GridColDef[]=[
             return(
                 <div className="flex-center">
                     {
-                        params?.row?.roomIds?.length > 0 ? 
-                        params?.row?.roomIds?.map((room:IRoom)=>(
-                            <Link key={room._id} href={{pathname:`/dashboard/rooms/`, query:{id:room?._id}}}  className="table-link text-center" >{room?.venue}</Link>
-                        ))
+                        params?.row?.roomIds?.length  ===1 ? 
+                        <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className="table-link text-center" >{params?.row?.roomIds[0]?.venue}</Link>
+                        :
+                        params?.row?.roomIds?.length  > 1 ? 
+                        <Link href={{pathname:`/dashboard/groups/${params.row._id}`, query:{tab:'Rooms'}}}  className="table-link text-center" >Multiple</Link>
                         :
                         <span className="text-center" >Not yet</span>
                     }

@@ -14,6 +14,7 @@ export type SessionPayload = {
    userId:string,
    email:string,
    name:string,
+   country:string,
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,

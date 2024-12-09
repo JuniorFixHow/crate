@@ -7,6 +7,7 @@ export interface IVendor extends Document {
     image:string;
     email:string;
     phone:string;
+    country:string,
     password:string;
     church:mongoose.Types.ObjectId|string|IChurch;
     role:'Admin'|'Coordinator'|'Volunteer';
@@ -22,6 +23,7 @@ const VendorSchema = new Schema<IVendor>({
     email:{type:String, required:true, unique:true},
     church:{type:Schema.Types.ObjectId, ref:'Church'},
     role:String,
+    country:String,
     gender:String,
     phone:String,
     password:String,

@@ -5,6 +5,7 @@ import '../features/customscroll.css';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import SearchSelectGroups from '@/components/features/SearchSelectGroups';
 import { ErrorProps } from '@/types/Types';
+import { useFetchGroupsForEvent } from '@/hooks/fetch/useGroups';
 
 type NewMemberProps = {
     open:boolean,
@@ -12,7 +13,7 @@ type NewMemberProps = {
     groupId?:string,
     setOpen:Dispatch<SetStateAction<boolean>>,
     setSelect?:Dispatch<SetStateAction<string>>,
-    setSelectGroupId?:Dispatch<SetStateAction<string>>,
+    setSelectGroupId:Dispatch<SetStateAction<string>>,
     showEvent:boolean,
     showGroup:boolean,
     setShowEvent:Dispatch<SetStateAction<boolean>>,
@@ -28,12 +29,15 @@ const RegisterForEvent = ({
     handleEvent, handleGroup, groupId, setShowEvent, setShowGroup, setSelectGroupId,
     error,  loading,
 }:NewMemberProps) => {
+
+    const {groups} = useFetchGroupsForEvent(eventId!)
+
     const handleClose=()=>{
         setOpen(false);
         setShowEvent(false);
         setShowGroup(false);
     }
-    // console.log('Group Id: ',groupId);
+    console.log('Group Id: ',groupId);
   return (
     <Modal
         open={open}
@@ -64,7 +68,7 @@ const RegisterForEvent = ({
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select an Event</span>
-                            <SearchSelectGroups eventId={eventId!} setSelect={setSelectGroupId} isGeneric />
+                            <SearchSelectGroups groups={groups} setSelect={setSelectGroupId} isGeneric />
                         </div>
                         
                     </div>
@@ -80,7 +84,7 @@ const RegisterForEvent = ({
                         <AddButton disabled={loading} onClick={handleEvent}  className='rounded w-[45%] justify-center' text={loading ? 'registering...' : 'Proceed'} smallText noIcon />
                     }
                     {
-                        showGroup && eventId && groupId &&
+                        showGroup && groupId &&
                         <AddButton disabled={loading} onClick={handleGroup}  className='rounded w-[45%] justify-center' text={loading ? 'adding...' : 'Add to group'} smallText noIcon />
                     }
                     <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Do this later' isCancel onClick={handleClose} smallText noIcon />

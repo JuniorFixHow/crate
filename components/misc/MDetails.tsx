@@ -146,6 +146,7 @@ const MDetails = ({id}:MDetailsProps) => {
             showGroup={openG}
             handleEvent={handleEventReg}
             setSelectGroupId={setGroupId}
+            groupId={groupId}
             setShowGroup={setOpenG}
             loading={regLoading}
             error={regError}

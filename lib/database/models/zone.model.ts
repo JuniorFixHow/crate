@@ -5,7 +5,6 @@ export interface IZone extends Document {
     _id:string;
     name: string;
     country?: string;
-    state?: string;
     registrants?: number;
     coordinators?: number;
     volunteers?: number;
@@ -18,7 +17,6 @@ export interface IZone extends Document {
 const ZoneSchema = new Schema<IZone>({
     name:{type:String, required:true},
     country:{type:String},
-    state:{type:String},
     registrants:{type:Number, default:0},
     coordinators:{type:Number, default:0},
     volunteers:{type:Number, default:0},

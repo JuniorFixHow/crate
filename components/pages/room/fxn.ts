@@ -13,3 +13,16 @@ export const SearchRoom = (rooms:IRoom[], search:string, eventId:string):IRoom[]
     });
     return data;
 }
+
+
+export const SearchRoomWithoutEvent = (rooms:IRoom[], search:string):IRoom[]=>{
+    const data = rooms
+    .filter((room)=>{
+        return search === '' ? room : Object.values(room)
+        .join(' ')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    })
+
+    return data;
+}

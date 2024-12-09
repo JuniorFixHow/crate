@@ -1,11 +1,12 @@
 'use client'
 import AddButton from '@/components/features/AddButton'
 import { ErrorProps } from '@/types/Types'
-import { Alert, Modal } from '@mui/material'
+import { Alert} from '@mui/material'
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import '../../../components/features/customscroll.css';
 import { createZone, updateZone } from '@/lib/actions/zone.action'
 import { IZone } from '@/lib/database/models/zone.model'
+import Address from '@/components/shared/Address'
 
 type NewZoneProps = {
     openZone:boolean,
@@ -24,7 +25,6 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
     const [loading, setLoading] = useState<boolean>(false);
     const [name, setName] = useState<string>('');
     const [country, setCountry] = useState<string>('USA');
-    const [state, setState] = useState<string>('');
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -33,7 +33,7 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
         setError({message:'', error:false});
         try {
             setLoading(true);
-            const data:Partial<IZone> = {name, country, state};
+            const data:Partial<IZone> = {name, country};
             const res = await createZone(data);
             console.log(res)
             setError({message:'Zone added successfully', error:false});
@@ -54,7 +54,6 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
             const data:Partial<IZone> = {
                 name:name||currentZone?.name, 
                 country:country||currentZone?.country, 
-                state:state || currentZone?.state
             };
             if(currentZone){
                 const zone = await updateZone(currentZone._id, data);
@@ -68,16 +67,14 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
             setLoading(false);
         }
     }
+    if (!openZone) return null;
 
   return (
-    <Modal
-        open={openZone}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        
+    <div
+       
+        className="fixed inset-0 z-50 flex-center bg-black/50 backdrop-blur-0"
         >
-        <div className='flex size-full items-center justify-center'>
+        <div className='flex size-full items-center justify-center relative'>
             <form onSubmit={currentZone ? handleUpdateZone : handleNewZone}  ref={formRef}  className="new-modal scrollbar-custom overflow-y-scroll">
                 <span className='text-[1.5rem] font-bold dark:text-slate-200' >{currentZone ? "Edit Zone":"Create Zone"}</span>
                 <div className="flex flex-col gap-6">
@@ -86,17 +83,11 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
                         <input onChange={(e)=>setName(e.target.value)} required={!currentZone} defaultValue={currentZone?currentZone.name : ''} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
                     <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Country</span>
-                        <select onChange={(e)=>setCountry(e.target.value)}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentZone?currentZone.country:'USA'} name="country">
-                            <option className='dark:bg-black dark:text-white' value="USA">USA</option>
-                            <option className='dark:bg-black dark:text-white' value="Ghana">Ghana</option>
-                        </select>
-                        {/* <input type="text" className=' border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' /> */}
+                        <span className='text-slate-500 text-[0.8rem]' >Location</span>
+                        <Address className='' setAddress={setCountry} />
+            
                     </div>
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Region/State</span>
-                        <input onChange={(e)=>setState(e.target.value)} required={!currentZone} defaultValue={currentZone?currentZone.state : ''} type="text" className=' border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
-                    </div>
+                    
                 </div>
 
                 {
@@ -112,7 +103,7 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
                 </div>
             </form>
         </div>
-    </Modal>
+    </div>
   )
 }
 

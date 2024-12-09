@@ -40,13 +40,10 @@ const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch
                     <span className='text-[0.9rem]' >{currentChurch?.pastor}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Country</span>
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Location</span>
                     <span className='text-[0.9rem]' >{typeof currentChurch?.zoneId === 'object' && 'country' in currentChurch?.zoneId && currentChurch?.zoneId?.country}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >State/Region</span>
-                    <span className='text-[0.9rem]' >{typeof currentChurch?.zoneId === 'object' && 'state' in currentChurch?.zoneId && currentChurch?.zoneId?.state}</span>
-                </div>
+                
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
                     <Link href={{pathname:'/dashboard/zones', query:{id:typeof currentChurch?.zoneId === 'object' && '_id' in currentChurch?.zoneId && currentChurch?.zoneId?._id.toString()}}}   className='text-blue-700 underline cursor-pointer' >{typeof currentChurch?.zoneId === 'object' && 'name' in currentChurch?.zoneId && currentChurch?.zoneId?.name}</Link>

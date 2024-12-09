@@ -1,9 +1,12 @@
 'use server'
+import { Types } from "mongoose";
 import Group from "../database/models/group.model";
+import { IMember } from "../database/models/member.model";
 import Registration from "../database/models/registration.model";
 import Room, { IRoom } from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import Key from "../database/models/key.model";
 
 export async function createRoom(room:Partial<IRoom>){
     try {
@@ -141,6 +144,7 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
 
 
 
+
 export async function addGroupToRoom(roomIds: string[], groupId: string, eventId: string) {
     try {
         await connectDB();
@@ -151,37 +155,51 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
             return handleResponse('Group not found', true, {}, 404);
         }
 
-        const totalMembers = group.members.length;
+        // Check if the group already has assigned rooms
+        const existingRoomIds = group.roomIds || [];
+        if (existingRoomIds.length === 0) {
+            // Perform the bed availability check only for the first allocation
+            if (group.type !== 'Couple') {
+                let totalBedsAvailable = 0;
 
-        if (group.type !== 'Couple') {
-            let totalBedsAvailable = 0;
+                for (const roomId of roomIds) {
+                    const room = await Room.findById(roomId);
+                    if (!room) {
+                        return handleResponse(`Room not found`, true, {}, 404);
+                    }
 
-            // Check if each room has enough available beds
-            for (const roomId of roomIds) {
-                const room = await Room.findById(roomId);
-                if (!room) {
-                    return handleResponse(`Room with ID ${roomId} not found`, true, {}, 404);
+                    // Count members in the room, ensuring groups are not overestimated
+                    const assignedMembers = await Registration.countDocuments({
+                        roomIds: roomId,
+                        $or: [
+                            { groupId: { $exists: false } }, // Individual registrations
+                            { groupId }, // First member of the group
+                        ],
+                    });
+
+                    const availableBeds = room.nob - assignedMembers;
+
+                    if (availableBeds <= 0) {
+                        return handleResponse(
+                            `Room ${room.venue} ${room.number} is already full`,
+                            true,
+                            {},
+                            403
+                        );
+                    }
+
+                    totalBedsAvailable += availableBeds;
                 }
 
-                // Count how many members are already in this room
-                const assignedMembers = await Registration.countDocuments({ roomIds: roomId });
-                const availableBeds = room.nob - assignedMembers;
-
-                if (availableBeds <= 0) {
-                    return handleResponse(`Room ${roomId} is already full`, true, {}, 403);
+                // Ensure enough beds are available for non-couple groups
+                if (totalBedsAvailable < group.members.length) {
+                    return handleResponse(
+                        `Not enough available beds to accommodate the entire group. Please add more rooms.`,
+                        true,
+                        {},
+                        403
+                    );
                 }
-
-                totalBedsAvailable += availableBeds;
-            }
-
-            // Ensure enough beds are available for non-couple groups
-            if (totalBedsAvailable < totalMembers) {
-                return handleResponse(
-                    `Not enough available beds to accommodate the entire group. Please add more rooms.`,
-                    true,
-                    {},
-                    403
-                );
             }
         }
 
@@ -267,38 +285,59 @@ export async function getMembersInRoom(roomId: string) {
 }
 
 
+
 export async function removeGroupFromRoom(roomId: string, groupId: string) {
     try {
         await connectDB();
 
-        // Find the room by its ID
-        const room = await Room.findById(roomId);
-        if (!room) {
-            return handleResponse(`Room not found`, true, {}, 404);
-        }
-
-        // Check if the room has the specified groupId
+        // Find the group to ensure it exists
         const group = await Group.findById(groupId);
         if (!group) {
             return handleResponse(`Group not found`, true, {}, 404);
         }
 
-        // Remove the group reference from the room
-        const updatedRoom = await Room.findByIdAndUpdate(
-            roomId,
-            { $pull: { roomIds: groupId } },
-            { new: true }
-        );
-
-        if (!updatedRoom) {
-            return handleResponse(`Failed to update room`, true, {}, 304);
+        // Ensure the group references the room
+        if (!group.roomIds?.includes(roomId)) {
+            return handleResponse(`Room is not assigned to the group`, true, {}, 400);
         }
 
-        // Find all registrations that belong to the group for this room
-        const groupMembers = group.members;
-        if (groupMembers.length > 0) {
+        // Calculate the remaining rooms and their total capacity
+        const remainingRoomIds = group.roomIds.filter((id:string) => id.toString() !== roomId);
+
+        // If the group has other rooms, check the total capacity
+        if (remainingRoomIds.length > 0) {
+            const rooms = await Room.find({ _id: { $in: remainingRoomIds } });
+            const totalCapacity = rooms.reduce((sum, room) => sum + room.nob, 0);
+
+            if (totalCapacity < group.members.length) {
+                return handleResponse(
+                    `Cannot remove the room. Remaining rooms cannot accommodate the group members. You can rather unallocate the group completely.`,
+                    true,
+                    {},
+                    403
+                );
+            }
+        }
+
+        // console.log("Remaining group: ", remainingRoomIds);
+
+        // Remove the room from the group's `roomIds`
+        group.roomIds = remainingRoomIds;
+        await group.save();
+
+        // Update the registrations to remove the room reference for group members
+        const groupMemberIds = group.members.map((member:IMember) => {
+            if (typeof member === 'string' || member instanceof Types.ObjectId) {
+                return member.toString();
+            } else if (typeof member === 'object' && '_id' in member) {
+                return member._id.toString();
+            }
+            return null;
+        }).filter(Boolean);
+
+        if (groupMemberIds.length > 0) {
             await Registration.updateMany(
-                { memberId: { $in: groupMembers }, roomIds: roomId },
+                { memberId: { $in: groupMemberIds }, roomIds: roomId },
                 { $pull: { roomIds: roomId } }
             );
         }
@@ -314,6 +353,14 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
         }
     }
 }
+
+
+
+
+
+
+
+
 
 // export async function removeGroupFromAllRooms(groupId: string) {
 //     try {
@@ -417,6 +464,8 @@ export async function deleteRoom(id: string) {
             { $pull: { roomIds: id } }
         );
 
+        await Key.deleteMany({roomId:id});
+
         // Delete the room after updates are done
         await Room.findByIdAndDelete(id);
 
@@ -463,6 +512,63 @@ export async function isRoomFull(roomId: string): Promise<boolean> {
 
 
 
+// export async function getAvailableRooms(eventId: string) {
+//     try {
+//         await connectDB(); // Ensure the DB connection is made
+
+//         // Find all rooms for the given eventId
+//         const rooms = await Room.find({ eventId });
+
+//         if (!rooms || rooms.length === 0) {
+//             return handleResponse('No rooms found for this event', true, {}, 404);
+//         }
+
+//         // Retrieve all registrations for the given event
+//         const registrations = await Registration.find({ eventId }).populate('groupId');
+
+//         // Map to track room occupancy considering groups
+//         const roomOccupancyMap = new Map<string, number>();
+
+//         // Calculate occupancy for each room
+//         for (const registration of registrations) {
+//             const group = registration.groupId;
+            
+//             for (const roomId of registration.roomIds) {
+//                 const currentOccupancy = roomOccupancyMap.get(roomId.toString()) || 0;
+//                 console.log('GroupOc: ', currentOccupancy)
+
+//                 // Only count the group once for room occupancy
+//                 if (group) {
+//                     if (roomOccupancyMap.has(`group:${group._id}`)) {
+//                         continue; // Skip if this group's occupancy is already counted
+//                     }
+//                     roomOccupancyMap.set(`group:${group._id}`, group.members.length);
+//                     roomOccupancyMap.set(roomId.toString(), currentOccupancy + group.members.length);
+//                 } else {
+//                     roomOccupancyMap.set(roomId.toString(), currentOccupancy + 1);
+//                 }
+//             }
+//         }
+
+//         // Filter rooms based on their available capacity
+//         const availableRooms: IRoom[] = rooms.filter((room) => {
+//             const occupiedBeds = roomOccupancyMap.get(room._id.toString()) || 0;
+//             return occupiedBeds < room.nob;
+//         });
+
+//         if (availableRooms.length > 0) {
+//             return handleResponse('Available rooms found', false, availableRooms, 200);
+//         } else {
+//             return handleResponse('No available rooms found for this event', true, {}, 404);
+//         }
+//     } catch (error) {
+//         console.error('Error fetching available rooms:', error);
+//         return handleResponse('Error occurred while fetching available rooms', true, {}, 500);
+//     }
+// }
+
+
+
 export async function getAvailableRooms(eventId: string) {
     try {
         await connectDB(); // Ensure the DB connection is made
@@ -474,36 +580,34 @@ export async function getAvailableRooms(eventId: string) {
             return handleResponse('No rooms found for this event', true, {}, 404);
         }
 
+        // Create a map to track room registrations
+        const roomRegistrationCount: Record<string, number> = {};
+
         // Retrieve all registrations for the given event
-        const registrations = await Registration.find({ eventId }).populate('groupId');
+        const registrations = await Registration.find({ eventId });
 
-        // Map to track room occupancy considering groups
-        const roomOccupancyMap = new Map<string, number>();
-
-        // Calculate occupancy for each room
         for (const registration of registrations) {
-            const group = registration.groupId;
+            const roomIds = Array.isArray(registration.roomIds)
+                ? registration.roomIds.map((roomId: string | IRoom | Types.ObjectId) => {
+                      if (typeof roomId === 'string') {
+                          return roomId;
+                      } else if ('_id' in roomId) {
+                          return roomId._id.toString();
+                      } else {
+                          throw new Error('Unexpected type for roomId');
+                      }
+                  })
+                : [];
 
-            for (const roomId of registration.roomIds) {
-                const currentOccupancy = roomOccupancyMap.get(roomId.toString()) || 0;
-
-                // Only count the group once for room occupancy
-                if (group) {
-                    if (roomOccupancyMap.has(`group:${group._id}`)) {
-                        continue; // Skip if this group's occupancy is already counted
-                    }
-                    roomOccupancyMap.set(`group:${group._id}`, group.members.length);
-                    roomOccupancyMap.set(roomId.toString(), currentOccupancy + group.members.length);
-                } else {
-                    roomOccupancyMap.set(roomId.toString(), currentOccupancy + 1);
-                }
+            for (const roomId of roomIds) {
+                roomRegistrationCount[roomId] = (roomRegistrationCount[roomId] || 0) + 1;
             }
         }
 
         // Filter rooms based on their available capacity
-        const availableRooms: IRoom[] = rooms.filter((room) => {
-            const occupiedBeds = roomOccupancyMap.get(room._id.toString()) || 0;
-            return occupiedBeds < room.nob;
+        const availableRooms = rooms.filter((room) => {
+            const registrationsForRoom = roomRegistrationCount[room._id.toString()] || 0;
+            return room.nob && registrationsForRoom < room.nob;
         });
 
         if (availableRooms.length > 0) {
@@ -518,3 +622,30 @@ export async function getAvailableRooms(eventId: string) {
 }
 
 
+
+
+
+
+export const getRoomsAssignedToGroup = async (groupId: string) => {
+    try {
+        await connectDB();
+
+        // Find the group by its ID
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return handleResponse('Group not found', true, [], 404);
+        }
+
+        // Check if the group has room assignments
+        if (!group.roomIds || group.roomIds.length === 0) {
+            return handleResponse('No rooms assigned to this group', false, {}, 200);
+        }
+
+        // Fetch all rooms associated with the group
+        const rooms = await Room.find({ _id: { $in: group.roomIds } });
+        return handleResponse('Rooms retrieved successfully', false, rooms, 200);
+    } catch (error) {
+        console.error('Error retrieving rooms for group:', error);
+        return handleResponse(`Error retrieving rooms for group`, true, {}, 500);
+    }
+};
