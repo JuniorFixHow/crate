@@ -31,7 +31,8 @@ const CBar = ({
     const [xEventAxis, setEventXaxis] = useState<string[]>([])
     const [yEventAxis, setEventYaxis] = useState<number[]>([])
 
-    // console.log('Xaxis: ', xEventAxis)
+    // console.log('Xaxis: ', xAxis)
+    // console.log('Yaxis: ', yAxis)
     
     useEffect(()=>{
         if(events.length && isEvent){

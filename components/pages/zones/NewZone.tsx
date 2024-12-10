@@ -84,7 +84,7 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
                     </div>
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Location</span>
-                        <Address className='' setAddress={setCountry} />
+                        <Address country={currentZone?.country} setAddress={setCountry} />
             
                     </div>
                     

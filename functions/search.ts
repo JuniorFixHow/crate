@@ -5,7 +5,7 @@ import { IMember } from "@/lib/database/models/member.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { ISession } from "@/lib/database/models/session.model"
 import { IVendor } from "@/lib/database/models/vendor.model"
-import { EventProps, GroupProps, MemberProps } from "@/types/Types"
+import { EventProps, GroupProps, MemberProps, NavigationProps } from "@/types/Types"
 
 export const searchMember = (text:string, members:IMember[]):IMember[]=>{
     const membs = members.filter((member)=>{
@@ -166,3 +166,38 @@ export const searchSession = (time: string, eventId: string, sessions: ISession[
 
   return sess;
 };
+
+
+
+export const SearchNavbar = (items: NavigationProps[], search: string): NavigationProps[] => {
+  if (!search.trim()) return []; // Return empty array for empty search
+
+  return items.reduce<NavigationProps[]>((acc, item) => {
+    // Check if the main item matches
+    const isItemMatch = Object.values(item)
+      .filter((value) => typeof value === 'string')
+      .join(' ')
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    // Check if any children match
+    const matchedChildren = item.children?.filter((child) =>
+      Object.values(child)
+        .filter((value) => typeof value === 'string')
+        .join(' ')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+
+    if (isItemMatch || (matchedChildren && matchedChildren.length > 0)) {
+      acc.push({
+        ...item,
+        children: matchedChildren || [],
+      });
+    }
+
+    return acc;
+  }, []);
+};
+
+

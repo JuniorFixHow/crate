@@ -10,6 +10,7 @@ import { IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch } from "react-icons/tb";
 import { LiaDoorOpenSolid } from "react-icons/lia";
+import { CiGlobe } from "react-icons/ci";
 
 
 
@@ -52,14 +53,19 @@ export const NavItems:NavigationProps[] = [
                 image:<IoIosTimer/>,
                 path:'/dashboard/events/sessions'
             },
+            {
+                text:'Public',
+                image:<CiGlobe />,
+                path:'/dashboard/events/public'
+            },
         ],
         icon: <MdEventAvailable />,
     },
     {
-        title: 'Vendors',
+        title: 'Users',
         isAdmin:false,
         icon: <MdOutlineAdminPanelSettings />,
-        link:'/dashboard/vendors'
+        link:'/dashboard/users'
     },
     {
         title: 'Groups/Family',

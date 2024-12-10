@@ -12,7 +12,7 @@ export const getUniqueValues = (filter: string, members: IMember[]): string[] =>
 
     switch (filter) {
         case 'Age':
-            return uniqueValues(members.map(member => member.ageRange)).sort((a, b) => a.localeCompare(b));
+            return uniqueValues(members.map(member => member.ageRange)).sort((a, b) => parseInt(a.split('-')[0]) > parseInt(b.split('-')[0]) ? 1:-1);
         case 'Country':
             return uniqueValues(
                 members.map(member => 
@@ -21,7 +21,7 @@ export const getUniqueValues = (filter: string, members: IMember[]): string[] =>
                         ? member.church.zoneId.country 
                         : undefined
                 )
-            ).sort((a, b) => a.localeCompare(b));
+            );
         case 'Church':
             return uniqueValues(
                 members.map(member => 
@@ -29,9 +29,9 @@ export const getUniqueValues = (filter: string, members: IMember[]): string[] =>
                         ? member.church.name 
                         : undefined
                 )
-            ).sort((a, b) => a.localeCompare(b));
+            );
         case 'Gender':
-            return uniqueValues(members.map(member => member.gender)).sort((a, b) => a.localeCompare(b));
+            return uniqueValues(members.map(member => member.gender));
         case 'Registered By':
             return uniqueValues(
                 members.map(member => 
@@ -39,7 +39,7 @@ export const getUniqueValues = (filter: string, members: IMember[]): string[] =>
                         ? member.registeredBy.name 
                         : undefined
                 )
-            ).sort((a, b) => a.localeCompare(b));
+            );
         default:
             return [];
     }
@@ -322,7 +322,9 @@ export function getUniqueValuesForEvent(
         break;
   
       case 'Age Range':
-        filteredMembers.forEach(member => {
+        filteredMembers
+        .sort((a, b)=>parseInt(a.ageRange.split('-')[0]) > parseInt(b.ageRange.split('-')[0]) ? 1:-1)
+        .forEach(member => {
           if (member.ageRange) {
             uniqueValuesSet.add(member.ageRange);
           }

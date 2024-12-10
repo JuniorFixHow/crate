@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "EMINISTRY",
+  title: "eMinistry",
   description: "CRATE Team",
 };
 

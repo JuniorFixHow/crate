@@ -169,9 +169,14 @@ export const MemberColumns = (handleDelete:(data:IMember)=>void)=> [
         width:160
     },
     {
-        field:'registerType',
+        field:'Registered By',
         headerName:'Type',
-        width:120
+        width:160,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
+            )
+        }
     },
     {
         field:'id',

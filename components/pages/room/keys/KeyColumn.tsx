@@ -46,6 +46,38 @@ export const KeyColumns = (
     },
 
     {
+        field:'createdAt',
+        headerName:'Issued on',
+        width:110,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span>{new Date(params.row.createdAt).toLocaleDateString()}</span>
+            )
+        }
+    },
+    {
+        field:'returned',
+        headerName:'Returned',
+        width:110,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="flex-center" >{params.row?.returned ? 'Yes':'No'}</span>
+            )
+        }
+    },
+
+    {
+        field:'returnedDate',
+        headerName:'Returned On',
+        width:110,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="flex-center">{params.row?.returned ? new Date(params.row?.returnedDate).toLocaleDateString():'N/A'}</span>
+            )
+        }
+    },
+
+    {
         field:'_id',
         headerName:'Action',
         width:80,

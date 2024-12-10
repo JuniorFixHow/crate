@@ -123,6 +123,7 @@ export async function deleteEvent(id:string){
 
         const rooms = await Room.find({eventId:event._id});
         if(rooms.length){
+            // const deleteRoomKeys = rooms.map((item)=>{})
             await Room.deleteMany({eventId:event._id});
         }
 

@@ -2,10 +2,11 @@ import { StandaloneSearchBox, useJsApiLoader } from '@react-google-maps/api'
 import { ComponentProps, Dispatch, SetStateAction, useRef } from 'react'
 
 type AddressProps = {
-    setAddress:Dispatch<SetStateAction<string>>
+    setAddress:Dispatch<SetStateAction<string>>,
+    country?:string
 } & ComponentProps<'div'>
 
-const Address = ({setAddress, className, ...props}:AddressProps) => {
+const Address = ({setAddress, country, className, ...props}:AddressProps) => {
     const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -41,6 +42,7 @@ const Address = ({setAddress, className, ...props}:AddressProps) => {
            onPlacesChanged={handlePlacesChange}
         >
             <input
+            defaultValue={country}
             type="text"
             className="border-b px-[0.3rem] dark:bg-transparent w-full dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]"
             placeholder="type here"

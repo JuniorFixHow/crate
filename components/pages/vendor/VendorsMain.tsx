@@ -5,7 +5,7 @@ import VendorsTable from './VendorsTable'
 const VendorsMain = () => {
   return (
     <div className='page' >
-      <Title text='Vendors' />
+      <Title text='Users' />
       <VendorsTable/>
     </div>
   )

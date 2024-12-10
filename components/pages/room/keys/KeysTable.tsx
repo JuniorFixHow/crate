@@ -24,6 +24,8 @@ const KeysTable = () => {
 
     const {keys, loading} = useFetchKeys()
 
+    // console.log('RoomId: ', roomId)
+
     const handleDelete =(data:IKey)=>{
         setDeleteMode(true);
         setCurrentKey(data);

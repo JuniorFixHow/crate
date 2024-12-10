@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SearchBar from '@/components/features/SearchBar'
 import AddButton from '@/components/features/AddButton'
 import { SearchVendor } from './fxn'
@@ -15,8 +15,8 @@ import { useFetchVendors } from '@/hooks/fetch/useVendor'
 import SearchSelectChurch from '@/components/shared/SearchSelectChurch'
 import { useFetchChurches } from '@/hooks/fetch/useChurch'
 import { ErrorProps } from '@/types/Types'
-import { deleteVendor } from '@/lib/actions/vendor.action'
-import { useRouter } from 'next/navigation'
+import { deleteVendor, getVendor } from '@/lib/actions/vendor.action'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const VendorsTable = () => {
     const [church, setChurch] = useState<string>('');
@@ -29,6 +29,8 @@ const VendorsTable = () => {
     const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
     const {vendors,  loading} = useFetchVendors();
     const {churches} = useFetchChurches();
+
+    const searchParams = useSearchParams();
 
     const hadndleInfo = (data:IVendor)=>{
         setCurrentVendor(data);
@@ -71,6 +73,23 @@ const VendorsTable = () => {
           }
         }
       }
+
+      useEffect(()=>{
+        const id = searchParams.get('id');
+        const fetchVendor = async()=>{
+            try {
+                if(id){
+                    const res = await getVendor(id);
+                    setCurrentVendor(res);
+                    setNewMode(true);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchVendor();
+
+      },[searchParams])
 
 
   return (

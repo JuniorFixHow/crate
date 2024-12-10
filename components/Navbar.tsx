@@ -117,7 +117,7 @@ const Navbar = () => {
 
                       <div onClick={()=>handleParentClick(item)}  className={`flex items-center flex-row hover:text-[#3C60CA] cursor-pointer gap-2 dark:${currentTtitle.parent === item.title ?'#3C60CA':'text-slate-200'} ${currentTtitle.parent === item.title ? 'text-[#3C60CA]':'text-black'}`}  >
                         {item.icon}
-                        <span className='text-[0.9rem] dark:text-[0.8rem] font-medium' >{item.title}</span>
+                        <span className='text-[0.8rem] font-medium' >{item.title}</span>
                         {
                           item?.children?.length && 
                           <>

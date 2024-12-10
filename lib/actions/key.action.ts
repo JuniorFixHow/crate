@@ -28,6 +28,22 @@ export async function updateKey(id:string, key:Partial<IKey>){
 }
 
 
+export async function returnKey(id:string){
+    try {
+        await connectDB();
+        const key = await Key.findById(id);
+        const update = await Key.findByIdAndUpdate(id, 
+            {$set:{returned:!key.returned, returnedDate:new Date().toISOString()}}, 
+            {new:true}
+        );
+        return handleResponse('Key status updated successfully', false, update, 201);
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured updating key return status', true, {}, 500);
+    }
+}
+
+
 export async function getKeys(){
     try {
         await connectDB();

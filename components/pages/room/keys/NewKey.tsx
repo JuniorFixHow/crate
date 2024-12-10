@@ -4,7 +4,7 @@ import AddButton from "@/components/features/AddButton"
 import SearchSelectMemberForKey from "@/components/features/SearchSelectMemberForKey"
 import SearchSelectRooms from "@/components/features/SearchSelectRooms"
 import { useFetchMembersInRoom } from "@/hooks/fetch/useRoom"
-import { createKey, updateKey } from "@/lib/actions/key.action"
+import { createKey, returnKey, updateKey } from "@/lib/actions/key.action"
 import { IKey } from "@/lib/database/models/key.model"
 import { ErrorProps } from "@/types/Types"
 import { Alert, Modal } from "@mui/material"
@@ -23,6 +23,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
     const [memberId, setMemberId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [code, setCode] =useState<string>('');
+    const [returnLoading, setReturnLoading] =useState<boolean>(false);
 
     const {members} = useFetchMembersInRoom(roomId)
 
@@ -80,6 +81,24 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
         }
     }
 
+    // console.log(new Date().toISOString())
+
+    const handleReturn = async()=>{
+        setResponse(null);
+        try {
+            setReturnLoading(true);
+            if(currentKey){
+                const res = await returnKey(currentKey._id);
+                setResponse(res);
+            }
+        } catch (error) {
+            console.log(error);
+            setResponse({message:'Error occured updating return status', error:true})
+        }finally{
+            setReturnLoading(false);
+        }
+    }
+
   return (
     <Modal
     open={editMode}
@@ -122,7 +141,11 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
 
             <div className="flex flex-row items-center gap-6">
                 <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentKey? 'Update':'Add'} smallText noIcon />
-                <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
+                {
+                    currentKey &&
+                    <AddButton disabled={returnLoading} isCancel onClick={handleReturn} type='button'  className='rounded w-[45%] justify-center' text={returnLoading ? 'loading...' : currentKey?.returned ? 'Deem Unreturned':'Deem Returned' } smallText noIcon />
+                }
+                <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isDanger onClick={handleClose} smallText noIcon />
             </div>
         </form>
     </div>
