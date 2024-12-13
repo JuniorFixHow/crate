@@ -1,6 +1,7 @@
-import mongoose, { Document, model, models, Schema } from "mongoose";
+import mongoose, { CallbackError, Document, model, models, Schema } from "mongoose";
 import { IChurch } from "./church.model";
 import { IVendor } from "./vendor.model";
+import Response from "./response.model";
 
 export interface IMember extends Document{
     _id:string;
@@ -41,7 +42,16 @@ const MemberSchema = new Schema<IMember>({
     status:String,
 },{timestamps:true});
 
-
+MemberSchema.pre('deleteOne', {document:true, query:false}, async function(next){
+    try {
+        const memberId = this._id;
+        await Response.deleteMany({memberId});
+        next();
+    } catch (error) {
+        console.log(error)
+        next(error as CallbackError)
+    }
+})
 
 const Member = models?.Member || model('Member', MemberSchema);
 export default Member;

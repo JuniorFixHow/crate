@@ -1,16 +1,16 @@
 'use server'
 
-import CYPSet from "../database/models/cypset.model";
 import Response, { IResponse } from "../database/models/response.model";
+import Section from "../database/models/section.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 
-export async function createCpySet(response:Partial<IResponse>){
+export async function createResponse(response:Partial<IResponse>){
     try {
         await connectDB();
-        const {cypsetId} = response;
+        const {sectionId} = response;
         const res = await Response.create(response);
-        await CYPSet.findByIdAndUpdate(cypsetId, {$push:{responses:res._id}})
+        await Section.findByIdAndUpdate(sectionId, {$push:{responses:res._id}})
         return handleResponse('Response created successfully', false, res, 201)
     } catch (error) {
         console.log(error);
@@ -35,8 +35,7 @@ export async function getResponse(id:string){
     try {
         await connectDB();
         const responses = await Response.findById(id)
-        .populate('cypsetId')
-        .populate('questionId')
+        .populate('sectionId')
         .lean();
         return JSON.parse(JSON.stringify(responses));
     } catch (error) {
@@ -50,8 +49,7 @@ export async function getResponses(){
     try {
         await connectDB();
         const responses = await Response.find()
-        .populate('cypsetId')
-        .populate('questionId')
+        .populate('sectionId')
         .lean();
 
         return JSON.parse(JSON.stringify(responses));
@@ -67,7 +65,7 @@ export async function deleteResponse(id:string){
         await connectDB();
         const response = await Response.findById(id);
 
-        await CYPSet.findByIdAndUpdate(response.cypsetId, {$pull:{responses:response._id}})
+        await Section.findByIdAndUpdate(response.sectionId, {$pull:{responses:response._id}})
 
         await Response.findByIdAndDelete(id);
 

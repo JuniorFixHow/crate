@@ -3,10 +3,11 @@ import { ComponentProps, Dispatch, SetStateAction, useRef } from 'react'
 
 type AddressProps = {
     setAddress:Dispatch<SetStateAction<string>>,
-    country?:string
+    country?:string,
+    required?:boolean
 } & ComponentProps<'div'>
 
-const Address = ({setAddress, country, className, ...props}:AddressProps) => {
+const Address = ({setAddress, required, country, className, ...props}:AddressProps) => {
     const searchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -32,7 +33,7 @@ const Address = ({setAddress, country, className, ...props}:AddressProps) => {
       
 
   return (
-    <div {...props} className={`${className} w-full z-50`} >
+    <div {...props} className={`${className} z-50`} >
     {
         isLoaded &&
         <StandaloneSearchBox
@@ -42,6 +43,7 @@ const Address = ({setAddress, country, className, ...props}:AddressProps) => {
            onPlacesChanged={handlePlacesChange}
         >
             <input
+            required={required}
             defaultValue={country}
             type="text"
             className="border-b px-[0.3rem] dark:bg-transparent w-full dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]"

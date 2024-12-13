@@ -23,8 +23,8 @@ export async function signupUser(email:string, password:string, data:IUser ){
 
 export async function signinUser(email:string, password:string){
     try {
+        // console.log('Result: ', {email, password})
         const res = await signInWithEmailAndPassword(auth, email, password);
-        // console.log('Result: ', res)
         const user = res.user;
         if(!user.emailVerified){
             await signOut(auth);
@@ -50,7 +50,7 @@ export async function signinUser(email:string, password:string){
             if(!data.emailVerified){
                 await updateDoc(doc(db, "Users", id), {emailVerified:true})
             }
-
+            // console.log("Data: ", data)
             return handleResponse('Logged in successfully', false, userData, 201)
         }
     } catch (error) {

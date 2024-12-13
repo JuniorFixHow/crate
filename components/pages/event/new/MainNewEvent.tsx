@@ -1,5 +1,6 @@
 'use client'
 import AddButton from '@/components/features/AddButton'
+import Address from '@/components/shared/Address'
 import { today } from '@/functions/dates'
 import { useAuth } from '@/hooks/useAuth'
 import { createEvent } from '@/lib/actions/event.action'
@@ -10,18 +11,11 @@ import { useRouter } from 'next/navigation'
 import { ChangeEvent, FormEvent, useRef, useState } from 'react'
 
 
-type QuestionProps = { 
-    id: string; 
-    label: string; 
-    type: string; 
-    options?: string[] 
-}
-
 const MainNewEvent = () => {
   const [data, setData] = useState<Partial<IEvent>>({});
+  const [location, setLocation] =useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorProps>(null);
-  const [customQuestions, setCustomQuestions] = useState<QuestionProps[]>([]);
 
   const formRef = useRef<HTMLFormElement>(null);
   const { user } = useAuth();
@@ -42,6 +36,7 @@ const MainNewEvent = () => {
       setLoading(true);
       const body:Partial<IEvent> = {
         ...data,
+        location,
         createdBy:user?.userId
       }
       await createEvent(body);
@@ -56,22 +51,7 @@ const MainNewEvent = () => {
   };
 
   // Handle custom questions
-  const addCustomQuestion = () => {
-    setCustomQuestions((prev) => [
-      ...prev,
-      { id: Date.now().toString(), label: "", type: "text", options: [] },
-    ]);
-  };
-
-  const updateCustomQuestion = (id: string, updatedData: Partial<{ label: string; type: string; options: string[] }>) => {
-    setCustomQuestions((prev) =>
-      prev.map((question) => (question.id === id ? { ...question, ...updatedData } : question))
-    );
-  };
-
-  const removeCustomQuestion = (id: string) => {
-    setCustomQuestions((prev) => prev.filter((question) => question.id !== id));
-  };
+  
 
   return (
     <div className="page">
@@ -94,14 +74,15 @@ const MainNewEvent = () => {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 font-semibold text-[0.8rem]">Location</span>
-              <input
+              <Address setAddress={setLocation} required className='' />
+              {/* <input
                 required
                 onChange={handleChange}
                 placeholder="type here..."
                 className="border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
                 type="text"
                 name="location"
-              />
+              /> */}
             </div>
             <div className="flex flex-row gap-12 items-center">
               <div className="flex flex-col gap-1">
@@ -126,6 +107,32 @@ const MainNewEvent = () => {
                   className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
                   type="date"
                   name="to"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-12 items-center">
+              <div className="flex flex-col gap-1">
+                <span className="text-slate-400 font-semibold text-[0.8rem]">Adults&apos; Price</span>
+                <input
+                  
+                  onChange={handleChange}
+                  min={0}
+                  placeholder="$"
+                  className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                  type="number"
+                  name="adultPrice"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-slate-400 font-semibold text-[0.8rem]">Children&apos;s Price</span>
+                <input
+                  onChange={handleChange}
+                  min={0}
+                  placeholder="$"
+                  className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                  type="number"
+                  name="childPrice"
                 />
               </div>
             </div>
@@ -154,57 +161,27 @@ const MainNewEvent = () => {
             </div>
           </div>
 
-          {/* Custom Questions */}
-          {data.type === "CYP" && (
+         
             <div className="flex flex-1 flex-col gap-5">
              
-              <AddButton noIcon className='rounded flex-center' text='Add Question' onClick={addCustomQuestion} type='button' />
-              {customQuestions.map((question) => (
-                <div key={question.id} className="border p-4 rounded space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Question Label"
-                    value={question.label}
-                    className="border-b w-full p-1 outline-none"
-                    onChange={(e) => updateCustomQuestion(question.id, { label: e.target.value })}
-                  />
-                  <select
-                    value={question.type}
-                    onChange={(e) => updateCustomQuestion(question.id, { type: e.target.value })}
-                    className="border p-1 w-full outline-none"
-                  >
-                    <option value="text">Text</option>
-                    <option value="number">Text</option>
-                    <option value="select">Select</option>
-                    <option value="radio">Radio</option>
-                    <option value="checkbox">Checkbox</option>
-                    <option value="textarea">Textarea</option>
-                  </select>
-                  {["select", "radio", "checkbox"].includes(question.type) && (
-                    <textarea
-                      placeholder="Enter options, separated by commas"
-                      value={question.options?.join(", ") || ""}
-                      className="border w-full p-1 outline-none"
-                      onChange={(e) =>
-                        updateCustomQuestion(question.id, {
-                          options: e.target.value.split(",").map((opt) => opt.trim()),
-                        })
-                      }
-                    />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeCustomQuestion(question.id)}
-                    className="text-red-500 text-sm underline"
-                  >
-                    Remove Question
-                  </button>
-                </div>
-              ))}
+            <div className="flex flex-col gap-1">
+              <span className="text-slate-400 font-semibold text-[0.8rem]">Description</span>
+              <textarea
+                
+                onChange={handleChange}
+                placeholder="type here..."
+                className="border p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                name="description"
+              />
             </div>
-          )}
+            </div>
         </div>
 
+          {error?.message && (
+            <Alert onClose={() => setError(null)} severity={error.error ? "error" : "success"}>
+              {error.message}
+            </Alert>
+          )}
         {/* Submit */}
         <div className="flex gap-6 flex-row items-center">
           <AddButton type="submit" text={loading ? "loading..." : "Create"} noIcon smallText className="rounded px-4" />
@@ -218,11 +195,6 @@ const MainNewEvent = () => {
             className="rounded px-4"
           />
         </div>
-        {error?.message && (
-          <Alert onClose={() => setError(null)} severity={error.error ? "error" : "success"}>
-            {error.message}
-          </Alert>
-        )}
       </form>
     </div>
   );

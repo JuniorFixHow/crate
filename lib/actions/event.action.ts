@@ -101,6 +101,17 @@ export async function getEvent(id:string){
     }
 }
 
+export async function getCYPEvents(){
+    try {
+        await connectDB();
+        const events = await Event.find({type:'CYP'});
+        return JSON.parse(JSON.stringify(events));
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 export async function deleteEvent(id:string){
     try {
         await connectDB();

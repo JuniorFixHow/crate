@@ -1,5 +1,6 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { IVendor } from "./vendor.model";
+import CYPSet from "./cypset.model";
 
 export interface IEvent extends Document {
     _id:string
@@ -29,6 +30,17 @@ const EventSchema = new Schema<IEvent>({
     sessions:{type:Number, default:0},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false}
 },{timestamps:true})
+
+EventSchema.pre('deleteOne', {document:true, query:false}, async function(next){
+    try {
+        const eventId = this._id;
+        await CYPSet.deleteMany({eventId});
+        next();
+    } catch (error) {
+        console.log(error);
+        next(error as CallbackError)
+    }
+})
 
 const Event = models?.Event || model('Event',EventSchema);
 export default Event;

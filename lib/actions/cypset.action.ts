@@ -1,8 +1,6 @@
 'use server'
 
 import CYPSet, { ICYPSet } from "../database/models/cypset.model";
-import Question from "../database/models/question.model";
-import Response from "../database/models/response.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 
@@ -45,8 +43,7 @@ export async function getCYPSet(id:string){
     try {
         await connectDB();
         const cyp = await CYPSet.findById(id)
-        .populate('questions')
-        .populate('responses')
+        .populate('sections')
         .lean();
 
         return JSON.parse(JSON.stringify(cyp));
@@ -61,8 +58,8 @@ export async function getCYPSets(){
     try {
         await connectDB();
         const cyps = await CYPSet.find()
-        .populate('questions')
-        .populate('responses')
+        .populate('sections')
+        .populate('eventId')
         .lean();
 
         return JSON.parse(JSON.stringify(cyps));
@@ -76,12 +73,6 @@ export async function getCYPSets(){
 export async function deleteCYPSet(id:string){
     try {
         await connectDB();
-        const cyp = await CYPSet.findById(id);
-
-        await Promise.all([
-            Response.deleteMany({cypsetId:cyp._id}),
-            Question.deleteMany({cypsetId:cyp._id}),
-        ])
 
         await CYPSet.findByIdAndDelete(id);
 

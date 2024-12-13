@@ -33,4 +33,8 @@
     .modal{
         @apply fixed inset-0 z-50 flex-center bg-black/50 backdrop-blur-0
     }
+
+    .table-w{
+        @apply shadow p-4 flex  gap-6 flex-col bg-white dark:bg-black dark:border rounded
+    }
 }

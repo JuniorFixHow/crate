@@ -1,5 +1,5 @@
 import { Document, model, models, Schema, Types } from "mongoose";
-import { ICYPSet } from "./cypset.model";
+import { ISection } from "./section.model";
 
 export interface IQuestion extends Document{ 
     _id:string;
@@ -7,7 +7,7 @@ export interface IQuestion extends Document{
     label: string; 
     type: string; 
     options?: string[];
-    cypsetId:string|Types.ObjectId|ICYPSet;
+    sectionId:string|Types.ObjectId|ISection;
     createdAt?:Date;
     updatedAt?:Date; 
 }
@@ -18,7 +18,7 @@ const QuestionSchema =  new Schema<IQuestion>({
     label:String,
     type:String,
     options:[String],
-    cypsetId:{type:Schema.Types.ObjectId, ref:'CPYSet'},
+    sectionId:{type:Schema.Types.ObjectId, ref:'Section'},
 },{timestamps:true})
 
 

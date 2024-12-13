@@ -1,9 +1,9 @@
-import PublicMain from "@/components/pages/public/PublicMain"
+import SectionsMain from "@/components/pages/public/section/SectionsMain"
 
 const page = () => {
   return (
     <div className="main-c" >
-      <PublicMain/>
+        <SectionsMain/>
     </div>
   )
 }
