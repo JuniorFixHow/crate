@@ -2,14 +2,13 @@
 import React from "react"
 
 import { RxDashboard } from 'react-icons/rx'
-import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences } from "react-icons/md"
+import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory } from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
-import { LiaDoorOpenSolid } from "react-icons/lia";
 import { CiGlobe } from "react-icons/ci";
 
 
@@ -58,6 +57,11 @@ export const NavItems:NavigationProps[] = [
                 image:<CiGlobe />,
                 path:'/dashboard/events/public'
             },
+            {
+              text:'Records',
+              path:'/dashboard/events/summary',
+              image:<MdHistory />
+            },
         ],
         icon: <MdEventAvailable />,
     },
@@ -92,11 +96,6 @@ export const NavItems:NavigationProps[] = [
             text:'Keys',
             path:'/dashboard/rooms/keys',
             image:<IoKeyOutline />
-          },
-          {
-            text:'Summary',
-            path:'/dashboard/rooms/summary',
-            image:<LiaDoorOpenSolid />
           },
         ]
     },

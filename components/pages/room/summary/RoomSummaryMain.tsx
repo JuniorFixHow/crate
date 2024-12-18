@@ -7,9 +7,9 @@ const RoomSummaryMain = () => {
   return (
     <div className='page' >
          <div className="flex flex-row gap-2 items-baseline">
-            <Title clickable link="/dashboard/rooms" text="Rooms" />
+            <Title clickable link="/dashboard/events/badges" text="Registrations" />
             <IoIosArrowForward/>
-            <Title text="Registration Summary" />
+            <Title text="Summary" />
         </div>
         <RoomSummaryTable/>
     </div>

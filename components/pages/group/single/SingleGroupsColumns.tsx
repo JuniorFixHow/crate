@@ -41,7 +41,7 @@ export const SingleGroupColumns =(
         }
     },
     {
-        field:'badgeIssued',
+        field:'mefra',
         headerName:'MEFRA',
         width:100,
         renderCell:(params:GridRenderCellParams)=>{

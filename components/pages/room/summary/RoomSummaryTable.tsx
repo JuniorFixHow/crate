@@ -13,6 +13,7 @@ import Title from "@/components/features/Title"
 import { IEvent } from "@/lib/database/models/event.model"
 import { getEvent } from "@/lib/actions/event.action"
 import CustomSummaryTable from "./CustomSummaryTable"
+import Subtitle from "@/components/features/Subtitle"
 
 const RoomSummaryTable = () => {
     const [search, setSearch] = useState<string>('');
@@ -71,11 +72,14 @@ const RoomSummaryTable = () => {
             </div>
         </div>
 
-        <div ref={printRef} id="print"  className="flex flex-col gap-4 w-full">
-            {
-                event &&
-                <Title text={event.name} />
-            }
+        <div ref={printRef} id="print"  className="flex flex-col w-full">
+                <div className="flex flex-col w-full items-center gap-4">
+                {
+                    event &&
+                    <Title text={event.name} className="text-center" />
+                }
+                <Subtitle text="Member Registration Records" />
+                </div>
             {
                 loading ?
                 <LinearProgress className="w-full" aria-describedby="loading..." />
