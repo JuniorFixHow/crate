@@ -55,7 +55,13 @@ export async function getKeys(){
                 model:'Member'
             }
         })
-        .populate('roomId')
+        .populate({
+            path:'roomId',
+            populate:{
+                path:'eventId',
+                model:'Event'
+            }
+        })
         .lean();
         // console.log('Keys: ', keys)
         return JSON.parse(JSON.stringify(keys))

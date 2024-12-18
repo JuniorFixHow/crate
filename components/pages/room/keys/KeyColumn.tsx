@@ -29,7 +29,7 @@ export const KeyColumns = (
     },
     {
         field:'holder',
-        headerName:'Holder',
+        headerName:'Keeper',
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(

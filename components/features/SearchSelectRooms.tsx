@@ -2,16 +2,17 @@
 import { ComponentProps, Dispatch, SetStateAction, useState } from 'react'
 import { IoCloseSharp } from 'react-icons/io5';
 import './customscroll.css';
-import { SearchRoomWithoutEvent } from '../pages/room/fxn';
+import { SearchRoom } from '../pages/room/fxn';
 import { useFetchRooms } from '@/hooks/fetch/useRoom';
 
 export type SearchSelectEventsProps = {
   isGeneric?:boolean,
   require?:boolean,
+  eventId:string,
   setSelect?:Dispatch<SetStateAction<string>>
 } &ComponentProps<'div'>
 
-const SearchSelectRooms = ({isGeneric, require, setSelect, className, ...props}:SearchSelectEventsProps) => {
+const SearchSelectRooms = ({isGeneric, eventId, require, setSelect, className, ...props}:SearchSelectEventsProps) => {
     const [search, setSearch] = useState<string>('');
     const [showSearch, setShowSearch] = useState<boolean>(false);
     const {rooms} = useFetchRooms();
@@ -30,7 +31,7 @@ const SearchSelectRooms = ({isGeneric, require, setSelect, className, ...props}:
           <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Rooms</option>
         }
         {
-            SearchRoomWithoutEvent(rooms, search).map((event)=>(
+            SearchRoom(rooms, search, eventId).map((event)=>(
                 <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{event?.venue} {event?.number}</option>
             ))
         }

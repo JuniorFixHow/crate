@@ -14,10 +14,12 @@ import SearchSelectRooms from "@/components/features/SearchSelectRooms"
 import NewKey from "./NewKey"
 import { deleteKey, getKey } from "@/lib/actions/key.action"
 import { useSearchParams } from "next/navigation"
+import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 
 const KeysTable = () => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [roomId, setRoomId] = useState<string>('');
+    const [eventId, setEventId] = useState<string>('');
     const [search, setSearch] = useState<string>('');
     const [currentKey, setCurrentKey] = useState<IKey|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -82,7 +84,10 @@ const KeysTable = () => {
   return (
     <div className="flex flex-col p-5 rounded gap-4 bg-white dark:bg-transparent dark:border" >
         <div className="flex w-full justify-between">
-            <SearchSelectRooms isGeneric setSelect={setRoomId} />
+            <div className="flex items-end gap-4">
+                <SearchSelectEvents setSelect={setEventId} isGeneric />
+                <SearchSelectRooms eventId={eventId} isGeneric setSelect={setRoomId} />
+            </div>
             <div className="flex items-end gap-4">
                 <SearchBar setSearch={setSearch} reversed={false} />
                 <AddButton onClick={handleNew} text="Add Key"  noIcon smallText className="rounded" type="button" />
@@ -103,7 +108,7 @@ const KeysTable = () => {
             :
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
-                    rows={SearchKey(keys, search, roomId)}
+                    rows={SearchKey(keys, search, roomId, eventId)}
                     getRowId={(row:IKey)=>row._id}
                     columns={KeyColumns(handleDelete, handleEdit)}
                     initialState={{ pagination: { paginationModel } }}

@@ -71,7 +71,7 @@ const RoomSummaryTable = () => {
             </div>
         </div>
 
-        <div ref={printRef} id="print"  className="flex flex-col gap-5 w-full">
+        <div ref={printRef} id="print"  className="flex flex-col gap-4 w-full">
             {
                 event &&
                 <Title text={event.name} />

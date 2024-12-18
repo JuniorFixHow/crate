@@ -1,6 +1,7 @@
 'use client'
 
 import AddButton from "@/components/features/AddButton"
+import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 import SearchSelectMemberForKey from "@/components/features/SearchSelectMemberForKey"
 import SearchSelectRooms from "@/components/features/SearchSelectRooms"
 import { useFetchMembersInRoom } from "@/hooks/fetch/useRoom"
@@ -23,6 +24,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
     const [memberId, setMemberId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [code, setCode] =useState<string>('');
+    const [eventId, setEventId] =useState<string>('');
     const [returnLoading, setReturnLoading] =useState<boolean>(false);
 
     const {members} = useFetchMembersInRoom(roomId)
@@ -116,15 +118,20 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
                     <input onChange={(e)=>setCode(e.target.value)} name='venue' required={!currentKey} defaultValue={currentKey?.code} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                 </div>
 
+                <div className="flex flex-col">
+                    <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
+                    <SearchSelectEvents isGeneric setSelect={setEventId} />
+                </div>
+
                 <div className="flex gap-12 items-end">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Select Room</span>
-                        <SearchSelectRooms isGeneric require={!currentKey} setSelect={setRoomId} />
+                        <SearchSelectRooms eventId={eventId} isGeneric require={!currentKey} setSelect={setRoomId} />
                     </div>
                     {
                         roomId && members.length > 0 &&
                         <div className="flex flex-col">
-                            <span className='text-slate-500 text-[0.8rem]' >Select Holder</span>
+                            <span className='text-slate-500 text-[0.8rem]' >Select Keeper</span>
                             <SearchSelectMemberForKey isGeneric require={members.length > 0} setSelect={setMemberId} members={members} />
                         </div>
                     }
