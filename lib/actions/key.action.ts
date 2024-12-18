@@ -48,7 +48,13 @@ export async function getKeys(){
     try {
         await connectDB();
         const keys = await Key.find()
-        .populate('holder')
+        .populate({
+            path:'holder',
+            populate:{
+                path:'memberId',
+                model:'Member'
+            }
+        })
         .populate('roomId')
         .lean();
         // console.log('Keys: ', keys)
@@ -64,7 +70,13 @@ export async function getKey(id:string){
     try {
         await connectDB();
         const key = await Key.findById(id)
-        .populate('holder')
+        .populate({
+            path:'holder',
+            populate:{
+                path:'memberId',
+                model:'Member'
+            }
+        })
         .populate('roomId')
         .lean();
         return JSON.parse(JSON.stringify(key));

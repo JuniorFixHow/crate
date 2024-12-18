@@ -42,6 +42,7 @@ export async function signinUser(email:string, password:string){
                 photo:user.photoURL!,
                 email:user.email!,
                 country:data.country!,
+                churchId:data.churchId!,
                 emailVerified:user.emailVerified,
                 isAdmin:data.isAdmin,
                 name:user.displayName!,

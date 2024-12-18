@@ -9,7 +9,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { GroupColumns } from './GroupColumns';
 import {  SearchGroupWithoutEvent } from './fxn';
 import { useFetchEvents } from '@/hooks/fetch/useEvent';
-import { useFetchGroups } from '@/hooks/fetch/useGroups';
+import {  useFetchGroupsForEvent } from '@/hooks/fetch/useGroups';
 import { IGroup } from '@/lib/database/models/group.model';
 
 type GroupTableProps = {
@@ -20,7 +20,7 @@ type GroupTableProps = {
 const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const [search, setSearch] = useState<string>('');
     const {events} = useFetchEvents();
-    const {groups, loading} = useFetchGroups(eventId);
+    const {groups, loading} = useFetchGroupsForEvent(eventId);
     // console.log('Groups here: ',groups)
 
     // console.log('EventID: ', eventId)

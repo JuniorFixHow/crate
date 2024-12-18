@@ -123,7 +123,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
               </div>
             }
             {
-              !(currentGroup?.type === 'Couple' && currentGroup?.members?.length === 2) &&
+              !(currentGroup?.type === 'Couple' && currentGroup?.eligible >= 2) &&
               <AddButton onClick={()=>setNewMode(true)} text='Add a member' smallText className='rounded' />
             }
             <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />

@@ -4,7 +4,7 @@ import { useFetchKeys } from "@/hooks/fetch/useKeys"
 import { Alert, LinearProgress, Paper } from "@mui/material"
 import { DataGrid } from "@mui/x-data-grid"
 import { SearchKey } from "./fxn"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ErrorProps } from "@/types/Types"
 import SearchBar from "@/components/features/SearchBar"
 import { IKey } from "@/lib/database/models/key.model"
@@ -12,7 +12,8 @@ import DeleteDialog from "@/components/DeleteDialog"
 import { KeyColumns } from "./KeyColumn"
 import SearchSelectRooms from "@/components/features/SearchSelectRooms"
 import NewKey from "./NewKey"
-import { deleteKey } from "@/lib/actions/key.action"
+import { deleteKey, getKey } from "@/lib/actions/key.action"
+import { useSearchParams } from "next/navigation"
 
 const KeysTable = () => {
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -21,10 +22,29 @@ const KeysTable = () => {
     const [currentKey, setCurrentKey] = useState<IKey|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const searchParams = useSearchParams();
 
     const {keys, loading} = useFetchKeys()
+    // console.log(keys)
 
     // console.log('RoomId: ', roomId)
+
+    useEffect(()=>{
+        const id = searchParams.get('id');
+        const fetchKey = async()=>{
+            if(id){
+                try {
+                    const key = await getKey(id);
+                    setCurrentKey(key);
+                    setEditMode(true);
+                } catch (error) {
+                    console.log(error);
+                    setResponse({message:'Error occured fetching key data', error:true})
+                }
+            }
+        }
+        fetchKey();
+    },[searchParams])
 
     const handleDelete =(data:IKey)=>{
         setDeleteMode(true);

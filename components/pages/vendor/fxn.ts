@@ -1,5 +1,6 @@
 import { IChurch } from "@/lib/database/models/church.model";
 import { IVendor } from "@/lib/database/models/vendor.model";
+import { IZone } from "@/lib/database/models/zone.model";
 
 export const SearchVendor =(vondors:IVendor[], text:string, church:string):IVendor[]=>{
     const data = vondors.filter((vendor)=>{
@@ -18,6 +19,21 @@ export const SearchVendor =(vondors:IVendor[], text:string, church:string):IVend
 
 export const SearchChurchWithoutZone =(churches:IChurch[], text:string, ):IChurch[]=>{
     const data = churches.filter((church)=>{
+        return text === '' ? church : Object.values(church)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return data;
+}
+
+export const SearchChurchWithZone =(churches:IChurch[], text:string, zoneId:string):IChurch[]=>{
+    const data = churches
+    .filter((item)=>{
+        const zone = item.zoneId as unknown as IZone
+        return zoneId === '' ? item : zoneId === zone._id
+    })
+    .filter((church)=>{
         return text === '' ? church : Object.values(church)
         .join(' ')
         .toLowerCase()

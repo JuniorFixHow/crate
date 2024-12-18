@@ -43,6 +43,7 @@ const Login = () => {
                 const session:SessionPayload = {
                     userId:user?.id,
                     email:user?.email,
+                    churchId:user.churchId,
                     name:user?.name,
                     photo:user?.photo,
                     role:user?.role,

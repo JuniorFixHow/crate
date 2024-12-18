@@ -37,7 +37,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     const [data, setData] = useState<Partial<IMember>>({
         email:'', name:'', ageRange:'', 
          note:'', marital:'Single',
-        allergy:'', voice:'None', status:'Mmeber', password:'',
+        allergy:'', employ:'Employed', status:'Mmeber', password:'',
     });
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
 
@@ -123,7 +123,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
         try {
             const body:Partial<IMember> = {
                 ...data, password:getPassword(data.name!, data.phone!),
-                registeredBy:user?.userId
+                registeredBy:user?.userId, church:user?.churchId
             } 
             const res = await createMember(body);
             const response = res?.payload as IMember
@@ -155,7 +155,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     marital:data.marital || currentMemeber.marital,
                     dietary:data.dietary || currentMemeber.dietary,
                     allergy:data.allergy || currentMemeber.allergy,
-                    voice:data.voice || currentMemeber.voice,
+                    employ:data.employ || currentMemeber.employ,
                     status:data.status || currentMemeber.status,
                     ageRange:data.ageRange || currentMemeber.ageRange,
                     church:church||currentMemeber.church
@@ -218,15 +218,19 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                         <option className='dark:bg-black' value="Group">Group</option>
                     </select>
                 </div> */}
-
+                
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Age Group</span>
                     <select required={!currentMemeber} onChange={handleChange} name='ageRange'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.ageRange} >
                         <option className='dark:bg-black' value="">select</option>
-                        <option className='dark:bg-black' value="6-17">6-17</option>
-                        <option className='dark:bg-black' value="18-35">18-35</option>
-                        <option className='dark:bg-black' value="36-50">36-50</option>
-                        <option className='dark:bg-black' value="Above 50">Above 50</option>
+                        <option className='dark:bg-black' value="0-5">0-5</option>
+                        <option className='dark:bg-black' value="6-10">6-10</option>
+                        <option className='dark:bg-black' value="11-20">11-20</option>
+                        <option className='dark:bg-black' value="21-30">21-30</option>
+                        <option className='dark:bg-black' value="31-40">31-40</option>
+                        <option className='dark:bg-black' value="41-50">41-50</option>
+                        <option className='dark:bg-black' value="51-60">51-60</option>
+                        <option className='dark:bg-black' value="61+">61+</option>
                     </select>
                 </div>
             </div>
@@ -267,22 +271,21 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             {/* RIGHT SIDE */}
 
         <div className="flex flex-col gap-5">
-
-            <div className="flex flex-col gap-1">
-                <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
-                <SearchSelectChurch require={!currentMemeber} setSelect={setChurch} isGeneric />
-            </div>
+            {
+                currentMemeber &&
+                <div className="flex flex-col gap-1">
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
+                    <SearchSelectChurch require={!currentMemeber} setSelect={setChurch} isGeneric />
+                </div>
+            }
 
             <div className="flex flex-row gap-12 items-start">
                 <div className="flex flex-col gap-1">
-                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Voice</span>
-                    <select required={!currentMemeber} onChange={handleChange} name='voice'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.voice} >
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Employment Status</span>
+                    <select required={!currentMemeber} onChange={handleChange} name='employ'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.employ} >
                         <option className='dark:bg-black' value="">select</option>
-                        <option className='dark:bg-black' value="None">None</option>
-                        <option className='dark:bg-black' value="Soprano">Soprano</option>
-                        <option className='dark:bg-black' value="Tenor">Tenor</option>
-                        <option className='dark:bg-black' value="Bass">Bass</option>
-                        <option className='dark:bg-black' value="All">All</option>
+                        <option className='dark:bg-black' value="Employed">Employed</option>
+                        <option className='dark:bg-black' value="Unemployed">Unemployed</option>
                     </select>
                 </div>
 

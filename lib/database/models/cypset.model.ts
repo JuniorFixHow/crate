@@ -24,9 +24,9 @@ const CYPSetSchema =  new Schema<ICYPSet>({
 },{timestamps:true})
 
 
-CYPSetSchema.pre('deleteOne', {document:true, query:false}, async function (next) {
+CYPSetSchema.pre('deleteOne', {document: false, query: true}, async function (next) {
     try {
-        const cypsetId = this._id;
+        const cypsetId = this.getQuery()._id;
         await Section.deleteMany({cypsetId});
         next();
     } catch (error) {

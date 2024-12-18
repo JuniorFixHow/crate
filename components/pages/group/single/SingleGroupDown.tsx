@@ -35,7 +35,9 @@ const SingleGroupDown = ({currentGroup, setCurrentGroup}:SingleGroupDownProps) =
                 }
                 const res = await updateGroup(currentGroup._id, body);
                 // console.log('Body: ', body)
-                setCurrentGroup(res);
+                const result = res?.payload as IGroup
+                setCurrentGroup(result);
+                setResponse(res);
             }
             setResponse({message:'Group updated successfully', error:false})
         } catch (error) {

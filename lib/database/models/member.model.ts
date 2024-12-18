@@ -17,7 +17,7 @@ export interface IMember extends Document{
     note?:string,
     marital?:string,
     allergy?:string,
-    voice?:string,
+    employ?:string,
     status:string;
     password:string;
     createdAt?: Date; // Automatically added by timestamps
@@ -37,14 +37,14 @@ const MemberSchema = new Schema<IMember>({
     allergy:String,
     note:String,
     marital:String,
-    voice:String,
+    employ:String,
     password:String,
     status:String,
 },{timestamps:true});
 
-MemberSchema.pre('deleteOne', {document:true, query:false}, async function(next){
+MemberSchema.pre('deleteOne', {document: false, query: true}, async function(next){
     try {
-        const memberId = this._id;
+        const memberId = this.getQuery()._id;
         await Response.deleteMany({memberId});
         next();
     } catch (error) {

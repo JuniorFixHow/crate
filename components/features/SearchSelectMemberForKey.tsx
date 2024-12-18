@@ -2,13 +2,14 @@
 import { ComponentProps, Dispatch, SetStateAction, useState } from 'react'
 import { IoCloseSharp } from 'react-icons/io5';
 import './customscroll.css';
-import { searchMember } from '@/functions/search';
+import { searchMemberForKey } from '@/functions/search';
+import { IRegistration } from '@/lib/database/models/registration.model';
 import { IMember } from '@/lib/database/models/member.model';
 
 export type SearchSelectEventsProps = {
   isGeneric?:boolean,
   require?:boolean,
-  members:IMember[]
+  members:IRegistration[]
   setSelect?:Dispatch<SetStateAction<string>>
 } &ComponentProps<'div'>
 
@@ -30,9 +31,12 @@ const SearchSelectMemberForKey = ({isGeneric, require, members, setSelect, class
           <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Members</option>
         }
         {
-            searchMember(search, members).map((event)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{event?.name}</option>
-            ))
+            searchMemberForKey(search, members).map((event)=>{
+                const member = event.memberId as unknown as IMember
+                return(
+                  <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{member?.name}</option>
+                )
+            })
         }
       </select>
     </div>

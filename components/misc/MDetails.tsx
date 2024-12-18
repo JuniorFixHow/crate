@@ -14,6 +14,8 @@ import { IRegistration } from "@/lib/database/models/registration.model"
 import { addMemberToGroup, getEventGroups } from "@/lib/actions/group.action"
 import { IGroup } from "@/lib/database/models/group.model"
 import { useFetchEvents } from "@/hooks/fetch/useEvent"
+import { IChurch } from "@/lib/database/models/church.model"
+import Link from "next/link"
 
 export type MDetailsProps = {
   id:string
@@ -31,6 +33,8 @@ const MDetails = ({id}:MDetailsProps) => {
   const [regLoading, setRegLoading] = useState<boolean>(false);
   const [regError, setRegError] = useState<ErrorProps>(null);
   const [groupId, setGroupId] = useState<string>('');
+
+  const church = currentMember?.church as IChurch || undefined
 
   const router = useRouter();
   const {events} = useFetchEvents();
@@ -180,13 +184,20 @@ const MDetails = ({id}:MDetailsProps) => {
               <span className="text-[0.8rem] font-semibold" >Status:</span>
               <span className="text-[0.8rem] text-slate-400" >{currentMember?.status}</span>
             </div>
+            {
+              church &&
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Church:</span>
+                <Link  href={{pathname:'/dashboard/churches', query:{id:church._id}}}  className="table-link" >{church?.name}</Link>
+              </div>
+            }
             {/* <div className="flex flex-row items-center gap-4">
               <span className="text-[0.8rem] font-semibold" >Group/Family:</span>
               <span className="text-[0.8rem] text-slate-400" >Yes <Link className="text-blue-800 hover:underline font-bold" href={`/dashboard/group/${member?.groupId}`} >({member?.groupId})</Link></span>
             </div> */}
             <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Voice:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.voice}</span>
+              <span className="text-[0.8rem] font-semibold" >Employment Status:</span>
+              <span className="text-[0.8rem] text-slate-400" >{currentMember?.employ}</span>
             </div>
             <div className="flex flex-row items-center gap-4">
               <span className="text-[0.8rem] font-semibold" >Marital status:</span>

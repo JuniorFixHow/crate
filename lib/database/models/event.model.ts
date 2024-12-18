@@ -31,9 +31,9 @@ const EventSchema = new Schema<IEvent>({
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false}
 },{timestamps:true})
 
-EventSchema.pre('deleteOne', {document:true, query:false}, async function(next){
+EventSchema.pre('deleteOne', {document: false, query: true}, async function(next){
     try {
-        const eventId = this._id;
+        const eventId = this.getQuery()._id;
         await CYPSet.deleteMany({eventId});
         next();
     } catch (error) {

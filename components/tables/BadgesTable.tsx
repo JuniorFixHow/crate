@@ -53,22 +53,24 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
         setCurrentEventReg(data);
     }
 
-    useEffect(()=>{
-        const fetchRegistation = async()=>{
+    useEffect(() => {
+        const id = searchParams?.get('regId');
+        if (!id) return;
+    
+        const fetchRegistration = async () => {
             try {
-                const id = searchParams?.get('regId');
-                if(id){
-                    const reg:IRegistration =  await getReg(id);
-                    setCurrentEventReg(reg)
-                    setInfoMode(true);
-                }
+                const reg: IRegistration = await getReg(id);
+                setCurrentEventReg(reg);
+                setInfoMode(true);
             } catch (error) {
-                console.log(error)
+                console.error(error);
             }
-        }
-
-        fetchRegistation()
-    },[searchParams])
+        };
+    
+        fetchRegistration();
+    }, [searchParams]);
+    
+    console.log(currentEventReg)
 
 
     const handleDeleteReg = async()=>{

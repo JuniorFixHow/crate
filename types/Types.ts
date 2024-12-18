@@ -1,5 +1,10 @@
+import { IEvent } from "@/lib/database/models/event.model"
+import { IGroup } from "@/lib/database/models/group.model"
+import { IKey } from "@/lib/database/models/key.model"
+import { IMember } from "@/lib/database/models/member.model"
+import { IRoom } from "@/lib/database/models/room.model"
 import { FieldValue } from "firebase/firestore"
-import mongoose from "mongoose"
+import mongoose, { Types } from "mongoose"
 import { Dispatch, ReactNode, SetStateAction } from "react"
 
 export type NavigationProps = {
@@ -179,6 +184,7 @@ export interface IUser {
    email:string,
    name:string,
    country:string,
+   churchId:string,
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,
@@ -190,3 +196,34 @@ export interface IUser {
 export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
    [P in K]: T[P] | (T[P] extends mongoose.Types.ObjectId ? never : never);
  };
+
+
+ export interface IMergedRegistrationData {
+   _id: string;
+   memberId: IMember | string | Types.ObjectId;
+   badgeIssued: 'Yes' | 'No';
+   groupId?: IGroup | string | Types.ObjectId;
+   roomIds?: (IRoom | string | Types.ObjectId)[];
+   eventId: IEvent | string | Types.ObjectId;
+   createdAt?: Date;
+   updatedAt?: Date;
+   keys: IKey[]; // Array of keys referencing the registration
+}
+
+
+//  export interface IMergedRegistrationData {
+//    _id: string; // Registration ID
+//    memberId: IMember; // Populated member data
+//    badgeIssued: 'Yes' | 'No';
+//    groupId?: IGroup; // Optional group ID
+//    roomIds?: string[]; // Original room IDs (if required)
+//    eventId: IEvent; // Event ID
+//    createdAt?: Date;
+//    updatedAt?: Date;
+//    rooms: IRoomWithKeys[]; // Rooms with keys nested
+// }
+
+// export interface IRoomWithKeys extends IRoom {
+//    keys: IKey[]; // Keys associated with the room
+// }
+

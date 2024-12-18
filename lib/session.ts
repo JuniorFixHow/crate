@@ -12,6 +12,7 @@ const duration = 7 * 24*60*60*1000
 
 export type SessionPayload = {
    userId:string,
+   churchId:string,
    email:string,
    name:string,
    country?:string,

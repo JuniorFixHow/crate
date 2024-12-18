@@ -8,7 +8,7 @@ import { GrGroup } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
-import { TbBuildingChurch } from "react-icons/tb";
+import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { LiaDoorOpenSolid } from "react-icons/lia";
 import { CiGlobe } from "react-icons/ci";
 
@@ -86,12 +86,17 @@ export const NavItems:NavigationProps[] = [
           {
             text:'Room Assignments',
             path:'/dashboard/rooms/assignments',
-            image:<LiaDoorOpenSolid />
+            image:<TbDoorExit />
           },
           {
             text:'Keys',
             path:'/dashboard/rooms/keys',
             image:<IoKeyOutline />
+          },
+          {
+            text:'Summary',
+            path:'/dashboard/rooms/summary',
+            image:<LiaDoorOpenSolid />
           },
         ]
     },

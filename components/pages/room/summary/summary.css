@@ -1,0 +1,11 @@
+@media print {
+    .print-area {
+      gap: 20px; /* Ensure adequate spacing between elements */
+    }
+    .print-title {
+      margin-bottom: 20px; /* Additional spacing below the Title */
+    }
+    .print-area * {
+      page-break-inside: avoid; /* Prevent breaking within elements */
+    }
+}

@@ -23,19 +23,20 @@ const SectionSchema = new Schema<ISection>({
 },{timestamps:true});
 
 
-SectionSchema.pre('deleteOne', {document:true, query:false}, async function(next){
+SectionSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
     try {
-        const sectionId = this._id;
+        const sectionId = this.getQuery()._id; // Access the _id from the query
         await Promise.all([
-            Question.deleteMany({sectionId}),
-            Response.deleteMany({sectionId})
+            Question.deleteMany({ sectionId }),
+            Response.deleteMany({ sectionId }),
         ]);
-    next();
+        next();
     } catch (error) {
         next(error as CallbackError);
         console.log(error);
     }
-})
+});
+
 
 
 const Section = models?.Section || model('Section', SectionSchema);

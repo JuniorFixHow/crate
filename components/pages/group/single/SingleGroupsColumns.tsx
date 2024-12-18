@@ -1,3 +1,4 @@
+import { isEligible } from "@/functions/misc";
 import { IMember } from "@/lib/database/models/member.model";
 import {  GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
@@ -12,7 +13,7 @@ export const SingleGroupColumns =(
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link text-center" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row?._id}}} >{params?.row?.memberId.name}</Link>
+                <Link className="table-link text-center" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row.memberId?._id}}} >{params?.row?.memberId.name}</Link>
             )
         }
     },
@@ -35,6 +36,18 @@ export const SingleGroupColumns =(
             return(
                 <div className="flex-center h-full">
                     <span>{params?.row?.badgeIssued}</span>
+                </div>
+            )
+        }
+    },
+    {
+        field:'badgeIssued',
+        headerName:'MEFRA',
+        width:100,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <div className="flex-center h-full">
+                    <span>{isEligible(params.row?.memberId?.ageRange) ? 'Yes':'No'}</span>
                 </div>
             )
         }

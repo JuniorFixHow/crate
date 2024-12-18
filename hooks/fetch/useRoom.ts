@@ -1,8 +1,9 @@
-import { getAvailableRooms, getMembersInRoom, getRooms } from "@/lib/actions/room.action";
-import { IMember } from "@/lib/database/models/member.model";
+import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRooms } from "@/lib/actions/room.action";
+import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
-import { ErrorProps } from "@/types/Types";
+import { ErrorProps, IMergedRegistrationData } from "@/types/Types";
 import { useEffect, useState } from "react";
+
 
 export const useFetchRooms = () => {
     const [rooms, setRooms] = useState<IRoom[]>([]);
@@ -72,7 +73,7 @@ export const useFetchAvailableRooms = (eventId: string) => {
 
 
 export const useFetchMembersInRoom = (roomId:string)=>{
-    const [members, setMembers] = useState<IMember[]>([]);
+    const [members, setMembers] = useState<IRegistration[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string|null>(null);
 
@@ -80,7 +81,7 @@ export const useFetchMembersInRoom = (roomId:string)=>{
         if(!roomId) return;
         const fetchKeys = async() =>{
             try {
-                const res:IMember[] = await getMembersInRoom(roomId);
+                const res:IRegistration[] = await getMembersInRoom(roomId);
                 setMembers(res.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()));
                 setError(null);
             } catch (error) {
@@ -96,3 +97,29 @@ export const useFetchMembersInRoom = (roomId:string)=>{
 
     return {members, loading, error}
 }
+
+
+export const useFetchRoomsRegistrationWithKeys = () => {
+    const [data, setData] = useState<IMergedRegistrationData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const fetchedRooms: IMergedRegistrationData[] = await getMergedRegistrationData();
+                setData(fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
+                setError(null);
+            } catch (err) {
+                setError('Error fetching rooms');
+                console.log(err)
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRooms();
+    }, []);
+
+    return { data, loading, error };
+};

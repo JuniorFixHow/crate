@@ -1,12 +1,13 @@
 'use server'
 import { Types } from "mongoose";
 import Group from "../database/models/group.model";
-import { IMember } from "../database/models/member.model";
-import Registration from "../database/models/registration.model";
+import Member, { IMember } from "../database/models/member.model";
+import Registration, { IRegistration } from "../database/models/registration.model";
 import Room, { IRoom } from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import Key from "../database/models/key.model";
+import { isEligible } from "@/functions/misc";
 
 export async function createRoom(room:Partial<IRoom>){
     try {
@@ -86,6 +87,7 @@ export async function getRoom(id:string){
 }
 
 
+
 export async function addMemberToRoom(memberId: string, roomId: string) {
     try {
         await connectDB();
@@ -96,33 +98,43 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
             return handleResponse('Member registration not found', true, {}, 404);
         }
 
-        // Check if the member already has a room assigned
         if (existingRegistration.roomIds && existingRegistration.roomIds.length > 0) {
             return handleResponse('Member already assigned to a room', true, {}, 403);
         }
 
-        // Check if the room is full based on nob
+        // Fetch member details to check eligibility
+        const member = await Member.findById(memberId);
+        if (!member) {
+            return handleResponse('Member not found', true, {}, 404);
+        }
+
+        const eligible = isEligible(member.ageRange); // Determine eligibility
+
+        // Check if the room exists
         const room = await Room.findById(roomId);
         if (!room) {
             return handleResponse('Room not found', true, {}, 404);
         }
 
+        // Fetch current occupancy of the room
         const currentRoomCount = await Registration.countDocuments({ roomIds: roomId });
-        if (currentRoomCount >= room.nob) {
-            return handleResponse('Room is already full', true, {}, 403);
+
+        // Check room occupancy if the member is eligible
+        if (eligible && currentRoomCount >= room.nob) {
+            return handleResponse('Room is already full for eligible members', true, {}, 403);
         }
 
-        // Special case handling if the member is part of a "Couple" group
+        // Handle special case for "Couple" groups
         if (existingRegistration.groupId) {
             const group = await Group.findById(existingRegistration.groupId).populate('members');
             if (group && group.type === 'Couple') {
-                // If room has only one bed, check if it can accommodate a couple
-                if (room.nob === 1 && currentRoomCount === 1) {
-                    const spouseRegistration = await Registration.findOne({ roomIds: roomId, groupId: group._id });
-                    if (!spouseRegistration) {
-                        return handleResponse('Room with one bed can only accommodate a couple', true, {}, 403);
+                // If member is eligible, enforce couple group capacity
+                if (eligible) {
+                    if (group.members.length >= 2) {
+                        return handleResponse('Couple groups can only have 2 eligible members', true, {}, 403);
                     }
                 }
+                // Allow non-eligible members to bypass the capacity check
             }
         }
 
@@ -134,9 +146,12 @@ export async function addMemberToRoom(memberId: string, roomId: string) {
         return handleResponse('Member successfully assigned to the room', false, {}, 201);
     } catch (error) {
         console.error('Error adding member to room:', error);
-        handleResponse('Error occurred while adding member to room',true, {}, 500);
+        return handleResponse('Error occurred while adding member to room', true, {}, 500);
     }
 }
+
+
+
 
 
 
@@ -168,16 +183,30 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
                         return handleResponse(`Room not found`, true, {}, 404);
                     }
 
-                    // Count members in the room, ensuring groups are not overestimated
-                    const assignedMembers = await Registration.countDocuments({
-                        roomIds: roomId,
-                        $or: [
-                            { groupId: { $exists: false } }, // Individual registrations
-                            { groupId }, // First member of the group
-                        ],
-                    });
+                    // Count eligible members in the room
+                    const assignedEligibleMembers = await Registration.aggregate([
+                        { $match: { roomIds: roomId } }, // Find registrations in the room
+                        {
+                            $lookup: {
+                                from: 'members', // Assuming a "members" collection
+                                localField: 'memberId',
+                                foreignField: '_id',
+                                as: 'memberDetails',
+                            },
+                        },
+                        { $unwind: '$memberDetails' }, // Flatten the memberDetails array
+                        {
+                            $match: {
+                                'memberDetails.ageRange': { $in: ['6-10','11-20', '21-30', '31-40', '41-50', '51-60', '61+'] },
+                            },
+                        },
+                        { $count: 'eligibleCount' }, // Count eligible members
+                    ]);
 
-                    const availableBeds = room.nob - assignedMembers;
+                    const eligibleCount = assignedEligibleMembers[0]?.eligibleCount || 0;
+
+                    // Calculate available beds based on eligible members
+                    const availableBeds = room.nob - eligibleCount;
 
                     if (availableBeds <= 0) {
                         return handleResponse(
@@ -192,9 +221,9 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
                 }
 
                 // Ensure enough beds are available for non-couple groups
-                if (totalBedsAvailable < group.members.length) {
+                if (totalBedsAvailable < group.eligible) {
                     return handleResponse(
-                        `Not enough available beds to accommodate the entire group. Please add more rooms.`,
+                        `Not enough available beds to accommodate the entire eligible group. Please add more rooms.`,
                         true,
                         {},
                         403
@@ -205,11 +234,17 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
 
         // Update registrations to include rooms for the group members
         for (const memberId of group.members) {
-            await Registration.findOneAndUpdate(
-                { memberId, eventId },
-                { $addToSet: { roomIds: { $each: roomIds } } },
-                { new: true, upsert: true }
-            );
+            const member = await Member.findById(memberId);
+            const eligible = await isEligible(member?.ageRange);
+
+            // Assign room IDs only for eligible members
+            if (eligible) {
+                await Registration.findOneAndUpdate(
+                    { memberId, eventId },
+                    { $addToSet: { roomIds: { $each: roomIds } } },
+                    { new: true, upsert: true }
+                );
+            }
         }
 
         // Update the group with the assigned roomIds
@@ -230,6 +265,9 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         }
     }
 }
+
+
+
 
 
 
@@ -276,13 +314,15 @@ export async function getMembersInRoom(roomId: string) {
         const registrations = await Registration.find({ roomIds: roomId }).populate('memberId').lean();
 
         // Extract members from the registrations
-        const members = registrations.map(reg => reg.memberId);
-        return JSON.parse(JSON.stringify(members));
+        // const members = registrations.map(reg => reg.memberId);
+        return JSON.parse(JSON.stringify(registrations));
     } catch (error) {
         console.error('Error fetching members in room:', error);
         throw new Error('Error occurred while fetching members in room');
     }
 }
+
+
 
 
 
@@ -302,14 +342,14 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
         }
 
         // Calculate the remaining rooms and their total capacity
-        const remainingRoomIds = group.roomIds.filter((id:string) => id.toString() !== roomId);
+        const remainingRoomIds = group.roomIds.filter((id: string) => id.toString() !== roomId);
 
         // If the group has other rooms, check the total capacity
         if (remainingRoomIds.length > 0) {
             const rooms = await Room.find({ _id: { $in: remainingRoomIds } });
             const totalCapacity = rooms.reduce((sum, room) => sum + room.nob, 0);
 
-            if (totalCapacity < group.members.length) {
+            if (totalCapacity < group.eligible) {
                 return handleResponse(
                     `Cannot remove the room. Remaining rooms cannot accommodate the group members. You can rather unallocate the group completely.`,
                     true,
@@ -319,25 +359,23 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
             }
         }
 
-        // console.log("Remaining group: ", remainingRoomIds);
-
         // Remove the room from the group's `roomIds`
         group.roomIds = remainingRoomIds;
         await group.save();
 
-        // Update the registrations to remove the room reference for group members
-        const groupMemberIds = group.members.map((member:IMember) => {
-            if (typeof member === 'string' || member instanceof Types.ObjectId) {
-                return member.toString();
-            } else if (typeof member === 'object' && '_id' in member) {
-                return member._id.toString();
-            }
-            return null;
-        }).filter(Boolean);
+        // Find the group members' registrations who are eligible
+        const eligibleAgeRanges = ['6-10','11-20', '21-30', '31-40', '41-50', '51-60', '61+']; // List of eligible age ranges
+        const eligibleMembers = await Member.find({
+            _id: { $in: group.members },
+            ageRange: { $in: eligibleAgeRanges },
+        });
 
-        if (groupMemberIds.length > 0) {
+        const eligibleMemberIds = eligibleMembers.map((member: IMember) => member._id.toString());
+
+        // Update the registrations to remove the room reference for eligible group members
+        if (eligibleMemberIds.length > 0) {
             await Registration.updateMany(
-                { memberId: { $in: groupMemberIds }, roomIds: roomId },
+                { memberId: { $in: eligibleMemberIds }, roomIds: roomId },
                 { $pull: { roomIds: roomId } }
             );
         }
@@ -512,62 +550,6 @@ export async function isRoomFull(roomId: string): Promise<boolean> {
 
 
 
-// export async function getAvailableRooms(eventId: string) {
-//     try {
-//         await connectDB(); // Ensure the DB connection is made
-
-//         // Find all rooms for the given eventId
-//         const rooms = await Room.find({ eventId });
-
-//         if (!rooms || rooms.length === 0) {
-//             return handleResponse('No rooms found for this event', true, {}, 404);
-//         }
-
-//         // Retrieve all registrations for the given event
-//         const registrations = await Registration.find({ eventId }).populate('groupId');
-
-//         // Map to track room occupancy considering groups
-//         const roomOccupancyMap = new Map<string, number>();
-
-//         // Calculate occupancy for each room
-//         for (const registration of registrations) {
-//             const group = registration.groupId;
-            
-//             for (const roomId of registration.roomIds) {
-//                 const currentOccupancy = roomOccupancyMap.get(roomId.toString()) || 0;
-//                 console.log('GroupOc: ', currentOccupancy)
-
-//                 // Only count the group once for room occupancy
-//                 if (group) {
-//                     if (roomOccupancyMap.has(`group:${group._id}`)) {
-//                         continue; // Skip if this group's occupancy is already counted
-//                     }
-//                     roomOccupancyMap.set(`group:${group._id}`, group.members.length);
-//                     roomOccupancyMap.set(roomId.toString(), currentOccupancy + group.members.length);
-//                 } else {
-//                     roomOccupancyMap.set(roomId.toString(), currentOccupancy + 1);
-//                 }
-//             }
-//         }
-
-//         // Filter rooms based on their available capacity
-//         const availableRooms: IRoom[] = rooms.filter((room) => {
-//             const occupiedBeds = roomOccupancyMap.get(room._id.toString()) || 0;
-//             return occupiedBeds < room.nob;
-//         });
-
-//         if (availableRooms.length > 0) {
-//             return handleResponse('Available rooms found', false, availableRooms, 200);
-//         } else {
-//             return handleResponse('No available rooms found for this event', true, {}, 404);
-//         }
-//     } catch (error) {
-//         console.error('Error fetching available rooms:', error);
-//         return handleResponse('Error occurred while fetching available rooms', true, {}, 500);
-//     }
-// }
-
-
 
 export async function getAvailableRooms(eventId: string) {
     try {
@@ -649,3 +631,109 @@ export const getRoomsAssignedToGroup = async (groupId: string) => {
         return handleResponse(`Error retrieving rooms for group`, true, {}, 500);
     }
 };
+
+
+
+
+export async function getMergedRegistrationData() {
+    try {
+        await connectDB();
+
+        // Step 1: Fetch all registrations and populate memberId and roomIds
+        const registrations = await Registration.find({})
+            .populate({
+                path: 'memberId',
+                populate: {
+                    path: 'church',
+                    model: 'Church',
+                    populate: {
+                        path: 'zoneId',
+                        model: 'Zone',
+                    },
+                },
+            })
+            .populate('eventId')
+            .populate('groupId')
+            .populate('roomIds') // Populate the rooms directly
+            .lean<IRegistration[]>(); // Explicitly cast the result to IRegistration[]
+
+        // Step 2: Fetch all keys associated with the registration holders
+        const registrationIds = registrations.map((reg) => reg._id);
+        const keys = await Key.find({ holder: { $in: registrationIds } }).lean();
+
+        // Step 3: Merge the keys into their respective registrations
+        const result = registrations.map((registration) => {
+            // Cast registration to IRegistration to access `_id` properly
+            const regId = registration._id.toString();
+
+            // Attach keys related to this registration
+            const associatedKeys = keys.filter(
+                (key) => key.holder.toString() === regId
+            );
+
+            return {
+                ...registration,
+                keys: associatedKeys,
+            };
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    } catch (error) {
+        console.error('Error fetching registration details:', error);
+        throw new Error('Error occurred while fetching registration details');
+    }
+}
+
+// export async function getRegistrationDetails() {
+//     try {
+//         await connectDB();
+
+//         // Step 1: Fetch all registrations and populate memberId and roomIds
+//         const registrations = await Registration.find({})
+//             .populate({
+//                 path: 'memberId',
+//                 populate: {
+//                     path: 'church',
+//                     model: 'Church',
+//                     populate: {
+//                         path: 'zoneId',
+//                         model: 'Zone',
+//                     },
+//                 },
+//             })
+//             .populate('roomIds') // Populate the rooms directly
+//             .lean<IRegistration[]>(); // Explicitly cast the result to IRegistration[]
+
+//         // Step 2: Fetch all keys associated with the registration holders
+//         const registrationIds = registrations.map((reg) => reg._id);
+//         const keys = await Key.find({ holder: { $in: registrationIds } }).lean();
+
+//         // Step 3: Merge the keys into their respective registrations
+//         const result = registrations.map((registration) => {
+//             // Cast registration to IRegistration to access `_id` properly
+//             const regId = registration._id.toString();
+
+//             // Attach keys related to this registration
+//             const associatedKeys = keys.filter(
+//                 (key) => key.holder.toString() === regId
+//             );
+
+//             return {
+//                 ...registration,
+//                 keys: associatedKeys,
+//             };
+//         });
+
+//         return JSON.parse(JSON.stringify(result));
+//     } catch (error) {
+//         console.error('Error fetching registration details:', error);
+//         throw new Error('Error occurred while fetching registration details');
+//     }
+// }
+
+
+
+
+
+
+  

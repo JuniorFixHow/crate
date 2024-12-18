@@ -8,6 +8,8 @@ import Attendance from "../database/models/attendance.model";
 import Registration from "../database/models/registration.model";
 import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
+// import { isEligible } from "@/functions/misc";
+import Response from "../database/models/response.model";
 
 export async function createMember(member: Partial<IMember>) {
     try {
@@ -32,7 +34,7 @@ export async function createMember(member: Partial<IMember>) {
         // Count the youth members in the church (age range 18-50)
         const youthCount = await Member.countDocuments({
             church: church._id,
-            ageRange: { $in: ['18-35', '36-50'] }
+            ageRange: { $in: ['11-20', '21-30', '31-40', '41-50', '51-60'] }
         });
 
        
@@ -90,7 +92,7 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         // Count the youth members in the church (age range 18-50)
         const youthCount = await Member.countDocuments({
             church: church._id,
-            ageRange: { $in: ['18-35', '36-50'] }
+            ageRange: { $in: ['11-20', '21-30', '31-40', '41-50', '51-60'] }
         });
 
         // Count all registrants in the specific church
@@ -214,18 +216,24 @@ export async function getMember(id:string){
 export async function getUnassignedMembers(eventId: string) {
     try {
         await connectDB();
-        
+
         // Get all members currently assigned to groups for the specific event
         const groups = await Group.find({ eventId }).select('members').lean();
 
         // Flatten the members arrays from all groups into a single array
         const assignedMemberIds = groups.flatMap(group => group.members);
 
-        // Fetch members who are not in the assignedMemberIds array
+        // Fetch eligible members who are not in the assignedMemberIds array
         const unassignedMembers = await Member.find({
-            _id: { $nin: assignedMemberIds } // Select members not in any group's members array
+            _id: { $nin: assignedMemberIds }, // Members not assigned to any group
         }).lean();
-        
+
+        // Filter the unassigned members to return only the eligible ones
+        // const eligibleUnassignedMembers = unassignedMembers.filter((member) =>  {
+        //     console.log(isEligible(member.ageRange));
+        //     return isEligible(member.ageRange)
+        // });
+
         return JSON.parse(JSON.stringify(unassignedMembers));
     } catch (error) {
         if (error instanceof Error) {
@@ -237,6 +245,7 @@ export async function getUnassignedMembers(eventId: string) {
         }
     }
 }
+
 
 
 
@@ -283,8 +292,12 @@ export async function deleteMember(id: string) {
             await Registration.findByIdAndDelete(registration._id);
         }
 
+        await Promise.all([
+            Attendance.deleteMany({ member: member._id }),
+            Response.deleteMany({ memberId: member._id }),
+        ])
         // Remove the member's attendance records, if any
-        await Attendance.deleteMany({ member: member._id });
+       
 
         // Delete the member itself
         await Member.findByIdAndDelete(member._id);

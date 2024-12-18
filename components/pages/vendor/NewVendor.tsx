@@ -55,6 +55,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                 const fbData:IUser = {
                     email:data.email!,
                     name:data.name!,
+                    churchId:church,
                     country:data.country!,
                     photo:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
                     id:response._id,

@@ -28,8 +28,8 @@ const RoomSchema = new Schema<IRoom>({
 },{timestamps:true})
 
 
-RoomSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
-    const roomId = this._id; // Get the room being deleted
+RoomSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    const roomId = this.getQuery()._id; // Get the room being deleted
     await mongoose.model('Key').deleteMany({ roomId }); // Delete all keys associated with this room
     next();
 });

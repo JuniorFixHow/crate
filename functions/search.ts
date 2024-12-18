@@ -17,6 +17,17 @@ export const searchMember = (text:string, members:IMember[]):IMember[]=>{
     return membs
 }
 
+export const searchMemberForKey = (text:string, members:IRegistration[]):IRegistration[]=>{
+    const membs = members.filter((member)=>{
+        const data = member.memberId as unknown as IMember
+        return text === '' ? member : Object.values(data)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return membs
+}
+
 export const searchMemberInversed = (text:string, members:IMember[]):IMember[]=>{
     const membs = members.filter((member)=>{
         return text === '' ? null : Object.values(member)

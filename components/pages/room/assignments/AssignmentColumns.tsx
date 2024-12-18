@@ -13,7 +13,7 @@ export const AssignmentColumns =(
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?.memberId?._id}}} >{params?.row?.memberId?.name}</Link>
+                <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?._id}}} >{params?.row?.memberId?.name}</Link>
             )
         }
 

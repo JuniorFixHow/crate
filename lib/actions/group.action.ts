@@ -1,5 +1,7 @@
 'use server'
+import { isEligible } from "@/functions/misc";
 import Group, { IGroup } from "../database/models/group.model";
+import Member, { IMember } from "../database/models/member.model";
 import Registration from "../database/models/registration.model";
 import Room from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
@@ -15,27 +17,44 @@ export async function createGroup(group: Partial<IGroup>) {
         // Calculate the next group number
         const nextGroupNumber = lastGroup?.groupNumber ? lastGroup.groupNumber + 1 : 1;
 
-        // Assign the calculated group number to the new group
+        const { members, eventId } = group;
+
+        // Default eligible count to zero
+        let eligibleCount = 0;
+
+        if (members && members.length > 0) {
+            // Fetch member details to determine eligibility
+            const memberDetails = await Member.find({ _id: { $in: members } });
+
+            // Calculate eligible members based on age group
+            eligibleCount = memberDetails.reduce( (count, member) => {
+                const eligible = isEligible(member.ageRange)
+                if (eligible) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
+        }
+
+        // Create a new group with the eligible count
         const newGroup = new Group({
             ...group,
-            groupNumber: nextGroupNumber
+            groupNumber: nextGroupNumber,
+            eligible: eligibleCount,
         });
 
         // Save the new group
         await newGroup.save();
 
-        // Ensure the eventId is part of the group data
-        const { eventId, members } = group;
-
         // Assign the group to all members involved in the group (via their registrations) for the specific event
         if (members && members.length > 0 && eventId) {
             await Registration.updateMany(
-                { 
-                    memberId: { $in: members },  // Find all registrations that match the member IDs
-                    eventId: eventId              // Ensure the registration belongs to the specific event
+                {
+                    memberId: { $in: members }, // Find all registrations that match the member IDs
+                    eventId: eventId,          // Ensure the registration belongs to the specific event
                 },
-                { 
-                    $set: { groupId: newGroup._id }    // Assign the new group ID to those registrations
+                {
+                    $set: { groupId: newGroup._id }, // Assign the new group ID to those registrations
                 }
             );
         }
@@ -54,11 +73,23 @@ export async function createGroup(group: Partial<IGroup>) {
 
 
 
+
 export async function updateGroup (id:string, group:Partial<IGroup>){
     try {
         await connectDB();
-        const grp = await Group.findByIdAndUpdate(id, group, {new:true});
-        return JSON.parse(JSON.stringify(grp));
+        const {type} = group;
+        const g = await Group.findById(id);
+        // console.log(g.eligible)
+        if(!g){
+            return handleResponse('Group not found', true);
+        }
+        if(type === 'Couple' && g.eligible > 2){
+            return handleResponse(`You can't update a group of ${g.eligible} to 'Couple'`, true);
+        }else{
+            const grp = await Group.findByIdAndUpdate(id, group, {new:true});
+            return handleResponse(`Group updated successfully`, false, grp, 201);
+        }
+        
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error updating group:', error.message);
@@ -99,6 +130,9 @@ export async function getGroupForMember(eventId: string, memberId: string) {
 
 
 
+
+
+
 export async function addMemberToGroup(groupId: string, memberId: string, eventId: string) {
     try {
         await connectDB();
@@ -115,18 +149,34 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
             return handleResponse('Group not found', true, {}, 404);
         }
 
-        // Validate group type "Couple" capacity (2 members max)
-        if (group.type === 'Couple' && group.members.length >= 2) {
+        // Fetch member details
+        const member = await Member.findById(memberId);
+        if (!member) {
+            return handleResponse('Member not found', true, {}, 404);
+        }
+
+        // Determine if the member is eligible based on their age group
+        const isMemberEligible = isEligible(member.ageRange);
+
+        // Validate group type "Couple" capacity (2 members max based on eligibility)
+        if (group.type === 'Couple' && group.eligible >= 2 && isMemberEligible) {
             return handleResponse('Couple groups can only have 2 members', true, {}, 403);
         }
 
-        // Get roomIds assigned to the group from the first registration
-        const firstGroupRegistration = await Registration.findOne({ groupId: group._id });
-        const groupRoomIds = firstGroupRegistration ? firstGroupRegistration.roomIds : [];
+        // Get roomIds assigned to the group from eligible members only
+        // Filter the members based on eligibility
+        const eligibleMembers = group.members.filter((member:IMember) => isEligible(member.ageRange));
+
+        // Now find the registrations for the eligible members
+        const eligibleMemberRegistrations = await Registration.find({
+            groupId: group._id,
+            memberId: { $in: eligibleMembers.map((m:IMember) => m._id) }
+        });
+        const groupRoomIds = eligibleMemberRegistrations.length > 0 ? eligibleMemberRegistrations[0].roomIds : [];
 
         // Check if any roomIds are assigned
         if (groupRoomIds.length > 0) {
-            // Sum the nob (beds) of all rooms assigned to the first registration
+            // Sum the nob (beds) of all rooms assigned to the eligible group members
             let totalBedsAvailable = 0;
             for (const roomId of groupRoomIds) {
                 const room = await Room.findById(roomId);
@@ -137,12 +187,12 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
                 }
             }
 
-            // Check if the total available beds are enough to accommodate the group
-            const totalGroupMembers = group.members.length + 1; // Include the new member being added
+            // Check if the total available beds are enough to accommodate eligible members
+            const totalEligibleMembers = group.eligible + 1; // Include the new eligible member being added (if eligible)
 
-            if (totalBedsAvailable < totalGroupMembers) {
+            if (totalBedsAvailable < totalEligibleMembers) {
                 return handleResponse(
-                    'Not enough available beds to accommodate the new member in the group.',
+                    'Not enough available beds to accommodate the new eligible member in the group.',
                     true,
                     {},
                     403
@@ -150,10 +200,27 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
             }
         }
 
+        
+
+        // If member already had a room assigned, remove the room and assign the group rooms
+        if (existingRegistration && existingRegistration.roomIds?.length > 0) {
+            await Registration.findByIdAndUpdate(existingRegistration._id, {
+                $set: { roomIds: [] }, // Remove current room assignments
+            });
+        }
+
+        // Update group's eligible count if the new member is eligible
+        if (isMemberEligible) {
+            group.eligible = (group.eligible || 0) + 1;
+        }
+
+        // Assign the group's roomIds to the member's registration if they are eligible
+        const roomIdsToAssign = isMemberEligible ? groupRoomIds : [];
+
         // Assign member to group's rooms and groupId
         await Registration.findOneAndUpdate(
             { memberId, eventId },
-            { roomIds: groupRoomIds, groupId },
+            { roomIds: roomIdsToAssign, groupId },
             { new: true, upsert: true } // Add member to group and reassign rooms
         );
 
@@ -176,8 +243,6 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
 
 
 
-
-
 export async function removeMemberFromGroup(groupId: string, memberId: string, eventId: string) {
     try {
         await connectDB();
@@ -193,8 +258,23 @@ export async function removeMemberFromGroup(groupId: string, memberId: string, e
             throw new Error('Member is not in the group');
         }
 
+        // Fetch member details to check eligibility
+        const member = await Member.findById(memberId);
+        if (!member) {
+            throw new Error('Member not found');
+        }
+
+        // Check if the member is eligible and decrement the eligible count if needed
+        const isMemberEligible = isEligible(member.ageRange);
+        if (isMemberEligible && group.eligible > 0) {
+            group.eligible -= 1;
+        }
+
         // Remove the member from the group's members array (using $pull to update in one step)
         await group.updateOne({ $pull: { members: memberId } });
+
+        // Save the updated group with the new eligible count
+        await group.save();
 
         // Update the member's registration to remove the group assignment
         const memberRegistration = await Registration.findOneAndUpdate(
@@ -225,8 +305,6 @@ export async function removeMemberFromGroup(groupId: string, memberId: string, e
         }
     }
 }
-
-
 
 
 

@@ -16,12 +16,16 @@ import { AssColumnsGroup } from './AssColumnsGroup'
 import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import { ErrorProps } from '@/types/Types'
 import { removeGroupFromAllRooms, removeMemberFromRoom } from '@/lib/actions/room.action'
+import SearchSelectZones from '@/components/features/SearchSelectZones'
+import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
 
 const AssignmentTable = () => {
     const [status, setStatus] = useState<string>('');
     const [search, setSearch] = useState<string>('');
     const [isGroup, setIsGroup] = useState<boolean>(false);
     const [eventId, setEventId] = useState<string>('');
+    const [zoneId, setZoneId] = useState<string>('');
+    const [churchId, setChurchId] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [deleteGroupLoading, setDeleteGroupLoading] = useState<boolean>(false);
     const [deleteMemberLoading, setDeleteMemberLoading] = useState<boolean>(false);
@@ -102,6 +106,17 @@ const AssignmentTable = () => {
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} onTap={currentAssGroup ? handleRemoveGroup:handleRemoveMember} title='Unassign room' message={currentAssignment ? message:message2} />
         <div className="flex flex-col gap-5 bg-white dark:bg-black rounded border p-4">
             <div className="flex justify-between items-center">
+                {
+                    !isGroup &&
+                    <div className="flex gap-4 items-end">
+                        <SearchSelectZones isGeneric setSelect={setZoneId} />
+                        <SearchSelectChurchForRoomAss isGeneric zoneId={zoneId} setSelect={setChurchId} />
+                    </div>
+                }
+
+            </div>
+                
+            <div className="flex justify-between items-center">
                 <div className="flex gap-4 items-end">
                     <SearchSelectEvents isGeneric setSelect={setEventId} />
                     <AssignmentFilter setSelect={setStatus} />
@@ -136,7 +151,7 @@ const AssignmentTable = () => {
                     />
                     :
                   <DataGrid
-                      rows={SearchEventRegWithStatus(eventRegistrations, search, status)}
+                      rows={SearchEventRegWithStatus(eventRegistrations, search, status, churchId, zoneId)}
                       columns={AssignmentColumns(handleUnassign, deleteMemberLoading)}
                       initialState={{ pagination: { paginationModel } }}
                       pageSizeOptions={[5, 10]}

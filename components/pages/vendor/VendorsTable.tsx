@@ -47,7 +47,7 @@ const VendorsTable = () => {
 
     const paginationModel = { page: 0, pageSize: 10 };
 
-    const message = `Are you sure you want to delete this vendor?`
+    const message = `Are you sure you want to delete this user?`
 
     const router = useRouter();
     const handleOpenNew = ()=>{
@@ -65,11 +65,11 @@ const VendorsTable = () => {
             await deleteVendor(currentVendor._id);
             setDeleteMode(false);
             setCurrentVendor(null);
-            setDeleteState({message:'Vendor deleted successfully', error:false});
+            setDeleteState({message:'User deleted successfully', error:false});
             router.refresh();
           } catch (error) {
             console.log(error)
-            setDeleteState({message:'Error occured deleting vendor', error:true})
+            setDeleteState({message:'Error occured deleting user', error:true})
           }
         }
       }
@@ -98,7 +98,7 @@ const VendorsTable = () => {
             <SearchSelectChurch setSelect={setChurch} isGeneric />
             <div className="flex items-center gap-2">
                 <SearchBar reversed={false} setSearch={setSearch} />
-                <AddButton onClick={handleOpenNew} noIcon text='Add Vendor' smallText className='rounded' />
+                <AddButton onClick={handleOpenNew} noIcon text='Add User' smallText className='rounded' />
             </div>
         </div>
         {

@@ -136,8 +136,10 @@ const Account = ({className, ...props}:ProfileProps) => {
                 <div className="flex flex-col gap-4">
                     {
                         user &&
-                        <div className="flex-center h-[8rem] w-[8rem] p-2 relative rounded-full bg-slate-300">
-                            <Image width={100} height={100} className="rounded-full" alt="user" src={image ? image :  user.photo} />
+                        <div className="flex-center rounded-full bg-slate-300 h-32 w-32">
+                            <div className=" h-28 w-28 relative">
+                                <Image fill className="rounded-full" alt="user" src={image ? image :  user.photo} />
+                            </div>
                         </div>
                     }
                     {

@@ -27,6 +27,16 @@ export const GroupColumns:GridColDef[]=[
             )
         }
     },
+    {
+        field:'eligible',
+        headerName:'MEFRA',
+        width:140,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="text-center" >{params?.row?.eligible}</span>
+            )
+        }
+    },
 
     {
         field:'checkInStatus',

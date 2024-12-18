@@ -1,5 +1,6 @@
 import { Document, model, models, Schema, Types } from "mongoose";
 import { ISection } from "./section.model";
+import Response from "./response.model";
 
 export interface IQuestion extends Document{ 
     _id:string;
@@ -21,6 +22,12 @@ const QuestionSchema =  new Schema<IQuestion>({
     sectionId:{type:Schema.Types.ObjectId, ref:'Section'},
 },{timestamps:true})
 
+
+QuestionSchema.pre('deleteOne', {document:false, query:true}, async function(next){
+    const questionId = this.getQuery()._id;
+    await Response.deleteMany({questionId});
+    next();
+})
 
 const Question = models?.Question || model('Question', QuestionSchema);
 export default Question

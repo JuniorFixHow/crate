@@ -28,7 +28,7 @@ export const KeyColumns = (
         }
     },
     {
-        field:'memberId',
+        field:'holder',
         headerName:'Holder',
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -36,7 +36,7 @@ export const KeyColumns = (
                 <>
                 {
                     params.row.holder ?
-                    <Link className="table-link" href={`/dashboard/members/${params.row?.holder._id}`} >{params.row?.holder.name}</Link>
+                    <Link className="table-link" href={`/dashboard/members/${params.row?.holder?.memberId?._id}`} >{params.row?.holder?.memberId?.name}</Link>
                     :
                     <span>Not Yet</span>
                 }

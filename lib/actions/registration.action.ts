@@ -6,6 +6,8 @@ import Registration, { IRegistration } from "../database/models/registration.mod
 
 import { connectDB } from "../database/mongoose";
 import { ErrorProps } from "@/types/Types";
+import { IMember } from "../database/models/member.model";
+import { isEligible } from "@/functions/misc";
 
 export async function createRegistration(memberId:string, eventId:string, registration:Partial<IRegistration>){
     try {
@@ -151,8 +153,12 @@ export async function getRegistrationsWithoutGroups(eventId: string) {
             }
         })
         .lean()
+        const eligibles = registrations.filter((reg) => {
+            const member = reg.memberId as unknown as IMember;
+            return isEligible(member.ageRange);  // Filter based on eligibility
+        });
 
-        return JSON.parse(JSON.stringify(registrations));
+        return JSON.parse(JSON.stringify(eligibles));
     } catch (error) {
         console.error('Error fetching registrations without groups:', error);
         throw new Error('Error occurred while fetching registrations without groups');
