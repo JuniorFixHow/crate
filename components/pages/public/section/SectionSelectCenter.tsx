@@ -39,7 +39,7 @@ const SectionSelectCenter = ({openSelect, setOpenSelect, sectionId}:SectionSelec
         aria-describedby="modal-modal-description"
         className="flex-center"
         >
-        <div className='flex overflow-y-scroll scrollbar-custom flex-col gap-8 bg-white h-[70vh]  dark:bg-black dark:border w-[90%] md:w-[60%] rounded p-6'>
+        <div className='flex overflow-y-scroll scrollbar-custom flex-col gap-8 bg-white h-[70vh]  dark:bg-[#0F1214] dark:border w-[90%] md:w-[60%] rounded p-6'>
             <div className="flex flex-col gap-2 items-center">
               <span className="font-semibold dark:text-white" >Choose a section to start with</span>
             </div>

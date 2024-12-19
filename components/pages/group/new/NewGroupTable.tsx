@@ -52,10 +52,10 @@ const NewGroupTable = () => {
   const paginationModel = { page: 0, pageSize: 10 };
   return (
     <div className='w-full flex flex-col' >
-      <div className="w-full p-4 rounded-t border border-slate-300 bg-white dark:bg-black">
+      <div className="w-full p-4 rounded-t border border-slate-300 bg-white dark:bg-[#0F1214]">
         <Subtitle text='Create a group' />
       </div>
-      <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-black p-4">
+      <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-[#0F1214] p-4">
         <div className="flex items-center justify-between">
           <span className='text-[0.9rem]' >Group number: <span className='font-semibold' >{number}</span></span>
           <div className="flex-center px-3 py-2 rounded border">
@@ -82,7 +82,7 @@ const NewGroupTable = () => {
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
                     // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-blue-800'
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                     sx={{ border: 0 }}
                   />
               </Paper>

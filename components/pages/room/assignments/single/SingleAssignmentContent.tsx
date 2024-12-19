@@ -54,7 +54,7 @@ const SingleAssignmentContent = ({id}:{id:string}) => {
 
 
   return (
-    <div className="flex flex-col pb-10 gap-6 lg:flex-row items-start lg:items-stretch bg-white p-5 rounded border dark:bg-black" >
+    <div className="flex flex-col pb-10 gap-6 lg:flex-row items-start lg:items-stretch bg-white p-5 rounded border dark:bg-[#0F1214]" >
         <SingleAssignmentDetails currentRoom={currentRoom!} loading={loading} type={type!} GroupData={currentGroup!} MemberData={currentRegistration!} />
         <SingleAssignmentTable currentRegistration={currentRegistration!} currentGroup={currentGroup!} eventId={eventId} type={type!} currentRoom={currentRoom!} setCurrentRoom={setCurrentRoom} />
     </div>

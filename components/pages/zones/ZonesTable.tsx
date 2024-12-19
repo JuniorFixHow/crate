@@ -79,8 +79,8 @@ const ZonesTable = () => {
   }
 
   return (
-    <div className='flex flex-col border p-4  bg-white dark:bg-black md:w-full lg:w-[90%] flex-wrap relative' >
-      <div className="flex flex-row w-full gap-4 justify-end items-center px-4">
+    <div className='flex flex-col border p-4  bg-white dark:bg-[#0F1214] rounded md:w-full lg:w-[90%] flex-wrap relative' >
+      <div className="flex flex-row w-full gap-4 justify-end items-center px-4 pb-4">
         <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
         <AddButton onClick={handleOpenNew} smallText text='Add Zone' noIcon className='rounded' />
       </div>
@@ -105,7 +105,7 @@ const ZonesTable = () => {
                   initialState={{ pagination: { paginationModel } }}
                   pageSizeOptions={[5, 10]}
                   // checkboxSelection
-                  className='dark:bg-black dark:border dark:text-blue-800'
+                  className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                   sx={{ border: 0 }}
               />
           </Paper>

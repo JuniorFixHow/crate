@@ -8,7 +8,7 @@ export type SelectSessionScanItemProps = ComponentProps<'div'> & {
 
 const SelectSessionScanItem = ({className, session, ...props}:SelectSessionScanItemProps) => {
   return (
-    <div {...props}  className={`bg-[#F4F4F4] dark:bg-black border rounded px-2 flex flex-col py-1 cursor-pointer w-60 ${className}`} >
+    <div {...props}  className={`bg-[#F4F4F4] dark:bg-[#0F1214] border rounded px-2 flex flex-col py-1 cursor-pointer w-60 ${className}`} >
         <span className="font-medium whitespace-nowrap w-full text-ellipsis overflow-hidden" >{session?.name}</span>
         <div className="flex flex-row gap-2">
             <small className="font-medium" >Status:</small>

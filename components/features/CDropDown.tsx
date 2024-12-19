@@ -56,7 +56,7 @@ const CDropDown = ({
         <select onChange={handleSelectEventChange} className='bg-transparent outline-none border rounded py-1 font-bold' defaultValue='Age Range' >
             {
                 CBarFiltersEvent.map((item:string)=>(
-                    <option className='dark:bg-black' value={item} key={item} >{item}</option>
+                    <option className='dark:bg-[#0F1214]' value={item} key={item} >{item}</option>
                 ))
             }
         </select>
@@ -64,7 +64,7 @@ const CDropDown = ({
     <select onChange={handleSelectChange} className='bg-transparent outline-none font-bold border rounded py-1' defaultValue='Age' >
         {
             CBarFilters.map((item:string)=>(
-                <option className='dark:bg-black' value={item} key={item} >{item}</option>
+                <option className='dark:bg-[#0F1214]' value={item} key={item} >{item}</option>
             ))
         }
     </select>

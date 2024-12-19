@@ -14,7 +14,7 @@ const CustomSummaryTable = ({ data }:{data:IMergedRegistrationData[]}) => {
   return (
     <div className="flex flex-col w-full py-4">
       <table className="table-auto w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100 dark:bg-black">
+        <thead className="bg-gray-100 dark:bg-[#0F1214]">
           <tr className='dark:text-white' >
             <th className="border border-gray-300 px-4 py-2">Member</th>
             <th className="border border-gray-300 px-4 py-2">Zone</th>

@@ -77,20 +77,20 @@ const Login = () => {
     <div className='h-screen w-full flex bg-[url(/bg.jpg)] relative items-center justify-center overflow-hidden' >
     {/* <Image className='hidden md:block absolute -left-40 -top-40 filter grayscale opacity-20' src='/icon.png' width={500} height={500} alt='logo' /> */}
     
-    <div className="flex flex-col items-center z-10 bg-white pt-4 rounded">
+    <div className="flex flex-col items-center z-10 bg-white pt-4 rounded dark:bg-[#0F1214] dark:border">
         <Image src='/Logo.png' height={100} width={150} alt='logo' />
         <form onSubmit={handleLogin}  className='w-[18rem] rounded-lg shadow-xl p-8 flex flex-col gap-4 items-center' >
-            <span className='text-2xl font-bold' >Sign In</span>
+            <span className='text-2xl font-bold dark:text-white' >Sign In</span>
     
             <div className="flex w-full gap-8 flex-col">
                 <div className="flex flex-col w-full">
                     <span className='text-slate-400 text-[0.8rem] font-semibold' >Email</span>
-                    <input onChange={handleChange} required type="email" name="email" className='outline-none border-b border-b-slate-200' />
+                    <input onChange={handleChange} required type="email" name="email" className='outline-none border-b border-b-slate-200 bg-transparent dark:text-slate-300' />
                 </div>
     
                 <div className="flex flex-col w-full">
                     <span className='text-slate-400 text-[0.8rem] font-semibold' >Password</span>
-                    <input onChange={handleChange} required type="password" name="password" className='outline-none border-b border-b-slate-200' />
+                    <input onChange={handleChange} required type="password" name="password" className='outline-none border-b border-b-slate-200 bg-transparent dark:text-slate-300' />
                 </div>
             </div>
             {

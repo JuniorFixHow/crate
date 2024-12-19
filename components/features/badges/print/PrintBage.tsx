@@ -70,7 +70,7 @@ const PrintBage = () => {
     };
 
   return (
-    <div className="flex flex-col gap-8 md:flex-row md:items-stretch bg-white p-6 w-full shadow-lg border-t-0 dark:bg-black border">
+    <div className="flex flex-col gap-8 md:flex-row md:items-stretch bg-white p-6 w-full shadow-lg border-t-0 dark:bg-[#0F1214] border">
         <PrintDetails currentReg={currentReg} setCurrentReg={setCurrentReg} />
         <BadgePreview onPrint={printDiv} id='printableDiv' currentReg={currentReg} />
         <iframe

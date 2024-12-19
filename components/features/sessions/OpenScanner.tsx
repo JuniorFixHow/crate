@@ -59,7 +59,7 @@ const OpenScanner = ({setStage, currentSession, setResult, setLoading}:OpenScann
     }
     // console.log(hasScanned)
   return (
-    <div className='flex flex-col gap-3 bg-white border rounded dark:bg-black p-4' >
+    <div className='flex flex-col gap-3 bg-white border rounded dark:bg-[#0F1214] p-4' >
         <Subtitle text='Scan Badge' />
         {
             !hasScanned &&

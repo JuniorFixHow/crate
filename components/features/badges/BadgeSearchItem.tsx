@@ -3,13 +3,15 @@ import AddButton from "../AddButton"
 import Subtitle from "../Subtitle"
 import { MdOutlineEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa6";
-import { PiUserLight } from "react-icons/pi";
 import { ComponentProps, Dispatch, SetStateAction, useState } from "react";
 import Link from "next/link";
 import { IMember } from "@/lib/database/models/member.model";
 import { ErrorProps } from "@/types/Types";
 import { addMemberToGroup } from "@/lib/actions/group.action";
 import { IGroup } from "@/lib/database/models/group.model";
+import { IChurch } from "@/lib/database/models/church.model";
+import { IoMdGlobe } from "react-icons/io";
+import { IZone } from "@/lib/database/models/zone.model";
 
 export type BadgeSearchItemProps = {
     member:IMember,
@@ -20,6 +22,8 @@ export type BadgeSearchItemProps = {
 
 const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...props}:BadgeSearchItemProps ) => {
     const [loading, setLoading] = useState<boolean>(false);
+    const church = member?.church as IChurch;
+    const zone = church?.zoneId as IZone;
 
     const handleAddToGroup = async()=>{
         setResponse!(null);
@@ -39,9 +43,9 @@ const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...pr
     }
    
   return (
-    <div {...props}  className="flex w-full flex-col gap-4 md:flex-row dark:bg-black justify-between items-start md:items-center bg-[#d6d6d6] p-2 rounded border-slate-400 border" >
+    <div {...props}  className="flex w-full flex-col gap-4 md:flex-row dark:bg-[#0F1214] justify-between items-start md:items-center bg-[#d6d6d6] p-2 rounded border-slate-400 border" >
         <div className="flex flex-col gap-2">
-            <Link href={`/dashboard/members/${member?._id}`} >
+            <Link className="table-link" href={`/dashboard/members/${member?._id}`} >
                 <Subtitle isLink text={member.name} />
             </Link>
             <div className="flex flex-row gap-1 items-center">
@@ -53,8 +57,8 @@ const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...pr
                 <span className="text-[0.7rem] text-slate-500" > {member?.phone}</span>
             </div>
             <div className="flex flex-row gap-1 items-center">
-                <PiUserLight size={14}  className="text-slate-500" />
-                <span className="text-[0.7rem] text-slate-500" >{member.status}</span>
+                <IoMdGlobe size={14}  className="text-slate-500" />
+                <span className="text-[0.7rem] text-slate-500" >{church?.name} - {zone?.name}</span>
             </div>
         </div>
         {

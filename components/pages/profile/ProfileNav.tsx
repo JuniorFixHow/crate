@@ -4,7 +4,7 @@ import { FaChevronRight } from "react-icons/fa";
 const ProfileNav = ({setText, text}:StringStateProp) => {
     const links:string[] = ['Account','Security','Sounds'];
   return (
-    <div className="p-4 w-full md:w-60 rounded bg-white shadow dark:bg-black dark:border"  >
+    <div className="p-4 w-full md:w-60 rounded bg-white shadow dark:bg-[#212121] dark:border"  >
         {
             links.map((item)=>(
                 <div onClick={()=>setText(item)} key={item} className="flex px-1 cursor-pointer items-center justify-between py-3 border-b">

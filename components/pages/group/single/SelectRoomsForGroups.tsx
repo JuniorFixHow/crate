@@ -96,13 +96,13 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
         aria-describedby="modal-modal-description"
         className="flex-center"
         >
-        <div className="flex flex-col rounded p-6 bg-white dark:bg-black dark:border w-[90%] lg:w-[60%]">
+        <div className="flex flex-col rounded p-6 bg-white dark:bg-[#0F1214] dark:border w-[90%] lg:w-[60%]">
             <div className="flex gap-4 items-center">
-                <span className="text-[0.9rem]" >Selected rooms: <span className="font-semibold" >{selectedRooms.length}</span></span>
-                <span className="text-[0.9rem]" >No. of Beds: <span className="font-semibold" >{total}</span></span>
+                <span className="text-[0.9rem] dark:text-white" >Selected rooms: <span className="font-semibold" >{selectedRooms.length}</span></span>
+                <span className="text-[0.9rem] dark:text-white" >No. of Beds: <span className="font-semibold" >{total}</span></span>
             </div>
 
-            <div className="flex w-full flex-col">
+            <div className="flex w-full flex-col gap-4">
                 <div className="flex items-start justify-end gap-4">
                     <SearchBar reversed={false} setSearch={setSearch} />
                     {
@@ -128,7 +128,7 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRoom)=>row._id}
                             // checkboxSelection
-                            className='dark:bg-black dark:border dark:text-blue-800'
+                            className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                             sx={{ border: 0 }}
                         />
                     </Paper>

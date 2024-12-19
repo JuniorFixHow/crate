@@ -34,7 +34,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const paginationModel = { page: 0, pageSize: 10 };
     const router = useRouter()
   return (
-    <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-black dark:border rounded' >
+    <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
         <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
           <SearchSelectEvents setSelect={setEventId} isGeneric />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
@@ -56,7 +56,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
                     // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-blue-800'
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                     sx={{ border: 0 }}
                 />
             </Paper>

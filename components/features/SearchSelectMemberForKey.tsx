@@ -28,13 +28,13 @@ const SearchSelectMemberForKey = ({isGeneric, require, members, setSelect, class
       <select required={require} onChange={(e)=>setSelect!(e.target.value)} onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
         {
           search === '' &&
-          <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Members</option>
+          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value='' >Members</option>
         }
         {
             searchMemberForKey(search, members).map((event)=>{
                 const member = event.memberId as unknown as IMember
                 return(
-                  <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{member?.name}</option>
+                  <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={event?._id} value={event?._id}>{member?.name}</option>
                 )
             })
         }

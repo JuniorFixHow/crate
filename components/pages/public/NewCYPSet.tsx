@@ -53,7 +53,7 @@ const NewCYPSet = () => {
     // console.log(eventId)
     
   return (
-    <div className="flex flex-col gap-8 bg-white h-[60vh] dark:bg-black dark:border w-full rounded p-6">
+    <div className="flex flex-col gap-8 bg-white h-[60vh] dark:bg-[#0F1214] dark:border w-full rounded p-6">
         <Subtitle text="New Set" />
         {
             cypsetId &&

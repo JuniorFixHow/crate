@@ -25,7 +25,7 @@ const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch
         aria-describedby="modal-modal-description"
         className='flex size-full justify-end'
     >
-        <div className="flex flex-col min-w-72 h-full bg-white dark:bg-black dark:border rounded-l-lg p-4 overflow-y-scroll scrollbar-custom">
+        <div className="flex flex-col min-w-72 h-full bg-white dark:bg-[#0F1214] dark:border rounded-l-lg p-4 overflow-y-scroll scrollbar-custom">
             <div onClick={handleClose}  className="flex gap-1 cursor-pointer dark:text-white items-center mb-5">
                <IoIosArrowRoundBack size={24} /> 
                <span>Close</span>

@@ -11,7 +11,7 @@ export type tileProps = {
 } &  ComponentProps<'div'>
 export const ActivityTile = ({title, nodata, data, link, query, className, ...props}:tileProps) => {
   return (
-    <div {...props}  className={`hidden gap-4 lg:flex px-3 py-2 flex-col bg-white dark:bg-black dark:border rounded shadow-xl ${className}`} >
+    <div {...props}  className={`hidden gap-4 lg:flex px-3 py-2 flex-col bg-white dark:bg-[#0F1214] dark:border rounded shadow-xl ${className}`} >
         <div className="flex flex-col">
             <span className='font-semibold dark:text-[0.9rem]' >{title}</span>
             {

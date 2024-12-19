@@ -82,7 +82,7 @@ const EditSession = ({id}:{id:string}) => {
   if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
   return (
-    <div   className='px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white' >
+    <div   className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex gap-8 bg-white' >
         <span className='font-bold text-xl' >Edit Session</span>
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
           <form onSubmit={handleUpdateSession}  className="flex flex-1 flex-col gap-5">

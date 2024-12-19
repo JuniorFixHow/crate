@@ -14,7 +14,7 @@ const RegistrationTable = () => {
     // console.log(searchMember(search, members))
     const {members, loading} = useFetchMembers();
   return (
-    <div className=' gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-black dark:border' >
+    <div className=' gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-row items-center justify-between">
             <span className='font-bold text-xl' >Registration</span>
             <SearchBar setSearch={setSearch} reversed />
@@ -33,7 +33,7 @@ const RegistrationTable = () => {
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10]}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                 </Paper>

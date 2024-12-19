@@ -36,7 +36,7 @@ const Sessions = () => {
   return (
     <div className=' flex flex-col gap-5' >
       <div className="flex flex-row items-center gap-4 justify-end">
-        <div onClick={()=>router.push('/dashboard/events/sessions/scan')}  className="flex flex-row gap-3 bg-white items-center px-8 py-[0.2rem] hover:bg-slate-100 cursor-pointer rounded border dark:bg-black dark:hover:border-blue-700">
+        <div onClick={()=>router.push('/dashboard/events/sessions/scan')}  className="flex flex-row gap-3 bg-white items-center px-8 py-[0.2rem] hover:bg-slate-100 cursor-pointer rounded border dark:bg-[#0F1214] dark:hover:border-blue-700">
             <LuScanLine/>
             <span className='text-[0.9rem] font-semibold' >Scan</span>
         </div>

@@ -1,4 +1,4 @@
-import { getSections, getSectionsWithQuestions } from "@/lib/actions/section.action";
+import { getSections, getSectionsForSet, getSectionsWithQuestions } from "@/lib/actions/section.action";
 import { ISection } from "@/lib/database/models/section.model"
 import { useEffect, useState } from "react"
 
@@ -36,7 +36,7 @@ export const useFetchSectionsForSet = (id:string)=>{
         if(!id) return;
         const fetchSections = async()=>{
             try {
-                const res = await getSections();
+                const res = await getSectionsForSet(id);
                 setSections(res);
                 setError(null);
             } catch (error) {

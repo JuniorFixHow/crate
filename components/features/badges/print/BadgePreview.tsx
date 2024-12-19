@@ -36,7 +36,7 @@ const BadgePreview = ({onPrint, currentReg,  ...props}:BadgePreviewProps ) => {
                         currentReg &&
                     <div className="flex flex-col gap-4">
                     <span className="text-white font-bold text-center" >{name}</span>
-                        <div className="flex items-center justify-center w-28 h-32 bg-white px-1 rounded">
+                        <div className="flex items-center justify-center w-28 h-32 bg-white px-1 rounded dark:border">
                             <QRCodeSVG value={code} className="w-full h-full m-auto" />
                         </div>
                     </div>

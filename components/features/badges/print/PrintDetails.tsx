@@ -115,7 +115,7 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
                         currentReg?.groupId &&
                         <div className="flex flex-row items-center  justify-start ml-8">
                             <span className="text-[0.8rem] font-semibold flex flex-1" >Group:</span>
-                            <Link href={`/dashboard/groups/${typeof currentReg?.groupId === 'object' && '_id' in currentReg?.groupId && currentReg?.groupId?._id}`}  className="table-link" >{typeof currentReg?.groupId === 'object' && 'name' in currentReg?.groupId && currentReg?.groupId?.name}</Link>
+                            <Link href={`/dashboard/groups/${typeof currentReg?.groupId === 'object' && '_id' in currentReg?.groupId && currentReg?.groupId?._id}`}  className="table-link w-fit flex-1" >{typeof currentReg?.groupId === 'object' && 'name' in currentReg?.groupId && currentReg?.groupId?.name}</Link>
                         </div>
                     }
                 </div>
@@ -126,7 +126,7 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
                             <span className="text-[0.9rem] font-bold" >Room(s)</span>
                             {
                                 typeof currentReg?.roomIds?.[0] === 'object' && '_id' in currentReg?.roomIds?.[0] && currentReg?.roomIds?.map((item)=>(
-                                    <Link href={{pathname:`/dashboard/rooms`, query:{id:typeof item === 'object' && '_id' in item && item._id.toString()}}} key={typeof item === 'object' && '_id' in item ? item?._id.toString():''} >{typeof item === 'object' && 'venue' in item && item.venue}</Link>
+                                    <Link className="table-link w-fit" href={{pathname:`/dashboard/rooms`, query:{id:typeof item === 'object' && '_id' in item && item._id.toString()}}} key={typeof item === 'object' && '_id' in item ? item?._id.toString():''} >{typeof item === 'object' && 'venue' in item && item.venue}</Link>
                                 ))
                             }
                         </div>

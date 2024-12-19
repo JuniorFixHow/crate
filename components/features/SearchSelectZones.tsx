@@ -29,11 +29,11 @@ const SearchSelectZones = ({isGeneric, noborder, require, setSelect, className, 
       <select required={require} onChange={(e)=>setSelect!(e.target.value)}  onClick={()=>setShowSearch(true)}  className={`scrollbar-custom min-w-[12rem] ${!noborder && 'rounded border'} py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent outline-none`} >
         {
           search === '' &&
-          <option className='bg-white text-black dark:text-white dark:bg-black' value="">Zones</option>
+          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">Zones</option>
         }
         {
             SearchZone(zones, search).map((zone)=>(
-                <option   className='bg-white text-black dark:text-white dark:bg-black' key={zone?._id} value={zone?._id}>{zone?.name}</option>
+                <option   className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={zone?._id} value={zone?._id}>{zone?.name}</option>
             ))
         }
       </select>

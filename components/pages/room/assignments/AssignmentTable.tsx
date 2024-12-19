@@ -104,7 +104,7 @@ const AssignmentTable = () => {
         </div>
 
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} onTap={currentAssGroup ? handleRemoveGroup:handleRemoveMember} title='Unassign room' message={currentAssignment ? message:message2} />
-        <div className="flex flex-col gap-5 bg-white dark:bg-black rounded border p-4">
+        <div className="flex flex-col gap-5 bg-white dark:bg-[#0F1214] rounded border p-4">
             <div className="flex justify-between items-center">
                 {
                     !isGroup &&
@@ -146,7 +146,7 @@ const AssignmentTable = () => {
                         pageSizeOptions={[5, 10]}
                         getRowId={(row:IGroup)=>row._id}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                     :
@@ -157,7 +157,7 @@ const AssignmentTable = () => {
                       pageSizeOptions={[5, 10]}
                       getRowId={(row:IRegistration)=>row._id}
                       // checkboxSelection
-                      className='dark:bg-black dark:border dark:text-blue-800'
+                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                       sx={{ border: 0 }}
                   />
                 }

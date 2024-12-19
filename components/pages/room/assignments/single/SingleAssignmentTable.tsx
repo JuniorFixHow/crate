@@ -116,7 +116,7 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
                       pageSizeOptions={[5, 10]}
                       getRowId={(row:IRoom)=>row._id}
                       // checkboxSelection
-                      className='dark:bg-black dark:border dark:text-blue-800'
+                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                       sx={{ border: 0 }}
                   />
               </Paper>

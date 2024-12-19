@@ -38,7 +38,7 @@ const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProp
         >
         <div className='flex size-full items-center justify-center'>
             <div className="new-modal scrollbar-custom overflow-y-scroll  md:max-h-[80%]">
-                <div className="w-full flex justify-between p-4 rounded-t border-b border-slate-300 bg-white dark:bg-black">
+                <div className="w-full flex justify-between p-4 rounded-t border-b border-slate-300 bg-white dark:bg-[#0F1214] dark:text-white">
                     <Subtitle text={`Add member`} />
                     <MdClose onClick={handleClose}  size={24} className='cursor-pointer' />
                 </div>

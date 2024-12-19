@@ -41,22 +41,26 @@ const FilterBar = ({ setAge, setGender, reset, setStatus, setDate}:FilterBarProp
         </div>
         
         <select onChange={(e)=>setStatus(e.target.value)} defaultValue='Status'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">
-            <option className="dark:bg-black" value="">Status</option>
-            <option className="dark:bg-black" value="Member">Member</option>
-            <option className="dark:bg-black" value="Non-member">Non-member</option>
+            <option className="dark:bg-[#0F1214]" value="">Status</option>
+            <option className="dark:bg-[#0F1214]" value="Member">Member</option>
+            <option className="dark:bg-[#0F1214]" value="Non-member">Non-member</option>
         </select>
         
         <select onChange={(e)=>setGender(e.target.value)} defaultValue='Gender'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">
-            <option className="dark:bg-black" value="">Gender</option>
-            <option className="dark:bg-black" value="Male">Male</option>
-            <option className="dark:bg-black" value="Female">Female</option>
+            <option className="dark:bg-[#0F1214]" value="">Gender</option>
+            <option className="dark:bg-[#0F1214]" value="Male">Male</option>
+            <option className="dark:bg-[#0F1214]" value="Female">Female</option>
         </select>
         <select onChange={(e)=>setAge(e.target.value)} defaultValue='Age'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">
-            <option className="dark:bg-black" value="">Age</option>
-            <option className="dark:bg-black" value="6-17">6-17</option>
-            <option className="dark:bg-black" value="18-35">18-35</option>
-            <option className="dark:bg-black" value="36-50">36-50</option>
-            <option className="dark:bg-black" value="Above 50">Above 50</option>
+            <option className="dark:bg-[#0F1214]" value="">Age</option>
+            <option className='dark:bg-black' value="0-5">0-5</option>
+            <option className='dark:bg-black' value="6-10">6-10</option>
+            <option className='dark:bg-black' value="11-20">11-20</option>
+            <option className='dark:bg-black' value="21-30">21-30</option>
+            <option className='dark:bg-black' value="31-40">31-40</option>
+            <option className='dark:bg-black' value="41-50">41-50</option>
+            <option className='dark:bg-black' value="51-60">51-60</option>
+            <option className='dark:bg-black' value="61+">61+</option>
         </select>
 
         <div onClick={reset}  className="border border-slate-400 gap-2 cursor-pointer hover:bg-slate-100 bg-white dark:bg-transparent flex-row flex items-center p-2">

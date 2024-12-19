@@ -93,7 +93,7 @@ const VendorsTable = () => {
 
 
   return (
-    <div className='flex flex-col gap-5 rounded bg-white border dark:bg-black p-4 w-full overflow-x-scroll scrollbar-custom' >
+    <div className='flex flex-col gap-5 rounded bg-white border dark:bg-[#0F1214] p-4 w-full overflow-x-scroll scrollbar-custom' >
         <div className="flex justify-between items-center">
             <SearchSelectChurch setSelect={setChurch} isGeneric />
             <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ const VendorsTable = () => {
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10]}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800 scrollbar-custom'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800 scrollbar-custom'
                         sx={{ border: 0 }}
                     />
                 </Paper>

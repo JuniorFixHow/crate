@@ -53,7 +53,7 @@ const NewSessions = () => {
   // console.log(data)
 
   return (
-    <div   className='px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white' >
+    <div   className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex gap-8 bg-white' >
         <span className='font-bold text-xl' >Add Session</span>
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
           <form onSubmit={handleNewSession} ref={formRef}  className="flex flex-1 flex-col gap-5">

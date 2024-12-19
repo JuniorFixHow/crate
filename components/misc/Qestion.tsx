@@ -49,12 +49,12 @@ const QuestionForm = ({customQuestions, sectionId, setCustomQuestions}:QuestionF
           onChange={(e) => updateCustomQuestion(question.id!, { type: e.target.value })}
           className="border p-1 w-full outline-none bg-transparent"
         >
-          <option className="dark:bg-black dark:text-white" value="text">Text</option>
-          <option className="dark:bg-black dark:text-white" value="number">Text</option>
-          <option className="dark:bg-black dark:text-white" value="select">Select</option>
-          <option className="dark:bg-black dark:text-white" value="radio">Radio</option>
-          <option className="dark:bg-black dark:text-white" value="checkbox">Checkbox</option>
-          <option className="dark:bg-black dark:text-white" value="textarea">Textarea</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="text">Text</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="number">Text</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="select">Select</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="radio">Radio</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="checkbox">Checkbox</option>
+          <option className="dark:bg-[#0F1214] dark:text-white" value="textarea">Textarea</option>
         </select>
         {["select", "radio", "checkbox"].includes(question.type!) && (
           <textarea

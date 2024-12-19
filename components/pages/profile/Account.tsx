@@ -47,7 +47,7 @@ const Account = ({className, ...props}:ProfileProps) => {
                
                 await Promise.all([
                     updateVendor(user.userId, content),
-                    await updateVendor(user.userId, content)
+                    updateDoc(doc(db, 'Users', user.userId), {photo:info.url})
                 ])
                 const userData:SessionPayload ={
                     ...user,
@@ -97,6 +97,7 @@ const Account = ({className, ...props}:ProfileProps) => {
             const userData = {
                 name:data.name || user?.name,
                 email:data.email || user?.email,
+                churchId:churchId || user?.churchId
             }
             if(user){
                 const [mongo, fb] = await Promise.all([
@@ -104,13 +105,15 @@ const Account = ({className, ...props}:ProfileProps) => {
                     updateDoc(doc(db, 'Users', user.userId), {
                         name:userData.name,
                         email:userData.email,
+                        churchId:userData.churchId
                     })
                 ])
                 setResponse(mongo);
                 const session:SessionPayload = {
                     ...user,
                     name:userData.name!,
-                    email:userData.email!
+                    email:userData.email!,
+                    churchId:userData.churchId!,
                 }
                 await createSession(session);
                 console.log(fb);

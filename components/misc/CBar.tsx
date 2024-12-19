@@ -40,10 +40,10 @@ const CBar = ({
         }
     },[events, isEvent, setEventId])
   return (
-    <div {...props}  className={`p-4 h-[21.8rem] flex flex-col shadow-xl bg-white dark:border rounded dark:bg-black ${className}`} >
+    <div {...props}  className={`p-4 h-[21.8rem] flex flex-col shadow-xl bg-white dark:border rounded dark:bg-[#0F1214] ${className}`} >
         <div className="flex flex-row w-full items-start justify-between">
             <span className='text-xl font-bold' >Registration Stats</span>
-            <div className="flex gap-5 items-start">
+            <div className="flex gap-5 items-end">
                 {
                     isEvent &&
                     <SearchSelectEvents setSelect={setEventId!} isGeneric />

@@ -8,7 +8,7 @@ export type tileProps = {
 } & ComponentProps<'div'>
 const Tile = ({title, icon, text, fraction, className, ...props}:tileProps) => {
   return (
-    <div {...props}  className={`hidden items-center gap-4 lg:flex p-3 flex-row bg-white dark:bg-black dark:border rounded shadow-xl ${className}`} >
+    <div {...props}  className={`hidden items-center gap-4 lg:flex p-3 flex-row bg-white dark:bg-[#0F1214] dark:border rounded shadow-xl ${className}`} >
         {icon}
         <div className="flex flex-col">
             <span className='text-[#3C60CA] font-semibold' >{title}</span>

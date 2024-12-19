@@ -101,7 +101,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
                     setBadge={setBadge} setDate={setDate}
                     setRoom={setRoom} reset={reset}
                 />
-                <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-black dark:border' >Print</button>
+                <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-[#0F1214] dark:border' >Print</button>
             </div>
         }
 
@@ -132,7 +132,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10]}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-orange-800'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                 </Paper>

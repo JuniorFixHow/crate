@@ -15,7 +15,7 @@ const page = () => {
         </div>
 
         <div className="flex flex-col w-full">
-            <div className="flex bg-white p-6 w-full shadow-lg dark:bg-black border">
+            <div className="flex bg-white p-6 w-full shadow-lg dark:bg-[#0F1214] border">
                 <Subtitle text="Badge Details" />
             </div>
             <PrintBage/>

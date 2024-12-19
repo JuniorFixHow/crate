@@ -70,7 +70,7 @@ const MembersTable = ({
     const message=`Are you sure you want to delete this member? This will delete their event registrations as well as attendance records.`
 
   return (
-    <div className='xl:w-[67rem] gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-black dark:border' >
+    <div className='xl:w-[67rem] gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-row items-center justify-between">
             <span className='font-bold text-xl' >Members</span>
             <SearchBar setSearch={setSearch} reversed />
@@ -95,7 +95,7 @@ const MembersTable = ({
                   initialState={{ pagination: { paginationModel } }}
                   pageSizeOptions={[5, 10]}
                   // checkboxSelection
-                  className='dark:bg-black dark:border-slate-200 dark:border dark:text-[#3C60CA]'
+                  className='dark:bg-[#0F1214] dark:border-slate-200 dark:border dark:text-[#3C60CA]'
                   sx={{ border: 0 }}
               />
           </Paper>

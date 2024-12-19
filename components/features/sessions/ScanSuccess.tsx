@@ -15,7 +15,7 @@ const ScanSuccess = ({setStage, loading, result}:ScanSuccessProps) => {
   const res:Partial<IMember>|undefined = result?.payload;
 
   return (
-    <div className='flex-center gap-5 flex-col h-[50vh] bg-white border rounded dark:bg-black p-4' >
+    <div className='flex-center gap-5 flex-col h-[50vh] bg-white border rounded dark:bg-[#0F1214] p-4' >
       {
         loading ? 
         <CircularProgress size='2rem' />

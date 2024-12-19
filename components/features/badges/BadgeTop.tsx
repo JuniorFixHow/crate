@@ -27,7 +27,7 @@ const BadgeTop = ({ setEventId,eventId, className, ...props}:BadgeTopProps) => {
                 <IoCloseSharp className="text-red-700 cursor-pointer absolute -top-4 right-0 z-50" onClick={()=>setValue(false)} />
             } */}
         </div>
-        <div className="flex flex-row items-center gap-4 px-4 py-1 bg-white dark:bg-black border w-fit">
+        <div className="flex flex-row items-center gap-4 px-4 py-1 bg-white dark:bg-[#0F1214] border w-fit">
             <IoCheckmarkCircleOutline className='text-blue-700' />
             <div className="flex flex-row">
             <span className='text-red-700 font-medium' >{badgeIssued}</span>

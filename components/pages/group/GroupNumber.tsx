@@ -21,7 +21,7 @@ const GroupNumber = ({eventId}:GroupNumberProps) => {
     fetchGroupLength()
   },[eventId])
   return (
-    <div className='flex gap-2 cursor-default items-center bg-white border dark:bg-black rounded py-1 px-4 w-fit shadow' >
+    <div className='flex gap-2 cursor-default items-center bg-white border dark:bg-[#0F1214] rounded py-1 px-4 w-fit shadow' >
         <HiOutlineUserGroup className='text-blue-600' />
         <div className="flex flex-col">
             <span className='text-blue-600 text-[0.8rem]' >Groups/Family</span>

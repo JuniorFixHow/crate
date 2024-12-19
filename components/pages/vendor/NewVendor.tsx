@@ -117,7 +117,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
         >
         <div className='flex size-full flex-center'>
             <form ref={formRef} onSubmit={ currentVendor ? handleUpdateVendor :  handleNewVendor}  className="new-modal scrollbar-custom overflow-y-scroll">
-                <span className='text-[1.5rem] font-bold dark:text-slate-200' >{currentVendor ? "Edit Vendor":"Create Vendor"}</span>
+                <span className='text-[1.5rem] font-bold dark:text-slate-200' >{currentVendor ? "Edit User":"Create User"}</span>
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Full name</span>
@@ -140,10 +140,10 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
 
                     <div className="flex flex-col gap-2">
                         <span className='text-slate-500 text-[0.8rem]' >Country</span>
-                        <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.country : ''}  className='border rounded py-1 dark:bg-transparent outline-none' name="country" >
-                            <option className='bg-white text-black dark:text-white dark:bg-black' value="">select</option>
-                            <option className='bg-white text-black dark:text-white dark:bg-black' value="Volunteer">USA</option>
-                            <option className='bg-white text-black dark:text-white dark:bg-black' value="Coordinator">Ghana</option>
+                        <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.country : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="country" >
+                            <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
+                            <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">USA</option>
+                            <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Coordinator">Ghana</option>
                         </select>
                     </div>
 
@@ -161,19 +161,19 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
 
                    
 
-                    <div className="flex flex-col md:flex-row gap-4 md:gap-12 items-start">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-12 items-end">
                         <div className="flex flex-col gap-2">
                             <span className='text-slate-500 text-[0.8rem]' >Church</span>
-                            <SearchSelectChurch require={!currentVendor} setSelect={setChurch} isGeneric />
+                            <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric />
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <span className='text-slate-500 text-[0.8rem]' >Role</span>
-                            <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.role : ''}  className='border rounded py-1 dark:bg-transparent outline-none' name="role" >
-                                <option className='bg-white text-black dark:text-white dark:bg-black' value="">select</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-black' value="Volunteer">Volunteer</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-black' value="Coordinator">Coordinator</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-black' value="Admin">Admin</option>
+                            <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.role : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="role" >
+                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
+                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">Volunteer</option>
+                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Coordinator">Coordinator</option>
+                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Admin">Admin</option>
                             </select>
                         </div>
                     </div>

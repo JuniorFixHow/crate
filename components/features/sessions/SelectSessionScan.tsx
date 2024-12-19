@@ -21,7 +21,7 @@ const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectS
     const {sessions, loading} = useFetchSessions();
     
   return (
-    <div className='flex flex-col gap-6 bg-white border rounded dark:bg-black p-4' >
+    <div className='flex flex-col gap-6 bg-white border rounded dark:bg-[#0F1214] p-4' >
         <Subtitle text='Scan Badge' />
         {
             loading ? 

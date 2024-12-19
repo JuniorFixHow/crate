@@ -88,7 +88,7 @@ const ChurchTable = () => {
 
     const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
   return (
-    <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-black dark:border rounded' >
+    <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
         <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <div className="flex">
 
@@ -126,7 +126,7 @@ const ChurchTable = () => {
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
                     // checkboxSelection
-                    className='dark:bg-black dark:border dark:text-blue-800'
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                     sx={{ border: 0 }}
                 />
             </Paper>

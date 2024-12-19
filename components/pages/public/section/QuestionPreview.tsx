@@ -25,7 +25,7 @@ const QuestionPreview = ({open, setOpen, section, questions}:QuestionPreviewProp
         aria-describedby="modal-modal-description"
         className="flex-center"
         >
-           <div className='flex overflow-y-scroll scrollbar-custom flex-col gap-8 bg-white h-[95vh]  dark:bg-black dark:border w-[90%] md:w-[60%] rounded p-6'>
+           <div className='flex overflow-y-scroll scrollbar-custom flex-col gap-8 bg-white h-[95vh]  dark:bg-[#0F1214] dark:border w-[90%] md:w-[60%] rounded p-6'>
             <div className="flex flex-col gap-2 items-center">
               {
                 section.number === 1 &&
@@ -68,7 +68,7 @@ const QuestionPreview = ({open, setOpen, section, questions}:QuestionPreviewProp
                         <option
                           key={index}
                           value={option}
-                          className="dark:bg-black dark:text-white"
+                          className="dark:bg-[#0F1214] dark:text-white"
                         >
                           {option}
                         </option>

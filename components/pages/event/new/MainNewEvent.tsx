@@ -55,7 +55,7 @@ const MainNewEvent = () => {
 
   return (
     <div className="page">
-      <form ref={formRef} onSubmit={handleNewEvent} className="px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white">
+      <form ref={formRef} onSubmit={handleNewEvent} className="px-8 py-4 flex-col dark:bg-[#0F1214] rounded dark:border flex gap-8 bg-white">
         <span className="font-bold text-xl">Add Event</span>
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
           {/* LEFT */}

@@ -48,7 +48,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
     const message = `You're about to delete this attendance record. Have you thought this through?`
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white border dark:bg-black rounded">
+    <div className="flex flex-col gap-4 p-4 bg-white border dark:bg-[#0F1214] rounded">
         <div className="flex items-center flex-row justify-between w-full">
             <SearchBar className='py-1' setSearch={setSearch} reversed={false} />
         </div>
@@ -71,7 +71,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
                         pageSizeOptions={[5, 10]}
                         getRowId={(row:IAttendance)=>row._id}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800'
+                        className='dark:bg-[#0F1214] dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                 </Paper>

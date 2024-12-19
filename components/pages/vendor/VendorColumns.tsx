@@ -30,6 +30,11 @@ export const VendorsColumns = (
         field:'email',
         headerName:'Email',
         width:120,
+        renderCell:(param:GridRenderCellParams)=>{
+            return(
+                <Link className="table-link" href={`mailto:${param.row?.email}`} >{param.row?.email}</Link>
+            )
+        }
     },
     {
         field:'country',

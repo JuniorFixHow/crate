@@ -95,7 +95,7 @@ const Navbar = () => {
   // console.log('USEr', currentUser)
 
   return (
-    <div className={`flex xl:p-4 z-20 min-h-full absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${toggle? 'pt-4':'p-4'} bg-white dark:bg-black shadow-xl rounded-lg`} >
+    <div className={`flex xl:p-4 z-20 min-h-full absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${toggle? 'pt-4':'p-4'} bg-white dark:bg-[#0F1214] shadow-xl rounded-lg`} >
       <div className="flex flex-col gap-6 relative h-fit">
 
         <div className="flex flex-row items-center w-full justify-between">

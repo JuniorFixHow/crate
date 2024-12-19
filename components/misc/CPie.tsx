@@ -16,7 +16,7 @@ type CPieProps = {
 
 const CPie = ({isEvent, loading, members, registrations, eventId, ...props}:CPieProps) => {
   return (
-    <div {...props}  className="p-4 hidden h-[21.7rem] dark:bg-transparent bg-white md:flex w-[12rem] md:w-[13rem] flex-col shadow-xl rounded-lg dark:border" >
+    <div {...props}  className="p-4 hidden h-[21.7rem] dark:bg-[#0F1214] bg-white md:flex w-[12rem] md:w-[13rem] flex-col shadow-xl rounded-lg dark:border" >
         {
             loading ? 
             <div className="flex-center w-full h-full">

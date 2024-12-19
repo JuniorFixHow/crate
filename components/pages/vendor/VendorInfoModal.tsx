@@ -76,7 +76,7 @@ const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registered Members</span>
-                    <Link href={{pathname:'/dashboard/members', query:{registeredBy:currentVendor?.id}}}  className='text-blue-700 underline cursor-pointer' >{currentVendor?.registrants}</Link>
+                    <Link href={{pathname:'/dashboard/members', query:{registeredBy:currentVendor?._id}}}  className='text-blue-700 underline cursor-pointer' >{currentVendor?.registrants}</Link>
                 </div>
                 
             </div>

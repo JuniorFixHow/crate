@@ -62,7 +62,7 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
   
 
   return (
-    <form onSubmit={handleSaveQuestions}  className="bg-white dark:bg-black/50 dark:border py-6 rounded w-full min-h-[80vh] flex flex-col" >
+    <form onSubmit={handleSaveQuestions}  className="bg-white dark:bg-[#0F1214]/50 dark:border py-6 rounded w-full min-h-[80vh] flex flex-col" >
         <div className="flex justify-between w-full border-b border-b-slate-300 pb-3 px-6">
             <div className="flex-center dark:text-black dark:bg-white text-[0.8rem] font-bold text-white w-10 h-10 bg-black p-2 rounded-full shadow">{currentSection?.number}</div>
             {

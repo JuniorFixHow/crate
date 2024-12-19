@@ -97,7 +97,7 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10]}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                 </Paper>

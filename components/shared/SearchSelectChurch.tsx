@@ -25,10 +25,10 @@ const SearchSelectChurch = ({isGeneric, require, setSelect, className, ...props}
             </div>
         }
       <select required={require} onChange={(e)=>setSelect!(e.target.value)}  onClick={()=>setShowSearch(true)}  className={`border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent outline-none`} >
-        <option className='bg-white text-black dark:text-white dark:bg-black' value=''  >Churches</option>
+        <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value=''  >Churches</option>
         {
             SearchChurchWithoutZone(churches, search).map((church)=>(
-              <option className='bg-white text-black dark:text-white dark:bg-black' key={church?._id} value={church?._id}>{church?.name}</option>
+              <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={church?._id} value={church?._id}>{church?.name}</option>
             ))
         }
       </select>

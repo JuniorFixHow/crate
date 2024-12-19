@@ -28,11 +28,11 @@ const SearchSelectRooms = ({isGeneric, eventId, require, setSelect, className, .
       <select required={require} onChange={(e)=>setSelect!(e.target.value)} onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
         {
           search === '' &&
-          <option className='bg-white text-black dark:text-white dark:bg-black' value='' >Rooms</option>
+          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value='' >Rooms</option>
         }
         {
             SearchRoom(rooms, search, eventId).map((event)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-black' key={event?._id} value={event?._id}>{event?.venue} {event?.number}</option>
+                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={event?._id} value={event?._id}>{event?.venue} {event?.number}</option>
             ))
         }
       </select>

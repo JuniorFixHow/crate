@@ -70,7 +70,7 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
         aria-describedby="modal-modal-description"
         className="flex-center"
         >
-        <div className='flex flex-col gap-8 bg-white  dark:bg-black dark:border w-[90%] md:w-[60%] rounded p-6'>
+        <div className='flex flex-col gap-8 bg-white  dark:bg-[#0F1214] dark:border w-[90%] md:w-[60%] rounded p-6'>
             <SectionSelectCenter openSelect={openSelect} setOpenSelect={setOpenSelect} sectionId={sectionId} />
             <form onSubmit={handleNewSection} ref={formRef}  className="flex flex-col gap-5 grow">
                 <span className='text-[1.5rem] font-bold dark:text-slate-200' >Create Section</span>
@@ -84,13 +84,13 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
                     </div>
 
                     <div className="flex w-full items-start justify-center gap-8">
-                        <div onClick={()=>setChoice('One')}  className={`flex-center ${choice === 'One' && 'border-blue-700 border'} hover:border-blue-700 hover:border cursor-pointer flex-col gap-5 p-3 bg-white shadow-md dark:bg-black rounded dark:border`}>
+                        <div onClick={()=>setChoice('One')}  className={`flex-center ${choice === 'One' && 'border-blue-700 border'} hover:border-blue-700 hover:border cursor-pointer flex-col gap-5 p-3 bg-white shadow-md dark:bg-[#0F1214] rounded dark:border`}>
                             <Image src='/undraw_duplicate_re_d39g.svg' height={150} width={150} alt="new" />
                             <span className="hover:text-blue-600 dark:text-white dark:hover:text-blue-700" >Create New</span>
                         </div>
                         {
                             sections.length > 0 &&
-                            <div onClick={()=>setChoice('Two')}  className={`flex-center ${choice === 'Two' && 'border-blue-700 border'} hover:border-blue-700 hover:border cursor-pointer flex-col gap-5 p-3 bg-white shadow-md dark:bg-black rounded dark:border`}>
+                            <div onClick={()=>setChoice('Two')}  className={`flex-center ${choice === 'Two' && 'border-blue-700 border'} hover:border-blue-700 hover:border cursor-pointer flex-col gap-5 p-3 bg-white shadow-md dark:bg-[#0F1214] rounded dark:border`}>
                                 <Image  src='/undraw_add_notes_re_ln36.svg' height={0.5} style={{height:'6.5rem'}} width={150} alt="new" />
                                 <span className="hover:text-blue-600 dark:text-white dark:hover:text-blue-700" >Copy</span>
                             </div>

@@ -109,7 +109,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
     const message = `Deleting will remove all members in the group as well. You're rather advised to remove the unwanted members. Do you still want to delete the group?`
   return (
     <div className='w-full flex flex-col' >
-      <div className="w-full flex justify-between p-4 rounded-t border border-slate-300 bg-white dark:bg-black">
+      <div className="w-full flex justify-between p-4 rounded-t border border-slate-300 bg-white dark:bg-[#0F1214]">
         <div className="flex gap-10">
             <Subtitle text={currentGroup ? currentGroup?.name:''} />
             {
@@ -130,7 +130,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
         </div>
         <AddButton onClick={()=>setDeleteMode(true)} text='Delete Group' className='rounded' noIcon smallText isDanger />
       </div>
-      <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-black p-4">
+      <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-[#0F1214] p-4">
         <DeleteDialog onTap={handleDeleteGroup} message={message} setValue={setDeleteMode} value={deleteMode} title={`Delete ${currentGroup?.name}`} />
         <DeleteDialog onTap={handleRemoveMember} message={warn} setValue={setRemoveMode} value={removeModde} title={`Remove ${currentMember?.name}`} />
         <NewGroupMember infoMode={newMode} setInfoMode={setNewMode} currentGroup={currentGroup} />
@@ -160,7 +160,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
                       initialState={{ pagination: { paginationModel } }}
                       pageSizeOptions={[5, 10]}
                       // checkboxSelection
-                      className='dark:bg-black dark:border dark:text-blue-800'
+                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                       sx={{ border: 0 }}
                     />
                 </Paper>

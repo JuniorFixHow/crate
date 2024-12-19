@@ -78,7 +78,7 @@ const RoomTable = () => {
 
     const message = `Deleting a room will also unassign all members allocated to it. You're rather advised to edit the room or unassign the unwanted members. Do you want to continue?`
     return (
-      <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-black dark:border rounded' >
+      <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
           <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <SearchSelectEvents setSelect={setEventId} isGeneric />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
@@ -108,7 +108,7 @@ const RoomTable = () => {
                         pageSizeOptions={[5, 10]}
                         getRowId={(row:IRoom):string=>row._id}
                         // checkboxSelection
-                        className='dark:bg-black dark:border dark:text-blue-800'
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
                     />
                 </Paper>

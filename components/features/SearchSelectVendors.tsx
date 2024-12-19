@@ -29,11 +29,11 @@ const SearchSelectVendors = ({isGeneric, require, setSelect, className, ...props
       <select required={require} onChange={(e)=>setSelect!(e.target.value)} onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
         {
           search === '' &&
-          <option className='bg-white text-black dark:text-white dark:bg-black' value={user?.userId} >{user?.name}</option>
+          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value={user?.userId} >{user?.name}</option>
         }
         {
             searchVednor(search,vendors).map((vednor)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-black' key={vednor?._id} value={vednor?._id}>{vednor?.name}</option>
+                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={vednor?._id} value={vednor?._id}>{vednor?.name}</option>
             ))
         }
       </select>
