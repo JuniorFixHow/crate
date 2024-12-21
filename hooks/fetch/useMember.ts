@@ -38,17 +38,17 @@ export const useFetchMembers = () => {
 };
 
 
-export const useFetchFreeMembers = (eventId:string) => {
+export const useFetchFreeMembers = (eventId:string, churchId:string) => {
     const [members, setMembers] = useState<IMember[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
 
     useEffect(() => {
-        if(!eventId) return;
+        if(!eventId || !churchId) return;
         const fetchMembers = async () => {
             try {
-                const fetchedMembers: IMember[] = await getUnassignedMembers(eventId);
+                const fetchedMembers: IMember[] = await getUnassignedMembers(eventId, churchId);
                 
                 setMembers(fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
                 setError(null);
@@ -61,7 +61,7 @@ export const useFetchFreeMembers = (eventId:string) => {
         };
 
         fetchMembers();
-    }, [eventId]); 
+    }, [eventId, churchId]); 
 
     return { members, loading, error };
 };

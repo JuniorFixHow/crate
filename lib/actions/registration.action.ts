@@ -7,6 +7,8 @@ import Registration, { IRegistration } from "../database/models/registration.mod
 import { connectDB } from "../database/mongoose";
 import { ErrorProps } from "@/types/Types";
 import { IMember } from "../database/models/member.model";
+// import { isEligible } from "@/functions/misc";
+import { IChurch } from "../database/models/church.model";
 import { isEligible } from "@/functions/misc";
 
 export async function createRegistration(memberId:string, eventId:string, registration:Partial<IRegistration>){
@@ -132,7 +134,7 @@ export async function getRegsWithEventId(eventId:string){
     }
 }
 
-export async function getRegistrationsWithoutGroups(eventId: string) {
+export async function getRegistrationsWithoutGroups(eventId: string, churchId:string) {
     try {
         await connectDB();
 
@@ -155,8 +157,48 @@ export async function getRegistrationsWithoutGroups(eventId: string) {
         .lean()
         const eligibles = registrations.filter((reg) => {
             const member = reg.memberId as unknown as IMember;
+            // console.log(member)
+            // return isEligible(member.ageRange);  // Filter based on eligibility
+            const church =  member.church as unknown as IChurch;
+            return church._id.toString() === churchId;
+        });
+
+        // console.log(eligibles)
+
+        return JSON.parse(JSON.stringify(eligibles));
+    } catch (error) {
+        console.error('Error fetching registrations without groups:', error);
+        throw new Error('Error occurred while fetching registrations without groups');
+    }
+}
+export async function getEligibleRegistrationsWithoutGroups(eventId: string) {
+    try {
+        await connectDB();
+
+        // Find registrations where groupId is null or undefined for the specified event
+        const registrations = await Registration.find({ 
+            eventId, 
+            groupId: { $exists: false } 
+        })
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
+        .lean()
+        const eligibles = registrations.filter((reg) => {
+            const member = reg.memberId as unknown as IMember;
+            // console.log(member)
             return isEligible(member.ageRange);  // Filter based on eligibility
         });
+
+        // console.log(eligibles)
 
         return JSON.parse(JSON.stringify(eligibles));
     } catch (error) {

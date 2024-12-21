@@ -12,14 +12,18 @@ import { getNextGroupNumber } from '@/lib/actions/misc'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { SearchMemberForNewGroup } from './fxn'
 import { useFetchEvents } from '@/hooks/fetch/useEvent'
+import SearchSelectZones from '@/components/features/SearchSelectZones'
+import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
 
 const NewGroupTable = () => {
   const [eventId, setEventId] = useState<string>('');
+  const [churchId, setChurchId] = useState<string>('');
+  const [zoneId, setZoneId] = useState<string>('');
   const [membersId, setMembersId] = useState<string[]>([]);
   const [search, setSearch] = useState<string>('');
   const [number, setNumber] = useState<number>(0);
 
-  const {eventRegistrations, loading} = useFetchRegistrationsWithEvents(eventId);
+  const {eventRegistrations, loading} = useFetchRegistrationsWithEvents(eventId, churchId);
   const {events} = useFetchEvents();
 
   const handleCheckClick = (id:string)=>{
@@ -68,26 +72,33 @@ const NewGroupTable = () => {
             <SearchSelectEvents setSelect={setEventId} isGeneric/>
             <SearchBar setSearch={setSearch} reversed={false} />
           </div>
-
-          <div className="flex w-full">
-            {
-              loading ? 
-              <LinearProgress className='w-full' />
-              :
-              <Paper className='w-full' sx={{ height: 480, }}>
-                  <DataGrid
-                    getRowId={(row:IRegistration)=>row._id}
-                    rows={SearchMemberForNewGroup(eventRegistrations, search)}
-                    columns={NewGroupColumns(membersId, handleCheckClick)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                    sx={{ border: 0 }}
-                  />
-              </Paper>
-            }
+          <div className="flex items-end gap-5">
+            <SearchSelectZones setSelect={setZoneId} isGeneric/>
+            <SearchSelectChurchForRoomAss zoneId={zoneId} isGeneric setSelect={setChurchId} />
           </div>
+
+          {
+            (churchId && eventId) &&
+            <div className="flex w-full">
+              {
+                loading ? 
+                <LinearProgress className='w-full' />
+                :
+                <Paper className='w-full' sx={{ height: 480, }}>
+                    <DataGrid
+                      getRowId={(row:IRegistration)=>row._id}
+                      rows={SearchMemberForNewGroup(eventRegistrations, search)}
+                      columns={NewGroupColumns(membersId, handleCheckClick)}
+                      initialState={{ pagination: { paginationModel } }}
+                      pageSizeOptions={[5, 10]}
+                      // checkboxSelection
+                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                      sx={{ border: 0 }}
+                    />
+                </Paper>
+              }
+            </div>
+          }
 
           {
             membersId.length > 0 &&

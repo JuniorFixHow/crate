@@ -10,6 +10,8 @@ import '../../../../components/features/customscroll.css'
 import { IGroup } from '@/lib/database/models/group.model'
 import { useFetchFreeMembers } from '@/hooks/fetch/useMember'
 import { ErrorProps } from '@/types/Types'
+import { IEvent } from '@/lib/database/models/event.model'
+import { IChurch } from '@/lib/database/models/church.model'
 
 export type NewGroupMemberProps = {
     infoMode:boolean,
@@ -20,8 +22,9 @@ export type NewGroupMemberProps = {
 const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProps) => {
     const [search, setSearch] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
-    const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id.toString();
-    const {members, loading} = useFetchFreeMembers(eventId ? eventId:'');
+    const event = currentGroup?.eventId as IEvent;
+    const church = currentGroup?.churchId as unknown as IChurch;
+    const {members, loading} = useFetchFreeMembers(event?._id, church?._id);
     const handleClose = ()=>{
         setInfoMode(false);
         setSearch('');

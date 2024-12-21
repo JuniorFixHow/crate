@@ -2,7 +2,7 @@
 import React from "react"
 
 import { RxDashboard } from 'react-icons/rx'
-import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory } from "react-icons/md"
+import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney } from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
@@ -78,10 +78,10 @@ export const NavItems:NavigationProps[] = [
         link:'/dashboard/groups'
     },
     {
-        title: 'Rooms',
-        isAdmin:false,
-        icon: <MdOutlineMeetingRoom/>,
-        children:[
+      title: 'Rooms',
+      isAdmin:false,
+      icon: <MdOutlineMeetingRoom/>,
+      children:[
           {
             text:'Room Management',
             path:'/dashboard/rooms',
@@ -98,8 +98,8 @@ export const NavItems:NavigationProps[] = [
             image:<IoKeyOutline />
           },
         ]
-    },
-    {
+      },
+      {
         title: 'Communities',
         isAdmin:false,
         icon: <IoMdGlobe/>,
@@ -115,7 +115,13 @@ export const NavItems:NavigationProps[] = [
             image:<TbBuildingChurch/>
           },
         ]
-    },
+      },
+      {
+          title: 'Revenue',
+          isAdmin:false,
+          icon: <MdAttachMoney />,
+          link:'/dashboard/revenue'
+      },
 ]
 
 

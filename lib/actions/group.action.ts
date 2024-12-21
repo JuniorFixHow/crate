@@ -36,6 +36,7 @@ export async function createGroup(group: Partial<IGroup>) {
             }, 0);
         }
 
+
         // Create a new group with the eligible count
         const newGroup = new Group({
             ...group,
@@ -312,8 +313,9 @@ export async function getGroups() {
     try {
         await connectDB();
         const groups = await Group.find()
-            .populate('members')     // Populate array of members
-            .populate('roomIds')     // Populate array of rooms
+            .populate('members')     
+            .populate('roomIds')
+            .populate('churchId')
             .lean();
             // console.log('Groups: ', groups);
         return JSON.parse(JSON.stringify(groups));
@@ -335,6 +337,13 @@ export async function getEventGroups(eventId:string) {
             .populate('eventId')     // Populate the single event reference
             .populate('members')     // Populate array of members
             .populate('roomIds')     // Populate array of rooms
+            .populate({
+                path:'churchId',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            })     // Populate array of rooms
             .lean();
         return JSON.parse(JSON.stringify(groups));
     } catch (error) {
@@ -354,6 +363,7 @@ export async function getOptionalEventGroups(eventId?:string) {
         const groups = await Group.find(eventId ? {eventId}:{})
             .populate('members')     // Populate array of members
             .populate('roomIds')     // Populate array of rooms
+            .populate('churchId')     // Populate array of church
             .lean();
         return JSON.parse(JSON.stringify(groups));
     } catch (error) {
@@ -414,6 +424,7 @@ export async function getGroup(id:string){
             .populate('eventId')     // Populate the single event reference
             .populate('members')     // Populate array of members
             .populate('roomIds')     // Populate array of rooms
+            .populate('churchId')     // Populate array of church
             .lean();
         return JSON.parse(JSON.stringify(group));
     } catch (error) {

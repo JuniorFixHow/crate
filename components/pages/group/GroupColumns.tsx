@@ -5,7 +5,7 @@ export const GroupColumns:GridColDef[]=[
     {
         field:'groupNumber',
         headerName:'Number',
-        width:100,
+        width:80,
     },
     {
         field:'name',
@@ -20,7 +20,7 @@ export const GroupColumns:GridColDef[]=[
     {
         field:'members',
         headerName:'Members',
-        width:140,
+        width:120,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <span className="text-center" >{params?.row?.members?.length}</span>
@@ -28,9 +28,19 @@ export const GroupColumns:GridColDef[]=[
         }
     },
     {
+        field:'churchId',
+        headerName:'Church',
+        width:150,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+            )
+        }
+    },
+    {
         field:'eligible',
         headerName:'MEFRA',
-        width:140,
+        width:120,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <span className="text-center" >{params?.row?.eligible}</span>

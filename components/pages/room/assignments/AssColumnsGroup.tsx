@@ -19,6 +19,16 @@ export const AssColumnsGroup =(
 
     },
     {
+        field:'churchId',
+        headerName:'Church',
+        width:150,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+            )
+        }
+    },
+    {
         field:'members',
         headerName: 'No. of members',
         width:150,
@@ -27,6 +37,16 @@ export const AssColumnsGroup =(
                 <div className="flex h-full items-center">
                     <span>{params?.row?.members.length}</span>
                 </div>
+            )
+        }
+    },
+    {
+        field:'eligible',
+        headerName:'MEFRA',
+        width:120,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="text-center" >{params?.row?.eligible}</span>
             )
         }
     },

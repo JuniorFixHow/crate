@@ -2,6 +2,7 @@ import { Document, model, models, Schema, Types } from "mongoose";
 import { IEvent } from "./event.model";
 import { IMember } from "./member.model";
 import { IRoom } from "./room.model";
+import { IChurch } from "./church.model";
 
 export interface IGroup extends Document{
     _id:string;
@@ -12,6 +13,7 @@ export interface IGroup extends Document{
     eventId:Types.ObjectId|string|IEvent;
     members:[Types.ObjectId]|string[]|IMember[];
     roomIds?:[Types.ObjectId]|string[]|IRoom[];
+    churchId:Types.ObjectId|string|IChurch;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -24,6 +26,7 @@ const GroupSchema = new Schema<IGroup>({
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},
     members:[{type:Schema.Types.ObjectId, ref:'Member'}],
     roomIds:[{type:Schema.Types.ObjectId, ref:'Room'}],
+    churchId:{type:Schema.Types.ObjectId, ref:'Church', required:true},
 
 },{timestamps:true})
 

@@ -39,8 +39,8 @@ const SingleGroupTable = ({id}:{id:string}) => {
         if (id) {
           try {
             const [group, regs] = await Promise.all([
-              getGroup(id), // No need for await here
-              getRegistrationsByGroup(id) // No need for await here
+              getGroup(id), 
+              getRegistrationsByGroup(id) 
             ]);
             
             setCurrentGroup(group);

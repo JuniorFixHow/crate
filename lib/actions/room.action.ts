@@ -235,7 +235,7 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
         // Update registrations to include rooms for the group members
         for (const memberId of group.members) {
             const member = await Member.findById(memberId);
-            const eligible = await isEligible(member?.ageRange);
+            const eligible = isEligible(member?.ageRange);
 
             // Assign room IDs only for eligible members
             if (eligible) {

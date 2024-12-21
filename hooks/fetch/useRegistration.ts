@@ -1,4 +1,4 @@
-import { getRegistrationsWithoutGroups, getRegs, getRegsWithEventId } from "@/lib/actions/registration.action";
+import { getEligibleRegistrationsWithoutGroups, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { useEffect, useState } from "react"
 
@@ -29,7 +29,34 @@ export const useFetchRegistrations = ()=>{
 }
 
 
-export const useFetchRegistrationsWithEvents = (id:string)=>{
+export const useFetchRegistrationsWithEvents = (id:string, churchId:string)=>{
+    const [eventRegistrations, setEventRegistrations] = useState<IRegistration[]>([]);
+    const [error, setError] = useState<string|null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(()=>{
+        if(!id || !churchId) return;
+        const fetchRegistrations = async()=>{
+            const controller = new AbortController()
+            try {
+                const evts:IRegistration[] = await getRegistrationsWithoutGroups(id, churchId);
+                setEventRegistrations(evts);
+                setError(null); 
+            } catch (error) {
+                console.log(error);
+                setError('Error occured fetching registrations.')
+            }finally{
+                setLoading(false);
+            }
+            return ()=> controller.abort()
+        }
+
+        fetchRegistrations();
+    },[churchId, id])
+    return {eventRegistrations, error, loading}
+}
+
+export const useFetchRegistrationsWithoutChurch = (id:string)=>{
     const [eventRegistrations, setEventRegistrations] = useState<IRegistration[]>([]);
     const [error, setError] = useState<string|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -39,7 +66,7 @@ export const useFetchRegistrationsWithEvents = (id:string)=>{
         const fetchRegistrations = async()=>{
             const controller = new AbortController()
             try {
-                const evts:IRegistration[] = await getRegistrationsWithoutGroups(id);
+                const evts:IRegistration[] = await getEligibleRegistrationsWithoutGroups(id);
                 setEventRegistrations(evts);
                 setError(null); 
             } catch (error) {

@@ -38,8 +38,18 @@ export const SearchEventRegWithStatus = (eventsRegs:IRegistration[], search:stri
     return data;
 }
 
-export const SearchGroupWithStatus = (eventsRegs:IGroup[], search:string, status:string):IGroup[]=>{
-    const data = eventsRegs.filter((item)=>{
+export const SearchGroupWithStatus = (eventsRegs:IGroup[], search:string, status:string, churchId:string, zoneId:string):IGroup[]=>{
+    const data = eventsRegs
+    .filter((item)=>{
+        const church = item.churchId as IChurch;
+        const zone = church.zoneId as IZone;
+        return zoneId === '' ? item : zone._id === zoneId;
+    })
+    .filter((item)=>{
+        const church = item.churchId as IChurch;
+        return churchId === '' ? item : church._id === churchId;
+    })
+    .filter((item)=>{
         if(status === ''){
             return item
         }

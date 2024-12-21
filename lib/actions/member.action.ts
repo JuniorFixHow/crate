@@ -213,7 +213,7 @@ export async function getMember(id:string){
     }
 }
 
-export async function getUnassignedMembers(eventId: string) {
+export async function getUnassignedMembers(eventId: string, churchId:string) {
     try {
         await connectDB();
 
@@ -225,8 +225,17 @@ export async function getUnassignedMembers(eventId: string) {
 
         // Fetch eligible members who are not in the assignedMemberIds array
         const unassignedMembers = await Member.find({
-            _id: { $nin: assignedMemberIds }, // Members not assigned to any group
-        }).lean();
+            _id: { $nin: assignedMemberIds }, // Members not assigned to any group,
+            church:churchId
+        })
+        .populate({
+            path: 'church',         // Populate the 'church' reference
+            populate: {
+                path: 'zoneId',     // Populate the 'zoneId' reference in the 'church' model
+                model: 'Zone'       // Specify the model for the 'zoneId' reference
+            }
+        })
+        .lean();
 
         // Filter the unassigned members to return only the eligible ones
         // const eligibleUnassignedMembers = unassignedMembers.filter((member) =>  {

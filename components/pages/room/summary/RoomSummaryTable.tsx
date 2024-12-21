@@ -3,17 +3,14 @@ import AddButton from "@/components/features/AddButton"
 import SearchBar from "@/components/features/SearchBar"
 import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 import { useFetchRoomsRegistrationWithKeys } from "@/hooks/fetch/useRoom"
-import { LinearProgress } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 
 import SearchSelectZones from "@/components/features/SearchSelectZones"
 import SearchSelectChurchForRoomAss from "@/components/features/SearchSelectChurchForRoomAss"
 import { saveDataToExcel, SearchMerged } from "./fxn"
-import Title from "@/components/features/Title"
 import { IEvent } from "@/lib/database/models/event.model"
 import { getEvent } from "@/lib/actions/event.action"
 import CustomSummaryTable from "./CustomSummaryTable"
-import Subtitle from "@/components/features/Subtitle"
 
 const RoomSummaryTable = () => {
     const [search, setSearch] = useState<string>('');
@@ -72,21 +69,8 @@ const RoomSummaryTable = () => {
             </div>
         </div>
 
-        <div ref={printRef} id="print"  className="flex flex-col w-full">
-                <div className="flex flex-col w-full items-center gap-4">
-                {
-                    event &&
-                    <Title text={event.name} className="text-center" />
-                }
-                <Subtitle text="Member Registration Records" />
-                </div>
-            {
-                loading ?
-                <LinearProgress className="w-full" aria-describedby="loading..." />
-                :
-                <CustomSummaryTable data={SearchMerged(data,search,churchId,zoneId,eventId)} />
-            }
-          </div>
+            <CustomSummaryTable loading={loading} data={SearchMerged(data,search,churchId,zoneId,eventId)} printRef={printRef} event={event} />
+       
     </div>
   )
 }

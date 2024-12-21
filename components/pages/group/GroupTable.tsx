@@ -23,7 +23,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const {groups, loading} = useFetchGroupsForEvent(eventId);
     // console.log('Groups here: ',groups)
 
-    // console.log('EventID: ', eventId)
+    // console.log('Church: ', groups[0]?.churchId)
 
     useEffect(()=>{
       if(events.length>0){

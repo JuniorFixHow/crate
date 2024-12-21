@@ -7,7 +7,7 @@ import { Alert, LinearProgress, Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { SearchEventRegWithStatus, SearchGroupWithStatus } from './fxn'
 import { AssignmentColumns } from './AssignmentColumns'
-import {  useFetchRegistrationsWithEvents } from '@/hooks/fetch/useRegistration'
+import {  useFetchRegistrationsWithoutChurch } from '@/hooks/fetch/useRegistration'
 import { useFetchEvents } from '@/hooks/fetch/useEvent'
 import { useFetchGroupsForEvent } from '@/hooks/fetch/useGroups'
 import { IRegistration } from '@/lib/database/models/registration.model'
@@ -33,7 +33,7 @@ const AssignmentTable = () => {
     const [currentAssGroup, setCurrentAssGroup] = useState<IGroup|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
     const {events} = useFetchEvents();
-    const {eventRegistrations, loading} = useFetchRegistrationsWithEvents(eventId)
+    const {eventRegistrations, loading} = useFetchRegistrationsWithoutChurch(eventId)
     const {groups} = useFetchGroupsForEvent(eventId)
 
     const handleUnassign = (data:IRegistration)=>{
@@ -106,13 +106,10 @@ const AssignmentTable = () => {
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} onTap={currentAssGroup ? handleRemoveGroup:handleRemoveMember} title='Unassign room' message={currentAssignment ? message:message2} />
         <div className="flex flex-col gap-5 bg-white dark:bg-[#0F1214] rounded border p-4">
             <div className="flex justify-between items-center">
-                {
-                    !isGroup &&
-                    <div className="flex gap-4 items-end">
-                        <SearchSelectZones isGeneric setSelect={setZoneId} />
-                        <SearchSelectChurchForRoomAss isGeneric zoneId={zoneId} setSelect={setChurchId} />
-                    </div>
-                }
+                <div className="flex gap-4 items-end">
+                    <SearchSelectZones isGeneric setSelect={setZoneId} />
+                    <SearchSelectChurchForRoomAss isGeneric zoneId={zoneId} setSelect={setChurchId} />
+                </div>
 
             </div>
                 
@@ -140,7 +137,7 @@ const AssignmentTable = () => {
                 {
                     isGroup ?
                     <DataGrid
-                        rows={SearchGroupWithStatus(groups, search, status)}
+                        rows={SearchGroupWithStatus(groups, search, status, churchId, zoneId)}
                         columns={AssColumnsGroup(handleUnassignGroup, deleteGroupLoading)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10]}

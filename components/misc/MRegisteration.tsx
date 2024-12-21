@@ -37,7 +37,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     const [data, setData] = useState<Partial<IMember>>({
         email:'', name:'', ageRange:'', 
          note:'', marital:'Single',
-        allergy:'', employ:'Employed', status:'Mmeber', password:'',
+        allergy:'', employ:'Employed', status:'Member', password:'',
     });
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
 
@@ -251,7 +251,6 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                   
          
                 </div>
-
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Status</span>
                     

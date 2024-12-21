@@ -1,7 +1,10 @@
 'use client'
 import AddButton from '@/components/features/AddButton'
 import { createGroup } from '@/lib/actions/group.action'
+import { getMember } from '@/lib/actions/member.action'
+import { IChurch } from '@/lib/database/models/church.model'
 import { IGroup } from '@/lib/database/models/group.model'
+import { IMember } from '@/lib/database/models/member.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
 import React, { ChangeEvent, FormEvent, useRef, useState } from 'react'
@@ -29,10 +32,13 @@ const NewGroupDown = ({members, eventId}:NewGroupDownProps) => {
         setResponse(null);
         try {
             setLoading(true);
+            const member = await getMember(members[0]) as IMember;
+            const church = member.church as IChurch;
             const body:Partial<IGroup> = {
                 ...data,
                 members,
-                eventId
+                eventId,
+                churchId:church?._id
             }
             if(data.type==='Couple' && members.length > 2){
                 setResponse({message:'A couple group can only have two members', error:true})
