@@ -131,7 +131,7 @@ const RevenueTable = () => {
           <div className="flex w-full">
             {
                 loading ?
-                <LinearProgress/>
+                <LinearProgress className="w-full" />
                 :
                 <Paper className='w-full' sx={{ height: 480, }}>
                     <DataGrid
