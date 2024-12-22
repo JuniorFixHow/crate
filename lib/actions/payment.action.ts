@@ -1,4 +1,4 @@
-'user server'
+'use server'
 
 import Payment, { IPayment } from "../database/models/payment.model";
 import { connectDB } from "../database/mongoose";
@@ -33,6 +33,53 @@ export async function getPayments() {
         await connectDB();
 
         const payments = await Payment.find()
+            .populate('payee') // Populates the Vendor (payee) field
+            .populate({
+                path: 'payer', // Refers to the Registration field in Payment
+                model: 'Registration',
+                populate: [
+                    {
+                        path: 'memberId',
+                        model: 'Member',
+                        populate: {
+                            path: 'church',
+                            model: 'Church',
+                            populate: {
+                                path: 'zoneId',
+                                model: 'Zone',
+                            },
+                        },
+                    },
+                    {
+                        path: 'eventId',
+                        model: 'Event',
+                    },
+                    {
+                        path: 'groupId',
+                        model: 'Group',
+                    },
+                    {
+                        path: 'roomIds',
+                        model: 'Room',
+                    },
+                ],
+            })
+            .lean();
+
+        return JSON.parse(JSON.stringify(payments));
+        // return handleResponse('Payments fetched successfully', false, payments, 200);
+    } catch (error) {
+        console.error('Error occurred fetching payments:', error);
+        return handleResponse('Error occurred fetching payments', true, {}, 500);
+    }
+}
+
+
+export async function getUserPayments(userId:string) {
+    try {
+        await connectDB();
+
+        const payments = await Payment.find({payee:userId})
             .populate('payee') // Populates the Vendor (payee) field
             .populate({
                 path: 'payer', // Refers to the Registration field in Payment

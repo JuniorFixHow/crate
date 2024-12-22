@@ -80,7 +80,7 @@ const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor
                 </div>
                 
             </div>
-            <AddButton onClick={()=>setDeleteMode(true)} text='Reset Password' className='rounded mt-8 justify-center' isDanger noIcon smallText />
+            <AddButton onClick={()=>setDeleteMode(true)} text='Delete Account' className='rounded mt-8 justify-center' isDanger noIcon smallText />
         </div>
     </Modal>
   )

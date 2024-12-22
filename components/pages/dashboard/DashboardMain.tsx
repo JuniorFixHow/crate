@@ -26,10 +26,10 @@ const DashboardMain = () => {
               <option className='dark:text-white dark:bg-black'  value="Event">By Event</option>
             </select>
 
-            <div className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
+            <Link href={'/dashboard/revenue'}  className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
               <BsCashCoin />
                 <span className='font-semibold' >Make Payment</span>
-            </div>
+            </Link>
             <Link href={`/dashboard/events/sessions/scan`}  className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
                 <RiQrScan2Line/>
                 <span className='font-semibold' >Scan Badge</span>

@@ -63,7 +63,7 @@ const DashboardGlobal = ({events, zones, churches, registrations, members, loadi
               <ActivityTile  title='Members Registered' data={stats.members.toString()} link='/dashboard/members' query={{registeredBy:vendorId}} />
               <ActivityTile title='Events Created' data={stats.events.toString()} link='/dashboard/events' query={{id:vendorId}} />
               <ActivityTile title='Sessions Created' data={stats.sessions.toString()} link='/dashboard/events/sessions' query={{id:vendorId}} />
-              <ActivityTile title='Payment Made'  data='$500.00' />
+              <ActivityTile link='/dashboard/revenue' query={{userId:vendorId}} title='Payment Made'  data={`$${stats?.revenue?.toString()}`} />
             </div>
           }
           </div>

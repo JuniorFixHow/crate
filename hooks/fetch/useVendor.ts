@@ -33,9 +33,10 @@ export const useFetchVendorStats = (id:string)=>{
     type StatsProps = {
         members:number,
         events:number,
-        sessions:number
+        sessions:number,
+        revenue:number,
     }
-    const [stats, setStats] = useState<StatsProps>({members:0, events:0, sessions:0});
+    const [stats, setStats] = useState<StatsProps>({members:0, events:0, sessions:0, revenue:0});
     const [statsLoading, setStatsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +45,7 @@ export const useFetchVendorStats = (id:string)=>{
         const fetchStats = async()=>{
             try {
                 const res = await getVendorStats(id);
-                setStats({members:res?.members, events:res?.events, sessions:res?.sessions})
+                setStats({members:res?.members, events:res?.events, sessions:res?.sessions, revenue:res?.totalAmount})
             } catch (error) {
                 setError('Error occured while loading data.')
                 console.log(error)

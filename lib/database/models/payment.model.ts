@@ -7,6 +7,7 @@ export interface IPayment extends Document{
     payer:Types.ObjectId | IRegistration | string,
     payee:Types.ObjectId | IVendor | string,
     purpose:string,
+    narration:string,
     amount:number,
     createdAt:Date,
     updatedAt:Date
@@ -20,6 +21,7 @@ const PaymentSchema = new Schema<IPayment>({
         type:Schema.Types.ObjectId, ref:'Vendor', required:true
     },
     purpose:String,
+    narration:String,
     amount:Number,
 },{timestamps:true});
 

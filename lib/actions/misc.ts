@@ -11,6 +11,7 @@ import Registration from "../database/models/registration.model";
 import Vendor from "../database/models/vendor.model";
 import Event from "../database/models/event.model";
 import Session from "../database/models/session.model";
+import Payment from "../database/models/payment.model";
 
 export async function getGroupLenght(eventId?: string) {
     try {
@@ -108,7 +109,7 @@ export async function getVendorStats(vendorId:string){
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
         // Fetch counts for the past 7 days
-        const [memberCount, eventCount, sessionCount] = await Promise.all([
+        const [memberCount, eventCount, sessionCount, revenue] = await Promise.all([
           Member.countDocuments({
             registeredBy: vendorId,
             createdAt: { $gte: sevenDaysAgo },
@@ -121,13 +122,19 @@ export async function getVendorStats(vendorId:string){
             createdBy: vendorId,
             createdAt: { $gte: sevenDaysAgo },
           }),
+          Payment.find({
+            payee:vendorId,
+            createdAt: { $gte: sevenDaysAgo}
+        })
         ]);
+
+        const totalAmount = revenue.reduce((sum, payment) => sum + payment.amount, 0);
 
         const members = JSON.parse(JSON.stringify(memberCount));
         const events = JSON.parse(JSON.stringify(eventCount));
         const sessions = JSON.parse(JSON.stringify(sessionCount));
 
-        return {members, events, sessions}
+        return {members, events, sessions, totalAmount}
     } catch (error) {
         console.log('Error occured fetching vendor stats');
         console.log(error)

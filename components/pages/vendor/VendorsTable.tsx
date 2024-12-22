@@ -81,7 +81,7 @@ const VendorsTable = () => {
                 if(id){
                     const res = await getVendor(id);
                     setCurrentVendor(res);
-                    setNewMode(true);
+                    setInfoMode(true);
                 }
             } catch (error) {
                 console.log(error);

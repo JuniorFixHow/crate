@@ -47,6 +47,17 @@ export const searchEvent = (text:string, events:IEvent[]):IEvent[]=>{
     return evts
 }
 
+export const searchRegistrationWithEvent = (text:string, events:IRegistration[]):IRegistration[]=>{
+    const evts = events.filter((event)=>{
+      const member = event.memberId as IMember;
+        return text === '' ? event : Object.values(member)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
 export const searchVednor = (text:string, vendors:IVendor[]):IVendor[]=>{
     const evts = vendors.filter((vendor)=>{
         return text === '' ? vendor : Object.values(vendor)
