@@ -85,6 +85,14 @@ const RevenueInfoModal = ({infoMode, setInfoMode, currentRevenue, setCurrentReve
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Payment Purpose</span>
                     <span className='text-[0.9rem]' >{currentRevenue?.purpose}</span>
                 </div>
+
+                {
+                    currentRevenue?.narration &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Narration</span>
+                        <span className='text-[0.9rem]' >{currentRevenue?.narration}</span>
+                    </div>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Received By</span>
                     <Link href={{pathname:`/dashboard/users`, query:{id:payee?._id}}}  className='table-link w-fit' >{payee?.name}</Link>
