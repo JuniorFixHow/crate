@@ -82,7 +82,7 @@ const RevenueTable = () => {
         setCurrentRevenue(null);
     }
 
-    const selectData = ['Room','Badge','Penalty'];
+    const selectData = ['Camp Fee - Adults','Camp Fee - YaYa'];
     const message = `You're about to delete payment information. Are you sure?`;
 
     const link = process.env.NEXT_PUBLIC_PAYMENT_LINK;

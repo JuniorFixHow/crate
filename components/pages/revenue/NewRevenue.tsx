@@ -110,9 +110,8 @@ const NewRevenue = ({infoMode, setInfoMode, currentRevenue, setCurrentRevenue}:R
                             <span className='text-slate-500 text-[0.8rem]' >Purpose</span>
                             <select onChange={handleChange} required={!currentRevenue}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRevenue?.purpose} name="purpose">
                                 <option className='dark:bg-black dark:text-white' value="">select</option>
-                                <option className='dark:bg-black dark:text-white' value="Room">Room</option>
-                                <option className='dark:bg-black dark:text-white' value="Badge">Badge</option>
-                                <option className='dark:bg-black dark:text-white' value="Penalty">Penalty</option>
+                                <option className='dark:bg-black dark:text-white' value="Camp Fee - Adults">Camp Fee - Adults</option>
+                                <option className='dark:bg-black dark:text-white' value="Camp Fee - YaYa">Camp Fee - YaYa</option>
                             </select>
                         </div>
                     
