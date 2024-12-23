@@ -44,6 +44,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
         e.preventDefault();
         setError({message:'', error:false});
         const password = getPassword(data.name!, data.phone!)
+        // console.log('Password: ',password)
         try {
             setLoading(true);
             const body:Partial<IVendor> = {

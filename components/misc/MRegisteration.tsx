@@ -128,9 +128,9 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             const res = await createMember(body);
             const response = res?.payload as IMember
             setNewMember(response);
-            setError({message:'Member created successfully', error:false});
+            setError(res);
             formRef.current?.reset();
-            if(events.length){
+            if(events.length && res?.code === 201){
                 openEventReg();
             }
         } catch (error) {
@@ -148,6 +148,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
         setError({message:'', error:false});
         try {
             if(currentMemeber){
+                const id = currentMemeber?._id;
                 const body:Partial<IMember> = {
                     name:data.name || currentMemeber.name,
                     email:data.email || currentMemeber.email,
@@ -160,9 +161,9 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     ageRange:data.ageRange || currentMemeber.ageRange,
                     church:church||currentMemeber.church
                 } 
-                const res = await updateMember(currentMemeber._id, body);
+                const res = await updateMember(id, body);
                 const response = res?.payload as IMember;
-                setError({message:'Member updated successfully', error:false})
+                setError(res)
                 setCurrentMember!(response);
                 router.refresh();
             }
@@ -191,7 +192,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Phone Number</span>
-                <input required={!currentMemeber} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
+                <input required={!currentMemeber} defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
             </div>
             <RegisterForEvent  
                 eventId={eventId} 

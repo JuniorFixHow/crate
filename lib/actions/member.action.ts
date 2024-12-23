@@ -70,21 +70,36 @@ export async function updateMember(id: string, member: Partial<IMember>) {
     try {
         await connectDB();
 
-        const {email} = member;
-        if(email){
-            const mem = await Member.find({email});
-            if(mem.length >= 1 && mem[0]?.email !== email){
-                return handleResponse('Another member exists with this email', true, {}, 422);
+        const { email } = member;
+
+        if (email) {
+            // Fetch the member being updated
+            const existingMember = await Member.findById(id);
+
+            if (!existingMember) {
+                return handleResponse('Member not found', true, {}, 404);
+            }
+
+            // Check if the email is being changed
+            if (existingMember.email !== email) {
+                // Check if the new email already exists for another member
+                const emailExists = await Member.findOne({ email });
+
+                if (emailExists) {
+                    return handleResponse('Another member exists with this email', true, {}, 422);
+                }
             }
         }
+
         // Find and update the member
-        const m = await Member.findByIdAndUpdate(id, member, { new: true });
-        if (!m) {
+        const updatedMember = await Member.findByIdAndUpdate(id, member, { new: true });
+
+        if (!updatedMember) {
             throw new Error('Member not found');
         }
 
         // Find the church associated with the updated member
-        const church = await Church.findById(m.church);
+        const church = await Church.findById(updatedMember.church);
         if (!church) {
             throw new Error('Church not found');
         }
@@ -92,7 +107,7 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         // Count the youth members in the church (age range 18-50)
         const youthCount = await Member.countDocuments({
             church: church._id,
-            ageRange: { $in: ['11-20', '21-30', '31-40', '41-50', '51-60'] }
+            ageRange: { $in: ['11-20', '21-30', '31-40', '41-50', '51-60'] },
         });
 
         // Count all registrants in the specific church
@@ -101,10 +116,14 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         });
 
         // Update the church's registrants and youth counts
-        await Church.findByIdAndUpdate(church._id, {
-            registrants,
-            youth: youthCount,
-        }, { new: true });
+        await Church.findByIdAndUpdate(
+            church._id,
+            {
+                registrants,
+                youth: youthCount,
+            },
+            { new: true }
+        );
 
         // Find the zone associated with the church
         const zone = await Zone.findById(church.zoneId);
@@ -115,21 +134,25 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         // Count the total registrants for all churches in the zone
         const zoneChurchIds = await Church.find({ zoneId: zone._id }).distinct('_id');
         const totalZoneRegistrants = await Member.countDocuments({
-            church: { $in: zoneChurchIds }
+            church: { $in: zoneChurchIds },
         });
 
         // Update the zone's registrants count
-        await Zone.findByIdAndUpdate(zone._id, {
-            registrants: totalZoneRegistrants
-        }, { new: true });
+        await Zone.findByIdAndUpdate(
+            zone._id,
+            {
+                registrants: totalZoneRegistrants,
+            },
+            { new: true }
+        );
 
-        return handleResponse('Member updated successfully', false, m, 201); // Return the updated member
-
+        return handleResponse('Member updated successfully', false, updatedMember, 201); // Return the updated member
     } catch (error) {
         console.error('Error occurred updating member:', error);
         throw new Error('Error occurred updating member');
     }
 }
+
 
 
 
