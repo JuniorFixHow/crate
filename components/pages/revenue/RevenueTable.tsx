@@ -16,9 +16,10 @@ import { RevenueColumns } from "./RevenueCoulmns";
 import SearchSelectZones from "@/components/features/SearchSelectZones";
 import SearchSelectChurchForRoomAss from "@/components/features/SearchSelectChurchForRoomAss";
 import { calcTotalRevenue, SearchRevenue } from "./fxn";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchSelectGlobal from "@/components/features/SearchSelectGlobal";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const RevenueTable = () => {
     const [currentRevenue, setCurrentRevenue] = useState<IPayment|null>(null);
@@ -32,22 +33,19 @@ const RevenueTable = () => {
     const [purpose, setPurpose] = useState<string>('All');
     const [response, setReponse] = useState<ErrorProps>(null);
 
-    // const searchParams = useSearchParams();
+    const searchParams = useSearchParams();
 
     const {revenues, loading} = useFetchRevenues()
    
-    // useEffect(() => {
-    //     const fetchChurch = async () => {
-    //       const data = searchParams?.get('id');
-    //       if (data) {
-    //         const room: IRevenue = await getRevenue(data); // Await the promise
-    //         setCurrentRevenue(room);
-    //         setInfoMode(true);
-    //       }
-    //     };
-      
-    //     fetchChurch(); // Call the async function
-    //   }, [searchParams]);
+    useEffect(() => {
+        const fetchChurch = async () => {
+          const data = searchParams?.get('eventId');
+          if (data) {
+            setEventId(data);
+          }
+        };  
+        fetchChurch(); 
+      }, [searchParams]);
 
     const paginationModel = { page: 0, pageSize: 10 };
 

@@ -32,6 +32,6 @@ export const useFetchRevenues = ()=>{
         fetchRevenues();
     },[searchParams])
 
-    console.log('revenues: ',revenues)
+    // console.log('revenues: ',revenues)
     return {revenues, loading, error}
 }

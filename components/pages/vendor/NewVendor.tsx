@@ -1,5 +1,4 @@
 'use client'
-import SearchSelectChurch from '@/components/shared/SearchSelectChurch'
 import AddButton from '@/components/features/AddButton'
 import { ErrorProps, IUser } from '@/types/Types'
 import { Alert, Modal } from '@mui/material'
@@ -11,6 +10,8 @@ import { createVendor, updateVendor } from '@/lib/actions/vendor.action'
 import { useRouter } from 'next/navigation'
 import { serverTimestamp } from 'firebase/firestore'
 import { signupUser } from '@/lib/firebase/auth'
+import SearchSelectZones from '@/components/features/SearchSelectZones'
+import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
 
 type NewVendorProps = {
     openVendor:boolean,
@@ -28,6 +29,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
     const [church, setChurch] = useState<string>('');
     const [data, setData] = useState<Partial<IVendor>>({});
     const [loading, setLoading] = useState<boolean>(false);
+    const [zoneId, setZoneId] = useState<string>('');
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement>)=>{
         const {name, value} = e.target;
@@ -72,7 +74,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
             router.refresh();
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding member. Please, Retry.', error:true})
+            setError({message:'Error occured adding user. Please, Retry.', error:true})
         }finally{
             setLoading(false);
         }
@@ -143,7 +145,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                         <span className='text-slate-500 text-[0.8rem]' >Country</span>
                         <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.country : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="country" >
                             <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
-                            <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">USA</option>
+                            <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">United States</option>
                             <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Coordinator">Ghana</option>
                         </select>
                     </div>
@@ -160,12 +162,18 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                         <input required={!currentVendor} onChange={handleChange} defaultValue={currentVendor?currentVendor.phone : ''} name='phone' type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
 
+                    <div className="flex flex-col">
+                        <span className='text-slate-500 text-[0.8rem]' >Zone</span>
+                        <SearchSelectZones require={!currentVendor} setSelect={setZoneId} isGeneric />
+                    </div>
+
                    
 
                     <div className="flex flex-col md:flex-row gap-4 md:gap-12 items-end">
                         <div className="flex flex-col gap-2">
                             <span className='text-slate-500 text-[0.8rem]' >Church</span>
-                            <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric />
+                            <SearchSelectChurchForRoomAss require={!currentVendor} zoneId={zoneId} isGeneric setSelect={setChurch} />
+                            {/* <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric /> */}
                         </div>
 
                         <div className="flex flex-col gap-2">

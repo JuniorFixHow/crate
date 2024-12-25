@@ -104,7 +104,7 @@ export async function getEvent(id:string){
 export async function getCYPEvents(){
     try {
         await connectDB();
-        const events = await Event.find({type:'CYP'});
+        const events = await Event.find({type:'Conference'});
         return JSON.parse(JSON.stringify(events));
     } catch (error) {
         console.log(error);

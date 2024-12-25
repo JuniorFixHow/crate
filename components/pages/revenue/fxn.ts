@@ -56,3 +56,13 @@ export const calcTotalRevenue = (revenue:IPayment[]):number=>{
     const amount = revenue.reduce((sum:number, payment:IPayment)=> sum+payment.amount, 0);
     return amount
 }
+
+export const getEventTotalRevenue = (revenue:IPayment[], eventId:string):number=>{
+    const data = revenue.filter((item)=>{
+        const payer = item.payer as IRegistration;
+        const event = payer.eventId as IEvent;
+        return event._id === eventId;
+    })
+    .reduce((sum:number, payment:IPayment)=> sum+payment.amount, 0);
+    return data;
+}

@@ -8,7 +8,7 @@ export interface IEvent extends Document {
     location?: string;
     from?: string;
     to?: string;
-    type?: 'Camp Meeting'|'Convension'|'CYP';
+    type?: 'Convention' | 'Camp Meeting - Adult' | 'Conference' | 'Retreat' | 'Camp Meeting – YAYA';
     note?: string;
     adultPrice?: number;
     childPrice?: number;

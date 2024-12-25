@@ -37,7 +37,7 @@ const RegisterForEvent = ({
         setShowEvent(false);
         setShowGroup(false);
     }
-    console.log('Group Id: ',groupId);
+    // console.log('Group Id: ',groupId);
   return (
     <Modal
         open={open}

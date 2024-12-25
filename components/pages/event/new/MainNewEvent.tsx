@@ -151,16 +151,21 @@ const MainNewEvent = () => {
                 <option className="dark:bg-black" value="Convention">
                   Convention
                 </option>
-                <option className="dark:bg-black" value="Camp Meeting">
-                  Camp Meeting
+                <option className="dark:bg-black" value="Camp Meeting - Adult">
+                  Camp Meeting - Adult
                 </option>
-                <option className="dark:bg-black" value="CYP">
-                  CYP
+                <option className="dark:bg-black" value="Conference">
+                  Conference
+                </option>
+                <option className="dark:bg-black" value="Retreat">
+                  Retreat
+                </option>
+                <option className="dark:bg-black" value="Camp Meeting – YAYA">
+                  Camp Meeting – YAYA
                 </option>
               </select>
             </div>
           </div>
-
          
             <div className="flex flex-1 flex-col gap-5">
              

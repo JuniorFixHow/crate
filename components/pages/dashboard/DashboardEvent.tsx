@@ -13,6 +13,8 @@ import { IMember } from '@/lib/database/models/member.model'
 import { IEvent } from '@/lib/database/models/event.model'
 import { IChurch } from '@/lib/database/models/church.model'
 import { IZone } from '@/lib/database/models/zone.model'
+import { useFetchRevenues } from '@/hooks/fetch/useRevenue'
+import { getEventTotalRevenue } from '../revenue/fxn'
 
 type DashboardEventProps = {
   loading:boolean,
@@ -26,6 +28,7 @@ type DashboardEventProps = {
 const DashboardEvent = ({loading, churches, zones, events, members, registrations, className, ...props}:DashboardEventProps) => {
   const [eventId, setEventId] = useState<string>('');
 
+  const {revenues} = useFetchRevenues()
   // console.log(members)
 
   return (
@@ -46,33 +49,39 @@ const DashboardEvent = ({loading, churches, zones, events, members, registration
 
         <div className="flex flex-row  gap-4 items-start">
           <CPie loading={loading} members={members} registrations={registrations} eventId={eventId} isEvent={true} />
-
-          <div className="hidden lg:flex flex-col gap-[1.2rem] dark:gap-[1.1rem]">
-            <Tile 
-              className="w-[12rem]"
-              title="Revenue" 
-              icon={<PiMoneyWavyBold size={24} color="#3C60CA" />}
-              text="67293"
-            />
-            <Tile 
-              className="w-[12rem]"
-              title="Family/Group" 
-              icon={<PiUsersThree size={24} color="#3C60CA" />}
-              text={getCountsForEventByCase(eventId, registrations, members, 'Groups').toString()}
-            />
-            <Tile 
-              className="w-[12rem]"
-              title="Individuals" 
-              icon={<LiaUserSolid size={24} color="#3C60CA" />}
-              text={getCountsForEventByCase(eventId, registrations, members, 'Individuals').toString()}
-            />
-            <Tile 
-              className="w-[12rem]"
-              title="Churches" 
-              icon={<TbBuildingChurch size={24} color="#3C60CA" />}
-              text={getCountsForEventByCase(eventId, registrations, members, 'Church').toString()}
-            />
-          </div>
+          {
+            eventId &&
+            <div className="hidden lg:flex flex-col gap-[1.2rem] dark:gap-[1.1rem]">
+              <Tile 
+                className="w-[12rem]"
+                title="Revenue" 
+                icon={<PiMoneyWavyBold size={24} color="#3C60CA" />}
+                text={`$${getEventTotalRevenue(revenues, eventId)?.toString()}`}
+                link = '/dashboard/revenue'
+                query={{eventId}}
+              />
+              <Tile 
+                className="w-[12rem]"
+                title="Family/Group" 
+                icon={<PiUsersThree size={24} color="#3C60CA" />}
+                text={getCountsForEventByCase(eventId, registrations, members, 'Groups').toString()}
+                link={'/dashboard/groups'}
+                query={{eventId}}
+              />
+              <Tile 
+                className="w-[12rem]"
+                title="Individuals" 
+                icon={<LiaUserSolid size={24} color="#3C60CA" />}
+                text={getCountsForEventByCase(eventId, registrations, members, 'Individuals').toString()}
+              />
+              <Tile 
+                className="w-[12rem]"
+                title="Churches" 
+                icon={<TbBuildingChurch size={24} color="#3C60CA" />}
+                text={getCountsForEventByCase(eventId, registrations, members, 'Church').toString()}
+              />
+            </div>
+          }
         </div>
       </div>
 

@@ -82,6 +82,7 @@ export async function getEverything(){
                 }
             })
             .populate('eventId')
+            .populate('groupId')
             .lean(),
             Vendor.find()
             .populate('church')

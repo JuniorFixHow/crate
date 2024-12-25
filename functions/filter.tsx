@@ -1,4 +1,6 @@
 import { IChurch } from "@/lib/database/models/church.model";
+import { IEvent } from "@/lib/database/models/event.model";
+import { IGroup } from "@/lib/database/models/group.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IVendor } from "@/lib/database/models/vendor.model";
@@ -433,10 +435,9 @@ export function getUniqueValuesForEvent(
     // Filter registrations by eventId
     const filteredRegistrations = registrations.filter(
       reg => {
-        if (typeof reg.eventId === 'object' && '_id' in reg.eventId) {
-          return reg.eventId._id?.toString() === eventId;
-        }
-        return reg.eventId?.toString() === eventId;
+        const event = reg.eventId as IEvent;
+        
+        return event._id === eventId;
       }
     );
   
@@ -474,8 +475,9 @@ export function getUniqueValuesForEvent(
         // Count distinct groups
         const distinctGroups = new Set<string>();
         filteredRegistrations.forEach(reg => {
-          if (reg.groupId) {
-            distinctGroups.add(reg.groupId.toString());
+          const group = reg.groupId as IGroup;
+          if (group) {
+            distinctGroups.add(group._id);
           }
         });
         result = distinctGroups.size;

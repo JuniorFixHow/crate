@@ -52,17 +52,17 @@ export async function createVendor(vendor: Partial<IVendor>) {
             }, { new: true });
     
             revalidatePath('/dashboard/vendors')
-            return handleResponse('Vendor created successfully. They should check their email to verify their account', false, newVendor, 201);
+            return handleResponse('User created successfully. They should check their email to verify their account', false, newVendor, 201);
         }
 
 
     } catch (error) {
         if (error instanceof Error) {
-            console.error('Error creating vendor:', error.message);
-            throw new Error(`Error occurred during vendor creation: ${error.message}`);
+            console.error('Error creating user:', error.message);
+            throw new Error(`Error occurred during user creation: ${error.message}`);
         } else {
             console.error('Unknown error:', error);
-            throw new Error('Error occurred during vendor creation');
+            throw new Error('Error occurred during user creation');
         }
     }
 }
@@ -82,7 +82,7 @@ export async function updateVendor(id: string, vendor: Partial<IVendor>) {
             // Find and update the vendor
             const v = await Vendor.findByIdAndUpdate(id, vendor, { new: true });
             if (!v) {
-                throw new Error('Vendor not found');
+                throw new Error('User not found');
             }
     
             // Find the church associated with the updated member
@@ -122,14 +122,14 @@ export async function updateVendor(id: string, vendor: Partial<IVendor>) {
     
             revalidatePath('/dashboard/vendors')
     
-            return handleResponse('Vendor updated successfully', false, v, 201);
+            return handleResponse('User updated successfully', false, v, 201);
         }
 
 
 
     } catch (error) {
-        console.error('Error occurred updating vendor:', error);
-        throw new Error('Error occurred updating vendor');
+        console.error('Error occurred updating user:', error);
+        throw new Error('Error occurred updating user');
     }
 }
 
@@ -156,7 +156,7 @@ export async function getVendors() {
         return JSON.parse(JSON.stringify(vendors));
     } catch (error) {
         console.log(error);
-        throw new Error('Error occurred while fetching members');
+        throw new Error('Error occurred while fetching users');
     }
 }
 
@@ -186,7 +186,7 @@ export async function deleteVendor(id: string) {
         // Find the vendor by its ID
         const vendor = await Vendor.findById(id);
         if (!vendor) {
-            throw new Error('Vendor not found');
+            throw new Error('User not found');
         }
 
         // Find the church associated with the vendor
@@ -235,12 +235,12 @@ export async function deleteVendor(id: string) {
         await Vendor.findByIdAndDelete(vendor._id);
 
         // Return success message
-        revalidatePath('/dashboard/vendors')
-        return 'Vendor deleted successfully';
+        revalidatePath('/dashboard/users')
+        return 'User deleted successfully';
 
     } catch (error) {
-        console.error('Error occurred during vendor deletion:', error);
-        throw new Error('Error occurred during vendor deletion');
+        console.error('Error occurred during user deletion:', error);
+        throw new Error('Error occurred during user deletion');
     }
 }
 

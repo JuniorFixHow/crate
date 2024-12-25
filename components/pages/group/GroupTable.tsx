@@ -4,7 +4,7 @@ import SearchBar from '@/components/features/SearchBar';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import { LinearProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { GroupColumns } from './GroupColumns';
 import {  SearchGroupWithoutEvent } from './fxn';
@@ -21,15 +21,23 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const [search, setSearch] = useState<string>('');
     const {events} = useFetchEvents();
     const {groups, loading} = useFetchGroupsForEvent(eventId);
+    const searchParams = useSearchParams();
     // console.log('Groups here: ',groups)
 
     // console.log('Church: ', groups[0]?.churchId)
 
-    useEffect(()=>{
-      if(events.length>0){
-        setEventId(events[0]._id)
-      }
-    },[events, setEventId])
+
+    useEffect(() => {
+      const fetchChurch = async () => {
+        const data = searchParams?.get('eventId');
+        if (data) {
+          setEventId(data);
+        }else{
+          setEventId(events[0]._id)
+        }
+      };  
+      fetchChurch(); 
+    }, [events, searchParams, setEventId]);
     
     const paginationModel = { page: 0, pageSize: 10 };
     const router = useRouter()

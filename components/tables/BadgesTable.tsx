@@ -70,7 +70,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
         fetchRegistration();
     }, [searchParams]);
     
-    console.log(currentEventReg)
+    // console.log(currentEventReg)
 
 
     const handleDeleteReg = async()=>{

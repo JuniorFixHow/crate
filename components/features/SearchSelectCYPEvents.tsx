@@ -27,7 +27,7 @@ const SearchSelectCYPEvents = ({isGeneric, require, setSelect, className, ...pro
       <select required={require} onChange={(e)=>setSelect!(e.target.value)} onClick={()=>setShowSearch(true)}  className={`scrollbar-custom border rounded py-1  ${!isGeneric && 'bg-[#28469e] text-white'} dark:bg-transparent dark:text-white outline-none`} >
         {
           search === '' &&
-          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value='' >CYP Events</option>
+          <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value='' >Conferences</option>
         }
         {
             searchEvent(search,cypevents).map((event)=>(
