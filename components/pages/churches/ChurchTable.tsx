@@ -10,12 +10,13 @@ import DeleteDialog from '@/components/DeleteDialog';
 import ChurchInfoModal from './ChurchInfoModal';
 import NewChurch from './NewChurch';
 import { useSearchParams } from 'next/navigation';
-import { useFetchZones } from '@/hooks/fetch/useZone';
+// import { useFetchZones } from '@/hooks/fetch/useZone';
 import { useFetchChurches } from '@/hooks/fetch/useChurch';
 import { IChurch } from '@/lib/database/models/church.model';
 import { deleteChurch, getChurch } from '@/lib/actions/church.action';
 import SearchSelectZones from '@/components/features/SearchSelectZones';
 import { ErrorProps } from '@/types/Types';
+import Link from 'next/link';
 
 const ChurchTable = () => {
     const [search, setSearch] = useState<string>('');
@@ -23,12 +24,12 @@ const ChurchTable = () => {
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [noZone, setNoZone] = useState<boolean>(false);
+    // const [noZone, setNoZone] = useState<boolean>(false);
     const [currentChurch, setCurrentChurch] = useState<IChurch|null>(null);
     const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
     // console.log('zone: ', zone)
 
-    const {zones} = useFetchZones();
+    // const {zones} = useFetchZones();
     const {churches, loading} = useFetchChurches();
     const searchParams = useSearchParams();
 
@@ -48,10 +49,10 @@ const ChurchTable = () => {
 
     const paginationModel = { page: 0, pageSize: 10 };
 
-    const handleNewChurch = (data:IChurch)=>{
-        setCurrentChurch(data);
-        setNewMode(true);
-    }
+    // const handleNewChurch = (data:IChurch)=>{
+    //     setCurrentChurch(data);
+    //     setNewMode(true);
+    // }
 
     const hadndleInfo = (data:IChurch)=>{
         setCurrentChurch(data);
@@ -61,14 +62,14 @@ const ChurchTable = () => {
         setCurrentChurch(data);
         setDeleteMode(true);
     }
-    const handleOpenNew = ()=>{
-       if(zones.length <= 0){
-        setNoZone(true);
-       }else{
-        setCurrentChurch(null);
-        setNewMode(true);
-       }
-    }
+    // const handleOpenNew = ()=>{
+    //    if(zones.length <= 0){
+    //     setNoZone(true);
+    //    }else{
+    //     setCurrentChurch(null);
+    //     setNewMode(true);
+    //    }
+    // }
 
     const handleDeleteChurch = async()=>{
         setDeleteState({message:'', error:false})
@@ -86,7 +87,7 @@ const ChurchTable = () => {
       }
 
 
-    const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
+    const message = 'Deleting the church will delete all members and campuses that have been registered for it. Proceed?'
   return (
     <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
         <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
@@ -96,7 +97,9 @@ const ChurchTable = () => {
             </div>
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
-                <AddButton onClick={handleOpenNew} smallText text='Add Church' noIcon className='rounded' />
+                <Link href={'/dashboard/churches/new'} >
+                  <AddButton  smallText text='Add Church' noIcon className='rounded' />
+                </Link>
             </div>
         </div> 
         
@@ -104,10 +107,10 @@ const ChurchTable = () => {
         <ChurchInfoModal currentChurch={currentChurch} setCurrentChurch={setCurrentChurch} infoMode={infoMode} setInfoMode={setInfoMode} />
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentChurch?.name}`} message={message} onTap={handleDeleteChurch} />
         <NewChurch currentChurch={currentChurch} setCurrentChurch={setCurrentChurch} infoMode={newMode} setInfoMode={setNewMode} />
-        {
+        {/* {
             noZone &&
             <Alert onClose={()=>setNoZone(false)} severity='error' >No zones available. Create a zone to add a new church</Alert>
-        }
+        } */}
         {
             deleteState?.message &&
             <Alert onClose={()=>setDeleteState({message:'', error:false})}  className='text-center' severity={deleteState.error ? 'error':'success'} >{deleteState.message}</Alert>
@@ -122,7 +125,7 @@ const ChurchTable = () => {
                 <DataGrid
                     getRowId={(row:IChurch):string=> row?._id as string}
                     rows={SearchChurch(churches, search, zone)}
-                    columns={ChurchColumns(hadndleInfo, handleNewChurch, hadndleDelete)}
+                    columns={ChurchColumns(hadndleInfo,  hadndleDelete)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
                     // checkboxSelection

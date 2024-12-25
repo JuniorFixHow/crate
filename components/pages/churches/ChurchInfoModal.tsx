@@ -33,7 +33,7 @@ const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.3rem] font-bold' >{currentChurch?.name}</span>
+                    <Link href={`/dashboard/churches/${currentChurch?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentChurch?.name}</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Pastor</span>

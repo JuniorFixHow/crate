@@ -7,6 +7,7 @@ import Zone from "../database/models/zone.model";
 import Attendance from "../database/models/attendance.model";
 import Registration from "../database/models/registration.model";
 import Group from "../database/models/group.model";
+import { handleResponse } from "../misc";
 
 export async function createChurch(church: Partial<IChurch>) {
     try {
@@ -28,11 +29,11 @@ export async function createChurch(church: Partial<IChurch>) {
             $inc: { churches: 1 } // Increment the 'churches' field by 1
         }, { new: true });
 
-        return JSON.parse(JSON.stringify(newChurch));
+        return handleResponse('New Church created successfully', false, newChurch, 201)
         
     } catch (error) {
         console.log(error);
-        throw new Error('Error occurred during church creation');
+        return handleResponse('Error occurred during church creation', true, {}, 500)
     }
 }
 
@@ -51,7 +52,7 @@ export async function updateChurch(id: string, church: Partial<IChurch>) {
         await Zone.findByIdAndUpdate(updatedChurch.zoneId, { churches: churchesCount }, { new: true });
 
         // Return the updated church
-        return JSON.parse(JSON.stringify(updatedChurch));
+        return handleResponse('Church updated successfully', false, updatedChurch, 201);
 
     } catch (error) {
         console.log(error);
@@ -94,7 +95,7 @@ export async function getChurchesInaZone(zoneId:string) {
 export async function getChurch(id:string){
     try {
         await connectDB();
-        const zone = await Church.findById(id).populate('zoneId');
+        const zone = await Church.findById(id).populate('zoneId').populate('campuses').lean();
         return JSON.parse(JSON.stringify(zone));
     } catch (error) {
         console.log(error);

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const ChurchColumns = (
     handleInfo:(data:IChurch)=>void, 
-    handleNewChurch:(data:IChurch)=>void,
+    // handleNewChurch:(data:IChurch)=>void,
     handleDeleteChurch:(data:IChurch)=>void
 )=> [
     {
@@ -16,7 +16,7 @@ export const ChurchColumns = (
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
-                <span onClick={()=>handleNewChurch(params?.row)}   className='hover:underline text-left dark:underline w-full text-blue-800 cursor-pointer' >{params?.row?.name}</span>
+                <Link href={`/dashboard/churches/${params.row?._id}`}   className='hover:underline text-left dark:underline w-full text-blue-800 cursor-pointer' >{params?.row?.name}</Link>
               </div>
             )  
         },

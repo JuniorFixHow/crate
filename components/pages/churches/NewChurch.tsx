@@ -52,7 +52,8 @@ const NewChurch = ({currentChurch, setCurrentChurch, infoMode, setInfoMode}:Chur
                 zoneId:zoneId||currentChurch?.zoneId
             };
             const res = await createChurch(data);
-            setCurrentChurch(res);
+            const result = res?.payload as IChurch;
+            setCurrentChurch(result);
             // console.log(res)
             setError({message:'Church updated successfully', error:false});
             formRef.current?.reset();

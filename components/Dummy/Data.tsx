@@ -10,6 +10,7 @@ import { IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
+import { RiSchoolLine } from "react-icons/ri";
 
 
 
@@ -113,6 +114,11 @@ export const NavItems:NavigationProps[] = [
             text:'Churches',
             path:'/dashboard/churches',
             image:<TbBuildingChurch/>
+          },
+          {
+            text:'Campuses',
+            path:'/dashboard/churches/campuses',
+            image:<RiSchoolLine />
           },
         ]
       },

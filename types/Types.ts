@@ -211,19 +211,4 @@ export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
 }
 
 
-//  export interface IMergedRegistrationData {
-//    _id: string; // Registration ID
-//    memberId: IMember; // Populated member data
-//    badgeIssued: 'Yes' | 'No';
-//    groupId?: IGroup; // Optional group ID
-//    roomIds?: string[]; // Original room IDs (if required)
-//    eventId: IEvent; // Event ID
-//    createdAt?: Date;
-//    updatedAt?: Date;
-//    rooms: IRoomWithKeys[]; // Rooms with keys nested
-// }
-
-// export interface IRoomWithKeys extends IRoom {
-//    keys: IKey[]; // Keys associated with the room
-// }
 

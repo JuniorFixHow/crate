@@ -2,6 +2,7 @@ import mongoose, { CallbackError, Document, model, models, Schema } from "mongoo
 import { IChurch } from "./church.model";
 import { IVendor } from "./vendor.model";
 import Response from "./response.model";
+import { ICampuse } from "./campuse.model";
 
 export interface IMember extends Document{
     _id:string;
@@ -10,6 +11,7 @@ export interface IMember extends Document{
     name:string;
     ageRange:string;
     church:mongoose.Types.ObjectId | string | IChurch;
+    campuseId:mongoose.Types.ObjectId | string | ICampuse;
     registeredBy:mongoose.Types.ObjectId | string | IVendor;
     gender:string;
     phone?:string;
