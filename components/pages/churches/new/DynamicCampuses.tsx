@@ -43,7 +43,7 @@ const DynamicCampuses = ({campuses, setCampuses}:DynamicCampuseProps) => {
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         <span className='text-slate-400 font-semibold text-[0.8rem]' >Campuses</span>
-        <AddButton onClick={handleAddCampus} type="button" text="Add Campuse" className="rounded-full w-fit" smallText />
+        <AddButton onClick={handleAddCampus} type="button" text="Add Campus" className="rounded-full w-fit" smallText />
       </div>
 
       {campuses.map((campus) => (
