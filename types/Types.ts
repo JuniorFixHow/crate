@@ -211,4 +211,8 @@ export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
 }
 
 
+export type SignatureProps = {
+   name:string,
+   sign:string
+}
 

@@ -4,6 +4,7 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import '../../../components/features/customscroll.css';
 import { IChurch } from '@/lib/database/models/church.model';
 import Link from 'next/link';
+import { IContract } from '@/lib/database/models/contract.model';
 
 export type ChurchInfoModalProps = {
     infoMode:boolean,
@@ -13,6 +14,7 @@ export type ChurchInfoModalProps = {
 }
 
 const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch}:ChurchInfoModalProps) => {
+    const contract = currentChurch?.contractId as IContract;
     const handleClose = ()=>{
         setCurrentChurch(null);
         setInfoMode(false);
@@ -64,6 +66,16 @@ const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Volunteers</span>
                     <span className='text-[0.9rem]' >{currentChurch?.volunteers}</span>
+                </div>
+
+                <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Contract</span>
+                    {
+                        contract ?
+                        <Link href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
+                        :
+                        <span className='text-[0.9rem]' >None</span>
+                    }
                 </div>
             </div>
         </div>

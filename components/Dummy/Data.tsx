@@ -11,6 +11,7 @@ import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiSchoolLine } from "react-icons/ri";
+import { PiSealCheck } from "react-icons/pi";
 
 
 
@@ -119,6 +120,11 @@ export const NavItems:NavigationProps[] = [
             text:'Campuses',
             path:'/dashboard/churches/campuses',
             image:<RiSchoolLine />
+          },
+          {
+            text:'Contracts',
+            path:'/dashboard/churches/contracts',
+            image:<PiSealCheck />
           },
         ]
       },

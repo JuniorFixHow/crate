@@ -12,6 +12,11 @@ import Vendor from "../database/models/vendor.model";
 import Event from "../database/models/event.model";
 import Session from "../database/models/session.model";
 import Payment from "../database/models/payment.model";
+import { handleResponse } from "../misc";
+import { SignatureProps } from "@/types/Types";
+import path from "path";
+import os from 'os';
+import fs from 'fs';
 
 export async function getGroupLenght(eventId?: string) {
     try {
@@ -141,6 +146,30 @@ export async function getVendorStats(vendorId:string){
         console.log(error)
     }
 }
+
+export async function saveSignatureToFile(data:SignatureProps){
+    try {
+        const {name, sign} = data;
+        
+        const documenstPath = path.join(os.homedir(), 'Documents', 'CRATE');
+        if(!fs.existsSync(documenstPath)){
+            fs.mkdirSync(documenstPath, {recursive:true});
+        }
+
+        const filename = name ? `${name} signature.png` : `${Date.now()}.png`;
+        const filePath = path.join(documenstPath, filename);
+
+        const base64Data = sign.replace(/^data:image\/png;base64,/, "");
+        fs.writeFileSync(filePath, base64Data, 'base64');
+
+        return handleResponse('File saved successfully', false, {filePath}, 201);
+        
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured saving saignature', true, {}, 500);
+    }
+}
+
 
 
 

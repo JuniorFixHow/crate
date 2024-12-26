@@ -3,6 +3,8 @@ import { IZone } from "./zone.model";
 import Campuse, { ICampuse } from "./campuse.model";
 import { SocialProps } from "@/components/pages/churches/new/ChurchDetails";
 import { IVendor } from "./vendor.model";
+import { IContract } from "./contract.model";
+import Member from "./member.model";
 
 
 export interface IChurch extends Document {
@@ -23,6 +25,7 @@ export interface IChurch extends Document {
     socials:SocialProps[];
     admins?: number;
     createdBy: mongoose.Types.ObjectId | string | IVendor; // ObjectId as a string
+    contractId: mongoose.Types.ObjectId | string | IContract; // ObjectId as a string
     createdAt?: Date; // Automatically added by timestamps
     updatedAt?: Date; // Automatically added by timestamps
 }
@@ -38,6 +41,7 @@ const ChurchSchema = new Schema<IChurch>({
     campuses:[{type:Schema.Types.ObjectId, ref:'Campuse'}],
     zoneId:{type:Schema.Types.ObjectId, ref:'Zone', required:true},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor'},
+    contractId:{type:Schema.Types.ObjectId, ref:'Contract'},
     socials:[{id:String, name:String, link:String}],
     registrants:{type:Number, default:0},
     youth:{type:Number, default:0},
@@ -49,7 +53,10 @@ const ChurchSchema = new Schema<IChurch>({
 
 ChurchSchema.pre('deleteOne', {document:false, query:true}, async function(next){
     const churchId = this.getQuery()._id;
-    await Campuse.deleteMany({churchId});
+    await Promise.all([
+        Campuse.deleteMany({churchId}),
+        Member.deleteMany({church:churchId}),
+    ]);
     next();
 })
 

@@ -171,7 +171,7 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
 
   return (
-    <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
+   <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
     <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Church Name</span>
@@ -238,7 +238,7 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
         }
         <div className="flex flex-row items-center gap-2 mt-4 md:mt-12">
             <AddButton disabled={loading} type='submit' name="send" text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-full flex-center' />
-            <AddButton disabled={loading} onClick={()=>{}} text='Cancel' isCancel noIcon smallText className='rounded w-full flex-center' />
+            <AddButton disabled={loading} onClick={()=>router.back()} text='Cancel' isCancel noIcon smallText className='rounded w-full flex-center' />
                 {
                     currentChurch &&
                     <AddButton disabled={delloading} onClick={()=>setDeleteMode(true)} text='Delete' isDanger noIcon smallText className='rounded w-full flex-center' />

@@ -1,5 +1,8 @@
 import { getActivityStatus, getTimeOfDay } from "@/components/pages/session/fxn"
 import { IAttendance } from "@/lib/database/models/attendance.model"
+import { ICampuse } from "@/lib/database/models/campuse.model"
+import { IChurch } from "@/lib/database/models/church.model"
+import { IContract } from "@/lib/database/models/contract.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IMember } from "@/lib/database/models/member.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
@@ -37,9 +40,35 @@ export const searchMemberInversed = (text:string, members:IMember[]):IMember[]=>
     })
     return membs
 }
+
 export const searchEvent = (text:string, events:IEvent[]):IEvent[]=>{
     const evts = events.filter((event)=>{
         return text === '' ? event : Object.values(event)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
+export const searchContract = (text:string, contracts:IContract[]):IContract[]=>{
+    const evts = contracts.filter((contract)=>{
+        return text === '' ? contract : Object.values(contract)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
+export const searchCampus = (text:string, churchId:string, campuses:ICampuse[]):ICampuse[]=>{
+    const evts = campuses
+    .filter((item)=>{
+      const church = item.churchId as IChurch;
+      return churchId === '' ? item : church._id === churchId
+    })
+    .filter((campus)=>{
+        return text === '' ? campus : Object.values(campus)
         .join(' ')
         .toLowerCase()
         .includes(text.toLowerCase())

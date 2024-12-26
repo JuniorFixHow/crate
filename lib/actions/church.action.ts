@@ -66,7 +66,11 @@ export async function getChurches() {
         await connectDB();
 
         // Populate the 'zoneId' field in the 'Church' model with the related Zone
-        const churches = await Church.find().populate('zoneId'); // 'zoneId' should be the reference to the Zone model
+        const churches = await Church.find()
+        .populate('zoneId')
+        .populate('campuses')
+        .populate('contractId')
+        .lean();
         
         // Return the populated churches
         return JSON.parse(JSON.stringify(churches));
@@ -95,7 +99,11 @@ export async function getChurchesInaZone(zoneId:string) {
 export async function getChurch(id:string){
     try {
         await connectDB();
-        const zone = await Church.findById(id).populate('zoneId').populate('campuses').lean();
+        const zone = await Church.findById(id)
+        .populate('zoneId')
+        .populate('campuses')
+        .populate('contractId')
+        .lean();
         return JSON.parse(JSON.stringify(zone));
     } catch (error) {
         console.log(error);

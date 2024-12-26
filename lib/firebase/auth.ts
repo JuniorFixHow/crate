@@ -39,7 +39,7 @@ export async function signinUser(email:string, password:string){
             const id = querySnapshot.docs[0].id;
             const userData:IUser = {
                 id,
-                photo:user.photoURL!,
+                photo:data.photo!,
                 email:user.email!,
                 country:data.country!,
                 churchId:data.churchId!,
