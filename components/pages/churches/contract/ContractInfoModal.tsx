@@ -5,6 +5,8 @@ import '../../../../components/features/customscroll.css';
 import Link from 'next/link';
 
 import { IContract } from '@/lib/database/models/contract.model';
+import { calculateTotalService } from './single/fxn';
+import { IService } from '@/lib/database/models/service.model';
 
 export type ContractInfoModalProps = {
     infoMode:boolean,
@@ -18,6 +20,7 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
         setCurrentContract(null);
         setInfoMode(false);
     }
+    const services = currentContract?.services as IService[]
   return (
     <Modal
         open={infoMode}
@@ -45,10 +48,13 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Date of Expiration</span>
                     <span className='text-[0.9rem]' >{currentContract?.date?.to}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Benefit</span>
-                    <span className='text-[0.9rem]' >${currentContract?.amount}</span>
-                </div>
+                {
+                    services &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Benefit</span>
+                        <span className='text-[0.9rem]' >${calculateTotalService(services)}</span>
+                    </div>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Offeree</span>
                     <span className='text-[0.9rem]' >{currentContract?.offeree?.name}</span>
