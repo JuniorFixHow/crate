@@ -1,3 +1,4 @@
+import { IService } from "@/lib/database/models/service.model";
 import {  RefObject } from "react";
 
 export const handlePrint = (printRef:RefObject<HTMLDivElement|null>) => {
@@ -11,3 +12,8 @@ export const handlePrint = (printRef:RefObject<HTMLDivElement|null>) => {
       window.location.reload(); // Reload to restore original React state
     }
 };
+
+export const calculateTotalService = (services:IService[]):number=>{
+  const total = services.reduce((sum, service)=>service.cost + sum, 0);
+  return total;
+}

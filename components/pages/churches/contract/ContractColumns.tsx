@@ -3,6 +3,7 @@ import { GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
+import { calculateTotalService } from "./single/fxn";
 
 export const ContractColumns = (
     handleInfo:(data:IContract)=>void,
@@ -42,6 +43,11 @@ export const ContractColumns = (
         field:'amount',
         headerName:'Amount($)',
         width:100,
+        renderCell:(item:GridRenderCellParams)=>{
+            return(
+                <span>{calculateTotalService(item.row?.services)}</span>
+            )
+        }
     },
     {
         field:'from',
