@@ -12,6 +12,8 @@ import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiSealCheck } from "react-icons/pi";
+import { HiOutlineBuildingLibrary } from "react-icons/hi2";
+
 
 
 
@@ -80,10 +82,15 @@ export const NavItems:NavigationProps[] = [
         link:'/dashboard/groups'
     },
     {
-      title: 'Rooms',
+      title: 'Venues/Rooms',
       isAdmin:false,
       icon: <MdOutlineMeetingRoom/>,
       children:[
+          {
+            text:'Venues',
+            path:'/dashboard/venues',
+            image:<HiOutlineBuildingLibrary/>
+          },
           {
             text:'Room Management',
             path:'/dashboard/rooms',
