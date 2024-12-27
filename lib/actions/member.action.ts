@@ -360,7 +360,7 @@ export async function deleteMember(id: string) {
        
 
         // Delete the member itself
-        await Member.findByIdAndDelete(member._id);
+        await Member.deleteOne({_id:member._id});
 
         // Recalculate the youth count for the church
         const youthCount = await Member.countDocuments({

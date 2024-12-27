@@ -1,7 +1,7 @@
 'use client'
 import DeleteDialog from "@/components/DeleteDialog";
 import { IContract } from "@/lib/database/models/contract.model";
-import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
+import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react"
 import SignaturePad from "./SignaturePad";
 import { ErrorProps, SignatureProps } from "@/types/Types";
 import { saveSignatureToFile } from "@/lib/actions/misc";
@@ -10,6 +10,8 @@ import { Alert } from "@mui/material";
 import { today } from "@/functions/dates";
 import { createContract, deleteContract, updateContract } from "@/lib/actions/contract.action";
 import ContractPreview from "../single/ContractPreview";
+import { IService } from "@/lib/database/models/service.model";
+import { useFetchServices } from "@/hooks/fetch/useService";
 
 type ContractDetailsProps = {
     currentContract?:IContract
@@ -28,7 +30,23 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
     const [saveResponse, setSaveResponse] = useState<ErrorProps>(null);
+    const [servs, setServs] = useState<IService[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
+    const [amount, setAmount] = useState<number>(0);
+
+    const {services} = useFetchServices();
+    const cservs = currentContract?.services as IService[]
+
+    useEffect(()=>{
+        if(cservs){
+            setServs(cservs);
+        }
+    },[cservs])
+
+    useEffect(()=>{
+        const total = servs.reduce((sum, service)=>service.cost + sum, 0)
+        setAmount(total);
+    },[servs])
 
     const handleChange =(e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
         const {name, value} = e.target;
@@ -77,6 +95,8 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
         // console.log("Saved signature:", dataUrl);
         // You can send `dataUrl` to your server here
     };
+
+    // console.log(serviceIds)
 
     const handleClearOfferee =()=>{
         setOffer((pre)=>({
@@ -127,11 +147,13 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             if((offer.sign === '') || (wit.sign === '')){
                 setResponse({message:'Both offeree and withness have to sign.', error:true});
             }else{
+                const sers = servs.map((item)=>item._id);
                 const body:Partial<IContract> = {
                     ...data,
                     date:dat,
                     offeree:offer,
                     witness:wit,
+                    services:sers
                 }
                 const res = await createContract(body);
                 setResponse(res);
@@ -152,6 +174,7 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
         setResponse(null);
         try {
             setLoading(true);
+            const sers = servs?.map((item)=>item._id);
             const date = {
                 from:dat.from || currentContract!.date.from,
                 to:dat.to || currentContract!.date.to
@@ -167,11 +190,11 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             const body:Partial<IContract> = {
                 _id:currentContract?._id,
                 title:data.title || currentContract?.title,
-                amount:data.amount || currentContract?.amount,
                 church:data.church || currentContract?.church,
                 description:data.description || currentContract?.description,
                 date,
-                offeree, witness
+                offeree, witness,
+                services:sers
             };
 
             const res = await updateContract(body);
@@ -184,7 +207,16 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
         }
     }
 
-    // console.log(offeree, clg)
+
+    const handleCheckService = (serv: IService) => {
+        setServs((prev) => {
+            const exists = prev.find((item) => item._id === serv._id);
+            return exists 
+                ? prev.filter((item) => item._id !== serv._id) 
+                : [...prev, serv];
+        });
+    };
+    
 
 
     const message = `Deleting a contract will leave the associated church unlicensed. Proceed?`;
@@ -200,17 +232,14 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-10">
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Commencement</span>
-                    <input min={today()} required={!currentContract} onChange={handleChangeDate} defaultValue={currentContract?.date?.from} placeholder='type here...' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="date" name="from"  />
+                    <input min={!currentContract ? today():''} required={!currentContract} onChange={handleChangeDate} defaultValue={currentContract?.date?.from} placeholder='type here...' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="date" name="from"  />
                 </div>
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Expiration</span>
-                    <input min={today()} required={!currentContract} onChange={handleChangeDate} defaultValue={currentContract?.date?.to} placeholder='type here...' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="date" name="to"  />
+                    <input min={!currentContract ? today():''} required={!currentContract} onChange={handleChangeDate} defaultValue={currentContract?.date?.to} placeholder='type here...' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="date" name="to"  />
                 </div>
             </div>
-            <div className="flex flex-col gap-1">
-                <span className='text-slate-400 font-semibold text-[0.8rem]' >Benefit</span>
-                <input required={!currentContract} step={0.001} onChange={handleChange} defaultValue={currentContract?.amount} placeholder='$' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="number" name="amount"  />
-            </div>
+            
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
                 <input required={!currentContract} onChange={handleChange} defaultValue={currentContract?.church} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="church"  />
@@ -221,9 +250,37 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
                 <textarea placeholder="say something about the contract"  defaultValue={currentContract?.description} onChange={handleChange} className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="description"  />
             </div>
 
+            {
+                services?.length > 0 &&
+                <div className="flex flex-col gap-1">
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Services</span>
+                    {
+                        services.map((service) => {
+                            const isChecked = servs.some((item) => item._id === service._id);
+                        
+                            return (
+                                <div key={service?._id} className="flex gap-2 items-center">
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => handleCheckService(service)}
+                                        checked={isChecked}
+                                        value={service._id}
+                                        className="cursor-pointer bg-transparent"
+                                    />
+                                    <span className='text-slate-400 font-semibold text-[0.8rem]' >{service?.name} - ${service?.cost}</span>
+                                </div>
+                            );
+                        })
+                        
+                    }
+                    
+                </div>
+            }
+
+            <span className='text-slate-400 font-semibold text-[0.8rem]' >Total benefit - ${amount}</span>
         </div>
 
-    <ContractPreview previewMode={previewMode} setPreviewMode={setPreviewMode} currentContract={currentContract!} />
+    <ContractPreview amount={amount} services={servs} previewMode={previewMode} setPreviewMode={setPreviewMode} currentContract={currentContract!} />
     <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentContract?.title}`} message={message} onTap={handleDeleteContract} />
         {/* RIGHT SIDE */}
 

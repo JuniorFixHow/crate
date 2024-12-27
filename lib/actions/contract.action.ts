@@ -30,7 +30,8 @@ export async function updateContract(contract:Partial<IContract>){
 export async function getContracts(){
     try {
         await connectDB();
-        const contracts =  await Contract.find();
+        const contracts =  await Contract.find()
+        .populate('services').lean();
         return JSON.parse(JSON.stringify(contracts));
     } catch (error) {
         console.log(error);
@@ -47,7 +48,8 @@ export async function getUnusedContracts(){
 
         const contracts =  await Contract.find({
             _id: { $nin: usedContracts }
-        });
+        })
+        .populate('services').lean();
         return JSON.parse(JSON.stringify(contracts));
     } catch (error) {
         console.log(error);
@@ -58,7 +60,8 @@ export async function getUnusedContracts(){
 export async function getContract(id:string){
     try {
         await connectDB();
-        const contract =  await Contract.findById(id);
+        const contract =  await Contract.findById(id)
+        .populate('services').lean();
         return JSON.parse(JSON.stringify(contract));
     } catch (error) {
         console.log(error);

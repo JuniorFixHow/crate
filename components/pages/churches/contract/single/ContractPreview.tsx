@@ -8,16 +8,21 @@ import Subtitle from "@/components/features/Subtitle";
 import { FiPrinter } from "react-icons/fi";
 import Image from "next/image";
 import { handlePrint } from "./fxn";
+import { IService } from "@/lib/database/models/service.model";
 
 type ContractPreviewProps = {
     currentContract: IContract;
     previewMode: boolean;
     setPreviewMode: Dispatch<SetStateAction<boolean>>;
+    amount:number,
+    services:IService[]
 };
 
 const ContractPreview = ({
     currentContract,
     previewMode,
+    amount,
+    services,
     setPreviewMode,
 }: ContractPreviewProps) => {
 
@@ -96,10 +101,27 @@ const ContractPreview = ({
                                     <strong>{currentContract?.date.to}</strong>.
                                 </li>
                                 <li>
-                                    <strong>Amount Payable:</strong> ${currentContract?.amount}.
+                                    <strong>Amount Payable:</strong> ${amount}.
                                 </li>
                                 <li> <strong>Contract Description:</strong> {currentContract?.description}</li>
                             </ul>
+
+                            {
+                                services?.length > 0 &&
+                                <div className="flex flex-col">
+                                    <h3 className="mt-8 font-semibold text-lg">{services?.length> 1 ? 'Services':'Service'}</h3>
+                                    <ul className="list-disc pl-6 mt-4 space-y-2">
+                                        {
+                                            services.map((service)=>(
+                                                <li key={service?._id} >
+                                                    <strong>{service?.name}:</strong> ${service?.cost}
+                                                </li>
+
+                                            ))
+                                        }
+                                    </ul>
+                                </div>
+                            }
 
                             {/* Signatures */}
                             <h3 className="mt-8 font-semibold text-lg">Signatures</h3>

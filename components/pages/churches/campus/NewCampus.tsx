@@ -70,7 +70,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
             formRef.current?.reset();
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding church', error:true})
+            setError({message:'Error occured adding campus', error:true})
         }finally{
             setLoading(false);
         }
@@ -120,7 +120,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
 
                 {
                     error?.message &&
-                    <Alert severity={error.error ? `error`:'success'} >{error.message}</Alert>
+                    <Alert onClose={()=>setError(null)} severity={error.error ? `error`:'success'} >{error.message}</Alert>
                 }
 
                 <div className="flex flex-row items-center justify-between">

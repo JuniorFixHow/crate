@@ -1,5 +1,6 @@
-import { Document, model, models, Schema } from "mongoose";
+import { Document, model, models, Schema, Types } from "mongoose";
 import Church from "./church.model";
+import { IService } from "./service.model";
 
 export interface IContract extends Document{
     _id:string;
@@ -17,7 +18,7 @@ export interface IContract extends Document{
         name:string,
         sign:string,
     };
-    amount:number;
+    services:string[]|IService[]|Types.ObjectId[];
     description:string;
     createdAt:Date;
     updatedAt:Date;
@@ -30,7 +31,7 @@ const ContractSchema = new Schema<IContract>({
     date:{from:String, to:String},
     offeree:{name:String, sign:String},
     witness:{name:String, sign:String},
-    amount:Number
+    services:[{type:Schema.Types.ObjectId, ref:'Service'}]
 }, {timestamps:true});
 
 ContractSchema.pre('deleteOne', {document:false, query:true}, async function(next){

@@ -4,13 +4,13 @@ import React from "react"
 import { RxDashboard } from 'react-icons/rx'
 import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney } from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
-import { GrGroup } from "react-icons/gr";
+import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
-import { RiSchoolLine } from "react-icons/ri";
+import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiSealCheck } from "react-icons/pi";
 
 
@@ -124,10 +124,21 @@ export const NavItems:NavigationProps[] = [
         ]
       },
       {
-        title:'Contracts',
-        link:'/dashboard/churches/contracts',
-        icon:<PiSealCheck />,
-        isAdmin:true
+        title:'Contract Management',
+        icon:<RiPoliceBadgeLine />,
+        isAdmin:true,
+        children:[
+          {
+            text:'Contracts',
+            path:'/dashboard/churches/contracts',
+            image:<PiSealCheck />
+          },
+          {
+            text:'Services',
+            path:'/dashboard/churches/contracts/services',
+            image:<GrPowerCycle />
+          },
+        ]
       },
       {
           title: 'Revenue',
