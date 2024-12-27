@@ -18,6 +18,7 @@ import { createCampuses } from "@/lib/actions/campuse.action";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "@/components/DeleteDialog";
 import React from "react";
+import SearchSelectContracts from "@/components/features/SearchSelectContracts";
 
 export type SocialProps = {
     id:string,
@@ -38,16 +39,20 @@ type ChurchDetailsProps = {
 const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const [location, setLocation] = useState<string>('');
     const [zoneId, setZoneId] = useState<string>('');
+    const [contractId, setContractId] = useState<string>('');
     const [logo, setLogo] = useState<string>('');
     const [data, setData] = useState<Partial<IChurch>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [delloading, setdelLoading] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
+    const [nocontractMode, setnocontractMode] = useState<boolean>(false);
     const [socialLinks, setSocialLinks] = useState<SocialProps[]>([]);
     const [campuses, setCampuses] = useState<CampuseProps[]>([]);
     const {user} = useAuth();
     const router = useRouter();
+
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -57,6 +62,14 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
             ...pre,
             [name]:value
         }))
+    }
+
+    const showNoContract = async()=>{
+        if((contractId === '') && !currentChurch){
+            setnocontractMode(true);
+        }else{
+            buttonRef.current?.click()
+        }
     }
 
     useEffect(()=>{
@@ -90,6 +103,7 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                     location,
                     logo,
                     zoneId,
+                    contractId:contractId || null,
                     socials:socialLinks,
                     createdBy:user?.userId
                 }
@@ -106,11 +120,13 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     
                     const res = await createCampuses(formattedCampuses);
                     setResponse(res);
-                    formRef.current?.reset();
                 }
+                formRef.current?.reset();
+                setnocontractMode(false);
             } catch (error) {
                 console.log(error);
                 setResponse({message:'Error occured adding church', error:true})
+                setnocontractMode(false);
             }finally{
                 setLoading(false);
             }
@@ -141,6 +157,7 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                     phone:data.phone || currentChurch?.phone,
                     logo:logo || currentChurch?.logo,
                     zoneId:zoneId || currentChurch?.zoneId,
+                    contractId:contractId || currentChurch?.contractId || null,
                     socials:formattedLinks,
                 }
                 const res = await updateChurch(currentChurch!._id, body);
@@ -169,10 +186,11 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
         }
     }
     const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
+    const warning = 'You are about to create a church with no contract. This will render the new church unlicensed. Proceed?'
 
   return (
-   <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
-    <div className="flex flex-col gap-5">
+   <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
+    <div className="flex flex-col gap-5 flex-1">
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Church Name</span>
             <input required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
@@ -191,19 +209,25 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Location</span>
-            <Address required={!currentChurch} setAddress={setLocation} country={currentChurch?.location} />
+            <Address className="w-fit" required={!currentChurch} setAddress={setLocation} country={currentChurch?.location} />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Zone</span>
-            <SearchSelectZones isGeneric setSelect={setZoneId} require={!currentChurch} />
+            <SearchSelectZones className="w-fit" isGeneric setSelect={setZoneId} require={!currentChurch} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+            <span className='text-slate-400 font-semibold text-[0.8rem]' >Select Contract</span>
+            <SearchSelectContracts className="w-fit" isGeneric setSelect={setContractId} />
         </div>
 
     </div>
 
+    <DeleteDialog value={nocontractMode} setValue={setnocontractMode} title={`Unlicensed church`} message={warning} onTap={async()=>buttonRef.current?.click()} />
     <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentChurch?.name}`} message={message} onTap={handleDeleteChurch} />
         {/* RIGHT SIDE */}
 
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 flex-1">
        
          
 
@@ -237,11 +261,12 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
             <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
         }
         <div className="flex flex-row items-center gap-2 mt-4 md:mt-12">
-            <AddButton disabled={loading} type='submit' name="send" text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-full flex-center' />
-            <AddButton disabled={loading} onClick={()=>router.back()} text='Cancel' isCancel noIcon smallText className='rounded w-full flex-center' />
+            <AddButton disabled={loading} type="button" onClick={showNoContract} text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-fit flex-center' />
+            <AddButton disabled={loading} ref={buttonRef} type='submit' name="send" text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-fit hidden flex-center' />
+            <AddButton disabled={loading} onClick={()=>router.back()} text='Cancel' isCancel noIcon smallText className='rounded w-fit flex-center' />
                 {
                     currentChurch &&
-                    <AddButton disabled={delloading} onClick={()=>setDeleteMode(true)} text='Delete' isDanger noIcon smallText className='rounded w-full flex-center' />
+                    <AddButton disabled={delloading} onClick={()=>setDeleteMode(true)} text='Delete' isDanger noIcon smallText className='rounded w-fit flex-center' />
                 }
         </div>
         

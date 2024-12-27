@@ -7,14 +7,15 @@ import { useFetchCampuses } from "@/hooks/fetch/useCampus";
 import { ICampuse } from "@/lib/database/models/campuse.model";
 import { Alert, LinearProgress, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CampusColumn } from "./CampusColumn";
 import DeleteDialog from "@/components/DeleteDialog";
 import CampusInfoModal from "./CampusInfoModal";
 import NewCampus from "./NewCampus";
 import { ErrorProps } from "@/types/Types";
-import { deleteCampuse } from "@/lib/actions/campuse.action";
+import { deleteCampuse, getCampuse } from "@/lib/actions/campuse.action";
 import { SearchCampuseWithEverything } from "./fxn";
+import { useSearchParams } from "next/navigation";
 
 const CampusTable = () => {
     const [zoneId, setZoneId] = useState<string>('');
@@ -27,9 +28,24 @@ const CampusTable = () => {
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
     const {campuses, loading} = useFetchCampuses();
+    const searchParams = useSearchParams();
 
-
-    // console.log(campuses)
+    useEffect(()=>{
+      const id = searchParams.get('id');
+      const fetchCampus = async()=>{
+        try {
+          if(id){
+            const camous = await getCampuse(id) as ICampuse;
+            setCurrentCampus(camous);
+            setInfoMode(true);
+          }
+        } catch (error) {
+          console.log(error);
+          setResponse({message:'Error occured fetching campuse data', error:true});
+        }
+      }
+      fetchCampus();
+    },[searchParams])
 
     const handleOpenNew = ()=>{
         setCurrentCampus(null);

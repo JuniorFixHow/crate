@@ -92,7 +92,7 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         }
 
         // Find and update the member
-        const updatedMember = await Member.findByIdAndUpdate(id, member, { new: true });
+        const updatedMember = await Member.findByIdAndUpdate(id, member, { new: true, runValidators:true });
 
         if (!updatedMember) {
             throw new Error('Member not found');
@@ -171,6 +171,31 @@ export async function getMembers() {
                     model: 'Zone'       // Specify the model for the 'zoneId' reference
                 }
             })
+            .populate('campuseId')
+            .populate('registeredBy').lean(); // Populate the 'registeredBy' field (vendor reference)
+
+        // Return the populated members data
+        return JSON.parse(JSON.stringify(members));
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error occurred while fetching members');
+    }
+}
+
+export async function getMembersInaCampuse(campuseId:string) {
+    try {
+        await connectDB();
+
+        // Populate the 'church' field, then the 'zoneId' field inside 'church', and also the 'registeredBy' field (vendor)
+        const members = await Member.find({campuseId})
+            .populate({
+                path: 'church',         // Populate the 'church' reference
+                populate: {
+                    path: 'zoneId',     // Populate the 'zoneId' reference in the 'church' model
+                    model: 'Zone'       // Specify the model for the 'zoneId' reference
+                }
+            })
+            .populate('campuseId')
             .populate('registeredBy').lean(); // Populate the 'registeredBy' field (vendor reference)
 
         // Return the populated members data
@@ -195,6 +220,7 @@ export async function getUserMembers(id:string) {
                     model: 'Zone'       // Specify the model for the 'zoneId' reference
                 }
             })
+            .populate('campuseId')
             .populate('registeredBy').lean(); // Populate the 'registeredBy' field (vendor reference)
 
         // Return the populated members data
@@ -228,6 +254,7 @@ export async function getMember(id:string){
                 model: 'Zone'       // Specify the model for the 'zoneId' reference
             }
         })
+        .populate('campuseId')
         .populate('registeredBy').lean(); 
         return JSON.parse(JSON.stringify(zone));
     } catch (error) {
@@ -258,6 +285,7 @@ export async function getUnassignedMembers(eventId: string, churchId:string) {
                 model: 'Zone'       // Specify the model for the 'zoneId' reference
             }
         })
+        .populate('campuseId')
         .lean();
 
         // Filter the unassigned members to return only the eligible ones

@@ -25,7 +25,7 @@ export interface IChurch extends Document {
     socials:SocialProps[];
     admins?: number;
     createdBy: mongoose.Types.ObjectId | string | IVendor; // ObjectId as a string
-    contractId: mongoose.Types.ObjectId | string | IContract; // ObjectId as a string
+    contractId: mongoose.Types.ObjectId | string | IContract | null; // ObjectId as a string
     createdAt?: Date; // Automatically added by timestamps
     updatedAt?: Date; // Automatically added by timestamps
 }
@@ -38,10 +38,10 @@ const ChurchSchema = new Schema<IChurch>({
     email:String,
     phone:String,
     logo:String,
-    campuses:[{type:Schema.Types.ObjectId, ref:'Campuse'}],
+    campuses:[{type:Schema.Types.ObjectId, ref:'Campus'}],
     zoneId:{type:Schema.Types.ObjectId, ref:'Zone', required:true},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor'},
-    contractId:{type:Schema.Types.ObjectId, ref:'Contract'},
+    contractId:{type:Schema.Types.ObjectId, ref:'Contract', default:null},
     socials:[{id:String, name:String, link:String}],
     registrants:{type:Number, default:0},
     youth:{type:Number, default:0},

@@ -10,6 +10,7 @@ import React, { Dispatch, SetStateAction,  useState } from 'react'
 import { ErrorProps } from '@/types/Types';
 import { deleteMember } from '@/lib/actions/member.action';
 import { SearchMemberWithEverything } from '../pages/members/fxns';
+import MemberInfoModal from '../pages/members/MemberInfoModal';
 
 export type MembersTableProps ={
     search:string,
@@ -25,6 +26,7 @@ const MembersTable = ({
     search, setSearch, age, status, date, gender
 }:MembersTableProps) => {
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [deleteState, setDeleteState]= useState<ErrorProps>(null);
     
@@ -47,6 +49,10 @@ const MembersTable = ({
 
     const handleDelete=(data:IMember)=>{
         setDeleteMode(true);
+        setCurrentMember(data);
+    }
+    const handleInfo=(data:IMember)=>{
+        setInfoMode(true);
         setCurrentMember(data);
     }
 
@@ -81,6 +87,7 @@ const MembersTable = ({
             <Alert onClose={()=>setDeleteState(null)} severity={deleteState.error ? 'error':'success'} >{deleteState.message}</Alert>
         }
         <DeleteDialog title={`Delete ${currentMember?.name}`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
+        <MemberInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentMember={currentMember} setCurrentMember={setCurrentMember} />
 
         <div className="table-main">
         {
@@ -91,7 +98,7 @@ const MembersTable = ({
               <DataGrid
                   rows={SearchMemberWithEverything(members, gender, status, age, date, search)}
                   getRowId={(row:IMember):string=>row._id}
-                  columns={MemberColumns(handleDelete)}
+                  columns={MemberColumns(handleDelete, handleInfo)}
                   initialState={{ pagination: { paginationModel } }}
                   pageSizeOptions={[5, 10]}
                   // checkboxSelection

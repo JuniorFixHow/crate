@@ -1,6 +1,7 @@
 import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { IVendor } from "./vendor.model";
 import CYPSet from "./cypset.model";
+import { IChurch } from "./church.model";
 
 export interface IEvent extends Document {
     _id:string
@@ -14,6 +15,7 @@ export interface IEvent extends Document {
     childPrice?: number;
     sessions?: number;
     createdBy: Types.ObjectId|string|IVendor; // Assuming createdBy references a Vendor
+    churchId: Types.ObjectId|string|IChurch;
     createdAt?: Date; // Automatically added by Mongoose
     updatedAt?: Date; // Automatically added by Mongoose
 }
@@ -28,6 +30,7 @@ const EventSchema = new Schema<IEvent>({
     adultPrice:Number,
     childPrice:Number,
     sessions:{type:Number, default:0},
+    churchId:{type:Schema.Types.ObjectId, ref:'Church', required:false},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false}
 },{timestamps:true})
 

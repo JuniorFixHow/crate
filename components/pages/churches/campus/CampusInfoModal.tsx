@@ -51,7 +51,7 @@ const CampusInfoModal = ({infoMode, setInfoMode, currentCampus, setCurrentCampus
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Members</span>
                     {
                         currentCampus?.members?.length ?
-                        <Link href={{pathname:'/dashboard/members', query:{campusId:currentCampus?._id}}}  className='table-link' >{currentCampus?.members.length}</Link>
+                        <Link href={{pathname:'/dashboard/members', query:{campuseId:currentCampus?._id}}}  className='table-link' >{currentCampus?.members.length}</Link>
                         :
                         <span className='text-[0.9rem]' >0</span>
                     }

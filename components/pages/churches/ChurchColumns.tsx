@@ -22,18 +22,41 @@ export const ChurchColumns = (
         },
     },
     {
-        field:'country',
+        field:'location',
         headerName:'Location',
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span>{params.row.zoneId.country}</span>
+                <span>{params.row?.location}</span>
                
             )
         }
         
     },
+    {
+        field:'email',
+        headerName:'Email',
+        width:200, 
+    },
     
+    {
+        field:'contractId',
+        headerName:"Licence",
+        width:100, 
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <>
+                {
+                    params.row?.contractId ?
+                    <Link className="table-link" href={{pathname:`/dashboard/churches/contracts/${params.row.contractId._id}`}} >{params.row?.contractId?.title}</Link>
+                    :
+                    <span>None</span>
+                }
+                </>
+                
+            )
+        }
+    },
     {
         field:'zone',
         headerName:"Zone",

@@ -43,6 +43,6 @@ ContractSchema.pre('deleteOne', {document:false, query:true}, async function(nex
     }
 })
 
-const Contract = models?.Contract || model('Contract', ContractSchema);
+const Contract = models?.Contract || model<IContract>('Contract', ContractSchema);
 
 export default Contract;

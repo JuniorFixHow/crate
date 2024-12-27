@@ -8,6 +8,9 @@ import Link from 'next/link';
 import AddButton from '@/components/features/AddButton';
 import DeleteDialog from '@/components/DeleteDialog';
 import { IVendor } from '@/lib/database/models/vendor.model';
+import { deleteVendor } from '@/lib/actions/vendor.action';
+import { IChurch } from '@/lib/database/models/church.model';
+import { IZone } from '@/lib/database/models/zone.model';
 
 export type VendorInfoModalProps = {
     infoMode:boolean,
@@ -19,11 +22,25 @@ export type VendorInfoModalProps = {
 const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor}:VendorInfoModalProps) => {
 
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    const church = currentVendor?.church as IChurch;
+    const zone = church?.zoneId as IZone
     const handleClose = ()=>{
         setCurrentVendor(null);
         setInfoMode(false);
     }
-    const message = `You're about to reset the password for ${currentVendor?.name}. Continue?`
+    const message = `You're about to delete ${currentVendor?.name}. Continue?`;
+    const handleDelete = async()=>{
+        try {
+            if(currentVendor){
+                await deleteVendor(currentVendor._id);
+                setDeleteMode(false);
+                setInfoMode(false);
+                window.location.reload();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
   return (
     <Modal
         open={infoMode}
@@ -38,7 +55,7 @@ const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor
                <span>Close</span>
             </div>
 
-            <DeleteDialog title='Reset Password' message={message} value={deleteMode} setValue={setDeleteMode} onTap={async()=>{}} />
+            <DeleteDialog title='Reset Password' message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleDelete} />
             <div className="flex flex-col gap-4">
                 <div className="flex flex-row dark:text-slate-200 gap-4 items-center">
                     <div className="flex-center w-20 h-20 relative">
@@ -64,15 +81,15 @@ const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Country</span>
-                    <span className='text-[0.9rem]' >USA</span>
+                    <span className='text-[0.9rem]' >{zone?.country}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
-                    <span className='text-[0.9rem]' >Zone B</span>
+                    <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link' >{zone?.name}</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <span className='text-[0.9rem]' >{typeof currentVendor?.church === 'object' &&  'name' in currentVendor.church &&  currentVendor.church.name}</span>
+                    <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registered Members</span>

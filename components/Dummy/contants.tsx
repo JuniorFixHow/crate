@@ -7,6 +7,7 @@ import Link from "next/link";
 import { IoTrashBinOutline } from "react-icons/io5";
 import { MdOpenInNew } from "react-icons/md";
 import { getJustTime } from "../pages/session/fxn";
+import { GoInfo } from "react-icons/go";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
@@ -128,7 +129,10 @@ export const EventColumns:GridColDef[] = [
     }
 ]
 
-export const MemberColumns = (handleDelete:(data:IMember)=>void)=> [
+export const MemberColumns = (
+    handleDelete:(data:IMember)=>void,
+    handleInfo:(data:IMember)=>void,
+)=> [
     {
         field:'photo',
         headerName:'Photo',
@@ -163,10 +167,23 @@ export const MemberColumns = (handleDelete:(data:IMember)=>void)=> [
         headerName:'Age Group',
         width:120
     },
+    
     {
-        field:'status',
-        headerName:'Status',
-        width:160
+        field:'campuseId',
+        headerName:'Campus',
+        width:160,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <>
+                {
+                    params.row.campuseId ? 
+                    <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                    :
+                    <span>None</span>
+                }
+                </>
+            )
+        }
     },
     {
         field:'registeredBy',
@@ -186,8 +203,9 @@ export const MemberColumns = (handleDelete:(data:IMember)=>void)=> [
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
             return(
-                <div className="h-full flex-center">
+                <div className="h-full flex-center gap-3">
                     {/* <MdOpenInNew className="cursor-pointer" color={Blue} /> */}
+                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
                     <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
                 </div>
             )

@@ -191,7 +191,7 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
 
 
   return (
-    <form ref={formRef} onSubmit={ currentContract? handleUpdateContract : handleSubmit}  className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
+    <form ref={formRef} onSubmit={ currentContract? handleUpdateContract : handleSubmit}  className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
         <div className="flex flex-col gap-5 flex-1">
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Title</span>

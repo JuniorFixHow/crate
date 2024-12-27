@@ -15,6 +15,7 @@ import { createRegistration } from '@/lib/actions/registration.action';
 import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
 import { IGroup } from '@/lib/database/models/group.model';
 import { useAuth } from '@/hooks/useAuth';
+import SearchSelectCampuses from '../features/SearchSelectCampuses';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -32,6 +33,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     const [loading, setLoading] = useState<boolean>(false);
     const [eventId, setEventId] = useState<string>('');
     const [groupId, setGroupId] = useState<string>('');
+    const [campuseId, setCampuseId] = useState<string>('');
     const [newMember, setNewMember] = useState<IMember|null>(null);
     const [church, setChurch] = useState<string>('');
     const [data, setData] = useState<Partial<IMember>>({
@@ -123,7 +125,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
         try {
             const body:Partial<IMember> = {
                 ...data, password:getPassword(data.name!, data.phone!),
-                registeredBy:user?.userId, church:user?.churchId
+                registeredBy:user?.userId, church:user?.churchId, campuseId,
             } 
             const res = await createMember(body);
             const response = res?.payload as IMember
@@ -159,7 +161,8 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     employ:data.employ || currentMemeber.employ,
                     status:data.status || currentMemeber.status,
                     ageRange:data.ageRange || currentMemeber.ageRange,
-                    church:church||currentMemeber.church
+                    church:church||currentMemeber.church,
+                    campuseId:campuseId||currentMemeber.campuseId
                 } 
                 const res = await updateMember(id, body);
                 const response = res?.payload as IMember;
@@ -276,6 +279,13 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
                     <SearchSelectChurch require={!currentMemeber} setSelect={setChurch} isGeneric />
+                </div>
+            }
+            {
+                user &&
+                <div className="flex flex-col gap-1">
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Campuse</span>
+                    <SearchSelectCampuses  require={!currentMemeber} churchId={currentMemeber ? church : user!.churchId} setSelect={setCampuseId} isGeneric />
                 </div>
             }
 

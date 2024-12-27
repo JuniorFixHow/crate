@@ -8,6 +8,7 @@ import Attendance from "../database/models/attendance.model";
 import Registration from "../database/models/registration.model";
 import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
+import './contract.action';
 
 export async function createChurch(church: Partial<IChurch>) {
     try {
@@ -162,3 +163,17 @@ export async function deleteChurch(id: string) {
     }
 }
 
+
+
+export async function unlicenseChurch(id:string){
+    try {
+        await connectDB();
+        const church = await Church.findByIdAndUpdate(id, {
+            $unset:{contractId:""}
+        }, {new:true});
+        return handleResponse('Church unlicensed successfully', false, church, 201);
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured unlicensing church', true);
+    }
+}

@@ -1,4 +1,4 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import Member, { IMember } from "./member.model";
 import { IChurch } from "./church.model";
 import { IVendor } from "./vendor.model";
@@ -23,11 +23,19 @@ const CampuseSchema = new Schema<ICampuse>({
 },{timestamps:true});
 
 
-CampuseSchema.pre('deleteOne', {document:false, query:true}, async function(next){
-    const campuseId = this.getQuery()._id;
-    await Member.deleteMany({campuseId});
-    next();
-})
+CampuseSchema.post('deleteOne', { document: false, query: true }, async function (doc, next) {
+    try {
+        const campuseId = this.getQuery()?._id;
+        if (campuseId) {
+            await Member.updateMany({ campuseId }, { $unset: { campuseId: "" } });
+        }
+        next();
+    } catch (error) {
+        console.error('Error unsetting campuseId from members:', error);
+        next(error as CallbackError);
+    }
+});
 
-const Campuse = models?.Campuse || model('Campuse', CampuseSchema);
+
+const Campuse = models?.Campus || model('Campus', CampuseSchema);
 export default Campuse;

@@ -1,10 +1,15 @@
-import { Modal } from '@mui/material'
-import React, { Dispatch, SetStateAction } from 'react'
+import { Alert, Modal } from '@mui/material'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { IoIosArrowRoundBack } from "react-icons/io";
 import '../../../components/features/customscroll.css';
 import { IChurch } from '@/lib/database/models/church.model';
 import Link from 'next/link';
 import { IContract } from '@/lib/database/models/contract.model';
+import AddButton from '@/components/features/AddButton';
+import { ErrorProps } from '@/types/Types';
+import { unlicenseChurch } from '@/lib/actions/church.action';
+import DeleteDialog from '@/components/DeleteDialog';
+import { ICampuse } from '@/lib/database/models/campuse.model';
 
 export type ChurchInfoModalProps = {
     infoMode:boolean,
@@ -15,10 +20,32 @@ export type ChurchInfoModalProps = {
 
 const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch}:ChurchInfoModalProps) => {
     const contract = currentChurch?.contractId as IContract;
+    const campuses = currentChurch?.campuses as ICampuse[];
+    const [response, setResponse] = useState<ErrorProps>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const handleClose = ()=>{
         setCurrentChurch(null);
         setInfoMode(false);
     }
+
+    const handleUnlicense = async()=>{
+        setResponse(null);
+        try {
+            setLoading(true);
+            const res = await unlicenseChurch(currentChurch!._id);
+            setResponse(res);
+            setDeleteMode(false);
+        } catch (error) {
+            console.log(error);
+            setResponse({message:'Error occured. Please retry', error:true});
+        }finally{
+            setLoading(false);
+        }
+    }
+
+    const message = `This will make the church unlicensed. Proceed?`;
+
   return (
     <Modal
         open={infoMode}
@@ -69,14 +96,37 @@ const ChurchInfoModal = ({infoMode, setInfoMode, currentChurch, setCurrentChurch
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Campuses</span>
+                    <div className="flex flex-col gap-3">
+                        {
+                            campuses?.length > 0 ? campuses.map((item)=>(
+                                <Link key={item?._id}  className='table-link' href={{pathname: `/dashboard/churches/campuses`, query:{id:item?._id}}} >{item?.name}</Link>
+                            ))
+                            :
+                            <span className='text-[0.9rem]' >None</span>
+                        }
+                    </div>
+                </div>
+
+                <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Contract</span>
                     {
                         contract ?
-                        <Link href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
+                        <Link className='table-link' href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
                         :
                         <span className='text-[0.9rem]' >None</span>
                     }
                 </div>
+                <DeleteDialog title={`Unlicense ${currentChurch?.name}`} message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleUnlicense} />
+                {
+                    response?.message &&
+                    <Alert severity={ response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
+                }
+
+                {
+                    contract &&
+                    <AddButton text={loading ? 'loading...':'Unlicense'} type='button' onClick={()=>setDeleteMode(true)} noIcon smallText isDanger className='rounded flex-center' />
+                }
             </div>
         </div>
     </Modal>

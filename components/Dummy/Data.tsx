@@ -121,12 +121,13 @@ export const NavItems:NavigationProps[] = [
             path:'/dashboard/churches/campuses',
             image:<RiSchoolLine />
           },
-          {
-            text:'Contracts',
-            path:'/dashboard/churches/contracts',
-            image:<PiSealCheck />
-          },
         ]
+      },
+      {
+        title:'Contracts',
+        link:'/dashboard/churches/contracts',
+        icon:<PiSealCheck />,
+        isAdmin:true
       },
       {
           title: 'Revenue',

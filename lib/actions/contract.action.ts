@@ -43,9 +43,10 @@ export async function getUnusedContracts(){
     try {
         await connectDB();
         const usedContracts = await Church.distinct('contractId');
+        // console.log('Contracts: ',usedContracts);
 
         const contracts =  await Contract.find({
-            _id: { $nin: {usedContracts} }
+            _id: { $nin: usedContracts }
         });
         return JSON.parse(JSON.stringify(contracts));
     } catch (error) {

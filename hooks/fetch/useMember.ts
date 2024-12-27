@@ -1,4 +1,4 @@
-import { getMembers, getUnassignedMembers, getUserMembers } from "@/lib/actions/member.action";
+import { getMembers, getMembersInaCampuse, getUnassignedMembers, getUserMembers } from "@/lib/actions/member.action";
 import { IMember } from "@/lib/database/models/member.model";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,10 +14,15 @@ export const useFetchMembers = () => {
         const fetchMembers = async () => {
             try {
                 let fetchedMembers: IMember[];
-                const id = searchParams.get('registeredBy')
+                const id = searchParams.get('registeredBy');
+                const campuseId = searchParams.get('campuseId');
                     if(id){
                         fetchedMembers = await getUserMembers(id);
-                    }else{
+                    }
+                    else if(campuseId){
+                        fetchedMembers = await getMembersInaCampuse(campuseId);
+                    }
+                    else{
                         fetchedMembers = await getMembers();
                     }
                 

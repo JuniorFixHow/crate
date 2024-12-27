@@ -111,7 +111,7 @@ export async function deleteCampuse(id:string){
         await connectDB();
         const campus = await Campuse.findById(id);
         await Church.findByIdAndUpdate(campus.churchId, {$pull:{campuses:id}});
-        await Campuse.findByIdAndDelete(id);
+        await Campuse.deleteOne({_id:id});
         return handleResponse('Campus deleted successfully', false, {}, 200);
     } catch (error) {
         console.log(error);
