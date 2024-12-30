@@ -10,6 +10,8 @@ import { ErrorProps } from "@/types/Types"
 import { checkMemberRegistration } from "@/lib/actions/event.action"
 import Link from "next/link"
 import { createRegistration } from "@/lib/actions/registration.action"
+import { IRoom } from "@/lib/database/models/room.model"
+import { IVenue } from "@/lib/database/models/venue.model"
 
 type PrintDetailsProps = {
     setCurrentReg:Dispatch<SetStateAction<IRegistration|null>>,
@@ -25,6 +27,8 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
     const [regError, setRegError] = useState<ErrorProps>(null);
     const [regLoading, setRegLoading] = useState<boolean>(false);
     const memberId = searchParams.get('memberId');
+
+    const rooms = currentReg?.roomIds as IRoom[];
 
     useEffect(()=>{
         const fetchRegistrationData = async()=>{
@@ -125,9 +129,12 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
                         <div className="flex flex-col gap-4 w-full">
                             <span className="text-[0.9rem] font-bold" >Room(s)</span>
                             {
-                                typeof currentReg?.roomIds?.[0] === 'object' && '_id' in currentReg?.roomIds?.[0] && currentReg?.roomIds?.map((item)=>(
-                                    <Link className="table-link w-fit" href={{pathname:`/dashboard/rooms`, query:{id:typeof item === 'object' && '_id' in item && item._id.toString()}}} key={typeof item === 'object' && '_id' in item ? item?._id.toString():''} >{typeof item === 'object' && 'venue' in item && item.venue}</Link>
-                                ))
+                                 rooms?.map((item)=>{
+                                    const venue = item?.venueId as IVenue;
+                                    return(
+                                        <Link className="table-link w-fit" href={{pathname:`/dashboard/rooms`, query:{id:item?._id}}} key={item?._id} >{`${venue?.name} - {item?.number}`}</Link>
+                                    )
+                                })
                             }
                         </div>
                     }

@@ -160,7 +160,18 @@ export async function deleteEvent(id:string){
 export async function checkMemberRegistration(memberId:string, eventId:string){
     try {
         await connectDB();
-        const hasRegistered = await Registration.find({memberId, eventId}).populate('groupId').populate('memberId').populate('eventId') .populate('roomIds').lean();
+        const hasRegistered = await Registration.find({memberId, eventId})
+        .populate('groupId')
+        .populate('memberId')
+        .populate('eventId') 
+        .populate({
+            path:'roomIds',
+            populate:{
+                path:'venueId',
+                model:'Venue'
+            }
+        })
+        .lean();
         const truth = hasRegistered.length > 0
         if(hasRegistered.length){
             const data:IRegistration = JSON.parse(JSON.stringify(hasRegistered[0]));
