@@ -4,6 +4,7 @@ import { IoCloseSharp } from 'react-icons/io5';
 import './customscroll.css';
 import { SearchRoom } from '../pages/room/fxn';
 import { useFetchRooms } from '@/hooks/fetch/useRoom';
+import { IVenue } from '@/lib/database/models/venue.model';
 
 export type SearchSelectEventsProps = {
   isGeneric?:boolean,
@@ -31,9 +32,12 @@ const SearchSelectRooms = ({isGeneric, eventId, require, setSelect, className, .
           <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value='' >Rooms</option>
         }
         {
-            SearchRoom(rooms, search, eventId).map((event)=>(
-                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={event?._id} value={event?._id}>{event?.venue} {event?.number}</option>
-            ))
+            SearchRoom(rooms, search, eventId).map((room)=>{
+              const venue = room?.venueId as IVenue;
+              return(
+                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={room?._id} value={room?._id}>{venue?.name} {room?.number}</option>
+              )
+            })
         }
       </select>
     </div>

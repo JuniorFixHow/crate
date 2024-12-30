@@ -15,7 +15,7 @@ export const RoomsColumns = (
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <span onClick={()=>handleNew(params?.row)}  className="table-link" >{params?.row?.facId?.name} {params?.row?.facId?.floor} {params?.row?.number} </span>
+                    <span onClick={()=>handleNew(params?.row)}  className="table-link" >{params?.row?.venueId?.name} {params?.row?.number} </span>
                 </div>
             )
         }
