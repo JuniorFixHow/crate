@@ -37,7 +37,7 @@ export const FacilityColumns = (
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/venues/${param.row?.venueId?._id}`}  className="table-link" >{param.row?.name}</Link>
+                <Link href={`/dashboard/venues/${param.row?.venueId?._id}`}  className="table-link" >{param.row?.venueId?.name}</Link>
             )
         }
     },
