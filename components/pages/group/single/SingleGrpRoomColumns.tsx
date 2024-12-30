@@ -7,17 +7,26 @@ export const SingleGrpRoomColumns =(
     handleDelete:(data:IRoom)=>void
 ) =>[
     {
-        field:'venue',
+        field:'venueId',
         headerName:'Venue',
-        width:140,
-        
+        width:200,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="table-link text-center"  >{params?.row?.VenueId?.name} - {params?.row?.number}</span>
+            )
+        }
+    },
+    {
+        field:'venueId',
+        headerName:'Venue',
+        width:200,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <span className="table-link text-center" >{params?.row?.facId?.floor}</span>
+            )
+        }
     },
 
-    {
-        field:'floor',
-        headerName:'Floor',
-        width:100,
-    },
     {
         field:'number',
         headerName:'Room No.',

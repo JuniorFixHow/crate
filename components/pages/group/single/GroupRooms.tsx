@@ -9,6 +9,7 @@ import { useState } from "react"
 import { SingleGrpRoomColumns } from "./SingleGrpRoomColumns"
 import { ErrorProps } from "@/types/Types"
 import { removeGroupFromAllRooms, removeGroupFromRoom } from "@/lib/actions/room.action"
+import { IVenue } from "@/lib/database/models/venue.model"
 
 type GroupRoomsProps = {
     currentGroup:IGroup|null
@@ -68,6 +69,8 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
         setCurrentRoom(null);
     }
 
+    const venue = currentRoom?.venueId as IVenue;
+
     // console.log(currentGroup?.roomIds)
 
   return (
@@ -76,7 +79,7 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
             <AddButton onClick={handleShowDelete} disabled={deleteLoading} text={deleteLoading ? 'loading...' : (currentGroup?.roomIds && currentGroup?.roomIds?.length > 1) ? "Remove Rooms":'Remove Room'} noIcon isCancel smallText className="rounded" type="button" />
         </div>
 
-        <DeleteDialog message={removeMessae} onTap={removeRoom} title={`Remove ${currentRoom?.venue} ${currentRoom?.number}`} value={removeMode} setValue={setRemoveMode} />
+        <DeleteDialog message={removeMessae} onTap={removeRoom} title={`Remove ${venue?.name} ${currentRoom?.number} ${currentRoom?.number}`} value={removeMode} setValue={setRemoveMode} />
         <DeleteDialog message={deleteMessae} onTap={deleteRoom} title={`Remove all groups`} value={deleteMode} setValue={setDeleteMode} />
         
         {
