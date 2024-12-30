@@ -4,6 +4,7 @@ import { IGroup } from "@/lib/database/models/group.model";
 import { IKey } from "@/lib/database/models/key.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { IRoom } from "@/lib/database/models/room.model";
+import { IVenue } from "@/lib/database/models/venue.model";
 import { IZone } from "@/lib/database/models/zone.model";
 import { IMergedRegistrationData } from "@/types/Types";
 // import * as XLSX from 'xlsx';
@@ -63,7 +64,10 @@ export const saveDataToExcel = async (data: IMergedRegistrationData[], title: st
       Group: group?.name || 'None',
       'Group Type': group?.type || 'NA',
       Rooms: rooms
-        ? rooms.map((room) => `${room?.venue} ${room?.number}`).join(', ')
+        ? rooms.map((room) => {
+          const venue = room?.venueId as IVenue;
+          return `${venue?.name} ${room?.number}`
+        }).join(', ')
         : 'NA',
       Keys: keys ? keys.map((key) => key?.code).join(', ') : 'None',
     };

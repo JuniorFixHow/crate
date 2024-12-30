@@ -738,7 +738,13 @@ export async function getMergedRegistrationData() {
             })
             .populate('eventId')
             .populate('groupId')
-            .populate('roomIds') // Populate the rooms directly
+            .populate({
+                path:'roomIds',
+                populate:{
+                    path:'venueId',
+                    model:'Venue'
+                }
+            }) 
             .lean<IRegistration[]>(); // Explicitly cast the result to IRegistration[]
 
         // Step 2: Fetch all keys associated with the registration holders
