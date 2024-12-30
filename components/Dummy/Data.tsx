@@ -2,7 +2,7 @@
 import React from "react"
 
 import { RxDashboard } from 'react-icons/rx'
-import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney } from "react-icons/md"
+import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney, MdOutlineOtherHouses } from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
@@ -83,31 +83,38 @@ export const NavItems:NavigationProps[] = [
     },
     {
       title: 'Venues/Rooms',
-      isAdmin:false,
-      icon: <MdOutlineMeetingRoom/>,
-      children:[
-          {
-            text:'Venues',
-            path:'/dashboard/venues',
-            image:<HiOutlineBuildingLibrary/>
-          },
-          {
-            text:'Room Management',
-            path:'/dashboard/rooms',
-            image:<MdOutlineRoomPreferences />
-          },
-          {
-            text:'Room Assignments',
-            path:'/dashboard/rooms/assignments',
-            image:<TbDoorExit />
-          },
-          {
-            text:'Keys',
-            path:'/dashboard/rooms/keys',
-            image:<IoKeyOutline />
-          },
-        ]
-      },
+      isAdmin: false,
+      icon: <MdOutlineMeetingRoom />,
+      children: [
+        {
+          text: 'Venues',
+          path: '/dashboard/venues',
+          image: <HiOutlineBuildingLibrary />,
+          children: [
+            {
+              text: 'Facilities',
+              path: '/dashboard/venues/facilities',
+              image: <MdOutlineOtherHouses />,
+            },
+          ],
+        },
+        {
+          text: 'Room Management',
+          path: '/dashboard/rooms',
+          image: <MdOutlineRoomPreferences />,
+        },
+        {
+          text: 'Room Assignments',
+          path: '/dashboard/rooms/assignments',
+          image: <TbDoorExit />,
+        },
+        {
+          text: 'Keys',
+          path: '/dashboard/rooms/keys',
+          image: <IoKeyOutline />,
+        },
+      ],
+    },
       {
         title: 'Communities',
         isAdmin:false,

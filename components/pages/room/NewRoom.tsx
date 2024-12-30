@@ -1,17 +1,29 @@
 import AddButton from '@/components/features/AddButton'
-import React, { ChangeEvent, FormEvent, useRef, useState } from 'react'
-import { RoomInfoModalProps } from './RoomInfoModal';
+import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import { Alert, Modal } from '@mui/material';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import { IRoom } from '@/lib/database/models/room.model';
 import { ErrorProps } from '@/types/Types';
 import { createRoom, updateRoom } from '@/lib/actions/room.action';
+import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
+import { useAuth } from '@/hooks/useAuth';
+import SearchSelectVenues from '@/components/features/SearchSelectVenue';
 
-const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoModalProps) => {
+export type NewRoomProps = {
+    infoMode:boolean,
+    setInfoMode:Dispatch<SetStateAction<boolean>>,
+    currentRoom:IRoom|null,
+    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>,
+}
+
+const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomProps) => {
     const [data, setData] = useState<Partial<IRoom>>({});
     const [eventId, setEventId] = useState<string>('');
+    const [venueId, setVenueId] = useState<string>('');
+    const [facId, setFacId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
+    const {user} = useAuth();
 
     const formRef = useRef<HTMLFormElement>(null)
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -27,14 +39,17 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
         setInfoMode(false);
     }
 
-    const handleNewRoom = async(e:FormEvent<HTMLFormElement>)=>{
+    const handleSingleVenueNewRoom = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setResponse(null);
         try {
             setLoading(true);
             const body:Partial<IRoom> = {
                 ...data, 
-                eventId
+                eventId,
+                facId,
+                venueId,
+                churchId:user?.churchId
             }
             await createRoom(body);
             setResponse({message:'Room created successfully', error:false});
@@ -48,14 +63,13 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
     }
 
 
-    const handleUpdateRoom = async(e:FormEvent<HTMLFormElement>)=>{
+    const handleUpdateSingleVenueNewRoom = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setResponse(null);
         try {
             setLoading(true);
             if(currentRoom){
                 const body:Partial<IRoom> = {
-                    venue:data.venue || currentRoom.venue,
                     floor:data.floor || currentRoom.floor,
                     number:data.number || currentRoom.number,
                     roomType:data.roomType || currentRoom.roomType,
@@ -63,6 +77,8 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
                     nob:data.nob || currentRoom.nob,
                     features:data.features || currentRoom.features,
                     eventId: eventId||currentRoom.eventId,
+                    venueId: eventId||currentRoom.venueId,
+                    facId: facId||currentRoom.facId,
                 }
                 const res=  await updateRoom(currentRoom._id, body);
                 setCurrentRoom(res);
@@ -85,23 +101,23 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
         
         >
         <div className='flex size-full items-center justify-center'>
-            <form onSubmit={ currentRoom ? handleUpdateRoom : handleNewRoom} ref={formRef}  className="new-modal scrollbar-custom overflow-y-scroll">
+            <form onSubmit={ currentRoom ? handleUpdateSingleVenueNewRoom : handleSingleVenueNewRoom} ref={formRef}  className="new-modal scrollbar-custom overflow-y-scroll">
                 <span className='text-[1.5rem] font-bold dark:text-slate-200' >{currentRoom ? "Edit Room":"Create Room"}</span>
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Venue</span>
-                        <input onChange={handleChange} name='venue' required={!currentRoom} defaultValue={currentRoom?.venue} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
-                    </div>
 
-                    <div className="flex gap-12">
+                    <div className="flex gap-12 items-end">
                         <div className="flex flex-col">
-                            <span className='text-slate-500 text-[0.8rem]' >Floor</span>
-                            <input onChange={handleChange} name='floor'  defaultValue={currentRoom?.floor} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
+                            <span className='text-slate-500 text-[0.8rem]' >Select Venue</span>
+                            <SearchSelectVenues setSelect={setVenueId} require={!currentRoom} isGeneric />
                         </div>
-                        <div className="flex flex-col">
-                            <span className='text-slate-500 text-[0.8rem]' >Room number</span>
-                            <input onChange={handleChange} name='number' required={!currentRoom} defaultValue={currentRoom?.number} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
-                        </div>
+
+                        {
+                            venueId &&
+                            <div className="flex flex-col">
+                                <span className='text-slate-500 text-[0.8rem]' >Select Facility</span>
+                                <SearchSelectFacilities venueId={venueId}  setSelect={setFacId} require={!currentRoom} isGeneric />
+                            </div>                        
+                        }
                     </div>
 
                     <div className="flex gap-12">
@@ -125,15 +141,20 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoMo
                         </div>
                     </div>
 
-                    <div className="flex gap-12">
+                    <div className="flex gap-12 items-end">
                         <div className="flex flex-col">
-                            <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                            <SearchSelectEvents setSelect={setEventId} require={!currentRoom} isGeneric />
+                            <span className='text-slate-500 text-[0.8rem]' >Room number</span>
+                            <input onChange={handleChange} name='number' required={!currentRoom} defaultValue={currentRoom?.number} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                         </div>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >No. of beds</span>
                             <input onChange={handleChange} name='nob' required={!currentRoom} min={1} defaultValue={currentRoom?.nob} type="number" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                         </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
+                        <SearchSelectEvents  setSelect={setEventId} require={!currentRoom} isGeneric />
                     </div>
 
                     <div className="flex flex-col">

@@ -265,7 +265,7 @@ export async function deleteReg(id: string) {
         const { memberId, groupId, roomIds, eventId } = registration;
 
         // Remove the registration
-        await Registration.findByIdAndDelete(id);
+        await Registration.deleteOne({_id:id});
 
         // Remove the member from any group they belong to for this event
         if (groupId && memberId) {

@@ -1,6 +1,10 @@
+import VenueMain from "@/components/pages/venue/VenueMain"
+
 const page = () => {
   return (
-    <div className="main-c" >page</div>
+    <div className="main-c" >
+      <VenueMain/>
+    </div>
   )
 }
 

@@ -11,7 +11,7 @@ export const useFetchEvents = ()=>{
 
     useEffect(()=>{
         const fetchEvents = async()=>{
-            const id = searchParams.get('id');
+            const id = searchParams.get('userId');
             try {
                 let evts:IEvent[];
                 if(id){

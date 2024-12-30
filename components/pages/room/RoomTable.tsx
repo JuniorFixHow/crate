@@ -64,6 +64,7 @@ const RoomTable = () => {
             if(currentRoom){
                 await deleteRoom(currentRoom._id);
                 setReponse({message:'Room removed sucsessfully', error:false});
+                setDeleteMode(false)
             }
         } catch (error) {
             console.log(error);
@@ -84,7 +85,7 @@ const RoomTable = () => {
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
                 <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-2' />
-                <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button>
+                {/* <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button> */}
             </div>
           </div> 
           <RoomInfoModal currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />

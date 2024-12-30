@@ -4,10 +4,12 @@ import { ICampuse } from "@/lib/database/models/campuse.model"
 import { IChurch } from "@/lib/database/models/church.model"
 import { IContract } from "@/lib/database/models/contract.model"
 import { IEvent } from "@/lib/database/models/event.model"
+import { IFacility } from "@/lib/database/models/facility.model"
 import { IMember } from "@/lib/database/models/member.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { ISession } from "@/lib/database/models/session.model"
 import { IVendor } from "@/lib/database/models/vendor.model"
+import { IVenue } from "@/lib/database/models/venue.model"
 import { EventProps, GroupProps, MemberProps, NavigationProps } from "@/types/Types"
 
 export const searchMember = (text:string, members:IMember[]):IMember[]=>{
@@ -44,6 +46,27 @@ export const searchMemberInversed = (text:string, members:IMember[]):IMember[]=>
 export const searchEvent = (text:string, events:IEvent[]):IEvent[]=>{
     const evts = events.filter((event)=>{
         return text === '' ? event : Object.values(event)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
+export const searchVenues = (text:string, venues:IVenue[]):IVenue[]=>{
+    const evts = venues.filter((venue)=>{
+        return text === '' ? venue : Object.values(venue)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return evts
+}
+
+
+export const searchAvailableFacilities = (text:string, facilities:IFacility[]):IFacility[]=>{
+    const evts = facilities.filter((facility)=>{
+        return text === '' ? facility : Object.values(facility)
         .join(' ')
         .toLowerCase()
         .includes(text.toLowerCase())
@@ -231,14 +254,32 @@ export const SearchNavbar = (items: NavigationProps[], search: string): Navigati
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    // Check if any children match
-    const matchedChildren = item.children?.filter((child) =>
-      Object.values(child)
-        .filter((value) => typeof value === 'string')
-        .join(' ')
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
+    // Recursively check for matches in children and grandchildren
+    const matchChildren = (children: typeof item['children']): typeof item['children'] => {
+      return children?.reduce<typeof item['children']>((childAcc, child) => {
+        // Check if child matches
+        const isChildMatch = Object.values(child)
+          .filter((value) => typeof value === 'string')
+          .join(' ')
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+        // Check for matches in grandchildren
+        const matchedGrandchildren = matchChildren(child.children || []);
+
+        if (isChildMatch || matchedGrandchildren!.length > 0) {
+          childAcc?.push({
+            ...child,
+            children: matchedGrandchildren,
+          });
+        }
+
+        return childAcc;
+      }, []) || [];
+    };
+
+    // Check for matches in children and grandchildren
+    const matchedChildren = matchChildren(item.children);
 
     if (isItemMatch || (matchedChildren && matchedChildren.length > 0)) {
       acc.push({
@@ -250,5 +291,7 @@ export const SearchNavbar = (items: NavigationProps[], search: string): Navigati
     return acc;
   }, []);
 };
+
+
 
 

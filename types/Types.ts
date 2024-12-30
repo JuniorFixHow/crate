@@ -8,16 +8,22 @@ import mongoose, { Types } from "mongoose"
 import { Dispatch, ReactNode, SetStateAction } from "react"
 
 export type NavigationProps = {
-   title:string,
-   isAdmin:boolean,
-   children?:{
-      text:string,
-      image:ReactNode,
-      path:string,
-   }[],
-   link?:string,
-   icon:ReactNode,
-}
+   title: string;
+   isAdmin: boolean;
+   children?: {
+     text: string;
+     image: ReactNode;
+     path: string;
+     children?: {
+       text: string;
+       image: ReactNode;
+       path: string;
+     }[];
+   }[];
+   link?: string;
+   icon: ReactNode;
+ };
+ 
 
 export type MemberProps = {
    id:string,

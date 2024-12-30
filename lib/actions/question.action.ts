@@ -89,7 +89,7 @@ export async function deleteQuestion(id:string){
         const question = await Question.findById(id);
 
         await Section.findByIdAndUpdate(question.sectionId, {$pull:{questions:question._id}}) 
-        await Question.findByIdAndDelete(id);
+        await Question.deleteOne({_id:id});
 
         return handleResponse('Question Deleted Successfully', false);
     } catch (error) {

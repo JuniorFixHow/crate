@@ -27,7 +27,7 @@ export async function createRoom(room:Partial<IRoom>){
 
 export async function updateRoom(id:string, room:Partial<IRoom>){
     try {
-        const rm = await Room.findByIdAndUpdate(id, room, {new:true});
+        const rm = await Room.findByIdAndUpdate(id, room, {new:true, runValidators:true});
         return JSON.parse(JSON.stringify(rm));
     } catch (error) {
         if (error instanceof Error) {
@@ -43,7 +43,10 @@ export async function updateRoom(id:string, room:Partial<IRoom>){
 
 export async function getRoomsByEvent(eventId:string){
     try {
-        const rooms = await Room.find({eventId}).populate('eventId');
+        const rooms = await Room.find({eventId})
+        .populate('eventId')
+        .populate('venueId')
+        .lean();
         return JSON.parse(JSON.stringify(rooms));
     } catch (error) {
         if (error instanceof Error) {
@@ -58,7 +61,48 @@ export async function getRoomsByEvent(eventId:string){
 
 export async function getRooms(){
     try {
-        const rooms = await Room.find().populate('eventId');
+        const rooms = await Room.find()
+        .populate('eventId')
+        .populate('venueId')
+        .populate('facId')
+        .lean();
+        return JSON.parse(JSON.stringify(rooms));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching rooms:', error.message);
+            throw new Error(`Error occurred during rooms fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during rooms fetch');
+        }
+    }
+}
+export async function getRoomsForChurch(churchId:string){
+    try {
+        const rooms = await Room.find({churchId})
+        .populate('eventId')
+        .populate('venueId')
+        .populate('facId')
+        .lean();
+        return JSON.parse(JSON.stringify(rooms));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching rooms:', error.message);
+            throw new Error(`Error occurred during rooms fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during rooms fetch');
+        }
+    }
+}
+
+export async function getRoomsInaVenue(venueId:string){
+    try {
+        const rooms = await Room.find({venueId})
+        .populate('eventId')
+        .populate('venueId')
+        .populate('facId')
+        .lean();
         return JSON.parse(JSON.stringify(rooms));
     } catch (error) {
         if (error instanceof Error) {
@@ -73,7 +117,11 @@ export async function getRooms(){
 
 export async function getRoom(id:string){
     try {
-        const room = await Room.findById(id).populate('eventId');
+        const room = await Room.findById(id)
+        .populate('eventId')
+        .populate('venueId')
+        .populate('facId')
+        .lean();
         return JSON.parse(JSON.stringify(room));
     } catch (error) {
         if (error instanceof Error) {
@@ -298,7 +346,43 @@ export async function getRoomsForEvent(eventId: string) {
     try {
         await connectDB();
 
-        const rooms = await Room.find({ eventId }).lean();
+        const rooms = await Room.find({ eventId })
+        .populate('venueId')
+        .populate('eventId')
+        .populate('facId')
+        .lean();
+        return JSON.parse(JSON.stringify(rooms));
+    } catch (error) {
+        console.error('Error fetching rooms for event:', error);
+        throw new Error('Error occurred while fetching rooms');
+    }
+}
+
+export async function getRoomsForFacility(facId: string) {
+    try {
+        await connectDB();
+
+        const rooms = await Room.find({ facId })
+        .populate('venueId')
+        .populate('eventId')
+        .populate('facId')
+        .lean();
+        return JSON.parse(JSON.stringify(rooms));
+    } catch (error) {
+        console.error('Error fetching rooms for event:', error);
+        throw new Error('Error occurred while fetching rooms');
+    }
+}
+
+export async function getRoomsForVenue(venueId: string) {
+    try {
+        await connectDB();
+
+        const rooms = await Room.find({ venueId })
+        .populate('venueId')
+        .populate('eventId')
+        .populate('facId')
+        .lean();
         return JSON.parse(JSON.stringify(rooms));
     } catch (error) {
         console.error('Error fetching rooms for event:', error);
@@ -505,7 +589,7 @@ export async function deleteRoom(id: string) {
         await Key.deleteMany({roomId:id});
 
         // Delete the room after updates are done
-        await Room.findByIdAndDelete(id);
+        await Room.deleteOne({_id:id});
 
         return 'Room deleted successfully';
     } catch (error) {

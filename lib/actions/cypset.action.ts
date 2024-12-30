@@ -74,7 +74,7 @@ export async function deleteCYPSet(id:string){
     try {
         await connectDB();
 
-        await CYPSet.findByIdAndDelete(id);
+        await CYPSet.deleteOne({_id:id});
 
         return handleResponse('Set Deleted Successfully', false);
     } catch (error) {

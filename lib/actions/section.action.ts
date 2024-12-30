@@ -125,7 +125,7 @@ export async function deleteSection(id: string) {
         await CYPSet.findByIdAndUpdate(section.cypsetId, { $pull: { sections: section._id } });
 
         // Delete the section
-        await Section.findByIdAndDelete(id);
+        await Section.deleteOne({_id:id});
 
         // Reorder the remaining sections
         const remainingSections = await Section.find({ cypsetId: section.cypsetId }).sort({ number: 1 });

@@ -61,7 +61,7 @@ const DashboardGlobal = ({events, zones, churches, registrations, members, loadi
             :
             <div className="flex flex-col gap-[0.5rem]">
               <ActivityTile  title='Members Registered' data={stats.members.toString()} link='/dashboard/members' query={{registeredBy:vendorId}} />
-              <ActivityTile title='Events Created' data={stats.events.toString()} link='/dashboard/events' query={{id:vendorId}} />
+              <ActivityTile title='Events Created' data={stats.events.toString()} link='/dashboard/events' query={{userId:vendorId}} />
               <ActivityTile title='Sessions Created' data={stats.sessions.toString()} link='/dashboard/events/sessions' query={{id:vendorId}} />
               <ActivityTile link='/dashboard/revenue' query={{userId:vendorId}} title='Payment Made'  data={`$${stats?.revenue?.toString()}`} />
             </div>

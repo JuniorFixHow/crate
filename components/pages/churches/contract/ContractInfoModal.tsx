@@ -66,12 +66,26 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
 
                 {
                     currentContract?.description &&
-                    <div className="flex flex-col dark:text-slate-200 w-80">
+                    <div className="flex flex-col dark:text-slate-200 max-w-80">
                         <span className='text-[1.1rem] font-semibold text-slate-700' >Description</span>
                         <span className='text-[0.9rem] ' >{currentContract?.description}</span>
                     </div>
                 }
                 
+                <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Services</span>
+                    <div className="flex flex-col ">
+                        {
+                            services?.length > 0 ?
+                            services?.map((service)=>(
+                                <Link key={service._id} className='table-link' href={{pathname:`/dashboard/churches/contracts/services`, query:{id:service?._id}}} >{service?.name}</Link>
+                                
+                            ))
+                            :
+                            <span className='text-[0.9rem]' >None</span>
+                        }
+                    </div>
+                </div>
                 
             </div>
         </div>

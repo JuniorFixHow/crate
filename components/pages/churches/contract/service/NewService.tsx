@@ -67,7 +67,7 @@ const NewService = ({currentService, setCurrentService, infoMode, setInfoMode}:N
             formRef.current?.reset();
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding church', error:true})
+            setError({message:'Error occured updating service', error:true})
         }finally{
             setLoading(false);
         }

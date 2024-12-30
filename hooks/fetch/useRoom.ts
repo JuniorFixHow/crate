@@ -1,4 +1,4 @@
-import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRooms } from "@/lib/actions/room.action";
+import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRooms, getRoomsInaVenue } from "@/lib/actions/room.action";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import { ErrorProps, IMergedRegistrationData } from "@/types/Types";
@@ -13,7 +13,7 @@ export const useFetchRooms = () => {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const fetchedRooms: IRoom[] = await getRooms();
+                const fetchedRooms:IRoom[] = await getRooms();
                 setRooms(fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
                 setError(null);
             } catch (err) {
@@ -122,4 +122,31 @@ export const useFetchRoomsRegistrationWithKeys = () => {
     }, []);
 
     return { data, loading, error };
+};
+
+
+export const useFetchRoomsForVenue = (venueId:string) => {
+    const [rooms, setRooms] = useState<IRoom[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if(!venueId) return;
+        const fetchRooms = async () => {
+            try {
+                const fetchedRooms:IRoom[] = await getRoomsInaVenue(venueId);
+                setRooms(fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
+                setError(null);
+            } catch (err) {
+                setError('Error fetching rooms');
+                console.log(err)
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRooms();
+    }, [venueId]);
+
+    return { rooms, loading, error };
 };

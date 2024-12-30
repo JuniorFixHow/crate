@@ -56,9 +56,9 @@ const ServiceInfoModal = ({infoMode, setInfoMode, currentService, setCurrentServ
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Contracts</span>
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col">
                         {
-                            contracts.length > 0 ?
+                            contracts?.length > 0 ?
                             contracts.map((contract)=>(
                                 <Link key={contract._id} className='table-link' href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
                                 

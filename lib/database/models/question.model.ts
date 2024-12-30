@@ -1,4 +1,4 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { ISection } from "./section.model";
 import Response from "./response.model";
 
@@ -24,9 +24,15 @@ const QuestionSchema =  new Schema<IQuestion>({
 
 
 QuestionSchema.pre('deleteOne', {document:false, query:true}, async function(next){
-    const questionId = this.getQuery()._id;
-    await Response.deleteMany({questionId});
-    next();
+    try {
+        const questionId = this.getQuery()._id;
+        await Response.deleteMany({questionId});
+        next();
+        
+    } catch (error) {
+        console.log(error);
+        next(error as CallbackError)
+    }
 })
 
 const Question = models?.Question || model('Question', QuestionSchema);
