@@ -1,6 +1,7 @@
 import { isEligible } from "@/functions/misc";
 import { IKey } from "@/lib/database/models/key.model";
 import { IRoom } from "@/lib/database/models/room.model";
+import { IVenue } from "@/lib/database/models/venue.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
@@ -84,9 +85,12 @@ export const RoomSummaryColumn:GridColDef[] =[
                     <div className="gap-5" >
                     {
                         params.row?.roomIds?.length > 0 ?
-                        params.row?.roomIds?.map((room:IRoom, index:number)=>(
-                                <Link key={room?._id}  className="table-link w-fit" href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{room?.venue} {room?.number}{params?.row.roomIds.length - index > 1 && ', ' }</Link>
-                        ))
+                        params.row?.roomIds?.map((room:IRoom, index:number)=>{
+                            const venue = room?.venueId as IVenue;
+                            return(
+                                <Link key={room?._id}  className="table-link w-fit" href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{venue?.name} {room?.number}{params?.row.roomIds.length - index > 1 && ', ' }</Link>
+                            )
+                        })
                         :
                         <span>None</span>
                     }
