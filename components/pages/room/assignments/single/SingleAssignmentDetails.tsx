@@ -1,6 +1,8 @@
+import { IFacility } from '@/lib/database/models/facility.model'
 import { IGroup } from '@/lib/database/models/group.model'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { IRoom } from '@/lib/database/models/room.model'
+import { IVenue } from '@/lib/database/models/venue.model'
 import { LinearProgress } from '@mui/material'
 import Link from 'next/link'
 import React from 'react'
@@ -14,6 +16,9 @@ type SingleAssignmentDetailsProps = {
 }
 
 const SingleAssignmentDetails = ({type, loading, GroupData, currentRoom, MemberData}:SingleAssignmentDetailsProps) => {
+    const venue = currentRoom?.venueId as IVenue;
+    const facility = currentRoom?.facId as IFacility;
+
   return (
     <div className='flex flex-1 flex-col gap-6' >
         {
@@ -71,11 +76,11 @@ const SingleAssignmentDetails = ({type, loading, GroupData, currentRoom, MemberD
                         <div className="flex flex-col gap-2 ml-2 lg:ml-8">
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Venue:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{currentRoom?.venue}</span>
+                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{ `${venue} - ${currentRoom?.number}`}</span>
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Floor:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{currentRoom?.floor}</span>
+                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{facility?.floor}</span>
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Room Number:</span>
