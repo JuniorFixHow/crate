@@ -7,6 +7,7 @@ import { IGroup } from '@/lib/database/models/group.model';
 import { IKey } from '@/lib/database/models/key.model';
 import { IMember } from '@/lib/database/models/member.model';
 import { IRoom } from '@/lib/database/models/room.model';
+import { IVenue } from '@/lib/database/models/venue.model';
 import { IZone } from '@/lib/database/models/zone.model';
 import { IMergedRegistrationData } from '@/types/Types';
 import { LinearProgress } from '@mui/material';
@@ -146,9 +147,12 @@ const CustomSummaryTable = ({ data, event, printRef, loading }:CustomSummaryTabl
                                     <>
                                     {
                                         rooms?.length > 0 ?
-                                        rooms.map((room, index:number)=>(
-                                            <Link className='table-link w-fit' key={room?._id} href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{room?.venue} {room?.number}{rooms?.length - index > 1 && ',  '}</Link>
-                                        ))
+                                        rooms.map((room, index:number)=>{
+                                            const venue = room.venueId as IVenue;
+                                            return(
+                                                <Link className='table-link w-fit' key={room?._id} href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{venue?.name} {room?.number}{rooms?.length - index > 1 && ',  '}</Link>
+                                            )
+                                        })
                                         :
                                         <span>None</span>
                                     }
