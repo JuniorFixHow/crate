@@ -8,27 +8,37 @@ export const useFetchContracts = ()=>{
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string|null>(null);
 
-    useEffect(()=>{
-        const fetchContracts = async()=>{
+    useEffect(() => {
+        const fetchContracts = async () => {
+            setLoading(true); // Ensure loading starts at the beginning
             try {
                 const [conts, freeconts] = await Promise.all([
-                    getContracts() as unknown as IContract[],
-                    getUnusedContracts() as unknown as IContract[]
-                ])
-                setContracts(conts.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setFreeContracts(freeconts.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
+                    (getContracts() as unknown) as IContract[],
+                    (getUnusedContracts() as unknown) as IContract[]
+                ]);
+    
+                const sortedContracts = (Array.isArray(conts) ? conts : []).sort((a, b) =>
+                    new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+                );
+    
+                const sortedFreeContracts = (Array.isArray(freeconts) ? freeconts : []).sort((a, b) =>
+                    new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+                );
+    
+                setContracts(sortedContracts);
+                setFreeContracts(sortedFreeContracts);
                 setError(null);
             } catch (error) {
-                console.log(error);
-                setError('Error occured fetching contracts');
-            }finally{
-                setLoading(false);
+                console.error("Error fetching contracts:", error);
+                setError("Error occurred fetching contracts");
+            } finally {
+                setLoading(false); // Ensure loading stops
             }
-        }
-
+        };
+    
         fetchContracts();
-
-    },[])
+    }, []);
+    
     
     return {contracts, freeContracts, error, loading}
 }
