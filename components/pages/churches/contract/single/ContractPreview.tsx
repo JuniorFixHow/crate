@@ -14,8 +14,9 @@ type ContractPreviewProps = {
     currentContract: IContract;
     previewMode: boolean;
     setPreviewMode: Dispatch<SetStateAction<boolean>>;
-    amount:number,
-    services:IService[]
+    amount:number;
+    quantity:string[];
+    services:IService[];
 };
 
 const ContractPreview = ({
@@ -23,6 +24,7 @@ const ContractPreview = ({
     previewMode,
     amount,
     services,
+    quantity,
     setPreviewMode,
 }: ContractPreviewProps) => {
 
@@ -112,12 +114,16 @@ const ContractPreview = ({
                                     <h3 className="mt-8 font-semibold text-lg">{services?.length> 1 ? 'Services':'Service'}</h3>
                                     <ul className="list-disc pl-6 mt-4 space-y-2">
                                         {
-                                            services.map((service)=>(
-                                                <li key={service?._id} >
-                                                    <strong>{service?.name}:</strong> ${service?.cost}
-                                                </li>
+                                            services.map((service)=>{
+                                                const counts = quantity.filter((item)=>item === service?._id).length;
+                                                const amount = counts*service?.cost;
+                                                return(
+                                                    <li key={service?._id} >
+                                                        <strong>{service?.name}:</strong> ${amount}
+                                                    </li>
+                                                )
 
-                                            ))
+                                            })
                                         }
                                     </ul>
                                 </div>

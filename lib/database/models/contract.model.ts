@@ -19,6 +19,7 @@ export interface IContract extends Document{
         sign:string,
     };
     services:string[]|IService[]|Types.ObjectId[];
+    quantity:string[];
     description:string;
     createdAt:Date;
     updatedAt:Date;
@@ -31,6 +32,7 @@ const ContractSchema = new Schema<IContract>({
     date:{from:String, to:String},
     offeree:{name:String, sign:String},
     witness:{name:String, sign:String},
+    quantity:[String],
     services:[{type:Schema.Types.ObjectId, ref:'Service'}]
 }, {timestamps:true});
 

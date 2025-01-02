@@ -13,7 +13,11 @@ export const handlePrint = (printRef:RefObject<HTMLDivElement|null>) => {
     }
 };
 
-export const calculateTotalService = (services:IService[]):number=>{
-  const total = services.reduce((sum, service)=>service.cost + sum, 0);
-  return total;
+export const calculateTotalService = (services:IService[], quantity:string[]):number=>{
+
+  const total = services.reduce((sum, service) => {
+    const serviceQuantity = quantity?.filter((id) => id === service._id).length;
+    return sum + service.cost * serviceQuantity;
+}, 0);
+  return total || 0;
 }

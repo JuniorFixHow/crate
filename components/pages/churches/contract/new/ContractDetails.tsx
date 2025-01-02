@@ -12,6 +12,7 @@ import { createContract, deleteContract, updateContract } from "@/lib/actions/co
 import ContractPreview from "../single/ContractPreview";
 import { IService } from "@/lib/database/models/service.model";
 import { useFetchServices } from "@/hooks/fetch/useService";
+import { FaMinus, FaPlus } from "react-icons/fa";
 
 type ContractDetailsProps = {
     currentContract?:IContract
@@ -31,24 +32,32 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
     const [saveResponse, setSaveResponse] = useState<ErrorProps>(null);
     const [servs, setServs] = useState<IService[]>([]);
+    const [quantity, setQuantity] = useState<string[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
     const [amount, setAmount] = useState<number>(0);
 
     const {services} = useFetchServices();
-    const cservs = currentContract?.services as IService[]
+    const cservs = currentContract?.services as IService[];
+    const quants = currentContract?.quantity;
 
     useEffect(()=>{
         if(cservs){
             setServs(cservs);
         }
-    },[cservs])
-
-    useEffect(()=>{
-        if(servs.length){
-            const total = servs?.reduce((sum, service)=>service?.cost + sum, 0)
-            setAmount(total);
+        if(quants){
+            setQuantity(quants);
         }
-    },[servs])
+    },[cservs, quants])
+
+    useEffect(() => {
+        const total = servs.reduce((sum, service) => {
+            const serviceQuantity = quantity.filter((id) => id === service._id).length;
+            return sum + service.cost * serviceQuantity;
+        }, 0);
+    
+        setAmount(total);
+    }, [servs, quantity]);
+    
 
     const handleChange =(e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
         const {name, value} = e.target;
@@ -155,7 +164,8 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
                     date:dat,
                     offeree:offer,
                     witness:wit,
-                    services:sers
+                    services:sers,
+                    quantity
                 }
                 const res = await createContract(body);
                 setResponse(res);
@@ -196,7 +206,7 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
                 description:data.description || currentContract?.description,
                 date,
                 offeree, witness,
-                services:sers
+                services:sers, quantity
             };
 
             const res = await updateContract(body);
@@ -211,14 +221,64 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
 
 
     const handleCheckService = (serv: IService) => {
-        setServs((prev) => {
-            const exists = prev.find((item) => item._id === serv._id);
-            return exists 
-                ? prev.filter((item) => item._id !== serv._id) 
-                : [...prev, serv];
+        setServs((prevServs) => {
+            const exists = prevServs.some((item) => item._id === serv._id);
+    
+            if (exists) {
+                // Remove from `servs` and clean all its IDs from `quantity`
+                return prevServs.filter((item) => item._id !== serv._id);
+            } else {
+                // Add to `servs` and append its ID to `quantity`
+                return [...prevServs, serv];
+            }
+        });
+        // setQuantity((prevQuantity) => [...prevQuantity, serv._id]);
+        setQuantity((prevQuantity) => {
+            const item =  prevQuantity.filter((id) => id === serv._id).length;
+            return item > 0 ? prevQuantity.filter((id) => id !== serv._id)
+            :
+            [...prevQuantity, serv._id]
         });
     };
     
+    
+    
+    
+
+    const handleIncreaseServiceQuantity = (item: IService) => {
+        setQuantity((prevQuantity) => [...prevQuantity, item._id]);
+        setServs((prev) => {
+            const exists = prev.some((service) => service._id === item._id);
+            if (!exists) {
+                return [...prev, item];
+            }
+            return prev;
+        });
+    };
+    
+    const handleDecreaseServiceQuantity = (item: IService) => {
+        setQuantity((prevQuantity) => {
+            const index = prevQuantity.lastIndexOf(item._id);
+            if (index !== -1) {
+                const updatedQuantity = [...prevQuantity];
+                updatedQuantity.splice(index, 1);
+    
+                // After updating the quantity, check if the service's ID still exists in the quantity array
+                const isServiceRemainingInQuantity = updatedQuantity.some((id) => id === item._id);
+                
+                if (!isServiceRemainingInQuantity) {
+                    // If no instances of the ID are left, remove the service from `servs`
+                    setServs((prevServs) => prevServs.filter((service) => service._id !== item._id));
+                }
+                
+                return updatedQuantity;
+            }
+            return prevQuantity;
+        });
+    };
+    
+    
+    // console.log(quantity)
 
 
     const message = `Deleting a contract will leave the associated church unlicensed. Proceed?`;
@@ -253,36 +313,51 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             </div>
 
             {
-                services?.length > 0 &&
-                <div className="flex flex-col gap-1">
-                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Services</span>
-                    {
-                        services.map((service) => {
+                services?.length > 0 && (
+                    <div className="flex flex-col gap-1">
+                        <span className="text-slate-400 font-semibold text-[0.8rem]">Services</span>
+                        {services.map((service) => {
                             const isChecked = servs.some((item) => item._id === service._id);
-                        
+                            const countItems = quantity.filter((id) => id === service._id).length;
+
                             return (
-                                <div key={service?._id} className="flex gap-2 items-center">
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleCheckService(service)}
-                                        checked={isChecked}
-                                        value={service._id}
-                                        className="cursor-pointer bg-transparent"
-                                    />
-                                    <span className='text-slate-400 font-semibold text-[0.8rem]' >{service?.name} - ${service?.cost}</span>
+                                <div key={service._id} className="flex gap-2 items-center justify-between">
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            type="checkbox"
+                                            onChange={() => handleCheckService(service)}
+                                            checked={isChecked}
+                                            value={service._id}
+                                            className="cursor-pointer bg-transparent"
+                                        />
+                                        <span className="text-slate-400 font-semibold text-[0.8rem]">
+                                            {service.name} - ${service.cost}
+                                        </span>
+                                        <span className="text-[0.8rem] ml-4">{countItems}X</span>
+                                    </div>
+                                    {countItems > 0 && (
+                                        <div className="flex items-center gap-2">
+                                            <FaPlus
+                                                className="cursor-pointer text-slate-400"
+                                                onClick={() => handleIncreaseServiceQuantity(service)}
+                                            />
+                                            <FaMinus
+                                                className="cursor-pointer text-slate-400"
+                                                onClick={() => handleDecreaseServiceQuantity(service)}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             );
-                        })
-                        
-                    }
-                    
-                </div>
+                        })}
+                    </div>
+                )
             }
 
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Total benefit - ${amount}</span>
         </div>
 
-    <ContractPreview amount={amount} services={servs} previewMode={previewMode} setPreviewMode={setPreviewMode} currentContract={currentContract!} />
+    <ContractPreview quantity={quantity} amount={amount} services={servs} previewMode={previewMode} setPreviewMode={setPreviewMode} currentContract={currentContract!} />
     <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentContract?.title}`} message={message} onTap={handleDeleteContract} />
         {/* RIGHT SIDE */}
 

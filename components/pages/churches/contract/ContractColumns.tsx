@@ -45,7 +45,7 @@ export const ContractColumns = (
         width:100,
         renderCell:(item:GridRenderCellParams)=>{
             return(
-                <span>{calculateTotalService(item.row?.services)}</span>
+                <span>{calculateTotalService(item.row?.services, item.row?.quantity)}</span>
             )
         }
     },
