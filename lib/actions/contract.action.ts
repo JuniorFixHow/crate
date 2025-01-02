@@ -3,6 +3,7 @@ import Church from "../database/models/church.model";
 import Contract, { IContract } from "../database/models/contract.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import '../database/models/service.model';
 
 export async function createContract(contract:Partial<IContract>){
     try {

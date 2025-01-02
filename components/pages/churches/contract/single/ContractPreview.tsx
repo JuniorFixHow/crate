@@ -83,7 +83,7 @@ const ContractPreview = ({
                                 This Agreement (the &quot;Agreement&quot;) is entered into as of{" "}
                                 <strong>{currentContract?.date?.from}</strong> between{" "}
                                 <strong>CRATE Development Team</strong> (the &quot;Provider&quot;) and{" "}
-                                <strong>{currentContract?.offeree.name}</strong> (the &quot;Offeree&quot;).
+                                <strong>{currentContract?.offeree?.name}</strong> (the &quot;Offeree&quot;).
                             </p>
                             <p className="mt-4">
                                 The purpose of this Agreement is to outline the terms for the
