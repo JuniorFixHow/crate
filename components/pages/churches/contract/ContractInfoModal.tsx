@@ -20,7 +20,8 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
         setCurrentContract(null);
         setInfoMode(false);
     }
-    const services = currentContract?.services as IService[]
+    const services = currentContract?.services as IService[];
+    const quantity = currentContract?.quantity as string[];
   return (
     <Modal
         open={infoMode}
@@ -52,7 +53,7 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
                     services &&
                     <div className="flex flex-col dark:text-slate-200">
                         <span className='text-[1.1rem] font-semibold text-slate-700' >Benefit</span>
-                        <span className='text-[0.9rem]' >${calculateTotalService(services)}</span>
+                        <span className='text-[0.9rem]' >${calculateTotalService(services, quantity)}</span>
                     </div>
                 }
                 <div className="flex flex-col dark:text-slate-200">
