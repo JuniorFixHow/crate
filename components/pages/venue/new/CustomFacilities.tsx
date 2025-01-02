@@ -12,7 +12,7 @@ const DynamicFacilitiesForm = ({facilities, setFacilities}:DynamicFacilitiesForm
     const handleAddFacility = () => {
         setFacilities([
             ...facilities,
-            { id: Date.now().toString(), name: "", rooms: 1, floor: "" },
+            { id: Date.now().toString(), name: "", rooms: 1, floor: 1 },
         ]);
     };
 
@@ -82,13 +82,13 @@ const DynamicFacilitiesForm = ({facilities, setFacilities}:DynamicFacilitiesForm
                     </div>
                     <div className="flex flex-col">
                         <span className="text-slate-500 text-[0.8rem] font-semibold">
-                            Floor
+                            Floors
                         </span>
                         <input
                             type="text"
                             value={facility.floor}
                             onChange={(e) =>
-                                handleChangeFacility(facility.id, "floor", e.target.value)
+                                handleChangeFacility(facility.id, "floor", Number(e.target.value))
                             }
                             required
                             className="border-b w-[18rem] bg-transparent px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]"

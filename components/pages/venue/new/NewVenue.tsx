@@ -16,7 +16,7 @@ export type CustomFacilitiesProps = {
     id: string;
     name: string;
     rooms: number;
-    floor: string;
+    floor: number;
 };
 
 const NewVenue = ({currentVenue}:VenueDetailsProps) => {
