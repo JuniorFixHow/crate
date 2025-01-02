@@ -44,8 +44,10 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     },[cservs])
 
     useEffect(()=>{
-        const total = servs.reduce((sum, service)=>service.cost + sum, 0)
-        setAmount(total);
+        if(servs.length){
+            const total = servs?.reduce((sum, service)=>service?.cost + sum, 0)
+            setAmount(total);
+        }
     },[servs])
 
     const handleChange =(e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{

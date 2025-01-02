@@ -81,7 +81,7 @@ const ContractPreview = ({
                         <div className="mt-4 text-gray-700 text-sm leading-relaxed">
                             <p>
                                 This Agreement (the &quot;Agreement&quot;) is entered into as of{" "}
-                                <strong>{currentContract?.date.from}</strong> between{" "}
+                                <strong>{currentContract?.date?.from}</strong> between{" "}
                                 <strong>CRATE Development Team</strong> (the &quot;Provider&quot;) and{" "}
                                 <strong>{currentContract?.offeree.name}</strong> (the &quot;Offeree&quot;).
                             </p>
@@ -97,8 +97,8 @@ const ContractPreview = ({
                             <ul className="list-disc pl-6 mt-4 space-y-2">
                                 <li>
                                     <strong>Agreement Duration:</strong> From{" "}
-                                    <strong>{currentContract?.date.from}</strong> to{" "}
-                                    <strong>{currentContract?.date.to}</strong>.
+                                    <strong>{currentContract?.date?.from}</strong> to{" "}
+                                    <strong>{currentContract?.date?.to}</strong>.
                                 </li>
                                 <li>
                                     <strong>Amount Payable:</strong> ${amount}.
@@ -130,7 +130,7 @@ const ContractPreview = ({
                                     <p className="font-medium">Provider: CRATE Development Team</p>
                                     <div className="mt-2 border relative rounded-md p-2 w-48 h-24 flex items-center justify-center">
                                         <Image
-                                            src={currentContract?.offeree.sign}
+                                            src={currentContract?.offeree?.sign}
                                             alt="Provider Signature"
                                             fill
                                             className="object-contain"
@@ -139,11 +139,11 @@ const ContractPreview = ({
                                 </div>
                                 <div>
                                     <p className="font-medium">
-                                        Offeree: {currentContract?.offeree.name}
+                                        Offeree: {currentContract?.offeree?.name}
                                     </p>
                                     <div className="mt-2 border relative rounded-md p-2 w-48 h-24 flex items-center justify-center">
                                         <Image
-                                            src={currentContract?.offeree.sign}
+                                            src={currentContract?.offeree?.sign}
                                             alt="Offeree Signature"
                                             fill
                                             className="object-contain"
@@ -152,11 +152,11 @@ const ContractPreview = ({
                                 </div>
                                 <div>
                                     <p className="font-medium">
-                                        Witness: {currentContract?.witness.name}
+                                        Witness: {currentContract?.witness?.name}
                                     </p>
                                     <div className="mt-2 border relative rounded-md p-2 w-48 h-24 flex items-center justify-center">
                                         <Image
-                                            src={currentContract?.witness.sign}
+                                            src={currentContract?.witness?.sign}
                                             alt="Witness Signature"
                                             fill
                                             className="object-contain"
