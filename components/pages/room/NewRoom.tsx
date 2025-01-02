@@ -1,5 +1,5 @@
 import AddButton from '@/components/features/AddButton'
-import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
+import  { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import { Alert, Modal } from '@mui/material';
 import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import { IRoom } from '@/lib/database/models/room.model';
@@ -8,6 +8,8 @@ import { createRoom, updateRoom } from '@/lib/actions/room.action';
 import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
 import { useAuth } from '@/hooks/useAuth';
 import SearchSelectVenues from '@/components/features/SearchSelectVenue';
+import { generateNumberArray } from '@/functions/misc';
+import { IFacility } from '@/lib/database/models/facility.model';
 
 export type NewRoomProps = {
     infoMode:boolean,
@@ -23,6 +25,7 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
     const [facId, setFacId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
+    const [currentFacility, setCurrentFacility] = useState<IFacility|null>(null);
     const {user} = useAuth();
 
     const formRef = useRef<HTMLFormElement>(null)
@@ -107,16 +110,37 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
 
                     <div className="flex gap-12 items-end">
                         <div className="flex flex-col">
+                            <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
+                            <SearchSelectEvents  setSelect={setEventId} require={!currentRoom} isGeneric />
+                        </div>
+
+                        <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Venue</span>
                             <SearchSelectVenues setSelect={setVenueId} require={!currentRoom} isGeneric />
                         </div>
-
+                    </div>
+                    <div className="flex gap-12 items-end">
                         {
                             venueId &&
                             <div className="flex flex-col">
                                 <span className='text-slate-500 text-[0.8rem]' >Select Facility</span>
-                                <SearchSelectFacilities venueId={venueId}  setSelect={setFacId} require={!currentRoom} isGeneric />
+                                <SearchSelectFacilities setCurrentFacility={setCurrentFacility} venueId={venueId}  setSelect={setFacId} require={!currentRoom} isGeneric />
                             </div>                        
+                        }
+
+                        {
+                            currentFacility &&
+                            <div className="flex flex-col">
+                                <span className='text-slate-500 text-[0.8rem]' >Floor</span>
+                                <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom?.roomType} name="floor">
+                                    <option className='dark:bg-black dark:text-white' value="">select</option>
+                                    {
+                                        generateNumberArray(currentFacility?.floor).map((item)=>(
+                                            <option key={item}  className='dark:bg-black dark:text-white' value={item}>{item}</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
                         }
                     </div>
 
@@ -152,10 +176,6 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                         </div>
                     </div>
 
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                        <SearchSelectEvents  setSelect={setEventId} require={!currentRoom} isGeneric />
-                    </div>
 
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Room features</span>

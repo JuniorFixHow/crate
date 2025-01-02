@@ -8,7 +8,7 @@ export interface IFacility extends Document{
     _id:string,
     name:string, 
     rooms:number, 
-    floor:string,
+    floor:number,
     venueId:string|Types.ObjectId|IVenue,
     churchId:string|Types.ObjectId|IChurch,
     createdAt:Date,
@@ -18,7 +18,7 @@ export interface IFacility extends Document{
 const FacilitySchema = new Schema<IFacility>({
     name: String,
     rooms: String,
-    floor: String,
+    floor: Number,
     venueId: { type: Schema.Types.ObjectId, ref: 'Venue', required: true },
     churchId: { type: Schema.Types.ObjectId, ref: 'Venue', required: true },
 }, { timestamps: true });

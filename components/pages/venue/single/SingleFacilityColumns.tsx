@@ -24,7 +24,7 @@ export const SingleFacilityColumns = (
     
     {
         field:'floor',
-        headerName:'Floor',
+        headerName:'Floors',
         width:200,
     },
     

@@ -53,7 +53,7 @@ const FacilityInfoModal = ({infoMode, setInfoMode, currentFacility, setCurrentFa
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200 max-w-80">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Floor</span>
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Floors</span>
                     <span className='text-[0.9rem]' >{currentFacility?.floor}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200 max-w-80">

@@ -1,6 +1,6 @@
 'use client'
 
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { Alert, LinearProgress, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import SearchBar from "@/components/features/SearchBar";
@@ -9,13 +9,14 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { IFacility } from "@/lib/database/models/facility.model";
 import { ErrorProps } from "@/types/Types";
 import { useFetchFacilities } from "@/hooks/fetch/useFacility";
-import { deleteFacility } from "@/lib/actions/facility.action";
+import { deleteFacility, getFacility } from "@/lib/actions/facility.action";
 import SearchSelectZones from "@/components/features/SearchSelectZones";
 import SearchSelectChurchForRoomAss from "@/components/features/SearchSelectChurchForRoomAss";
 import { SearchFacilityWithChurch } from "./fxn";
 import { FacilityColumns } from "./FacilityColumns";
 import NewSingleFacility from "./NewFacility";
 import FacilityInfoModal from "./FacilityModal";
+import { useSearchParams } from "next/navigation";
 
 
 
@@ -29,8 +30,10 @@ const FacilityTable = () => {
     const [zoneId, setZoneId] = useState<string>('');
     const [response, setReponse] = useState<ErrorProps>(null);
 
+    const {facilities, loading} = useFetchFacilities();
 
-    const {facilities, loading} = useFetchFacilities()
+    const searchParams = useSearchParams();
+
    
   
 
@@ -63,6 +66,23 @@ const FacilityTable = () => {
             setReponse({message:'Error occured removing room', error:true})
         }
     }
+
+    useEffect(()=>{
+        const id = searchParams.get('id')
+        const fetchFacility = async()=>{
+            if(id){
+                try {
+                    const fac = await getFacility(id);
+                    setCurrentFacility(fac);
+                    setInfoMode(true);
+                } catch (error) {
+                    console.log(error);
+                    setReponse({message:'Error occured fetching facility data', error:true});
+                }
+            }
+        }
+        fetchFacility()
+    },[searchParams])
 
     const handleOpenNew = () =>{
         setNewMode(true);

@@ -1,5 +1,4 @@
 import { IEvent } from '@/lib/database/models/event.model'
-import { IFacility } from '@/lib/database/models/facility.model'
 import { IRoom } from '@/lib/database/models/room.model'
 import { IVenue } from '@/lib/database/models/venue.model'
 import { Modal } from '@mui/material'
@@ -15,7 +14,6 @@ export type RoomInfoModalProps = {
 }
 
 const RoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoModalProps) => {
-    const facility = currentRoom?.facId as IFacility;
     const venue = currentRoom?.venueId as IVenue;
     const event = currentRoom?.eventId as IEvent;
     const handleClose = ()=>{
@@ -42,7 +40,7 @@ const RoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:Room
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Floor</span>
-                    <span className='text-[0.9rem]' >{facility?.floor}</span>
+                    <span className='text-[0.9rem]' >{currentRoom?.floor}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Room Number</span>

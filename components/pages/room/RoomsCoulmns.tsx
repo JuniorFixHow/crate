@@ -1,5 +1,6 @@
 import { IRoom } from "@/lib/database/models/room.model";
 import { GridRenderCellParams } from "@mui/x-data-grid";
+import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
 
@@ -17,6 +18,16 @@ export const RoomsColumns = (
                 <div className="flex h-full flex-row items-center gap-4">
                     <span onClick={()=>handleNew(params?.row)}  className="table-link" >{params?.row?.venueId?.name} {params?.row?.number} </span>
                 </div>
+            )
+        }
+    },
+    {
+        field:'facId',
+        headerName:'Facility',
+        width:200,
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link className="table-link" href={{pathname:'/dashboard/venues/facilities', query:{id:params.row?.facId?._id}}} >{params.row?.facId?.name}</Link>
             )
         }
     },

@@ -103,7 +103,7 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility, venueId, infoMo
                         <input name="rooms" onChange={handleChange} required={!currentFacility} defaultValue={currentFacility ? currentFacility?.rooms : ''} type="number" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
                     <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Floor</span>
+                        <span className='text-slate-500 text-[0.8rem]' >Floors</span>
                         <input name="floor" onChange={handleChange} defaultValue={currentFacility ? currentFacility?.floor : ''} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
                                       
