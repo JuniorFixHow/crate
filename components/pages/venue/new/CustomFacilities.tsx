@@ -90,6 +90,7 @@ const DynamicFacilitiesForm = ({facilities, setFacilities}:DynamicFacilitiesForm
                             onChange={(e) =>
                                 handleChangeFacility(facility.id, "floor", Number(e.target.value))
                             }
+                            min={1}
                             required
                             className="border-b w-[18rem] bg-transparent px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]"
                             placeholder="Enter floor number"
