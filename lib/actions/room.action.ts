@@ -25,6 +25,22 @@ export async function createRoom(room:Partial<IRoom>){
     }
 }
 
+export async function createRooms(rooms:Partial<IRoom>[]){
+    try {
+        await connectDB();
+        const newRoom = await Room.insertMany(rooms, {ordered:false});
+        return JSON.parse(JSON.stringify(newRoom));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error creating room:', error.message);
+            throw new Error(`Error occurred during room creation: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during room creation');
+        }
+    }
+}
+
 export async function updateRoom(id:string, room:Partial<IRoom>){
     try {
         const rm = await Room.findByIdAndUpdate(id, room, {new:true, runValidators:true});

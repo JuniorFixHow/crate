@@ -23,7 +23,6 @@ export const formatDashboardLink = (text:string):number|string=>{
 }
 
 
-
 export const generateNumberArray = (n: number): string[] => {
-    return Array.from({ length: n }, (_, i) => (i + 1).toString());
+    return ["G", ...Array.from({ length: n - 1 }, (_, i) => (i + 1).toString())];
 };

@@ -37,7 +37,8 @@ const MainNewEvent = () => {
       const body:Partial<IEvent> = {
         ...data,
         location,
-        createdBy:user?.userId
+        createdBy:user?.userId,
+        churchId:user?.churchId,
       }
       await createEvent(body);
       setError({ message: "Event created successfully", error: false });

@@ -3,6 +3,7 @@
 import Venue, { IVenue } from "../database/models/venue.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import '../database/models/church.model'
 
 export async function createVenue(venue:Partial<IVenue>){
     try {

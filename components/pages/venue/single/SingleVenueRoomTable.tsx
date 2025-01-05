@@ -15,6 +15,8 @@ import { SingleVenueRoomsColumns } from "./SingleVenueRoomColumns";
 import SingleVenueRoomInfoModal from "./SingleVenueRoomModal";
 import { SearchRoom } from "../../room/fxn";
 import SingleVenueNewRoom from "./SingleVenueNewRoom";
+import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
+import ImportRoomModal from "./ImportRoomModal";
 
 
 type SingleVenueRoomTableProps = {
@@ -29,7 +31,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
     const [search, setSearch] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
     const [response, setReponse] = useState<ErrorProps>(null);
-
+    const [excelMode, setExcelMode] = useState<boolean>(false);
 
     const {rooms, loading} = useFetchRoomsForVenue(venueId)
    
@@ -77,10 +79,14 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
             <SearchSelectEvents setSelect={setEventId} isGeneric />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
+                <div className="flex gap-1 cursor-pointer items-center px-4 py-1 border-2 rounded bg-transparent">
+                    <PiMicrosoftExcelLogoFill color="teal" size={24} />
+                    <button onClick={()=>setExcelMode(true)}  className="" >Import Rooms</button>
+                </div>
                 <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-2' />
-                <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button>
             </div>
           </div> 
+          <ImportRoomModal venueId={venueId} setInfoMode={setExcelMode} infoMode={excelMode} />
           <SingleVenueRoomInfoModal currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete room ${currentRoom?.number}`} message={message} onTap={handleDeleteRoom} />
           <SingleVenueNewRoom venueId={venueId} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={newMode} setInfoMode={setNewMode} />
