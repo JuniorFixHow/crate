@@ -16,12 +16,13 @@ import { IVenue } from "@/lib/database/models/venue.model"
 type PrintDetailsProps = {
     setCurrentReg:Dispatch<SetStateAction<IRegistration|null>>,
     currentReg:IRegistration|null,
+    setHasRegistered:Dispatch<SetStateAction<boolean>>,
+    hasRegistered:boolean,
 }
 
-const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
+const PrintDetails = ({setCurrentReg, currentReg, setHasRegistered, hasRegistered}:PrintDetailsProps) => {
     const searchParams = useSearchParams();
     const [eventId, setEventId] = useState<string>('');
-    const [hasRegistered, setHasRegistered] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<ErrorProps>(null);
     const [regError, setRegError] = useState<ErrorProps>(null);
@@ -51,7 +52,7 @@ const PrintDetails = ({setCurrentReg, currentReg}:PrintDetailsProps) => {
             return ()=>controller.abort()
         }
         fetchRegistrationData();
-    },[memberId, eventId, setCurrentReg])
+    },[memberId, eventId, setCurrentReg, setHasRegistered])
 
     const handleRegisration = async()=>{
         setRegError(null);

@@ -30,7 +30,7 @@ const MembersTable = ({
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [deleteState, setDeleteState]= useState<ErrorProps>(null);
     
-    const paginationModel = { page: 0, pageSize: 5 };
+    const paginationModel = { page: 0, pageSize: 10 };
     // console.log(searchMember(search, members))
 
     const {members, loading} = useFetchMembers();
@@ -100,7 +100,7 @@ const MembersTable = ({
                   getRowId={(row:IMember):string=>row._id}
                   columns={MemberColumns(handleDelete, handleInfo)}
                   initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10]}
+                  pageSizeOptions={[5, 10, 15, 20, 50, 100]}
                   // checkboxSelection
                   className='dark:bg-[#0F1214] dark:border-slate-200 dark:border dark:text-[#3C60CA]'
                   sx={{ border: 0 }}

@@ -6,10 +6,11 @@ import { IRegistration } from "@/lib/database/models/registration.model"
 
 type BadgePreviewProps = {
     currentReg:IRegistration|null,
+    hasRegistered:boolean;
     onPrint:()=>void
 } & ComponentProps<'div'>
 
-const BadgePreview = ({onPrint, currentReg,  ...props}:BadgePreviewProps ) => {
+const BadgePreview = ({onPrint, currentReg, hasRegistered,  ...props}:BadgePreviewProps ) => {
     const code = `${typeof currentReg?.memberId === 'object' && '_id' in currentReg?.memberId && currentReg?.memberId._id},${typeof currentReg?.eventId === 'object' && '_id' in currentReg?.eventId && currentReg?.eventId._id}`;
     // console.log(code)
     const name = typeof currentReg?.memberId === 'object' && 'name' in currentReg?.memberId && currentReg?.memberId.name
@@ -45,7 +46,7 @@ const BadgePreview = ({onPrint, currentReg,  ...props}:BadgePreviewProps ) => {
             </div>
         </div>
         {
-            currentReg &&
+            currentReg && hasRegistered &&
             <AddButton onClick={onPrint} noIcon smallText className="rounded w-fit" text="Print" />
         }
     </div>

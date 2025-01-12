@@ -10,6 +10,7 @@ import { IMember } from "../database/models/member.model";
 // import { isEligible } from "@/functions/misc";
 import { IChurch } from "../database/models/church.model";
 import { isEligible } from "@/functions/misc";
+import { handleResponse } from "../misc";
 
 export async function createRegistration(memberId:string, eventId:string, registration:Partial<IRegistration>){
     try {
@@ -59,7 +60,7 @@ export async function updateReg (id:string, registration:Partial<IRegistration>)
     try {
         await connectDB();
         const reg = await Registration.findByIdAndUpdate(id, registration, {new:true});
-        return JSON.parse(JSON.stringify(reg));
+        return handleResponse('Registration updated sucessfully', false, reg, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error updating registration:', error.message);
@@ -90,6 +91,7 @@ export async function getRegs(){
         })
         .populate('eventId')
         .populate('roomIds')
+        .populate('keyId')
         .lean();
         return JSON.parse(JSON.stringify(regs));
     } catch (error) {
@@ -121,6 +123,79 @@ export async function getRegsWithEventId(eventId:string){
         })
         .populate('eventId')
         .populate('roomIds')
+        .populate('keyId')
+        .lean();
+        return JSON.parse(JSON.stringify(regs));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching registrations:', error.message);
+            throw new Error(`Error occurred during registrations fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during registrations fetch');
+        }
+    }
+}
+
+
+export async function getReadyRegsWithEventId(eventId:string){
+    try {
+        await connectDB();
+        const regs = await Registration.find({
+            eventId,
+            badgeIssued: "Yes",
+            keyId: { $exists: true, $ne: null },
+            'checkedIn.checked':{$ne:true},
+            roomIds: { $exists: true, $not: { $size: 0 } },
+        })
+        .populate('groupId')
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
+        .lean();
+        return JSON.parse(JSON.stringify(regs));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching registrations:', error.message);
+            throw new Error(`Error occurred during registrations fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during registrations fetch');
+        }
+    }
+}
+
+
+export async function getCheckedInReg(eventId:string){
+    try {
+        await connectDB();
+        const regs = await Registration.find({
+            eventId,
+            'checkedIn.checked':true
+        })
+        .populate('groupId')
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church',
+                populate:{
+                    path:'zoneId',
+                    model:'Zone'
+                }
+            }
+        })
+        .populate('eventId')
+        .populate('roomIds')
+        .populate('keyId')
         .lean();
         return JSON.parse(JSON.stringify(regs));
     } catch (error) {

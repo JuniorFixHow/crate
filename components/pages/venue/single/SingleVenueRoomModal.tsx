@@ -37,7 +37,7 @@ const SingleVenueRoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurren
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.3rem] font-bold' >{facility?.floor} {currentRoom?.number}</span>
+                    <span className='text-[1.3rem] font-bold' >{facility?.name} {currentRoom?.number}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Floor</span>

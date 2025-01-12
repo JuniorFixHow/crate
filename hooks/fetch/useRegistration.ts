@@ -1,4 +1,4 @@
-import { getEligibleRegistrationsWithoutGroups, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId } from "@/lib/actions/registration.action";
+import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { useEffect, useState } from "react"
 
@@ -111,3 +111,54 @@ export const useFetchRegistrationsAllGroups = (id:string)=>{
     return {eventRegistrations, error, loading}
 }
 
+
+export const useFetchReadyRegistrations = (eventId:string)=>{
+    const [readyRegistrations, setReadyRegistrations] = useState<IRegistration[]>([]);
+    const [error, setError] = useState<string|null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(()=>{
+        if(!eventId) return;
+        const fetchReadyReg = async()=>{
+            try {
+                const res = await getReadyRegsWithEventId(eventId);
+                setReadyRegistrations(res);
+            } catch (error) {
+                console.log(error);
+                setError('Error occured fetching registration data')
+            }finally{
+                setLoading(false);
+            }
+        }
+
+        fetchReadyReg();
+    },[eventId])
+
+    return {loading, readyRegistrations, error}
+}
+
+
+export const useFetchCheckedInRegistrations = (eventId:string)=>{
+    const [checkRegistrations, setCheckRegistrations] = useState<IRegistration[]>([]);
+    const [error, setError] = useState<string|null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(()=>{
+        if(!eventId) return;
+        const fetchReadyReg = async()=>{
+            try {
+                const res = await getCheckedInReg(eventId);
+                setCheckRegistrations(res);
+            } catch (error) {
+                console.log(error);
+                setError('Error occured fetching registration data')
+            }finally{
+                setLoading(false);
+            }
+        }
+
+        fetchReadyReg();
+    },[eventId])
+
+    return {loading, checkRegistrations, error}
+}

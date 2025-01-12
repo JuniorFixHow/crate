@@ -225,7 +225,7 @@ export const BadgesColumns =(
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
-                <Link href={`/dashboard/members/${params?.row?.memberId._id}`}  className='table-link' >{params?.row?.memberId.name}</Link>
+                <Link href={`/dashboard/members/${params?.row?.memberId?._id}`}  className='table-link' >{params?.row?.memberId?.name}</Link>
               </div>
             )  
           },
@@ -236,24 +236,24 @@ export const BadgesColumns =(
         width:120,
         renderCell:(params:GridRenderCellParams) =>{
             return(
-                <span >{params?.row.groupId ? 'Group':'Individual'}</span>
+                <span >{params?.row?.groupId ? 'Group':'Individual'}</span>
             )
         }
     },
     {
         field:'status',
-        headerName:'Check-in status',
-        width:130,
+        headerName:'Room Assign. Status',
+        width:180,
         renderCell:(params:GridRenderCellParams) =>{
             return(
-                <span >{params?.row.roomIds.length > 0 ? 'Checked-in':'Pending'}</span>
+                <span >{params?.row?.roomIds?.length > 0 ? 'Assigned':'Pending'}</span>
             )
         }
     },
     
     {
         field:'badgeIssued',
-        headerName:'Badge issued',
+        headerName:'Badge Printed',
         width:140
     },
     {
@@ -265,7 +265,7 @@ export const BadgesColumns =(
             <div className="flex">
                 {
                     params?.row?.groupId?
-                    <Link href={`/dashboard/groups/${params?.row?.groupId._id}`}  className='table-link' >{params?.row?.groupId.name}</Link>
+                    <Link href={`/dashboard/groups/${params?.row?.groupId?._id}`}  className='table-link' >{params?.row?.groupId?.name}</Link>
                     :
                     <span >N/A</span>
                 }

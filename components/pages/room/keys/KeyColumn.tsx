@@ -1,11 +1,13 @@
 import { IKey } from "@/lib/database/models/key.model";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { GoInfo } from "react-icons/go";
+import { IoTrashBinOutline } from "react-icons/io5";
 
 export const KeyColumns = (
     handleDelete:(data:IKey)=>void,
     handleEdit:(data:IKey)=>void,
+    handleInfo:(data:IKey)=>void,
 )=>[
     {
         field:'code',
@@ -46,12 +48,12 @@ export const KeyColumns = (
     },
 
     {
-        field:'createdAt',
-        headerName:'Issued on',
+        field:'assignedOn',
+        headerName:'Assigned on',
         width:110,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span>{new Date(params.row.createdAt).toLocaleDateString()}</span>
+                <span>{new Date(params.row?.assignedOn).toLocaleDateString()}</span>
             )
         }
     },
@@ -84,8 +86,9 @@ export const KeyColumns = (
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex-center h-full">
-                    <RiDeleteBin6Line onClick={()=>handleDelete(params?.row)}  className="cursor-pointer" />
+               <div className="flex h-full flex-row items-center gap-4">
+                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
                 </div>
             )
         }

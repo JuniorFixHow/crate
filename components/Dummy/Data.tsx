@@ -13,6 +13,7 @@ import { CiGlobe } from "react-icons/ci";
 import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiSealCheck } from "react-icons/pi";
 import { HiOutlineBuildingLibrary } from "react-icons/hi2";
+import { GoBriefcase } from "react-icons/go";
 
 
 
@@ -47,7 +48,7 @@ export const NavItems:NavigationProps[] = [
                 path:'/dashboard/events'
             },
             {
-                text:'Badges',
+                text:'Registrations',
                 image:<LuScanLine/>,
                 path:'/dashboard/events/badges'
             },
@@ -55,6 +56,11 @@ export const NavItems:NavigationProps[] = [
                 text:'Sessions',
                 image:<IoIosTimer/>,
                 path:'/dashboard/events/sessions'
+            },
+            {
+                text:'Arrivals',
+                image:<GoBriefcase />,
+                path:'/dashboard/events/arrivals'
             },
             {
                 text:'Public',

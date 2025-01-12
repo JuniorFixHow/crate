@@ -4,6 +4,7 @@ import { IGroup } from "./group.model";
 import { IRoom } from "./room.model";
 import { IEvent } from "./event.model";
 import Payment from "./payment.model";
+import { IKey } from "./key.model";
 
 export interface IRegistration extends Document{
     _id:string;
@@ -12,6 +13,11 @@ export interface IRegistration extends Document{
     groupId?:Types.ObjectId | string | IGroup;
     roomIds?:[Types.ObjectId] | string[] | IRoom[];
     eventId:Types.ObjectId | string | IEvent;
+    keyId:Types.ObjectId | string | IKey;
+    checkedIn:{
+        checked:boolean;
+        date:string;
+    };
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -19,7 +25,9 @@ export interface IRegistration extends Document{
 const RegistrationSchema = new Schema<IRegistration>({
     memberId:{type:Schema.Types.ObjectId, ref:'Member', required:true},
     badgeIssued:{type:String, default:'No'},
+    checkedIn:{checked:Boolean, date:String},
     groupId:{type:Schema.Types.ObjectId, ref:'Group', required:false},
+    keyId:{type:Schema.Types.ObjectId, ref:'Key', required:false},
     roomIds:[{type:Schema.Types.ObjectId, ref:'Room', required:false}],
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},
 

@@ -12,15 +12,19 @@ import { IGroup } from "@/lib/database/models/group.model";
 import { IChurch } from "@/lib/database/models/church.model";
 import { IoMdGlobe } from "react-icons/io";
 import { IZone } from "@/lib/database/models/zone.model";
+import { IRegistration } from "@/lib/database/models/registration.model";
+import { updateReg } from "@/lib/actions/registration.action";
 
 export type BadgeSearchItemProps = {
     member:IMember,
     setResponse?:Dispatch<SetStateAction<ErrorProps>>,
-    currentGroup?:IGroup
-    isGroupItem?:boolean
+    currentGroup?:IGroup;
+    currentRegistration?:IRegistration;
+    isGroupItem?:boolean;
+    isCheckItem?:boolean;
 } & ComponentProps<'div'>
 
-const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...props}:BadgeSearchItemProps ) => {
+const BadgeSearchItem = ({member, setResponse, currentRegistration, currentGroup, isCheckItem,  isGroupItem, ...props}:BadgeSearchItemProps ) => {
     const [loading, setLoading] = useState<boolean>(false);
     const church = member?.church as IChurch;
     const zone = church?.zoneId as IZone;
@@ -37,6 +41,30 @@ const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...pr
         } catch (error) {
             console.log(error);
             setResponse!({message:'Error occured add member to group', error:true})
+        }finally{
+            setLoading(false);
+        }
+    }
+
+    const checkInMember = async()=>{
+        setResponse!(null);
+        try {
+            setLoading(true);
+            if(currentRegistration){
+
+                const data:Partial<IRegistration> = {
+                    ...currentRegistration,
+                    checkedIn:{
+                        checked:true,
+                        date:new Date().toISOString()
+                    }
+                }
+                const res = await updateReg(currentRegistration._id, data);
+                setResponse!(res);
+            }
+        } catch (error) {
+            console.log(error);
+            setResponse!({message:'Error occured processing check-in', error:true})
         }finally{
             setLoading(false);
         }
@@ -62,6 +90,9 @@ const BadgeSearchItem = ({member, setResponse, currentGroup,  isGroupItem, ...pr
             </div>
         </div>
         {
+            isCheckItem?
+            <AddButton disabled={loading} onClick={checkInMember} text={loading ? "processing...":"Check-in"} noIcon smallText className="rounded w-fit justify-center py-1 md:py-2 self-end md:self-center" />
+            :
             isGroupItem ?
             <AddButton disabled={loading} onClick={handleAddToGroup} text={loading ? "adding...":"Add to group"} noIcon smallText className="rounded w-fit justify-center py-1 md:py-2 self-end md:self-center" />
             :

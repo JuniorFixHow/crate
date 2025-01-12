@@ -35,7 +35,7 @@ const SearchSelectRooms = ({isGeneric, eventId, require, setSelect, className, .
             SearchRoom(rooms, search, eventId).map((room)=>{
               const venue = room?.venueId as IVenue;
               return(
-                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={room?._id} value={room?._id}>{venue?.name} {room?.number}</option>
+                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' key={room?._id} value={room?._id}>{venue?.name} - {room?.number}</option>
               )
             })
         }

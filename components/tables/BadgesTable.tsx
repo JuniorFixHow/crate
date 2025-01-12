@@ -13,6 +13,7 @@ import { IRegistration } from '@/lib/database/models/registration.model'
 import { deleteReg, getReg } from '@/lib/actions/registration.action'
 import DeleteDialog from '../DeleteDialog'
 import { ErrorProps } from '@/types/Types'
+import { IMember } from '@/lib/database/models/member.model'
 
 type BadgesTableProps = {
     noHeader?:boolean,
@@ -31,10 +32,11 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
     const [currentEventReg, setCurrentEventReg] = useState<IRegistration|null>(null);
     const [deleteError, setDeleteError] = useState<ErrorProps>(null)
 
-    const paginationModel = { page: 0, pageSize: 10 };
+    const paginationModel = { page: 0, pageSize: 15 };
     const router = useRouter();
 
     const {registrations, loading} = useFetchRegistrations();
+    const member = currentEventReg?.memberId as unknown as IMember;
 
     const reset = ()=>{
         setRoom('');
@@ -89,7 +91,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
         }
     }
 
-    const message = `You're about to remove this member from the event registration. This will delete their attendance records as well. Are you sure of what you're doing?`
+    const message = `You're about to remove this member from the event registrations. This will delete their attendance records as well. Are you sure of what you're doing?`
 
 
   return (
@@ -106,7 +108,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
         }
 
 
-        <DeleteDialog onTap={handleDeleteReg} title={`Delete ${typeof currentEventReg?.memberId === 'object' && 'name' in currentEventReg?.memberId && currentEventReg?.memberId.name}`}  value={deleteMode} setValue={setDeleteMode} message={message} />
+        <DeleteDialog onTap={handleDeleteReg} title={`Delete ${member?.name}`}  value={deleteMode} setValue={setDeleteMode} message={message} />
         <BadgeInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentEventReg={currentEventReg} setCurrentEventReg={setCurrentEventReg} />
         {/* table */}
 
@@ -130,7 +132,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
                         rows={searchBadge(registrations, eventId, badge, date, room, search)}
                         columns={BadgesColumns(handleInfo, handleDelete)}
                         initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10]}
+                        pageSizeOptions={[5, 10, 15, 20, 50, 100]}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}

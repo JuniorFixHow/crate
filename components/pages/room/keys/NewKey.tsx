@@ -42,8 +42,17 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
 
         try {
             setLoading(true);
-            const data:Partial<IKey> = {
-                code, roomId, holder:memberId
+            let data:Partial<IKey>;
+            if(memberId){
+                data = {
+                    code, roomId, holder:memberId,
+                    assignedOn:new Date().toISOString(),
+                    returned:false
+                }
+            }else{
+                data = {
+                    code, roomId, returned:false
+                }
             }
             const res = await createKey(data);
             formRef.current?.reset();
@@ -65,10 +74,20 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             setLoading(true);
             if(currentKey){
 
-                const data:Partial<IKey> = {
-                    code:code||currentKey.code, 
-                    roomId:roomId||currentKey.roomId, 
-                    holder:memberId||currentKey.holder
+                let data:Partial<IKey>; 
+                if(memberId){
+                    data = {
+                        code:code||currentKey.code, 
+                        roomId:roomId||currentKey.roomId, 
+                        holder:memberId,
+                        assignedOn:new Date().toISOString(),
+                        returned:false,
+                    }
+                }else{
+                    data = {
+                        code:code||currentKey.code, 
+                        roomId:roomId||currentKey.roomId, 
+                    }
                 }
                 const res = await updateKey(currentKey._id, data);
                 setResponse(res);
@@ -137,9 +156,8 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
                     }
                 </div>
 
-                
-                
             </div>
+            
 
             {
                 response?.message &&
@@ -149,7 +167,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             <div className="flex flex-row items-center gap-6">
                 <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentKey? 'Update':'Add'} smallText noIcon />
                 {
-                    currentKey &&
+                    currentKey && currentKey?.holder &&
                     <AddButton disabled={returnLoading} isCancel onClick={handleReturn} type='button'  className='rounded w-[45%] justify-center' text={returnLoading ? 'loading...' : currentKey?.returned ? 'Deem Unreturned':'Deem Returned' } smallText noIcon />
                 }
                 <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isDanger onClick={handleClose} smallText noIcon />

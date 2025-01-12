@@ -43,7 +43,7 @@ const RegistrationFilterBar = ({ setRoom, setBadge, reset,  setDate}:Registratio
         
         <select onChange={(e)=>setBadge(e.target.value)} defaultValue='badge'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">
             <option className="dark:bg-black" value="">Badge</option>
-            <option className="dark:bg-black" value="Yes">Issued</option>
+            <option className="dark:bg-black" value="Yes">Printed</option>
             <option className="dark:bg-black" value="No">Pending</option>
         </select>
         <select onChange={(e)=>setRoom(e.target.value)} defaultValue='room'   className="border border-slate-400 outline-none  bg-white dark:bg-transparent flex-row   p-[0.52rem]">

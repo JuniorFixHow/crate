@@ -8,6 +8,7 @@ import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import Key from "../database/models/key.model";
 import { isEligible } from "@/functions/misc";
+import '../database/models/venue.model';
 
 export async function createRoom(room:Partial<IRoom>){
     try {
@@ -29,7 +30,7 @@ export async function createRooms(rooms:Partial<IRoom>[]){
     try {
         await connectDB();
         const newRoom = await Room.insertMany(rooms, {ordered:false});
-        return JSON.parse(JSON.stringify(newRoom));
+        return handleResponse(`${rooms?.length} rooms created successfully`, false, newRoom, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error creating room:', error.message);

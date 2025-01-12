@@ -52,8 +52,8 @@ export const AssColumnsGroup =(
     },
     {
         field:'status',
-        headerName:'Check-in Status',
-        width:140,
+        headerName:'Room Assignment Status',
+        width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full items-center">

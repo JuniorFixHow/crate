@@ -1,7 +1,7 @@
 import { Modal } from '@mui/material'
 import React, { Dispatch, SetStateAction } from 'react'
 import { IoIosArrowRoundBack } from 'react-icons/io';
-import '../customscroll.css';
+import '@/components/features/customscroll.css';
 import Link from 'next/link';
 import { IRegistration } from '@/lib/database/models/registration.model';
 import { IMember } from '@/lib/database/models/member.model';
@@ -9,15 +9,16 @@ import { IGroup } from '@/lib/database/models/group.model';
 import { IRoom } from '@/lib/database/models/room.model';
 import { IEvent } from '@/lib/database/models/event.model';
 import { IKey } from '@/lib/database/models/key.model';
+import { formatTimestamp } from '@/functions/dates';
 
-export type BadgeInfoModalProps = {
+export type ArrivalInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>
     currentEventReg:IRegistration|null,
     setCurrentEventReg:Dispatch<SetStateAction<IRegistration|null>>
 }
 
-const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEventReg}:BadgeInfoModalProps) => {
+const ArrivalInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEventReg}:ArrivalInfoModalProps) => {
     const handleClose = ()=>{
         setCurrentEventReg(null);
         setInfoMode(false);
@@ -49,9 +50,13 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Member</span>
                     
-                    <Link href={`/dashboard/members/${member?._id}`}   className='text-[0.9rem] table-link' >{
+                    <Link href={{pathname:`/dashboard/events/badges`, query:{regId:currentEventReg?._id}}}   className='text-[0.9rem] table-link' >{
                     member?.name
                     }</Link>
+                </div>
+                <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Arrived On</span>
+                    <span className='text-[0.9rem]' >{formatTimestamp(currentEventReg?.checkedIn?.date)}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registration type</span>
@@ -62,8 +67,8 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
                     }</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Room Assignment Status</span>
-                    <span className='text-[0.9rem]' >{currentEventReg?.roomIds?.length === 0 ? 'Pending':'Assigned'}</span>
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Check-in Status</span>
+                    <span className='text-[0.9rem]' >{currentEventReg?.checkedIn?.checked ? 'Checked-in':'Not yet'}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Badge Printed</span>
@@ -115,4 +120,4 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
   )
 }
 
-export default BadgeInfoModal
+export default ArrivalInfoModal

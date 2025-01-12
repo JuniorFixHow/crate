@@ -12,6 +12,7 @@ import { IFacility } from "@/lib/database/models/facility.model";
 import { generateNumberArray } from "@/functions/misc";
 import { useAuth } from "@/hooks/useAuth";
 import { createRooms } from "@/lib/actions/room.action";
+import Link from "next/link";
 
 type ImportRoomModalProps = {
     infoMode:boolean;
@@ -112,6 +113,7 @@ const ImportRoomModal = ({infoMode, setInfoMode, venueId}:ImportRoomModalProps) 
                     </div>
                     <input ref={fileRef}  className="hidden" type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} />
                     <span className="text-[0.8rem] italic font-bold mt-2 dark:text-slate-400" >{roomsData?.length+' rooms loaded'}</span>
+                    <Link href='/docs/Rooms.xlsx' download='Rooms.xlsx'   className="table-link w-fit text-center" >Download upload template</Link>
                 </div>
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">

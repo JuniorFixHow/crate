@@ -9,6 +9,7 @@ import { updateReg } from '@/lib/actions/registration.action';
 const PrintBage = () => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const [currentReg, setCurrentReg] = useState<IRegistration|null>(null);
+    const [hasRegistered, setHasRegistered] = useState<boolean>(false);
 
 
     
@@ -71,8 +72,8 @@ const PrintBage = () => {
 
   return (
     <div className="flex flex-col gap-8 md:flex-row md:items-stretch bg-white p-6 w-full shadow-lg border-t-0 dark:bg-[#0F1214] border">
-        <PrintDetails currentReg={currentReg} setCurrentReg={setCurrentReg} />
-        <BadgePreview onPrint={printDiv} id='printableDiv' currentReg={currentReg} />
+        <PrintDetails hasRegistered={hasRegistered} setHasRegistered={setHasRegistered} currentReg={currentReg} setCurrentReg={setCurrentReg} />
+        <BadgePreview hasRegistered={hasRegistered} onPrint={printDiv} id='printableDiv' currentReg={currentReg} />
         <iframe
             ref={iframeRef}
             className=' hidden'

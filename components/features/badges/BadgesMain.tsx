@@ -9,7 +9,7 @@ const BadgesMain = () => {
 
   return (
     <div className='page' >
-        <Title text='Badges' />
+        <Title text='Registrations' />
         <BadgeTop eventId={eventId} setEventId={setEventId} />
         <BadgesTable setEventId={setEventId} eventId={eventId} />
     </div>

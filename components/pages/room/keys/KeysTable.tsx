@@ -15,6 +15,7 @@ import NewKey from "./NewKey"
 import { deleteKey, getKey } from "@/lib/actions/key.action"
 import { useSearchParams } from "next/navigation"
 import SearchSelectEvents from "@/components/features/SearchSelectEvents"
+import KeyInfoModal from "./KeyInfoModal"
 
 const KeysTable = () => {
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -24,6 +25,7 @@ const KeysTable = () => {
     const [currentKey, setCurrentKey] = useState<IKey|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [infoMode, setInfoMode] = useState<boolean>(false);
     const searchParams = useSearchParams();
 
     const {keys, loading} = useFetchKeys()
@@ -38,7 +40,7 @@ const KeysTable = () => {
                 try {
                     const key = await getKey(id);
                     setCurrentKey(key);
-                    setEditMode(true);
+                    setInfoMode(true);
                 } catch (error) {
                     console.log(error);
                     setResponse({message:'Error occured fetching key data', error:true})
@@ -50,6 +52,11 @@ const KeysTable = () => {
 
     const handleDelete =(data:IKey)=>{
         setDeleteMode(true);
+        setCurrentKey(data);
+    }
+
+    const handleInfo =(data:IKey)=>{
+        setInfoMode(true);
         setCurrentKey(data);
     }
 
@@ -95,7 +102,7 @@ const KeysTable = () => {
         </div>
     <NewKey editMode={editMode} setEditMode={setEditMode} currentKey={currentKey} setCurrentKey={setCurrentKey} />
     <DeleteDialog message={message} onTap={handleDeleteKey} title={`Remove ${currentKey?.code}`} value={deleteMode} setValue={setDeleteMode} />
-    {/* <DeleteDialog message={deleteMessae} onTap={deleteRoom} title={`Remove all groups`} value={deleteMode} setValue={setDeleteMode} /> */}
+    <KeyInfoModal setCurrentKey={setCurrentKey} infoMode={infoMode} currentKey={currentKey} setInfoMode={setInfoMode} />
     
     {
         response?.message &&
@@ -110,7 +117,7 @@ const KeysTable = () => {
                 <DataGrid
                     rows={SearchKey(keys, search, roomId, eventId)}
                     getRowId={(row:IKey)=>row._id}
-                    columns={KeyColumns(handleDelete, handleEdit)}
+                    columns={KeyColumns(handleDelete, handleEdit, handleInfo)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
                     // checkboxSelection
