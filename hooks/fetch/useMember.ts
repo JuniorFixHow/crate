@@ -1,7 +1,8 @@
-import { getMembers, getMembersInaCampuse, getUnassignedMembers, getUserMembers } from "@/lib/actions/member.action";
+import { getMembers, getMembersInaCampuse, getMembersInaChurch, getUnassignedMembers, getUserMembers } from "@/lib/actions/member.action";
 import { IMember } from "@/lib/database/models/member.model";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
 
 export const useFetchMembers = () => {
     const [members, setMembers] = useState<IMember[]>([]);
@@ -70,3 +71,32 @@ export const useFetchFreeMembers = (eventId:string, churchId:string) => {
 
     return { members, loading, error };
 };
+
+
+export const useFetchMembersInAChurch = ()=>{
+    const [members, setMembers] = useState<IMember[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const {user} = useAuth();
+
+    useEffect(()=>{
+        const fetchChurchMembers = async()=>{
+            setError(null);
+            if(user){
+                try {
+                    const res:IMember[] = await getMembersInaChurch(user?.churchId);
+                    setMembers(res);
+                } catch (error) {
+                    console.log(error);
+                    setError('Error occured fetching members');
+                }finally{
+                    setLoading(false);
+                }
+            }
+        }
+
+        fetchChurchMembers();
+    },[user])
+
+    return {members, loading, error}
+}

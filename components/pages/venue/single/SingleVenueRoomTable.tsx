@@ -41,6 +41,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
     const {rooms, loading} = useFetchRoomsForVenue(venueId)
    
   
+    const searched = SearchRoom(rooms, search, eventId)
 
     const paginationModel = { page: 0, pageSize: 10 };
 
@@ -121,7 +122,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
                     {
                         selection.length > 0 &&
                         <div className="flex gap-4 items-center">
-                            <div onClick={()=>setSelection(rooms)}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
+                            <div onClick={()=>setSelection(searched)}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
                                 <div className="flex-center p-1 bg-slate-400 rounded-full">
                                     <MdChecklist />
                                 </div>

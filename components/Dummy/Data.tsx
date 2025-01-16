@@ -6,14 +6,16 @@ import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent,
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
-import { IoIosTimer, IoMdGlobe } from "react-icons/io";
+import { IoIosGitNetwork, IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiSealCheck } from "react-icons/pi";
-import { HiOutlineBuildingLibrary } from "react-icons/hi2";
+import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
+import { FiActivity } from "react-icons/fi";
+import { FaRegAddressCard } from "react-icons/fa";
 
 
 
@@ -136,11 +138,30 @@ export const NavItems:NavigationProps[] = [
             path:'/dashboard/churches',
             image:<TbBuildingChurch/>
           },
+          
           {
             text:'Campuses',
             path:'/dashboard/churches/campuses',
             image:<RiSchoolLine />
           },
+        ]
+      },
+      {
+        title:'Activities',
+        isAdmin:false,
+        icon:<IoIosGitNetwork />,
+        children:[
+          {
+            text:'Manage Activities',
+            path:'/dashboard/activities',
+            image:<FiActivity/>
+          },
+          {
+            text:'Cards',
+            path:'/dashboard/activities/cards',
+            image:<FaRegAddressCard />
+          },
+
         ]
       },
       {
@@ -165,6 +186,12 @@ export const NavItems:NavigationProps[] = [
           isAdmin:false,
           icon: <MdAttachMoney />,
           link:'/dashboard/revenue'
+      },
+      {
+          title: 'Announcements',
+          isAdmin:false,
+          icon: <HiOutlineMegaphone />,
+          link:'/dashboard/announcements'
       },
 ]
 

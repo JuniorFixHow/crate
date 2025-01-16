@@ -207,6 +207,31 @@ export async function getMembersInaCampuse(campuseId:string) {
 }
 
 
+export async function getMembersInaChurch(church:string) {
+    try {
+        await connectDB();
+
+        // Populate the 'church' field, then the 'zoneId' field inside 'church', and also the 'registeredBy' field (vendor)
+        const members = await Member.find({church})
+            .populate({
+                path: 'church',         // Populate the 'church' reference
+                populate: {
+                    path: 'zoneId',     // Populate the 'zoneId' reference in the 'church' model
+                    model: 'Zone'       // Specify the model for the 'zoneId' reference
+                }
+            })
+            .populate('campuseId')
+            .populate('registeredBy').lean(); // Populate the 'registeredBy' field (vendor reference)
+
+        // Return the populated members data
+        return JSON.parse(JSON.stringify(members));
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error occurred while fetching members');
+    }
+}
+
+
 export async function getUserMembers(id:string) {
     try {
         await connectDB();
