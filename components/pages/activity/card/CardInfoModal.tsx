@@ -4,28 +4,30 @@ import { IoIosArrowRoundBack } from 'react-icons/io';
 import '@/components/features/customscroll.css';
 import Link from 'next/link';
 
-import { IActivity } from '@/lib/database/models/activity.model';
+import { ICard } from '@/lib/database/models/card.model';
 import { IChurch } from '@/lib/database/models/church.model';
+import { IMember } from '@/lib/database/models/member.model';
 
-export type ActivityInfoModalProps = {
+export type CardInfoModalProps = {
     infoMode:boolean,
-    setInfoMode:Dispatch<SetStateAction<boolean>>
-    currentActivity:IActivity|null,
-    setCurrentActivity:Dispatch<SetStateAction<IActivity|null>>
+    setInfoMode:Dispatch<SetStateAction<boolean>>,
+    currentCard:ICard|null,
+    setCurrentCard:Dispatch<SetStateAction<ICard|null>>
 }
 
-const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentActivity}:ActivityInfoModalProps) => {
+const CardInfoModal = ({infoMode, setInfoMode, setCurrentCard, currentCard}:CardInfoModalProps) => {
 
-    const church = currentActivity?.churchId as unknown as IChurch;
+    const church = currentCard?.churchId as unknown as IChurch;
+    const members = currentCard?.members as unknown as IMember[];
 
     const handleClose = ()=>{
-        setCurrentActivity(null);
+        setCurrentCard(null);
         setInfoMode(false);
     }
     
     
 
-    if(!currentActivity) return null;
+    if(!currentCard) return null;
   return (
     <Modal
         open={infoMode}
@@ -43,58 +45,58 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
             <div className="flex flex-col gap-4">
                 
                 <div className="flex flex-col dark:text-slate-200">                    
-                    <Link href={`/dashboard/activities/${currentActivity?._id}`}   className='text-xl table-link' >{
-                    currentActivity?.name
+                    <Link href={`/dashboard/activities/${currentCard?._id}`}   className='text-xl table-link' >{
+                    currentCard?.name
                     }</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Program</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.type}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.type}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
+                {/* <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Happening</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.frequency}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.frequency}</span>
                 </div>
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Commencement Date</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startDate}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.startDate}</span>
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Ending Date</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startDate}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.startDate}</span>
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Commencement Time</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startTime}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.startTime}</span>
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Ending Time</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.endTime}</span>
+                    <span className='text-[0.9rem]' >{currentCard?.endTime}</span>
                 </div>
                
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Leaders</span>
                     {
-                        currentActivity?.leaders?.length > 0 ?
-                        <Link href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{tab:'Leaders'}}}   className='text-[0.9rem] table-link' >{
-                            currentActivity?.leaders?.length
+                        currentCard?.leaders?.length > 0 ?
+                        <Link href={{pathname:`/dashboard/activities/${currentCard?._id}`, query:{tab:'Leaders'}}}   className='text-[0.9rem] table-link' >{
+                            currentCard?.leaders?.length
                         }</Link>
                         :
                         <span className='text-[0.9rem]' >None</span> 
                     }
-                </div>
+                </div> */}
 
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Members</span>
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >{members?.length > 1 ? 'Members':'Member'}</span>
                     {
-                        currentActivity?.members?.length > 0 ?
-                        <Link href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{tab:'Members'}}}   className='text-[0.9rem] table-link' >{
-                            currentActivity?.members?.length
+                        currentCard?.members?.length > 0 ?
+                        <Link href={{pathname:`/dashboard/activities/${currentCard?._id}`, query:{tab:'Members'}}}   className='text-[0.9rem] table-link' >{
+                            currentCard?.members?.length
                         }</Link>
                         :
                         <span className='text-[0.9rem]' >None</span> 
@@ -117,4 +119,4 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
   )
 }
 
-export default ActivityInfoModal
+export default CardInfoModal
