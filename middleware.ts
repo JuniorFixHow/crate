@@ -23,8 +23,7 @@ export default async function middleware(req:NextRequest){
         !session?.isAdmin &&
         !req.nextUrl.pathname.startsWith('/dashboard')
     ){
-        // return NextResponse.redirect(new URL('/selfservice', req.nextUrl))
-        return NextResponse.redirect(new URL('/', req.nextUrl))
+        return NextResponse.redirect(new URL('/selfservice', req.nextUrl))
     }
     else if(
         isProtectedRoute && 
@@ -32,8 +31,7 @@ export default async function middleware(req:NextRequest){
         session?.isAdmin &&
         req.nextUrl.pathname.startsWith('/selfservice')
     ){
-        // return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
-        return NextResponse.redirect(new URL('/', req.nextUrl))
+        return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
     }
     else if(
         isPublicRoute && 
@@ -41,8 +39,7 @@ export default async function middleware(req:NextRequest){
         session?.isAdmin &&
         !req.nextUrl.pathname.startsWith('/dashboard')
     ){
-        // return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
-        return NextResponse.redirect(new URL('/', req.nextUrl))
+        return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
     }
 
     return NextResponse.next();

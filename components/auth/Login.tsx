@@ -1,13 +1,13 @@
 'use client'
 // import { useAuth } from '@/hooks/useAuth'
 import { signinUser } from '@/lib/firebase/auth'
-// import { createSession, SessionPayload } from '@/lib/session'
+import { createSession, SessionPayload } from '@/lib/session'
 // import { auth } from '@/lib/firebase/firebase'
 import { ErrorProps, IUser } from '@/types/Types'
 import { Alert } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
-// import {  useRouter } from 'next/navigation'
+import {  useRouter } from 'next/navigation'
 import React, { ChangeEvent, FormEvent,  useState } from 'react'
 
 type LoginProps = {
@@ -20,7 +20,7 @@ const Login = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null)
 
-    // const router = useRouter();
+    const router = useRouter();
 
     const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = e.target;
@@ -40,24 +40,23 @@ const Login = () => {
             const user = res?.payload as IUser;
             if(user){
 
-                // const session:SessionPayload = {
-                //     userId:user?.id,
-                //     email:user?.email,
-                //     churchId:user.churchId,
-                //     name:user?.name,
-                //     photo:user?.photo,
-                //     role:user?.role,
-                //     country:user?.country,
-                //     isAdmin:user?.isAdmin,
-                //     emailVerified:user?.emailVerified
-                // }
-                // await createSession(session);
-                // if(user.isAdmin){
-                //     router.replace('/dashboard')
-                // }else{
-                //     router.replace('/selfservice')
-                // }
-                console.log('user')
+                const session:SessionPayload = {
+                    userId:user?.id,
+                    email:user?.email,
+                    churchId:user.churchId,
+                    name:user?.name,
+                    photo:user?.photo,
+                    role:user?.role,
+                    country:user?.country,
+                    isAdmin:user?.isAdmin,
+                    emailVerified:user?.emailVerified
+                }
+                await createSession(session);
+                if(user.isAdmin){
+                    router.replace('/dashboard')
+                }else{
+                    router.replace('/selfservice')
+                }
                 
             }
 
