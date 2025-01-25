@@ -6,7 +6,11 @@ import BadgeSearchItem from './BadgeSearchItem'
 import { useFetchMembers } from '@/hooks/fetch/useMember'
 import {  searchMemberInversed } from '@/functions/search'
 
-const NewBadgeSearch = () => {
+type NewBadgeSearchProps = {
+  isRegisterItem?:boolean;
+}
+
+const NewBadgeSearch = ({isRegisterItem}:NewBadgeSearchProps) => {
     const [search, setSearch] = useState<string>('');
     const {members} = useFetchMembers();
   return (
@@ -17,7 +21,11 @@ const NewBadgeSearch = () => {
         <div className='p-4 shadow-xl flex-col gap-6 flex bg-white dark:bg-[#0F1214] border border-t-0' >
           {
             searchMemberInversed(search, members).map((member)=>(
-              <BadgeSearchItem key={member._id}    member={member} />
+              <BadgeSearchItem 
+               key={member._id}
+               isRegisterItem={isRegisterItem}  
+               member={member} 
+              />
             ))
           }
         </div>

@@ -16,6 +16,7 @@ import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
 import { FiActivity } from "react-icons/fi";
 import { FaRegAddressCard } from "react-icons/fa";
+import { HiOutlineUserGroup } from "react-icons/hi";
 
 
 
@@ -38,6 +39,12 @@ export const NavItems:NavigationProps[] = [
         title: 'Members',
         isAdmin:false,
         icon: <LuUserPlus/>,
+        link:'/dashboard/members/register'
+    },
+    {
+        title: 'All Members',
+        isAdmin:false,
+        icon: <HiOutlineUserGroup />,
         link:'/dashboard/members'
     },
     {

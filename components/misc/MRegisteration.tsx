@@ -111,7 +111,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             }
         } catch (error) {
             console.log(error);
-            setRegError({message:'Error occured registering the member for the event', error:true});
+            setRegError({message:'Error occured registering the member for the group', error:true});
         }finally{
             setRegLoading(false);
         }
@@ -156,6 +156,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     email:data.email || currentMemeber.email,
                     phone:data.phone || currentMemeber.phone,
                     marital:data.marital || currentMemeber.marital,
+                    gender:data.gender || currentMemeber.gender,
                     dietary:data.dietary || currentMemeber.dietary,
                     allergy:data.allergy || currentMemeber.allergy,
                     employ:data.employ || currentMemeber.employ,

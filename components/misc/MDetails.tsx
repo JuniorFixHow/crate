@@ -117,7 +117,7 @@ const MDetails = ({id}:MDetailsProps) => {
             }
         } catch (error) {
             console.log(error);
-            setRegError({message:'Error occured registering the member for the event', error:true});
+            setRegError({message:'Error occured registering the member for the group', error:true});
         }finally{
             setRegLoading(false);
         }
