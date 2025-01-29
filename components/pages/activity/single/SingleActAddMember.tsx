@@ -2,26 +2,26 @@ import AddButton from "@/components/features/AddButton";
 import SearchBar from "@/components/features/SearchBar";
 import { searchMember } from "@/functions/search";
 import { useFetchMembersForActivities } from "@/hooks/fetch/useActivity";
-import { addMembersToActivity } from "@/lib/actions/activity.action";
 import { IMember } from "@/lib/database/models/member.model";
 import { ErrorProps } from "@/types/Types";
 import { Alert, LinearProgress, Modal, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SingleActivityAddMemberColumns } from "./SingleActivityAddMemberColumns";
+import { addMembersToMinistry } from "@/lib/actions/ministry.action";
 
 type SingleActAddMemberProps={
     showMember:boolean;
     setShowMember:Dispatch<SetStateAction<boolean>>;
-    actId:string;
+    ministryId:string;
 }
 
-const SingleActAddMember = ({showMember, setShowMember, actId}:SingleActAddMemberProps) => {
+const SingleActAddMember = ({showMember, setShowMember, ministryId}:SingleActAddMemberProps) => {
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [search, setSearch] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
     const [addLoading, setAddLoading] = useState<boolean>(false);
-    const {loading, members} = useFetchMembersForActivities(actId);
+    const {loading, members} = useFetchMembersForActivities(ministryId);
 
     const handleSelect = (id:string)=>{
         setSelectedMembers((prev)=>{
@@ -39,7 +39,7 @@ const SingleActAddMember = ({showMember, setShowMember, actId}:SingleActAddMembe
     const addMembers = async()=>{
         try {
             setAddLoading(true);
-            const res = await addMembersToActivity(actId, selectedMembers) as ErrorProps;
+            const res = await addMembersToMinistry(ministryId, selectedMembers) as ErrorProps;
             setResponse(res);
         } catch (error) {
             console.log(error);

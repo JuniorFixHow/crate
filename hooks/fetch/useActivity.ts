@@ -1,4 +1,4 @@
-import { getActivities, getChurchMembersForActivities } from "@/lib/actions/activity.action";
+import { getActivities, getChurchMembersForMinistry } from "@/lib/actions/activity.action";
 import { IActivity } from "@/lib/database/models/activity.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { useEffect, useState } from "react";
@@ -38,7 +38,7 @@ export const useFetchMembersForActivities = (id:string) => {
         if(!id) return;
         const fetchActivities = async () => {
             try {
-                const fetchedActivities: IMember[] = await getChurchMembersForActivities(id);
+                const fetchedActivities: IMember[] = await getChurchMembersForMinistry(id);
                 setMembers(fetchedActivities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
                 setError(null);
             } catch (err) {

@@ -8,7 +8,7 @@ const NewActivityMain = () => {
          <div className="flex flex-row gap-2 items-baseline">
             <Title clickable link="/dashboard/activities" text="Activities" />
             <IoIosArrowForward/>
-            <Title text="New" />
+            <Title text="New Class" />
         </div>
         <NewActivityTable/>
     </div>

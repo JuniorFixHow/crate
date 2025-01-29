@@ -1,7 +1,8 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { IMember } from "./member.model";
 import { IChurch } from "./church.model";
 import { IVendor } from "./vendor.model";
+import Ministry from "./ministry.model";
 
 export interface IActivity extends Document{
     _id:string;
@@ -35,6 +36,18 @@ const ActivitySchema = new Schema<IActivity>({
     endDate:String,
     description:String,
 }, {timestamps:true});
+
+
+ActivitySchema.pre('deleteOne', {document:false, query:true}, async function(next){
+    try {
+        const activityId = this.getQuery()?._id;
+        await Ministry.deleteMany({activityId});
+        next();
+    } catch (error) {
+        console.log(error);
+        next(error as CallbackError);
+    }
+})
 
 const Activity = models?.Activity || model('Activity', ActivitySchema);
 

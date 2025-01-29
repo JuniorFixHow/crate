@@ -6,6 +6,7 @@ import { IContract } from "@/lib/database/models/contract.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IFacility } from "@/lib/database/models/facility.model"
 import { IMember } from "@/lib/database/models/member.model"
+import { IMinistry } from "@/lib/database/models/ministry.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { ISession } from "@/lib/database/models/session.model"
 import { IVendor } from "@/lib/database/models/vendor.model"
@@ -82,6 +83,18 @@ export const searchContract = (text:string, contracts:IContract[]):IContract[]=>
         .includes(text.toLowerCase())
     })
     return evts
+}
+
+export const searchClass = (text:string, ministries:IMinistry[]):IMinistry[]=>{
+  const data = ministries
+  .filter((item)=>{
+    return text === '' ? item : Object.values(item)
+    .join(' ')
+      .toLowerCase()
+      .includes(text.toLowerCase())
+  })
+
+  return data;
 }
 
 export const searchCampus = (text:string, churchId:string, campuses:ICampuse[]):ICampuse[]=>{

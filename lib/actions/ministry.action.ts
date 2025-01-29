@@ -1,39 +1,39 @@
 'use server'
-import Activity, { IActivity } from "../database/models/activity.model";
+import Ministry, { IMinistry } from "../database/models/ministry.model";
 import { handleResponse } from "../misc";
 import '../database/models/church.model';
 import '../database/models/member.model';
 import { connectDB } from "../database/mongoose";
 import Member, { IMember } from "../database/models/member.model";
-import Ministry from "../database/models/ministry.model";
+// import { IActivity } from "../database/models/activity.model";
 
-export async function createActivity(activity:Partial<IActivity>){
+export async function createMinistry(ministry:Partial<IMinistry>){
     try {
         await connectDB();
-        const act = await Activity.create(activity);
-        return handleResponse('Activity created successfully', false, act, 201);
+        const act = await Ministry.create(ministry);
+        return handleResponse('Ministry created successfully', false, act, 201);
     } catch (error) {
         console.log(error);
-        return handleResponse("Error occured creating activity", true, {}, 500);
+        return handleResponse("Error occured creating ministry", true, {}, 500);
     }
 }
 
-export async function updateActivity(activity:Partial<IActivity>){
+export async function updateMinistry(ministry:Partial<IMinistry>){
     try {
         await connectDB();
-        const {_id} = activity;
-        const act = await Activity.findByIdAndUpdate(_id, activity, {new:true});
-        return handleResponse('Activity updated sucessfully', false, act, 201);
+        const {_id} = ministry;
+        const act = await Ministry.findByIdAndUpdate(_id, ministry, {new:true});
+        return handleResponse('Ministry updated sucessfully', false, act, 201);
     } catch (error) {
         console.log(error);
-        return handleResponse("Error occured updating activity", true, {}, 500);
+        return handleResponse("Error occured updating ministry", true, {}, 500);
     }
 }
 
-export async function removeMember(id:string, memberId:string){
+export async function removeMemberMinistry(id:string, memberId:string){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$pull:{
+        const res = await Ministry.findByIdAndUpdate(id, {$pull:{
             members:memberId,
             leaders:memberId,
         }}, {new:true});
@@ -44,10 +44,10 @@ export async function removeMember(id:string, memberId:string){
     }
 }
 
-export async function makeLeader(id:string, memberId:string[]){
+export async function makeLeaderMinistry(id:string, memberId:string[]){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$addToSet:{
+        const res = await Ministry.findByIdAndUpdate(id, {$addToSet:{
             leaders:{$each: memberId},
         }}, {new:true});
         return handleResponse('Leader(s) set sucessfully', false, res, 201);
@@ -56,10 +56,10 @@ export async function makeLeader(id:string, memberId:string[]){
     }
 }
 
-export async function addMembersToActivity(id:string, memberId:string[]){
+export async function addMembersToMinistry(id:string, memberId:string[]){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$push:{
+        const res = await Ministry.findByIdAndUpdate(id, {$push:{
             members:{$each: memberId},
         }}, {new:true});
         return handleResponse(`${memberId.length} member(s) added sucessfully`, false, res, 201);
@@ -68,10 +68,10 @@ export async function addMembersToActivity(id:string, memberId:string[]){
     }
 }
 
-export async function removeMembers(id:string, memberIds:string[]){
+export async function removeMembersMinistry(id:string, memberIds:string[]){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$pull:{
+        const res = await Ministry.findByIdAndUpdate(id, {$pull:{
             members:{$in: memberIds},
             leaders:{$in: memberIds},
         }}, {new:true});
@@ -82,10 +82,10 @@ export async function removeMembers(id:string, memberIds:string[]){
     }
 }
 
-export async function removeLeader(id:string, memberId:string){
+export async function removeLeaderMinistry(id:string, memberId:string){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$pull:{
+        const res = await Ministry.findByIdAndUpdate(id, {$pull:{
             leaders:memberId,
         }}, {new:true});
         return handleResponse('Leader removed sucessfully', false, res, 201);
@@ -95,10 +95,10 @@ export async function removeLeader(id:string, memberId:string){
     }
 }
 
-export async function removeLeaders(id:string, memberIds:string[]){
+export async function removeLeadersMinistry(id:string, memberIds:string[]){
     try {
         await connectDB();
-        const res = await Activity.findByIdAndUpdate(id, {$pull:{
+        const res = await Ministry.findByIdAndUpdate(id, {$pull:{
             leaders:{$in: memberIds},
         }}, {new:true});
         return handleResponse('Leaders removed sucessfully', false, res, 201);
@@ -108,26 +108,27 @@ export async function removeLeaders(id:string, memberIds:string[]){
     }
 }
 
-export async function getActivity(id:string){
+export async function getMinistry(id:string){
     try {
         await connectDB();
-        const act = await Activity.findById(id)
+        const act = await Ministry.findById(id)
         .populate('members')
         .populate('leaders')
         .populate('churchId')
         .lean();
-        return JSON.parse(JSON.stringify(act));
+        const data:IMinistry = JSON.parse(JSON.stringify(act))
+        return data;
     } catch (error) {
         console.log(error);
-        return handleResponse("Error occured fetching activity", true, {}, 500);
+        return handleResponse("Error occured fetching ministry", true, {}, 500);
     }
 }
 
 
-export async function getActivities(){
+export async function getMinistries(){
     try {
         await connectDB();
-        const acts = await Activity.find()
+        const acts = await Ministry.find()
         .populate('members')
         .populate('leaders')
         .populate('churchId')
@@ -139,8 +140,24 @@ export async function getActivities(){
     }
 }
 
+export async function getMinistriesForActivity(activityId:string){
+    try {
+        await connectDB();
+        const acts = await Ministry.find({activityId})
+        .populate('members')
+        .populate('leaders')
+        .populate('churchId')
+        .lean();
+        const data  = JSON.parse(JSON.stringify(acts)) ;
+        return data;
+    } catch (error) {
+        console.log(error);
+        return handleResponse("Error occured fetching activities", true, {}, 500);
+    }
+}
 
-export async function getChurchMembersForMinistry(id:string){
+
+export async function getChurchMembersForMigetMinistries(id:string){
     try {
         await connectDB();
         const act = await Ministry.findById(id)
@@ -151,33 +168,17 @@ export async function getChurchMembersForMinistry(id:string){
         return JSON.parse(JSON.stringify(notMembers));
     } catch (error) {
         console.log(error);
-        return handleResponse("Error occured fetching members for class", true, {}, 500);
+        return handleResponse("Error occured fetching members for ministry", true, {}, 500);
     }
 }
 
-
-export async function getChurchMembersForActivities(id:string){
+export async function deleteMinistry(id:string){
     try {
         await connectDB();
-        const act = await Activity.findById(id)
-        const churchId:string = act.churchId;
-        const actMembers:string[] = act.members;
-        const members = await Member.find({church:churchId});
-        const notMembers = members.filter((item:IMember)=> !actMembers.includes(item._id))
-        return JSON.parse(JSON.stringify(notMembers));
+        await Ministry.deleteOne({_id:id});
+        return handleResponse('Class deleted successfully', false);
     } catch (error) {
         console.log(error);
-        return handleResponse("Error occured fetching members for activity", true, {}, 500);
-    }
-}
-
-export async function deleteActivity(id:string){
-    try {
-        await connectDB();
-        await Activity.deleteOne({_id:id});
-        return handleResponse('Activity deleted successfully', false);
-    } catch (error) {
-        console.log(error);
-        return handleResponse("Error occured deleting activity", true, {}, 500);
+        return handleResponse("Error occured deleting class", true, {}, 500);
     }
 }

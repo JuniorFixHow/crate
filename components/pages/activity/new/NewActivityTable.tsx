@@ -1,6 +1,5 @@
 'use client'
 import React, { useState } from 'react'
-import NewActivityDown from './NewActivityDown';
 import Subtitle from '@/components/features/Subtitle';
 import { LinearProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
@@ -9,6 +8,7 @@ import { IMember } from '@/lib/database/models/member.model';
 import { searchMember } from '@/functions/search';
 import { NewActivityColumns } from './NewActivityCoulmns';
 import SearchBar from '@/components/features/SearchBar';
+import NewActivityDownV3 from './NewActivityDownV3';
 
 const NewActivityTable = () => {
 
@@ -63,10 +63,8 @@ const NewActivityTable = () => {
                 }
               </div>
            
-            {
-              membersId.length > 0 &&
-              <NewActivityDown members={membersId} />
-            }
+              <NewActivityDownV3 members={membersId}/>
+           
           </div>
         </div>
       </div>

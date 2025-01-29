@@ -7,7 +7,6 @@ import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
 import { useState } from "react";
 import ActivityInfoModal from "./ActivityInfoModal";
 import { IActivity } from "@/lib/database/models/activity.model";
-import Link from "next/link";
 import { ErrorProps } from "@/types/Types";
 import { deleteActivity } from "@/lib/actions/activity.action";
 import { Alert, LinearProgress, Paper } from "@mui/material";
@@ -15,10 +14,12 @@ import { useFetchActivities } from "@/hooks/fetch/useActivity";
 import { DataGrid } from "@mui/x-data-grid";
 import { ActivityColumns } from "./ActivityColumns";
 import { SearchActivityWithChurch } from "./fxn";
+import NewActivityDown from "./new/NewActivityDown";
 
 const ActivityTable = () => {
   const [deleteMode, setDeleteMode] = useState<boolean>(false);
   const [infoMode, setInfoMode] = useState<boolean>(false);
+  const [newMode, setNewMode] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [churchId, setChurchId] = useState<string>('');
   const [currentActivity, setCurrentActivity] = useState<IActivity|null>(null);
@@ -45,6 +46,11 @@ const ActivityTable = () => {
     setInfoMode(true);
   }
 
+  const handleNewMode = () =>{
+    setNewMode(true);
+    setCurrentActivity(null);
+  }
+
   const handleDelete = (data:IActivity)=>{
     setCurrentActivity(data);
     setDeleteMode(true);
@@ -61,14 +67,12 @@ const ActivityTable = () => {
             </div>
             <div className="flex items-end gap-4">
                 <SearchBar setSearch={setSearch} reversed={false} />
-                <Link href={'/dashboard/activities/new'} >
-                  <AddButton text="Create Activity"  noIcon smallText className="rounded" type="button" />
-                </Link>
+                <AddButton text="Create Activity" onClick={handleNewMode} noIcon smallText className="rounded" type="button" />
             </div>
         </div>
     <DeleteDialog message={message} onTap={handleDeleteActivity} title={`Remove ${currentActivity?.name}`} value={deleteMode} setValue={setDeleteMode} />
     <ActivityInfoModal setCurrentActivity={setCurrentActivity} infoMode={infoMode} currentActivity={currentActivity} setInfoMode={setInfoMode} />
-    
+    <NewActivityDown newMode={newMode} setNewMode={setNewMode} activity={currentActivity} />
     {
         response?.message &&
         <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>

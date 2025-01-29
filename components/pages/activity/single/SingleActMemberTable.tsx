@@ -12,19 +12,19 @@ import { SingleActivityColumns } from './SingleActivityColumns';
 import { GoShieldLock } from 'react-icons/go';
 import { IoPersonRemoveOutline } from 'react-icons/io5';
 import { ErrorProps } from '@/types/Types';
-import { IActivity } from '@/lib/database/models/activity.model';
-import { makeLeader, removeMember, removeMembers } from '@/lib/actions/activity.action';
 import DeleteDialog from '@/components/DeleteDialog';
 import AddButton from '@/components/features/AddButton';
 import SingleActAddMember from './SingleActAddMember';
+import { IMinistry } from '@/lib/database/models/ministry.model';
+import { makeLeaderMinistry, removeMemberMinistry, removeMembersMinistry } from '@/lib/actions/ministry.action';
 
 
 type SingleActMemberTableProps = {
     members:IMember[],
-    activity:IActivity
+    ministry:IMinistry
 }
 
-const SingleActMemberTable = ({members, activity}:SingleActMemberTableProps) => {
+const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => {
 
     const [search, setSearch] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -63,7 +63,7 @@ const SingleActMemberTable = ({members, activity}:SingleActMemberTableProps) => 
     const handleRemoveMember = async()=>{
         try {
             if(currentMember){
-                const res = await removeMember(activity?._id, currentMember?._id) as ErrorProps;
+                const res = await removeMemberMinistry(ministry?._id, currentMember?._id) as ErrorProps;
                 setResponse(res);
                 setDeleteMode(false);
                 setCurrentMember(null);
@@ -77,7 +77,7 @@ const SingleActMemberTable = ({members, activity}:SingleActMemberTableProps) => 
     const handleMakeLeader = async()=>{
         try {
             if(membersId?.length){
-                const res = await makeLeader(activity?._id, membersId) as ErrorProps;
+                const res = await makeLeaderMinistry(ministry?._id, membersId) as ErrorProps;
                 setResponse(res);
                 setDeleteMode(false);
                 setCurrentMember(null);
@@ -91,7 +91,7 @@ const SingleActMemberTable = ({members, activity}:SingleActMemberTableProps) => 
     const handleRemoveMembers = async()=>{
         try {
             if(membersId?.length){
-                const res = await removeMembers(activity?._id, membersId) as ErrorProps;
+                const res = await removeMembersMinistry(ministry?._id, membersId) as ErrorProps;
                 setResponse(res);
                 setDeleteMode(false);
                 setMemberIds([]);
@@ -155,7 +155,7 @@ const SingleActMemberTable = ({members, activity}:SingleActMemberTableProps) => 
                 value={deleteMode} setValue={setDeleteMode}
             />
 
-            <SingleActAddMember actId={activity?._id} setShowMember={setShowMember} showMember={showMember} />
+            <SingleActAddMember ministryId={ministry?._id} setShowMember={setShowMember} showMember={showMember} />
 
             {
                 response?.message &&

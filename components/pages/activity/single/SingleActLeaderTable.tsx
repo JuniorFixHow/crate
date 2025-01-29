@@ -11,19 +11,19 @@ import { LuCopyX,  } from 'react-icons/lu';
 import { SingleActivityColumns } from './SingleActivityColumns';
 import { IoPersonRemoveOutline } from 'react-icons/io5';
 import { ErrorProps } from '@/types/Types';
-import { IActivity } from '@/lib/database/models/activity.model';
-import { removeLeader, removeLeaders } from '@/lib/actions/activity.action';
 import DeleteDialog from '@/components/DeleteDialog';
 // import AddButton from '@/components/features/AddButton';
 import SingleActAddMember from './SingleActAddMember';
+import { IMinistry } from '@/lib/database/models/ministry.model';
+import { removeLeaderMinistry, removeLeadersMinistry } from '@/lib/actions/ministry.action';
 
 
 type SingleActLeaderTableProps = {
     leaders:IMember[],
-    activity:IActivity
+    ministry:IMinistry
 }
 
-const SingleActLeaderTable = ({leaders, activity}:SingleActLeaderTableProps) => {
+const SingleActLeaderTable = ({leaders, ministry}:SingleActLeaderTableProps) => {
 
     const [search, setSearch] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -62,7 +62,7 @@ const SingleActLeaderTable = ({leaders, activity}:SingleActLeaderTableProps) => 
     const handleRemoveLeader = async()=>{
         try {
             if(currentMember){
-                const res = await removeLeader(activity?._id, currentMember?._id) as ErrorProps;
+                const res = await removeLeaderMinistry(ministry?._id, currentMember?._id) as ErrorProps;
                 setResponse(res);
                 setDeleteMode(false);
                 setCurrentMember(null);
@@ -78,7 +78,7 @@ const SingleActLeaderTable = ({leaders, activity}:SingleActLeaderTableProps) => 
     const handleRemoveLeaders = async()=>{
         try {
             if(membersId?.length){
-                const res = await removeLeaders(activity?._id, membersId) as ErrorProps;
+                const res = await removeLeadersMinistry(ministry?._id, membersId) as ErrorProps;
                 setResponse(res);
                 setDeleteMode(false);
                 setMemberIds([]);
@@ -137,7 +137,7 @@ const SingleActLeaderTable = ({leaders, activity}:SingleActLeaderTableProps) => 
                 value={deleteMode} setValue={setDeleteMode}
             />
 
-            <SingleActAddMember actId={activity?._id} setShowMember={setShowMember} showMember={showMember} />
+            <SingleActAddMember ministryId={ministry?._id} setShowMember={setShowMember} showMember={showMember} />
 
             {
                 response?.message &&
