@@ -11,7 +11,7 @@ import AddButton from "@/components/features/AddButton";
 import { IMinistry } from "@/lib/database/models/ministry.model";
 import { IActivity } from "@/lib/database/models/activity.model";
 import SearchSelectClass from "@/components/features/SearchSelectClass";
-import { useQuery } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import { deleteMinistry, getMinistry } from "@/lib/actions/ministry.action";
 import { useFetchMinistries } from "@/hooks/fetch/useMinistry";
 import NewActivityDownV4 from "../new/NewActivityDownV4";
@@ -19,7 +19,7 @@ import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
 import { ErrorProps } from "@/types/Types";
 import DeleteDialog from "@/components/DeleteDialog";
-import { Alert } from "@mui/material";
+import { Alert, LinearProgress } from "@mui/material";
 
 type SingleActivityTableProps = {
     activity:IActivity,
@@ -36,11 +36,11 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
     const searchParam = useSearchParams();
 
     const titles = ['Details', 'Members', 'Leaders'];
-    const ministries = useFetchMinistries(activity?._id)?.data;
+    const ministries = useFetchMinistries(activity?._id)?.data as IMinistry[];
     const [response, setResponse] = useState<ErrorProps>(null);
     // console.log(ministries)
     
-    const {data} = useQuery({
+    const {data, isPending} = useQuery({
         queryKey:['ministry', ministryId],
         queryFn: ()=>getMinistry(ministryId),
         enabled: !!ministryId
@@ -58,6 +58,13 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
         }
     },[searchParam])
 
+    useEffect(()=>{
+        const classId = searchParam.get('classId');
+        if(classId){
+            setMinistryId(classId)
+        }
+    },[searchParam])
+
     const handleDeleteMinistry = async()=>{
         try {
             const res = await deleteMinistry(ministryId);
@@ -69,7 +76,11 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
         }
     }
 
-    const message = `Are you sure you want to delete this class?`;
+    const mini = ministries?.find((item)=>item._id === ministryId);
+
+    const message = `Are you sure you want to delete '${mini?.name}' class?`;
+
+    
 
   return (
     <div className='flex flex-col p-5 rounded gap-4 bg-white dark:bg-transparent dark:border' >
@@ -77,6 +88,12 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
             response?.message &&
             <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response?.message}</Alert>
         }
+        <div className="flex w-full">
+            {
+                isPending &&
+                <LinearProgress className="w-full" />
+            }
+        </div>
         <div className="flex justify-between items-end">
             {
                 ministries?.length > 0 &&
@@ -123,11 +140,11 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
             <NewActivityDownV2 activity={activity} />
         }
         {
-            tab === 'Members' &&
+            tab === 'Members' && members &&
             <SingleActMemberTable members={members} ministry={data as IMinistry} />
         }
         {
-            tab === 'Leaders' &&
+            tab === 'Leaders' && leaders &&
             <SingleActLeaderTable leaders={leaders} ministry={data as IMinistry} />
         }
     </div>

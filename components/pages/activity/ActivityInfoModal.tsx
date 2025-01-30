@@ -6,6 +6,8 @@ import Link from 'next/link';
 
 import { IActivity } from '@/lib/database/models/activity.model';
 import { IChurch } from '@/lib/database/models/church.model';
+import { useFetchMinistries } from '@/hooks/fetch/useMinistry';
+import { IMinistry } from '@/lib/database/models/ministry.model';
 
 export type ActivityInfoModalProps = {
     infoMode:boolean,
@@ -17,6 +19,8 @@ export type ActivityInfoModalProps = {
 const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentActivity}:ActivityInfoModalProps) => {
 
     const church = currentActivity?.churchId as unknown as IChurch;
+    const activityId =  currentActivity?._id as string;
+    const ministries = useFetchMinistries(activityId)?.data as IMinistry[];
 
     const handleClose = ()=>{
         setCurrentActivity(null);
@@ -96,6 +100,26 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
                         <Link href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{tab:'Members'}}}   className='text-[0.9rem] table-link' >{
                             currentActivity?.members?.length
                         }</Link>
+                        :
+                        <span className='text-[0.9rem]' >None</span> 
+                    }
+                </div>
+
+
+                <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Classes</span>
+                    {
+                        ministries?.length > 0 ?
+                        <div className="flex flex-col gap-2">
+                            {
+                                ministries?.map((item)=>(
+                                    <Link key={item?._id} href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{classId:item?._id}}}   className='text-[0.9rem] table-link' >{
+                                        item?.name
+                                    }</Link>
+
+                                ))
+                            }
+                        </div>
                         :
                         <span className='text-[0.9rem]' >None</span> 
                     }

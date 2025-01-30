@@ -170,7 +170,6 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
 
               <div className="flex w-full">
                 {
-                
                   <Paper className='w-full' sx={{ height: 480, }}>
                       <DataGrid
                         getRowId={(row:IMember)=>row._id}
