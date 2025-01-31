@@ -194,7 +194,8 @@ export interface IUser {
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,
-   role:'Admin'|'Coordinator'|'Volunteer'
+   role:'Admin'|'Coordinator'|'Volunteer';
+   roles:string[];
    createdAt?:FieldValue
 }
 
@@ -218,7 +219,11 @@ export type MaybePopulated<T, K extends keyof T> = Omit<T, K> & {
 
 
 export type SignatureProps = {
-   name:string,
-   sign:string
+   name:string;
+   sign:string;
 }
 
+export type RoleProps = {
+   title:string;
+   codes:string[];
+}

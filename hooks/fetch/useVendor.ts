@@ -1,7 +1,10 @@
 import { getVendorStats } from "@/lib/actions/misc";
-import { getVendors } from "@/lib/actions/vendor.action";
+import { getVendors, getVendorsInAChurch } from "@/lib/actions/vendor.action";
 import { IVendor } from "@/lib/database/models/vendor.model";
 import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
+import {  checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchVendors = () => {
     const [vendors, setVendors] = useState<IVendor[]>([]);
@@ -58,4 +61,40 @@ export const useFetchVendorStats = (id:string)=>{
 
 
     return {stats, error, statsLoading}
+}
+
+
+export const useFetchVendorsQuery = ()=>{
+    const {user} = useAuth();
+
+    const fetchVendor = async (): Promise<IVendor[]> => {
+        try {
+            // if (!user) {
+            //     return []; // Return an empty array if user is not defined
+            // }
+    
+            const isAdmin = checkIfAdmin(user);
+    
+            let users: IVendor[];
+            if (isAdmin) {
+                users = await getVendors();
+            } else {
+                users = await getVendorsInAChurch(user!.churchId);
+            }
+    
+            return users;
+        } catch (error) {
+            console.log(error);
+            throw error; // Consider re-throwing the error or handling it as needed
+        }
+    };
+
+
+    const {data:users} = useQuery({
+        queryKey:['users'],
+        queryFn:fetchVendor,
+        enabled:!!user
+    })
+
+    return {users}
 }

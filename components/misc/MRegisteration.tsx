@@ -285,7 +285,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             {
                 user &&
                 <div className="flex flex-col gap-1">
-                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Campuse</span>
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Campus</span>
                     <SearchSelectCampuses  require={!currentMemeber} churchId={currentMemeber ? church : user!.churchId} setSelect={setCampuseId} isGeneric />
                 </div>
             }

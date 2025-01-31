@@ -160,6 +160,48 @@ export async function getVendors() {
     }
 }
 
+export async function getVendorsInAChurch(church:string) {
+    try {
+        await connectDB();
+
+        // Populate the 'church' field, then the 'zoneId' field inside 'church', and also the 'registeredBy' field (vendor)
+        const vendors = await Vendor.find({church})
+            .populate({
+                path: 'church',         // Populate the 'church' reference
+                populate: {
+                    path: 'zoneId',     // Populate the 'zoneId' reference in the 'church' model
+                    model: 'Zone'       // Specify the model for the 'zoneId' reference
+                }
+            }).lean()
+             // Populate the 'registeredBy' field (vendor reference)
+
+        // Return the populated vendors data
+        return JSON.parse(JSON.stringify(vendors));
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error occurred while fetching users');
+    }
+}
+
+export async function updateVendorRoles(userIds:string[], roles:string[]){
+    try {
+        await connectDB();
+        await Promise.all(
+            userIds.map((id)=>(
+                Vendor.findByIdAndUpdate(id, {
+                    roles
+                }, {new:true})
+            ))
+        )
+        const message = 'Roles removed successfully';
+        const message2 = `${roles.length > 1 ? 'Roles':'Role'} assigned successfully`;
+        return handleResponse(roles.length === 0 ? message : message2, false, {}, 201);
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured assigning roles', true, {}, 500);
+    }
+}
+
 
 
 export async function getVendor(id:string){

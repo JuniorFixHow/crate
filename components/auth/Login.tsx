@@ -47,6 +47,7 @@ const Login = () => {
                     name:user?.name,
                     photo:user?.photo,
                     role:user?.role,
+                    roles:user?.roles,
                     country:user?.country,
                     isAdmin:user?.isAdmin,
                     emailVerified:user?.emailVerified

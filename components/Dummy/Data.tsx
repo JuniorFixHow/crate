@@ -11,12 +11,13 @@ import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
-import { PiSealCheck } from "react-icons/pi";
+import { PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
 import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
 import { FiActivity } from "react-icons/fi";
 import { FaRegAddressCard } from "react-icons/fa";
 import { HiOutlineUserGroup } from "react-icons/hi";
+import { LiaUserShieldSolid } from "react-icons/lia";
 
 
 
@@ -85,10 +86,22 @@ export const NavItems:NavigationProps[] = [
         icon: <MdEventAvailable />,
     },
     {
-        title: 'Users',
+        title: 'User Management',
         isAdmin:false,
-        icon: <MdOutlineAdminPanelSettings />,
-        link:'/dashboard/users'
+        icon: <PiUsersThreeThin />,
+        children:[
+          {
+            image: <MdOutlineAdminPanelSettings />,
+            path:'/dashboard/users',
+            text:'Users'
+          },
+          
+          {
+            image: <LiaUserShieldSolid />,
+            path:'/dashboard/users/roles',
+            text:'Roles'
+          },
+        ]
     },
     {
         title: 'Groups/Family',

@@ -8,9 +8,31 @@ import { IoTrashBinOutline } from "react-icons/io5";
 import { MdOpenInNew } from "react-icons/md";
 import { getJustTime } from "../pages/session/fxn";
 import { GoInfo } from "react-icons/go";
+import { SessionPayload } from "@/lib/session";
+import { UserRoles } from "./UserRoles";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
+export const ADRoles = ['SU', 'SA1', 'SA2', 'SA3', 'SA4'];
+
+export const checkIfAdmin = (user:SessionPayload|null):boolean=>{
+    if(user){
+        const isAdmin = ADRoles.some((item) => user.roles?.includes(item));
+        return isAdmin;
+    }
+    return false;
+}
+
+export const checkUserRole = (user:SessionPayload|null, title:string, code:string):boolean=>{
+    if(user){
+        const role = UserRoles.find(item=> item.title === title);
+        if(role){
+            const isAdmin = role.codes.find((item)=>item === code);   
+            return !!isAdmin;
+        }
+    }
+    return false;
+}
 
 export const RegColumns:GridColDef[] = [
     {
