@@ -11,7 +11,7 @@ import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
-import { PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
+import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
 import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
 import { FiActivity } from "react-icons/fi";
@@ -167,10 +167,15 @@ export const NavItems:NavigationProps[] = [
         ]
       },
       {
-        title:'Activities',
+        title:'Ministries',
         isAdmin:false,
-        icon:<IoIosGitNetwork />,
+        icon:<PiCross />,
         children:[
+          {
+            text:'Manage Ministries',
+            path:'/dashboard/ministries',
+            image:<IoIosGitNetwork />
+          },
           {
             text:'Manage Activities',
             path:'/dashboard/activities',
