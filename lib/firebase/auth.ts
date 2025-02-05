@@ -46,7 +46,8 @@ export async function signinUser(email:string, password:string){
                 emailVerified:user.emailVerified,
                 isAdmin:data.isAdmin,
                 name:user.displayName!,
-                role:data.role
+                role:data.role,
+                roles:data.roles,
             }
             if(!data.emailVerified){
                 await updateDoc(doc(db, "Users", id), {emailVerified:true})
