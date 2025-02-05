@@ -42,7 +42,7 @@ const Roles = ({selection}:RolesProps) => {
     const handleSaveRoles = async()=>{
         try {
             setLoading(true);
-            const userIds = selection.map((item)=>item._id);
+            const userIds = selection?.map((item)=>item._id);
             const res = await updateVendorRoles(userIds, roles);
             if(res?.code === 201){
                 await Promise.all(
@@ -68,7 +68,7 @@ const Roles = ({selection}:RolesProps) => {
             <div className="flex justify-between p-4">
                 <span className="text-2xl font-semibold" >Assign Roles</span>
                 {
-                    roles.length>0 && selection.length > 0 &&
+                    roles?.length>0 && selection.length > 0 &&
                     <AddButton onClick={handleSaveRoles} disabled={loading} text={loading? "loading...": "Save"} noIcon smallText className="rounded py-1" />
                 }
             </div>
@@ -80,11 +80,11 @@ const Roles = ({selection}:RolesProps) => {
         </div>
         <div className="flex flex-col gap-10 p-4 w-3/4">
             {
-                UserRoles.slice(1).map((role)=>{
+                UserRoles?.slice(1).map((role)=>{
                     // const checked = roles.includes(code);
                     const codes = role.codes;
                     return(
-                        <div className="flex flex-col gap-3" key={role.title} >
+                        <div className="flex flex-col gap-3" key={role?.title} >
                                 <Subtitle text={role?.title} />
                             <div className="flex gap-12">
                                 <div className="flex flex-col gap-2 items-center ">

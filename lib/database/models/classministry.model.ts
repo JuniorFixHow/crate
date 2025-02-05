@@ -1,6 +1,7 @@
 import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { IChurch } from "./church.model";
 import Activity from "./activity.model";
+import Ministry from "./ministry.model";
 
 export interface IClassministry extends Document{
     _id:string;
@@ -18,7 +19,12 @@ const ClassMinistrySchema = new Schema<IClassministry>({
 ClassMinistrySchema.pre('deleteOne', {document:false, query:true}, async function (next) {
     try {
         const minId = this.getQuery()._id;
-        await Activity.deleteMany({minId});
+        const activities = await Activity.find(minId);
+        const deleteOp = activities.map((item)=>(
+            Ministry.deleteMany({activityId:item._id})
+        ))
+        deleteOp.push(Activity.deleteMany({minId}));
+        await Promise.all(deleteOp);
         next();
     } catch (error) {
         console.log(error);

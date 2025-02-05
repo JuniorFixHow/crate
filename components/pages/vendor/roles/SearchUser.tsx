@@ -35,7 +35,7 @@ const SearchUser = ({selection, setSelection}:SearchUserProps) => {
         <div className="flex flex-col gap-4 bg-white dark:bg-transparent dark:border p-4" >
             <div className="flex gap-6 w-full">
                 {
-                    selection.map((user)=>(
+                    selection?.map((user)=>(
                         <div onClick={()=>unslect(user)} key={user?._id} className="flex gap-1 p-2 items-center rounded-full bg-slate-400 cursor-pointer">
                             <span>{user?.name}</span>
                             <LiaTimesSolid className='dark:text-white text-red-700' size={18} />
@@ -47,7 +47,7 @@ const SearchUser = ({selection, setSelection}:SearchUserProps) => {
             <div className="flex flex-col gap-6">
                 {
                     SearchUserReversed(users as IVendor[], search)
-                    .filter((item)=>item._id !== user?.userId)
+                    ?.filter((item)=>item._id !== user?.userId)
                     ?.map((vendor)=>{
                         const isSelected = selection.find((item)=>item?._id === vendor?._id);
                         return(

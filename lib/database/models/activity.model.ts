@@ -3,6 +3,7 @@ import { IMember } from "./member.model";
 import { IChurch } from "./church.model";
 import { IVendor } from "./vendor.model";
 import Ministry from "./ministry.model";
+import { IClassministry } from "./classministry.model";
 
 export interface IActivity extends Document{
     _id:string;
@@ -18,6 +19,7 @@ export interface IActivity extends Document{
     endDate:string;
     description:string;
     creatorId:string | Types.ObjectId | IVendor;
+    minId:string | Types.ObjectId | IClassministry;
     createdAt:Date;
     updatedAt:Date;
 }
@@ -28,6 +30,7 @@ const ActivitySchema = new Schema<IActivity>({
     leaders:[{type:Schema.Types.ObjectId, ref:'Member'}],
     members:[{type:Schema.Types.ObjectId, ref:'Member'}],
     churchId:{type:Schema.Types.ObjectId, ref:'Church'},
+    minId:{type:Schema.Types.ObjectId, ref:'ClassMinistry'},
     creatorId:{type:Schema.Types.ObjectId, ref:'Church'},
     frequency:String,
     startTime:String,
