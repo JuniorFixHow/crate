@@ -1,6 +1,8 @@
 import AddButton from "@/components/features/AddButton"
+import SearchSelectClassministries from "@/components/features/SearchSelectClassministries"
 import Subtitle from "@/components/features/Subtitle"
 import { today } from "@/functions/dates"
+import { useFetchActivities } from "@/hooks/fetch/useActivity"
 import { useAuth } from "@/hooks/useAuth"
 import { createActivity, updateActivity } from "@/lib/actions/activity.action"
 import { IActivity } from "@/lib/database/models/activity.model"
@@ -12,14 +14,18 @@ import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } fr
 type NewActivityDownProps = {
     activity?:IActivity|null;
     newMode:boolean;
+    showMinistries?:boolean;
+    mininstryId?:string;
     setNewMode:Dispatch<SetStateAction<boolean>>
 }
 
-const NewActivityDown = ({newMode, setNewMode, activity}:NewActivityDownProps) => {
+const NewActivityDown = ({newMode, setNewMode, showMinistries, mininstryId, activity}:NewActivityDownProps) => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] = useState<Partial<IActivity>>({});
+    const [minId, setMinId] = useState<string>('');
     const formRef =  useRef<HTMLFormElement>(null);
+    const {refetch} = useFetchActivities()
 
     const router = useRouter();
     const {user} = useAuth();
@@ -44,11 +50,13 @@ const NewActivityDown = ({newMode, setNewMode, activity}:NewActivityDownProps) =
             setLoading(true);
             const body:Partial<IActivity> = {
                 ...data,
+                minId:showMinistries ? minId : mininstryId,
                 churchId:user?.churchId,
                 creatorId:user?.userId,
             }
             const res = await createActivity(body);
             const payload = res?.payload as IActivity;
+            refetch();
             setResponse(res);
             if(res?.code === 201){
                 router.push(`/dashboard/activities/${payload?._id}`);
@@ -61,6 +69,7 @@ const NewActivityDown = ({newMode, setNewMode, activity}:NewActivityDownProps) =
         }
     }
 
+    // alert(minId)
 
     const handleUpdateActivity = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -81,7 +90,7 @@ const NewActivityDown = ({newMode, setNewMode, activity}:NewActivityDownProps) =
             }
             const res = await updateActivity(body);
             setResponse(res);
-           
+           refetch();
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured updating activity.', error:true});
@@ -124,6 +133,13 @@ const NewActivityDown = ({newMode, setNewMode, activity}:NewActivityDownProps) =
                                     <option className="dark:bg-black" value="Children's Service">Children&apos;s Service</option>
                                 </select>
                             </div> */}
+                            {
+                                showMinistries &&
+                                <div className="flex flex-col">
+                                    <span className='text-slate-500 text-[0.8rem] font-semibold' >Select Ministry</span>
+                                    <SearchSelectClassministries setSelect={setMinId} />
+                                </div>
+                            }
                             <div className="flex flex-col">
                                 <span className='text-slate-500 text-[0.8rem] font-semibold' >Fequency</span>
                                 <select

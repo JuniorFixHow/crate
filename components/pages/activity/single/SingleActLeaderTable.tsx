@@ -16,6 +16,8 @@ import DeleteDialog from '@/components/DeleteDialog';
 import SingleActAddMember from './SingleActAddMember';
 import { IMinistry } from '@/lib/database/models/ministry.model';
 import { removeLeaderMinistry, removeLeadersMinistry } from '@/lib/actions/ministry.action';
+import { enqueueSnackbar } from 'notistack';
+import { useFetchActivities } from '@/hooks/fetch/useActivity';
 
 
 type SingleActLeaderTableProps = {
@@ -29,6 +31,7 @@ const SingleActLeaderTable = ({leaders, ministry}:SingleActLeaderTableProps) => 
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
+    const {reload} = useFetchActivities(ministry?._id);
 
     const [membersId, setMemberIds] =useState<string[]>([]); 
     const [showMember, setShowMember] = useState<boolean>(false);
@@ -63,13 +66,14 @@ const SingleActLeaderTable = ({leaders, ministry}:SingleActLeaderTableProps) => 
         try {
             if(currentMember){
                 const res = await removeLeaderMinistry(ministry?._id, currentMember?._id) as ErrorProps;
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setDeleteMode(false);
+                reload();
                 setCurrentMember(null);
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured removing leader', error:true})
+            enqueueSnackbar('Error occured removing leader', {variant:'error'});
         }
     }
 
@@ -79,8 +83,9 @@ const SingleActLeaderTable = ({leaders, ministry}:SingleActLeaderTableProps) => 
         try {
             if(membersId?.length){
                 const res = await removeLeadersMinistry(ministry?._id, membersId) as ErrorProps;
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setDeleteMode(false);
+                reload();
                 setMemberIds([]);
             }
         } catch (error) {

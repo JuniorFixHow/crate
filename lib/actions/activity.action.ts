@@ -6,6 +6,7 @@ import '../database/models/member.model';
 import { connectDB } from "../database/mongoose";
 import Member, { IMember } from "../database/models/member.model";
 import Ministry from "../database/models/ministry.model";
+import '../database/models/classministry.model';
 
 export async function createActivity(activity:Partial<IActivity>){
     try {
@@ -131,6 +132,39 @@ export async function getActivities(){
         .populate('members')
         .populate('leaders')
         .populate('churchId')
+        .populate('minId')
+        .lean();
+        return JSON.parse(JSON.stringify(acts));
+    } catch (error) {
+        console.log(error);
+        return handleResponse("Error occured fetching activities", true, {}, 500);
+    }
+}
+
+export async function getActivitiesForChurch(churchId:string){
+    try {
+        await connectDB();
+        const acts = await Activity.find({churchId})
+        .populate('members')
+        .populate('leaders')
+        .populate('churchId')
+        .populate('minId')
+        .lean();
+        return JSON.parse(JSON.stringify(acts));
+    } catch (error) {
+        console.log(error);
+        return handleResponse("Error occured fetching activities", true, {}, 500);
+    }
+}
+
+export async function getActivitiesForChurchMinistry(minId:string){
+    try {
+        await connectDB();
+        const acts = await Activity.find({minId})
+        .populate('members')
+        .populate('leaders')
+        .populate('churchId')
+        .populate('minId')
         .lean();
         return JSON.parse(JSON.stringify(acts));
     } catch (error) {

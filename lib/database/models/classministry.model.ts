@@ -19,8 +19,8 @@ const ClassMinistrySchema = new Schema<IClassministry>({
 ClassMinistrySchema.pre('deleteOne', {document:false, query:true}, async function (next) {
     try {
         const minId = this.getQuery()._id;
-        const activities = await Activity.find(minId);
-        const deleteOp = activities.map((item)=>(
+        const activities = await Activity.find({minId});
+        const deleteOp = activities.map(async(item)=>(
             Ministry.deleteMany({activityId:item._id})
         ))
         deleteOp.push(Activity.deleteMany({minId}));

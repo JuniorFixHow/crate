@@ -19,39 +19,20 @@ export const ActivityColumns = (
         }
     },
     {
-        field:'type',
-        headerName:'Program',
+        field:'minId',
+        headerName:'Ministry',
         width:120,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <Link className="table-link" href={`/dashboard/ministries/${row?.minId?._id}`} >{row?.minId?.title}</Link>
+        )
     },
     {
         field:'frequency',
         headerName:'Frequency',
         width:120,
     },
-    {
-        field:'leaders',
-        headerName:'Leaders',
-        width:80,
-        renderCell:(param:GridRenderCellParams)=>{
-            return(
-                <div className="flex-center">
-                    <span>{param.row?.leaders?.length}</span>
-                </div>
-            )
-        }
-    },
-    {
-        field:'members',
-        headerName:'Members',
-        width:80,
-        renderCell:(param:GridRenderCellParams)=>{
-            return(
-                <div className="flex-center">
-                    <span>{param.row?.members?.length}</span>
-                </div>
-            )
-        }
-    },
+    
+    
     {
         field:'startDate',
         headerName:'Start Date',

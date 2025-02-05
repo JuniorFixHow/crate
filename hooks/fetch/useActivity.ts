@@ -1,56 +1,125 @@
-import { getActivities, getChurchMembersForMinistry } from "@/lib/actions/activity.action";
+import { getActivities, getActivitiesForChurch, getActivitiesForChurchMinistry, getChurchMembersForMinistry } from "@/lib/actions/activity.action";
 import { IActivity } from "@/lib/database/models/activity.model";
 import { IMember } from "@/lib/database/models/member.model";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQueries } from "@tanstack/react-query";
 
-export const useFetchActivities = () => {
-    const [activities, setActivities] = useState<IActivity[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+export const useFetchActivities = (classId?:string, minId?:string) => {
+    // const [activities, setActivities] = useState<IActivity[]>([]);
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [error, setError] = useState<string | null>(null);
+    const {user} = useAuth();
 
-    useEffect(() => {
-        const fetchActivities = async () => {
-            try {
-                const fetchedActivities: IActivity[] = await getActivities();
-                setActivities(fetchedActivities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching activities');
-                console.log(err)
-            } finally {
-                setLoading(false);
+    
+
+    const fetchActivities = async():Promise<IActivity[]>=>{
+        try {
+            if(!user){
+                return [];
             }
-        };
 
-        fetchActivities();
-    }, []);
+            const isAdmin = checkIfAdmin(user);
+            const response:IActivity[] = isAdmin ? 
+            await getActivities()
+            :
+            await getActivitiesForChurch(user.churchId);
 
-    return { activities, loading, error };
+           
+            return response.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)||[];
+
+        } catch (error) {
+         console.log(error);
+         return [];   
+        }
+    }
+
+    const fetchMembersForActivity = async():Promise<IMember[]> =>{
+        try {
+            if(!classId) return [];
+            const response:IMember[] =  await getChurchMembersForMinistry(classId);
+            return response||[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const fetchActivitiesForMinistry = async():Promise<IActivity[]> =>{
+        try {
+            if(!minId) return [];
+            const response:IActivity[] =  await getActivitiesForChurchMinistry(minId);
+            // console.log(response);
+            return response||[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const [
+        {
+            data:activities, 
+            isPending:loading, 
+            refetch
+        },
+        {
+            data:members, isPending, refetch:reload
+        },
+        {
+            data:acts, isPending:inprogress, refetch:refresh
+        }
+    ] = useQueries({
+        queries:[
+            {
+                queryKey:['activities'],
+                queryFn:fetchActivities,
+                enabled:!!user
+            },
+            {
+                queryKey:['actmembers', classId],
+                queryFn:fetchMembersForActivity,
+                enabled:!!classId
+            },
+            {
+                queryKey:['actmin', minId],
+                queryFn:fetchActivitiesForMinistry,
+                enabled:!!minId
+            }
+        ]
+    })
+
+    return { 
+        activities, loading, refetch, 
+        members, reload, isPending,
+        acts, inprogress, refresh 
+    };
 };
 
 
-export const useFetchMembersForActivities = (id:string) => {
-    const [members, setMembers] = useState<IMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+// export const useFetchMembersForActivities = (id:string) => {
+//     const [members, setMembers] = useState<IMember[]>([]);
+//     const [loading, setLoading] = useState<boolean>(true);
+//     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if(!id) return;
-        const fetchActivities = async () => {
-            try {
-                const fetchedActivities: IMember[] = await getChurchMembersForMinistry(id);
-                setMembers(fetchedActivities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching members');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+//     useEffect(() => {
+//         if(!id) return;
+//         const fetchActivities = async () => {
+//             try {
+//                 const fetchedActivities: IMember[] = await getChurchMembersForMinistry(id);
+//                 setMembers(fetchedActivities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
+//                 setError(null);
+//             } catch (err) {
+//                 setError('Error fetching members');
+//                 console.log(err)
+//             } finally {
+//                 setLoading(false);
+//             }
+//         };
 
-        fetchActivities();
-    }, [id]);
+//         fetchActivities();
+//     }, [id]);
 
-    return { members, loading, error };
-};
+//     return { members, loading, error };
+// };

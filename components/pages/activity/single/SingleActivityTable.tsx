@@ -36,7 +36,7 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
     const searchParam = useSearchParams();
 
     const titles = ['Details', 'Members', 'Leaders'];
-    const ministries = useFetchMinistries(activity?._id)?.data as IMinistry[];
+    const {data:ministries, refetch} = useFetchMinistries(activity?._id);
     const [response, setResponse] = useState<ErrorProps>(null);
     // console.log(ministries)
     
@@ -70,13 +70,14 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
             const res = await deleteMinistry(ministryId);
             setResponse(res);
             setDeleteMode(false);
+            refetch()
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured deleting the class', error:true});
         }
     }
 
-    const mini = ministries?.find((item)=>item._id === ministryId);
+    const mini = ministries?.find((item:IMinistry)=>item._id === ministryId);
 
     const message = `Are you sure you want to delete '${mini?.name}' class?`;
 
@@ -90,7 +91,7 @@ const SingleActivityTable = ({ activity}:SingleActivityTableProps) => {
         }
         <div className="flex w-full">
             {
-                isPending &&
+                isPending && ministries.length > 0 &&
                 <LinearProgress className="w-full" />
             }
         </div>

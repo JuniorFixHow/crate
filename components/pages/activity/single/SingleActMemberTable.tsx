@@ -17,6 +17,8 @@ import AddButton from '@/components/features/AddButton';
 import SingleActAddMember from './SingleActAddMember';
 import { IMinistry } from '@/lib/database/models/ministry.model';
 import { makeLeaderMinistry, removeMemberMinistry, removeMembersMinistry } from '@/lib/actions/ministry.action';
+import { useFetchActivities } from '@/hooks/fetch/useActivity';
+import { enqueueSnackbar } from 'notistack';
 
 
 type SingleActMemberTableProps = {
@@ -34,6 +36,7 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
     const [membersId, setMemberIds] =useState<string[]>([]); 
     const [showMember, setShowMember] = useState<boolean>(false);
     const searched = searchMember(search, members)?.map((item)=>item?._id);
+    const {reload} = useFetchActivities(ministry?._id);
 
     useEffect(()=>{
         if(deleteMode === false){
@@ -67,6 +70,8 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
                 setResponse(res);
                 setDeleteMode(false);
                 setCurrentMember(null);
+                reload();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
             }
         } catch (error) {
             console.log(error);
@@ -81,6 +86,8 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
                 setResponse(res);
                 setDeleteMode(false);
                 setCurrentMember(null);
+                reload();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
             }
         } catch (error) {
             console.log(error);
@@ -95,6 +102,8 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
                 setResponse(res);
                 setDeleteMode(false);
                 setMemberIds([]);
+                reload();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
             }
         } catch (error) {
             console.log(error);

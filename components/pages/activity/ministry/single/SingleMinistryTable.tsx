@@ -5,19 +5,24 @@ import AddButton from "@/components/features/AddButton";
 import SearchBar from "@/components/features/SearchBar";
 import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
 import { useState } from "react";
-import ActivityInfoModal from "./ActivityInfoModal";
 import { IActivity } from "@/lib/database/models/activity.model";
 import { ErrorProps } from "@/types/Types";
 import { deleteActivity } from "@/lib/actions/activity.action";
 import { Alert, LinearProgress, Paper } from "@mui/material";
 import { useFetchActivities } from "@/hooks/fetch/useActivity";
 import { DataGrid } from "@mui/x-data-grid";
-import { ActivityColumns } from "./ActivityColumns";
-import { SearchActivityWithChurch } from "./fxn";
-import NewActivityDown from "./new/NewActivityDown";
+import { IClassministry } from "@/lib/database/models/classministry.model";
+import ActivityInfoModal from "../../ActivityInfoModal";
+import NewActivityDown from "../../new/NewActivityDown";
+import { SearchActivityWithChurch } from "../../fxn";
+import { ActivityColumns } from "../../ActivityColumns";
 import { enqueueSnackbar } from "notistack";
 
-const ActivityTable = () => {
+type SingleMinistryTableProps = {
+    currentClassministry:IClassministry
+}
+
+const SingleMinistryTable = ({currentClassministry}:SingleMinistryTableProps) => {
   const [deleteMode, setDeleteMode] = useState<boolean>(false);
   const [infoMode, setInfoMode] = useState<boolean>(false);
   const [newMode, setNewMode] = useState<boolean>(false);
@@ -26,20 +31,21 @@ const ActivityTable = () => {
   const [currentActivity, setCurrentActivity] = useState<IActivity|null>(null);
   const [response, setResponse] = useState<ErrorProps>(null);
 
-  const {activities, loading, refetch} = useFetchActivities();
+  const {acts, inprogress, refresh} = useFetchActivities(undefined, currentClassministry?._id);
   // const [deleteMode, setDeleteMode] = useState<boolean>(false);
+//   console.log(acts);
 
   const handleDeleteActivity = async()=>{
     try {
       if(currentActivity){
         const res = await deleteActivity(currentActivity?._id);
-        setDeleteMode(false);
         enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
-        refetch();
+        setDeleteMode(false);
+        refresh();
       }
     } catch (error) {
       console.log(error);
-      enqueueSnackbar('Error occured deleting the activity',{variant:'error'})
+      enqueueSnackbar('Error occured deleting the activity', {variant:'error'});
     }
   }
 
@@ -74,19 +80,19 @@ const ActivityTable = () => {
         </div>
     <DeleteDialog message={message} onTap={handleDeleteActivity} title={`Remove ${currentActivity?.name}`} value={deleteMode} setValue={setDeleteMode} />
     <ActivityInfoModal setCurrentActivity={setCurrentActivity} infoMode={infoMode} currentActivity={currentActivity} setInfoMode={setInfoMode} />
-    <NewActivityDown showMinistries newMode={newMode} setNewMode={setNewMode} activity={currentActivity} />
+    <NewActivityDown mininstryId={currentClassministry?._id} newMode={newMode} setNewMode={setNewMode} activity={currentActivity} />
     {
         response?.message &&
         <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
     }
     <div className="flex w-full">
         {
-            loading ? 
+            inprogress ? 
             <LinearProgress className="w-full" />
             :
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
-                    rows={SearchActivityWithChurch(activities as IActivity[], search, churchId)}
+                    rows={SearchActivityWithChurch(acts as IActivity[], search, churchId)}
                     getRowId={(row:IActivity)=>row._id}
                     columns={ActivityColumns(handleDelete,  handleInfo)}
                     initialState={{ pagination: { paginationModel } }}
@@ -102,4 +108,4 @@ const ActivityTable = () => {
   )
 }
 
-export default ActivityTable
+export default SingleMinistryTable

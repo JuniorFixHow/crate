@@ -1,7 +1,6 @@
 import AddButton from "@/components/features/AddButton";
 import SearchBar from "@/components/features/SearchBar";
 import { searchMember } from "@/functions/search";
-import { useFetchMembersForActivities } from "@/hooks/fetch/useActivity";
 import { IMember } from "@/lib/database/models/member.model";
 import { ErrorProps } from "@/types/Types";
 import { Alert, LinearProgress, Modal, Paper } from "@mui/material";
@@ -9,6 +8,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SingleActivityAddMemberColumns } from "./SingleActivityAddMemberColumns";
 import { addMembersToMinistry } from "@/lib/actions/ministry.action";
+import { useFetchActivities } from "@/hooks/fetch/useActivity";
+import { enqueueSnackbar } from "notistack";
 
 type SingleActAddMemberProps={
     showMember:boolean;
@@ -21,7 +22,7 @@ const SingleActAddMember = ({showMember, setShowMember, ministryId}:SingleActAdd
     const [search, setSearch] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
     const [addLoading, setAddLoading] = useState<boolean>(false);
-    const {loading, members} = useFetchMembersForActivities(ministryId);
+    const {loading, members, reload} = useFetchActivities(ministryId);
 
     const handleSelect = (id:string)=>{
         setSelectedMembers((prev)=>{
@@ -40,10 +41,11 @@ const SingleActAddMember = ({showMember, setShowMember, ministryId}:SingleActAdd
         try {
             setAddLoading(true);
             const res = await addMembersToMinistry(ministryId, selectedMembers) as ErrorProps;
-            setResponse(res);
+            enqueueSnackbar(res?.message, {variant:'success'})
+            reload();
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured adding members', error:true});
+            enqueueSnackbar('Error occured adding members', {variant:'error'})
         }finally{
             setAddLoading(false);
         }
@@ -84,7 +86,7 @@ const SingleActAddMember = ({showMember, setShowMember, ministryId}:SingleActAdd
                         :
                         <Paper className='w-full' sx={{ height: 480, }}>
                         <DataGrid
-                            rows={searchMember(search, members)}
+                            rows={searchMember(search, members as IMember[])}
                             columns={SingleActivityAddMemberColumns(selectedMembers, handleSelect)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10, 15, 20, 30, 50]}

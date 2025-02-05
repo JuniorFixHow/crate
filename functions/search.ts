@@ -14,7 +14,7 @@ import { IVenue } from "@/lib/database/models/venue.model"
 import { EventProps, GroupProps, MemberProps, NavigationProps } from "@/types/Types"
 
 export const searchMember = (text:string, members:IMember[]):IMember[]=>{
-    const membs = members.filter((member)=>{
+    const membs = members?.filter((member)=>{
         return text === '' ? member : Object.values(member)
         .join(' ')
         .toLowerCase()
