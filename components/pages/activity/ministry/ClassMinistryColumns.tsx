@@ -21,7 +21,7 @@ export const ClassMinistryColumns = (
         headerName:'Title',
         width:200,
         renderCell:(param:GridRenderCellParams)=>(
-            <Link href={`/dashboard/ministries/${param.row?._id}`} >{param.row?.title}</Link>
+            <Link className="table-link" href={`/dashboard/ministries/${param.row?._id}`} >{param.row?.title}</Link>
         )
     },
 

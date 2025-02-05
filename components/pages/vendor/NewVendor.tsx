@@ -64,6 +64,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     id:response._id,
                     emailVerified:false,
                     isAdmin:true,
+                    roles:[],
                     role:data.role!,
                     createdAt:serverTimestamp()
                 }

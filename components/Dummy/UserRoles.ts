@@ -71,6 +71,10 @@ export const UserRoles: RoleProps[] =[
         codes:['ME1', 'ME2', 'ME3', 'ME4',]
     },
     {
+        title:'Ministry',
+        codes:['MI1', 'MI2', 'MI3', 'MI4',]
+    },
+    {
         title:'Payment',
         codes:['PA1', 'PA2', 'PA3', 'PA4',]
     },

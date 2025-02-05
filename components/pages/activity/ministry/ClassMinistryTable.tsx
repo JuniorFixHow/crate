@@ -53,6 +53,7 @@ const ClassMinistryTable = () => {
             }
         } catch (error) {
             console.log(error);
+            enqueueSnackbar('Error occured deleting ministry', {variant:'error'})
         }
     }
 
