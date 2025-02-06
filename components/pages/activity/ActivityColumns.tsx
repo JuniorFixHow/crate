@@ -37,11 +37,17 @@ export const ActivityColumns = (
         field:'startDate',
         headerName:'Start Date',
         width:120,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <span>{new Date(row?.startDate)?.toLocaleDateString()}</span>
+        )
     },
     {
         field:'endDate',
         headerName:'End Date',
         width:120,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <span>{new Date(row?.endDate)?.toLocaleDateString()}</span>
+        )
     },
 
     {

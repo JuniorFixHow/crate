@@ -1,3 +1,4 @@
+import { IClassministry } from "@/lib/database/models/classministry.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IGroup } from "@/lib/database/models/group.model"
 import { IKey } from "@/lib/database/models/key.model"
@@ -184,6 +185,11 @@ export type VendorProps={
    registrants:number /* Number of members they've registered so far */
 }
 
+export interface IClassMinistryExtended extends IClassministry {
+   membersNo: number;
+   activityNo: number;
+   ministryRolesCount: number;
+}
 
 export interface IUser {
    id:string,

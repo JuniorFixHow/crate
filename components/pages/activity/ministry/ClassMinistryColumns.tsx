@@ -1,12 +1,13 @@
-import { IClassministry } from "@/lib/database/models/classministry.model";
+// import { IClassMinistryExtended } from "@/lib/database/models/classministry.model";
+import { IClassMinistryExtended } from "@/types/Types";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
 
 export const ClassMinistryColumns = (
-    handleDelete:(data:IClassministry)=>void,
-    handleEdit:(data:IClassministry)=>void,
+    handleDelete:(data:IClassMinistryExtended)=>void,
+    handleEdit:(data:IClassMinistryExtended)=>void,
 ) =>[
     {
         field:'createdAt',
@@ -24,7 +25,22 @@ export const ClassMinistryColumns = (
             <Link className="table-link" href={`/dashboard/ministries/${param.row?._id}`} >{param.row?.title}</Link>
         )
     },
-
+    {
+        field:'activityNo',
+        headerName:'Activities',
+        width:120,
+    },
+    {
+        field:'membersNo',
+        headerName:'Members',
+        width:120,
+    },
+    {
+        field:'ministryRolesCount',
+        headerName:'Leaders',
+        width:120,
+    },
+    
     {
         field:'id',
         headerName:'Actions',

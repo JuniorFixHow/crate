@@ -4,8 +4,7 @@ import DeleteDialog from "@/components/DeleteDialog";
 import AddButton from "@/components/features/AddButton";
 import SearchBar from "@/components/features/SearchBar";
 import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
-import { IClassministry } from "@/lib/database/models/classministry.model";
-import { ErrorProps } from "@/types/Types";
+import { ErrorProps, IClassMinistryExtended } from "@/types/Types";
 import { Alert, LinearProgress, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRef, useState } from "react"
@@ -22,7 +21,7 @@ const ClassMinistryTable = () => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [currentMinistry, setCurrentMinistry] = useState<IClassministry|null>(null);
+    const [currentMinistry, setCurrentMinistry] = useState<IClassMinistryExtended|null>(null);
 
     const {classMinistries, isPending, refetch} = useFetchClassministry();
 
@@ -33,12 +32,12 @@ const ClassMinistryTable = () => {
         setCurrentMinistry(null);
     }
 
-    const handleDeleteMode = (data:IClassministry)=>{
+    const handleDeleteMode = (data:IClassMinistryExtended)=>{
         setDeleteMode(true);
         setCurrentMinistry(data);
     }
 
-    const handleEditMode = (data:IClassministry)=>{
+    const handleEditMode = (data:IClassMinistryExtended)=>{
         setNewMode(true);
         setCurrentMinistry(data);
     }
@@ -95,8 +94,8 @@ const ClassMinistryTable = () => {
                 :
                 <Paper className='w-full' sx={{ height: 480, }}>
                     <DataGrid
-                        rows={SearchClassministry(classMinistries as IClassministry[], search, churchId)}
-                        getRowId={(row:IClassministry)=>row._id}
+                        rows={SearchClassministry(classMinistries as IClassMinistryExtended[], search, churchId)}
+                        getRowId={(row:IClassMinistryExtended)=>row._id}
                         columns={ClassMinistryColumns(handleDeleteMode,  handleEditMode)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50]}

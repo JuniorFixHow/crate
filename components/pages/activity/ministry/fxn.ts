@@ -1,6 +1,7 @@
-import { IClassministry } from "@/lib/database/models/classministry.model";
+// import { IClassMinistryExtended } from "@/lib/database/models/classministry.model";
+import { IClassMinistryExtended } from "@/types/Types";
 
-export const SearchClassministry = (ministries:IClassministry[], search:string, churchId:string):IClassministry[]=>{
+export const SearchClassministry = (ministries:IClassMinistryExtended[], search:string, churchId:string):IClassMinistryExtended[]=>{
     const data = ministries
     ?.filter((item)=>{
         return churchId === '' ? item : item.churchId === churchId
