@@ -1,22 +1,22 @@
-import { useFetchClassministry } from "@/hooks/fetch/useClassministry";
-import { IClassministry } from "@/lib/database/models/classministry.model";
+import { useFetchMembersInAChurchV2 } from "@/hooks/fetch/useMember";
+import { IMember } from "@/lib/database/models/member.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectClassministriesProps = {
+type SearchSelectMembersProps = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
 }
 
-const SearchSelectClassministries = ({setSelect, require, value}:SearchSelectClassministriesProps) => {
-    const {classMinistries, isPending} = useFetchClassministry();
+const SearchSelectMembers = ({setSelect, require, value}:SearchSelectMembersProps) => {
+    const {members, isPending} = useFetchMembersInAChurchV2();
     const [search, setSearch] = useState<string>('')
   return (
     <Autocomplete
       disablePortal
-      options={classMinistries as IClassministry[]}
-      onChange={(e, v:IClassministry|null)=>{
+      options={members as IMember[]}
+      onChange={(e, v:IMember|null)=>{
         console.log(e.target);
         setSelect!(v?._id as string); 
       }}
@@ -26,8 +26,8 @@ const SearchSelectClassministries = ({setSelect, require, value}:SearchSelectCla
         setSearch(v)
     }}
     loading={isPending}
-    isOptionEqualToValue={(option, value)=>option.title === value.title}
-    getOptionLabel={(item)=>item?.title}
+    isOptionEqualToValue={(option, value)=>option.name === value.name}
+    getOptionLabel={(item)=>item?.name}
       sx={{ width: 300 }}
       renderInput={(params) => 
         <TextField
@@ -55,4 +55,4 @@ const SearchSelectClassministries = ({setSelect, require, value}:SearchSelectCla
   )
 }
 
-export default SearchSelectClassministries
+export default SearchSelectMembers

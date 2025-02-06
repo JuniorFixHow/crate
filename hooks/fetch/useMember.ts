@@ -3,6 +3,8 @@ import { IMember } from "@/lib/database/models/member.model";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchMembers = () => {
     const [members, setMembers] = useState<IMember[]>([]);
@@ -99,4 +101,31 @@ export const useFetchMembersInAChurch = ()=>{
     },[user])
 
     return {members, loading, error}
+}
+
+
+export const useFetchMembersInAChurchV2 = ()=>{
+    const {user} = useAuth();
+
+    const fetchMembersForChurch = async():Promise<IMember[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const response:IMember[] = isAdmin ?
+            await getMembers() : getMembersInaChurch(user?.churchId)
+
+            return response;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:members, isPending, refetch} =  useQuery({
+        queryKey:['membersinachurch'],
+        queryFn:fetchMembersForChurch,
+        enabled: !!user
+    })
+
+    return {members, isPending, refetch}
 }

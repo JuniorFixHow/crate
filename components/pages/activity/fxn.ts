@@ -16,3 +16,16 @@ export const SearchActivityWithChurch = (activities:IActivity[], search:string, 
 
     return data;
 }
+
+
+export const SearchActivityWithoutChurch = (activities:IActivity[], search:string):IActivity[]=>{
+    const data = activities
+    ?.filter((item)=>{
+        return search === '' ?  item : Object.values(item)
+        .join(' ')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    });
+
+    return data;
+}
