@@ -21,6 +21,7 @@ export interface IMember extends Document{
     allergy?:string,
     employ?:string,
     status:string;
+    role:string;
     roles:string[];
     password:string;
     createdAt?: Date; // Automatically added by timestamps
@@ -44,6 +45,7 @@ const MemberSchema = new Schema<IMember>({
     employ:String,
     password:String,
     status:String,
+    role:String,
     roles:[String],
 },{timestamps:true});
 

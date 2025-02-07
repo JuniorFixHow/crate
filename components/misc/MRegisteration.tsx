@@ -19,11 +19,11 @@ import SearchSelectCampuses from '../features/SearchSelectCampuses';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
-    setCurrentMember?:Dispatch<SetStateAction<IMember|null>>,
+    // setCurrentMember?:Dispatch<SetStateAction<IMember|null>>,
     currentMemeber?:IMember
 }
 
-const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegisterationProps ) => {
+const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => {
 
     const [open, setOpen] = useState<boolean>(false);
     const [openG, setOpenG] = useState<boolean>(false);
@@ -37,9 +37,9 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
     const [newMember, setNewMember] = useState<IMember|null>(null);
     const [church, setChurch] = useState<string>('');
     const [data, setData] = useState<Partial<IMember>>({
-        email:'', name:'', ageRange:'', 
-         note:'', marital:'Single',
-        allergy:'', employ:'Employed', status:'Member', password:'',
+        role:'Member',
+        marital:'Single',
+        employ:'Employed', status:'Active',
     });
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
 
@@ -166,9 +166,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     campuseId:campuseId||currentMemeber.campuseId
                 } 
                 const res = await updateMember(id, body);
-                const response = res?.payload as IMember;
                 setError(res)
-                setCurrentMember!(response);
                 router.refresh();
             }
         } catch (error) {
@@ -215,14 +213,15 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                 error={regError}
              />
             <div className="flex flex-row gap-12 items-start">
-                {/* <div className="flex flex-col gap-1">
-                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
-                    <select onChange={handleChange} className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.registerType} >
-                        <option className='dark:bg-black' value="Individual">Individual</option>
-                        <option className='dark:bg-black' value="Family">Family</option>
-                        <option className='dark:bg-black' value="Group">Group</option>
+                <div className="flex flex-col gap-1">
+                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Role</span>
+                    <select onChange={handleChange} className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.role} >
+                        <option className='dark:bg-black' value="Member">Member</option>
+                        <option className='dark:bg-black' value="Departmental Leader">Departmental Leader</option>
+                        <option className='dark:bg-black' value="Elder">Elder</option>
+                        <option className='dark:bg-black' value="Pastor">Pastor</option>
                     </select>
-                </div> */}
+                </div>
                 
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Age Group</span>
@@ -260,12 +259,16 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Status</span>
                     
                     <div className="flex flex-row items-center gap-2">
-                        <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Member'} type="radio" name="status" value='Member'  />
-                        <span className='font-semibold text-[0.8rem]' >Member</span>
+                        <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Active'} type="radio" name="status" value='Active'  />
+                        <span className='font-semibold text-[0.8rem]' >Active</span>
                     </div>
                     <div className="flex flex-row items-center gap-2">
-                        <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Non-member'} type="radio" name="status" value='Non-member'  />
-                        <span className='font-semibold text-[0.8rem]' >Non-member</span>
+                        <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Non-active'} type="radio" name="status" value='Non-active'  />
+                        <span className='font-semibold text-[0.8rem]' >Non-active</span>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                        <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Moved away'} type="radio" name="status" value='Moved away'  />
+                        <span className='font-semibold text-[0.8rem]' >Moved away</span>
                     </div>
                 </div>
             </div>
@@ -309,7 +312,7 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
                 </div>
             </div>
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Dietary Preference</span>
                 <div className="flex flex-row items-center gap-2">
                     <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='No'} type="radio" name="dietary" value='No'  />
@@ -324,10 +327,10 @@ const MRegisteration = ({currentMemeber, setCurrentMember, setHasOpen,}:MRegiste
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Allergy</span>
                 <textarea onChange={handleChange}  placeholder='allergies separated with comma' className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="allergy"  />
-            </div>
+            </div> */}
 
             <div className="flex flex-col gap-1">
-                <span className='text-slate-400 font-semibold text-[0.8rem]' >Registration Note</span>
+                <span className='text-slate-400 font-semibold text-[0.8rem]' >Member Note</span>
                 <textarea onChange={handleChange}  placeholder='say something about this member' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
             </div>
 

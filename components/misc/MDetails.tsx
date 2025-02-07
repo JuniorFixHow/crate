@@ -1,13 +1,13 @@
 'use client'
 import AddButton from "@/components/features/AddButton"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import {  useState } from "react"
 import MRegisteration from "./MRegisteration"
 import RegisterForEvent from "@/components/shared/RegisterForEvent"
 import { IMember } from "@/lib/database/models/member.model"
-import { deleteMember, getMember } from "@/lib/actions/member.action"
+import { deleteMember } from "@/lib/actions/member.action"
 import { useRouter } from "next/navigation"
-import CircularIndeterminate from "./CircularProgress"
+// import CircularIndeterminate from "./CircularProgress"
 import { ErrorProps } from "@/types/Types"
 import { createRegistration } from "@/lib/actions/registration.action"
 import { IRegistration } from "@/lib/database/models/registration.model"
@@ -18,15 +18,15 @@ import { IChurch } from "@/lib/database/models/church.model"
 import Link from "next/link"
 
 export type MDetailsProps = {
-  id:string
+  currentMember:IMember
 }
-const MDetails = ({id}:MDetailsProps) => {
+const MDetails = ({currentMember}:MDetailsProps) => {
   const [hasOpen, setHasOpen] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false);
   const [eventId, setEventId] = useState<string>('');
-  const [fetchLoading, setFetchLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string|null>(null);
-  const [currentMember, setCurrentMember] = useState<IMember|null>(null);
+  // const [fetchLoading, setFetchLoading] = useState<boolean>(true);
+  // const [error, setError] = useState<string|null>(null);
+  // const [currentMember, setCurrentMember] = useState<IMember|null>(null);
 
   const [openG, setOpenG] = useState<boolean>(false);
   const [openV, setOpenV] = useState<boolean>(false);
@@ -39,24 +39,6 @@ const MDetails = ({id}:MDetailsProps) => {
   const router = useRouter();
   const {events} = useFetchEvents();
 
-    useEffect(() => {
-        const fetchChurch = async () => {
-          try {
-            if (id) {
-              const member: IMember = await getMember(id); // Await the promise
-              setCurrentMember(member);
-              setError(null);
-            } 
-          } catch (error) {
-            console.log(error)
-            setError('Error occured fetching member data')
-          }finally{
-            setFetchLoading(false)
-          }
-        };
-      
-        fetchChurch(); // Call the async function
-      }, [id]);
 
       const handleDeleteMember = async()=>{
         if(currentMember){
@@ -123,13 +105,13 @@ const MDetails = ({id}:MDetailsProps) => {
         }
     }
 
-      if(fetchLoading) return <CircularIndeterminate className={`${fetchLoading ? 'flex-center':'hidden'}`}  error={error} />
+      // if(fetchLoading) return <CircularIndeterminate className={`${fetchLoading ? 'flex-center':'hidden'}`}  error={error} />
 
   return (
     <>
     {
       hasOpen ? 
-      <MRegisteration setHasOpen={setHasOpen} currentMemeber={currentMember!} setCurrentMember={setCurrentMember} />
+      <MRegisteration setHasOpen={setHasOpen} currentMemeber={currentMember!} />
       :
       <div className="px-8 py-4 flex-col dark:bg-black dark:border dark:border-t-0 flex md:flex-row gap-6 items-start bg-white" >
         {
@@ -169,7 +151,7 @@ const MDetails = ({id}:MDetailsProps) => {
               </div>
             }
             <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Number:</span>
+              <span className="text-[0.8rem] font-semibold" >Phone:</span>
               <span className="text-[0.8rem] text-slate-400" >{currentMember?.phone}</span>
             </div>
             <div className="flex flex-row items-center gap-4">
@@ -196,6 +178,10 @@ const MDetails = ({id}:MDetailsProps) => {
               <span className="text-[0.8rem] text-slate-400" >Yes <Link className="text-blue-800 hover:underline font-bold" href={`/dashboard/group/${member?.groupId}`} >({member?.groupId})</Link></span>
             </div> */}
             <div className="flex flex-row items-center gap-4">
+              <span className="text-[0.8rem] font-semibold" >Role:</span>
+              <span className="text-[0.8rem] text-slate-400" >{currentMember?.role}</span>
+            </div>
+            <div className="flex flex-row items-center gap-4">
               <span className="text-[0.8rem] font-semibold" >Employment Status:</span>
               <span className="text-[0.8rem] text-slate-400" >{currentMember?.employ}</span>
             </div>
@@ -203,14 +189,14 @@ const MDetails = ({id}:MDetailsProps) => {
               <span className="text-[0.8rem] font-semibold" >Marital status:</span>
               <span className="text-[0.8rem] text-slate-400" >{currentMember?.marital}</span>
             </div>
-            <div className="flex flex-row items-center gap-4">
+            {/* <div className="flex flex-row items-center gap-4">
               <span className="text-[0.8rem] font-semibold" >Dietary restrictions:</span>
               <span className="text-[0.8rem] text-slate-400" >{currentMember?.dietary} {currentMember?.allergy && `(${currentMember?.allergy})`}</span>
-            </div>
+            </div> */}
             {
               currentMember?.note &&
               <div className="flex flex-row items-start gap-4">
-                <span className="text-[0.8rem] font-semibold" >Registration note:</span>
+                <span className="text-[0.8rem] font-semibold" >Member note:</span>
                 <span className="text-[0.8rem] md:w-[30rem] text-slate-400" >{currentMember?.note}</span>
               </div>
             }

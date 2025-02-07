@@ -15,10 +15,6 @@ const NewMember = () => {
       </div>
 
       <div className="flex flex-col">
-        {/* <div className="flex dark:bg-black dark:border border-b border-b-slate-300 flex-col w-full px-8 py-4 bg-white">
-          <Subtitle text="Member Details" />
-        </div> */}
-        {/* <MDetails id={params?.id} /> */}
         <MRegisteration/>
       </div>
     </div>

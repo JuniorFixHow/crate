@@ -217,6 +217,18 @@ export const MemberColumns = (
             )
         }
     },
+
+    {
+        field:'createdAt',
+        headerName:'Registered On',
+        width:120,
+        renderCell:({row}:GridRenderCellParams)=>{
+            return(
+                <span>{new Date(row?.createdAt)?.toLocaleDateString()}</span>
+            )
+        }
+    },
+
     {
         field:'id',
         headerName:'Actions',
