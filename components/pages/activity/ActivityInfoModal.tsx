@@ -8,6 +8,7 @@ import { IActivity } from '@/lib/database/models/activity.model';
 import { IChurch } from '@/lib/database/models/church.model';
 import { useFetchMinistries } from '@/hooks/fetch/useMinistry';
 import { IMinistry } from '@/lib/database/models/ministry.model';
+import { IClassministry } from '@/lib/database/models/classministry.model';
 
 export type ActivityInfoModalProps = {
     infoMode:boolean,
@@ -21,6 +22,7 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
     const church = currentActivity?.churchId as unknown as IChurch;
     const activityId =  currentActivity?._id as string;
     const ministries = useFetchMinistries(activityId)?.data as IMinistry[];
+    const classministry = currentActivity?.minId as unknown as IClassministry;
 
     const handleClose = ()=>{
         setCurrentActivity(null);
@@ -53,7 +55,7 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Program</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.type}</span>
+                    <Link className='table-link' href={`/dashboard/ministries/${classministry?._id}`} >{classministry?.title}</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Happening</span>
@@ -62,49 +64,15 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Commencement Date</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startDate}</span>
+                    <span className='text-[0.9rem]' >{new Date(currentActivity?.startDate)?.toLocaleDateString()}</span>
                 </div>
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Ending Date</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startDate}</span>
-                </div>
-
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Commencement Time</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.startTime}</span>
-                </div>
-
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Ending Time</span>
-                    <span className='text-[0.9rem]' >{currentActivity?.endTime}</span>
+                    <span className='text-[0.9rem]' >{new Date(currentActivity?.startDate)?.toLocaleDateString()}</span>
                 </div>
                
                 
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Leaders</span>
-                    {
-                        currentActivity?.leaders?.length > 0 ?
-                        <Link href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{tab:'Leaders'}}}   className='text-[0.9rem] table-link' >{
-                            currentActivity?.leaders?.length
-                        }</Link>
-                        :
-                        <span className='text-[0.9rem]' >None</span> 
-                    }
-                </div>
-
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Members</span>
-                    {
-                        currentActivity?.members?.length > 0 ?
-                        <Link href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{tab:'Members'}}}   className='text-[0.9rem] table-link' >{
-                            currentActivity?.members?.length
-                        }</Link>
-                        :
-                        <span className='text-[0.9rem]' >None</span> 
-                    }
-                </div>
-
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Classes</span>
