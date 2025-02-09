@@ -16,17 +16,15 @@ const SearchSelectMembers = ({setSelect, require, value}:SearchSelectMembersProp
     <Autocomplete
       disablePortal
       options={members as IMember[]}
-      onChange={(e, v:IMember|null)=>{
-        console.log(e.target);
+      onChange={(_, v:IMember|null)=>{
         setSelect!(v?._id as string); 
       }}
       inputValue={search}
-      onInputChange={(e, v)=>{
-        console.log(e.target);
+      onInputChange={(_, v)=>{
         setSearch(v)
     }}
     loading={isPending}
-    isOptionEqualToValue={(option, value)=>option.name === value.name}
+    isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.name}
       sx={{ width: 300 }}
       renderInput={(params) => 

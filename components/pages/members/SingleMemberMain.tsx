@@ -1,9 +1,13 @@
+'use client';
+
 import AddButton from "@/components/features/AddButton";
 import Subtitle from "@/components/features/Subtitle";
 import Title from "@/components/features/Title"
 import MDetails from "@/components/misc/MDetails";
+import NewRelationship from "@/components/misc/NewRelationship";
 import { IMember } from "@/lib/database/models/member.model";
 import Link from "next/link";
+import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
 type SingleMemberMainProps = {
@@ -11,6 +15,7 @@ type SingleMemberMainProps = {
 }
 
 const SingleMemberMain = ({member}:SingleMemberMainProps) => {
+  const [infoMode, setInfoMode] = useState<boolean>(false);
   return (
     <div className="page" >
         <div className="flex flex-col gap-4">
@@ -24,10 +29,12 @@ const SingleMemberMain = ({member}:SingleMemberMainProps) => {
         </Link>
       </div>
 
+      <NewRelationship fixedSelection={[member]} infoMode={infoMode} setInfoMode={setInfoMode} />
+
       <div className="flex flex-col">
         <div className="flex justify-between dark:bg-black dark:border border-b border-b-slate-300 flex-row w-full px-8 py-4 bg-white">
           <Subtitle text="Member Details" />
-          <AddButton className="rounded" smallText noIcon text="New Relationship" />
+          <AddButton onClick={()=>setInfoMode(true)}  className="rounded" smallText noIcon text="New Relationship" />
         </div>
         <MDetails currentMember={member} />
       </div>
