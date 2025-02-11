@@ -26,6 +26,22 @@ export const MinistryroleColumns = (
             <Link className="table-link" href={`/dashboard/members/${param.row?.memberId?._id}`} >{param.row?.memberId?.name}</Link>
         )
     },
+    {
+        field:'phone',
+        headerName:'Phone',
+        width:150,
+        renderCell:(param:GridRenderCellParams)=>(
+            <span>{param.row?.memberId?.phone}</span>
+        )
+    },
+    {
+        field:'email',
+        headerName:'Email',
+        width:150,
+        renderCell:(param:GridRenderCellParams)=>(
+            <Link className="table-link" target='_blank' href={`mailto:${param.row?.memberId?.email}`} >{param.row?.memberId?.email}</Link>
+        )
+    },
 
      {
             field:'id',

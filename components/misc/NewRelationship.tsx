@@ -85,6 +85,7 @@ const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  curre
             setLoading(false);
         }
     }
+    console.log(data);
 
 
     const handleUpdateRelationship = async(e:FormEvent<HTMLFormElement>)=>{
@@ -95,12 +96,14 @@ const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  curre
             const memberIds = selection.map((item)=>item._id);
             if(selection.length){
                 const body:Partial<IRelationship> = {
+                    _id:currentRelationship?._id,
                    title:data.title || currentRelationship?.title,
                    description:data.description || currentRelationship?.description,
                    type:data.type || currentRelationship?.type,
                    members:memberIds,
                 }
                 const res=  await updateRelationship(body);
+                setInfoMode(false);
                 refetch!();
                 setResponse(res);
             }

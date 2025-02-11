@@ -31,80 +31,83 @@ const SearchSelectMultipleMembers = ({setSelection, selection, fixedSelection,  
 
   return (
     <Autocomplete
-  disableCloseOnSelect
-  multiple
-  filterSelectedOptions
-  options={members as IMember[]}
-  onChange={(_, value: IMember[]) => {
-    // Ensure selected values are unique while keeping fixedSelection intact
-    const uniqueSelection = value.filter(
-      (option) => !fixedSelection?.some((item) => item._id === option._id)
-    );
-    console.log(fixedSelection, uniqueSelection)
-
-    setSelection([...fixedSelection!, ...uniqueSelection]);
-  }}
-  inputValue={search}
-  onInputChange={(_, v) => setSearch(v)}
-  defaultValue={selection}
-  loading={isPending}
-  isOptionEqualToValue={(option, value) => option._id === value._id}
-  getOptionLabel={(item) => item?.name}
-  
-  renderTags={(tagValue, getTagProps) =>
-    tagValue.map((option, index) => {
-      const { key, ...tagProps } = getTagProps({ index });
-
-      return (
-        <Chip
-          key={key}
-          label={option?.name}
-          {...tagProps}
-          disabled={!!fixedSelection?.find((item) => item._id === option._id)}
-        />
-      );
-    })
-  }
-
-  renderOption={(props, option, { selected }) => {
-    const { key, ...optionProps } = props;
-
-    return (
-      <li key={key} {...optionProps}>
-        <Checkbox
-          icon={icon}
-          checkedIcon={checkedIcon}
-          style={{ marginRight: 8 }}
-          checked={selected}
-        />
-        {option?.name}
-      </li>
-    );
-  }}
-
-  sx={{ width: 500 }}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      required={require}
-      size="medium"
-      label="Members"
-      color="primary"
-      defaultValue={defaultValue}
-      className="dark:bg-slate-400 rounded"
-      slotProps={{
-        input: {
-          ...params.InputProps,
-          endAdornment: (
-            <Fragment>
-              {isPending ? <CircularProgress color="inherit" size={20} /> : null}
-              {params.InputProps.endAdornment}
-            </Fragment>
-          ),
-        },
+      disableCloseOnSelect
+      multiple
+      filterSelectedOptions
+      options={members as IMember[]}
+      onChange={(_, value: IMember[]) => {
+        // Ensure fixedSelection is always an array
+        const fixed = fixedSelection ?? [];
+      
+        // Ensure selected values are unique while keeping fixedSelection intact
+        const uniqueSelection = value.filter(
+          (option) => !fixed.some((item) => item._id === option._id)
+        );
+        console.log(`Fixed: ${fixed}`, `Unique: ${uniqueSelection}`)
+      
+        setSelection([...fixed, ...uniqueSelection]);
       }}
-    />
-  )}
+      inputValue={search}
+      onInputChange={(_, v) => setSearch(v)}
+      defaultValue={selection}
+      loading={isPending}
+      isOptionEqualToValue={(option, value) => option._id === value._id}
+      getOptionLabel={(item) => item?.name}
+  
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => {
+          const { key, ...tagProps } = getTagProps({ index });
+
+          return (
+            <Chip
+              key={key}
+              label={option?.name}
+              {...tagProps}
+              disabled={!!fixedSelection?.find((item) => item._id === option._id)}
+            />
+          );
+        })
+      }
+
+      renderOption={(props, option, { selected }) => {
+        const { key, ...optionProps } = props;
+
+        return (
+          <li key={key} {...optionProps}>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {option?.name}
+          </li>
+        );
+      }}
+
+      sx={{ width: 500 }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          required={require}
+          size="medium"
+          label="Members"
+          color="primary"
+          defaultValue={defaultValue}
+          className="dark:bg-slate-400 rounded"
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {isPending ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            },
+          }}
+        />
+      )}
 />
 
   )
