@@ -9,15 +9,17 @@ import { IRelationship } from '@/lib/database/models/relationship.model';
 import { IChurch } from '@/lib/database/models/church.model';
 import { createRelationship, updateRelationship } from '@/lib/actions/relationship.action';
 import SearchSelectMultipleMembers from '../features/SearchSelectMultipleMembers';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 export type NewRelationshipProps = {
     infoMode:boolean,
+    refetch?:(options?: RefetchOptions) => Promise<QueryObserverResult<IRelationship[], Error>>
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentRelationship?:IRelationship|null;
     fixedSelection?:IMember[];
 }
 
-const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelationship}:NewRelationshipProps) => {
+const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  currentRelationship}:NewRelationshipProps) => {
     const [data, setData] = useState<Partial<IRelationship>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -28,7 +30,7 @@ const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelatio
     const filteredRels = selection.length === 2 
   ? ['Parent', 'Child', 'Spouse', 'Sibling', 'Extend family'] 
   : selection.length > 2 
-    ? ['Entire family', 'Children', 'Siblings', 'Extended family'] 
+    ? ['Children', 'Siblings', 'Entire family', 'Extended family'] 
     : [];
 
     const church = selection[0]?.church as unknown as IChurch;
@@ -52,12 +54,14 @@ const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelatio
     useEffect(()=>{
         if(currentRelationship){
             setSelection(currentRelationship?.members as IMember[]);
+        }else{
+            setSelection(fixedSelection??[])
         }
-    },[currentRelationship])
+    },[currentRelationship, fixedSelection])
 
-    useEffect(() => {
-        setSelection(fixedSelection??[]); // Directly update instead of appending
-    }, [fixedSelection]);
+    // useEffect(() => {
+    //     setSelection(fixedSelection??[]); // Directly update instead of appending
+    // }, [fixedSelection]);
 
     const handleNewRelationship = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -71,6 +75,7 @@ const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelatio
                 churchId:church?._id
             }
             const res = await createRelationship(body);
+            refetch!();
             setResponse(res);
             formRef.current?.reset();
         } catch (error) {
@@ -96,6 +101,7 @@ const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelatio
                    members:memberIds,
                 }
                 const res=  await updateRelationship(body);
+                refetch!();
                 setResponse(res);
             }
         } catch (error) {
@@ -131,7 +137,7 @@ const NewRelationship = ({infoMode, setInfoMode, fixedSelection,  currentRelatio
                         </div>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Members</span>
-                            <SearchSelectMultipleMembers fixedSelection={fixedSelection} setSelection={setSelection} />
+                            <SearchSelectMultipleMembers selection={selection} fixedSelection={fixedSelection} setSelection={setSelection} />
                             {/* <SearchSelectEvents  setSelect={setEventId} require={!currentRoom} isGeneric /> */}
                         </div>
                     

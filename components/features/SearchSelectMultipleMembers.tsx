@@ -13,7 +13,7 @@ type SearchSelectMultipleMembersProps = {
     defaultValue?:string;
 }
 
-const SearchSelectMultipleMembers = ({setSelection, fixedSelection,  defaultValue, require}:SearchSelectMultipleMembersProps) => {
+const SearchSelectMultipleMembers = ({setSelection, selection, fixedSelection,  defaultValue, require}:SearchSelectMultipleMembersProps) => {
     const {members, isPending} = useFetchMembersInAChurchV2();
     const [search, setSearch] = useState<string>('');
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -46,7 +46,7 @@ const SearchSelectMultipleMembers = ({setSelection, fixedSelection,  defaultValu
   }}
   inputValue={search}
   onInputChange={(_, v) => setSearch(v)}
-  defaultValue={fixedSelection}
+  defaultValue={selection}
   loading={isPending}
   isOptionEqualToValue={(option, value) => option._id === value._id}
   getOptionLabel={(item) => item?.name}

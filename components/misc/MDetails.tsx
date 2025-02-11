@@ -16,6 +16,9 @@ import { IGroup } from "@/lib/database/models/group.model"
 import { useFetchEvents } from "@/hooks/fetch/useEvent"
 import { IChurch } from "@/lib/database/models/church.model"
 import Link from "next/link"
+// import { useFetchMemberRelationships } from "@/hooks/fetch/useRelationship"
+// import Subtitle from "../features/Subtitle";
+import '@/components/features/customscroll.css';
 
 export type MDetailsProps = {
   currentMember:IMember
@@ -138,91 +141,118 @@ const MDetails = ({currentMember}:MDetailsProps) => {
             error={regError}
         />
 
-        <div className="flex flex-col gap-3 items-start">
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Name:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.name}</span>
-            </div>
-            {
-              currentMember?.email &&
+        <div className="flex w-full h-full flex-col gap-8 lg:gap-0 lg:flex-row">
+          <div className="flex flex-col gap-3 items-start flex-1">
               <div className="flex flex-row items-center gap-4">
-                <span className="text-[0.8rem] font-semibold" >Email:</span>
-                <span className="text-[0.8rem] text-slate-400" >{currentMember?.email}</span>
+                <span className="text-[0.8rem] font-semibold" >Name:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.name}</span>
               </div>
-            }
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Phone:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.phone}</span>
-            </div>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Gender:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.gender}</span>
-            </div>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Age Group:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.ageRange}</span>
-            </div>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Status:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.status}</span>
-            </div>
-            {
-              church &&
+              {
+                currentMember?.email &&
+                <div className="flex flex-row items-center gap-4">
+                  <span className="text-[0.8rem] font-semibold" >Email:</span>
+                  <span className="text-[0.8rem] text-slate-400" >{currentMember?.email}</span>
+                </div>
+              }
               <div className="flex flex-row items-center gap-4">
-                <span className="text-[0.8rem] font-semibold" >Church:</span>
-                <Link  href={{pathname:'/dashboard/churches', query:{id:church._id}}}  className="table-link" >{church?.name}</Link>
+                <span className="text-[0.8rem] font-semibold" >Phone:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.phone}</span>
               </div>
-            }
-            {/* <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Group/Family:</span>
-              <span className="text-[0.8rem] text-slate-400" >Yes <Link className="text-blue-800 hover:underline font-bold" href={`/dashboard/group/${member?.groupId}`} >({member?.groupId})</Link></span>
-            </div> */}
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Role:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.role}</span>
-            </div>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Employment Status:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.employ}</span>
-            </div>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Marital status:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.marital}</span>
-            </div>
-            {/* <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Dietary restrictions:</span>
-              <span className="text-[0.8rem] text-slate-400" >{currentMember?.dietary} {currentMember?.allergy && `(${currentMember?.allergy})`}</span>
-            </div> */}
-            {
-              currentMember?.note &&
-              <div className="flex flex-row items-start gap-4">
-                <span className="text-[0.8rem] font-semibold" >Member note:</span>
-                <span className="text-[0.8rem] md:w-[30rem] text-slate-400" >{currentMember?.note}</span>
-              </div>
-            }
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-[0.8rem] font-semibold" >Registered By:</span>
-              <span className="text-[0.8rem] text-slate-400" >{typeof currentMember?.registeredBy === 'object' && 'name' in currentMember?.registeredBy && currentMember?.registeredBy.name}</span>
-            </div>
-            {
-              currentMember ?
               <div className="flex flex-row items-center gap-4">
-                <span className="text-[0.8rem] font-semibold" >Registered On:</span>
-                <span className="text-[0.8rem] text-slate-400" >{new Date(currentMember.createdAt!)?.toDateString()}</span>
+                <span className="text-[0.8rem] font-semibold" >Gender:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.gender}</span>
               </div>
-              :
-              null
-            }
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Age Group:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.ageRange}</span>
+              </div>
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Status:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.status}</span>
+              </div>
+              {
+                church &&
+                <div className="flex flex-row items-center gap-4">
+                  <span className="text-[0.8rem] font-semibold" >Church:</span>
+                  <Link  href={{pathname:'/dashboard/churches', query:{id:church._id}}}  className="table-link" >{church?.name}</Link>
+                </div>
+              }
+              {/* <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Group/Family:</span>
+                <span className="text-[0.8rem] text-slate-400" >Yes <Link className="text-blue-800 hover:underline font-bold" href={`/dashboard/group/${member?.groupId}`} >({member?.groupId})</Link></span>
+              </div> */}
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Role:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.role}</span>
+              </div>
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Employment Status:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.employ}</span>
+              </div>
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Marital status:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.marital}</span>
+              </div>
+              {/* <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Dietary restrictions:</span>
+                <span className="text-[0.8rem] text-slate-400" >{currentMember?.dietary} {currentMember?.allergy && `(${currentMember?.allergy})`}</span>
+              </div> */}
+              {
+                currentMember?.note &&
+                <div className="flex flex-row items-start gap-4">
+                  <span className="text-[0.8rem] font-semibold" >Member note:</span>
+                  <span className="text-[0.8rem] md:w-[30rem] text-slate-400" >{currentMember?.note}</span>
+                </div>
+              }
+              <div className="flex flex-row items-center gap-4">
+                <span className="text-[0.8rem] font-semibold" >Registered By:</span>
+                <span className="text-[0.8rem] text-slate-400" >{typeof currentMember?.registeredBy === 'object' && 'name' in currentMember?.registeredBy && currentMember?.registeredBy.name}</span>
+              </div>
+              {
+                currentMember ?
+                <div className="flex flex-row items-center gap-4">
+                  <span className="text-[0.8rem] font-semibold" >Registered On:</span>
+                  <span className="text-[0.8rem] text-slate-400" >{new Date(currentMember.createdAt!)?.toDateString()}</span>
+                </div>
+                :
+                null
+              }
 
-            <div className="flex flex-row items-center gap-8 mt-4">
-              <AddButton onClick={()=>setHasOpen(true)} noIcon className="rounded" smallText text="Edit" />
-                {
-                  events.length &&
-                  <AddButton isCancel onClick={openEventReg} noIcon className="rounded" smallText text="Register Event" />
-                }
-              <AddButton onClick={handleDeleteMember}  isDanger noIcon className="rounded" smallText text="Delete" />
-            </div>
+              <div className="flex flex-row items-center gap-8 mt-4">
+                <AddButton onClick={()=>setHasOpen(true)} noIcon className="rounded" smallText text="Edit" />
+                  {
+                    events.length>0 &&
+                    <AddButton isCancel onClick={openEventReg} noIcon className="rounded" smallText text="Register Event" />
+                  }
+                <AddButton onClick={handleDeleteMember}  isDanger noIcon className="rounded" smallText text="Delete" />
+              </div>
           </div>
+          
+          {/* <div className="flex flex-1 flex-col gap-4 h-full overflow-y-scroll scrollbar-custom">
+            <Subtitle text="Relationships" />
+            {
+              relationships?.map((relationship)=>{
+                const members = relationship?.members as unknown as IMember[];
+                return(
+                  <div key={relationship?._id} className="flex flex-col gap-1">
+                    <span className="font-semibold" >{relationship?.type}</span>
+
+                    <div className="flex flex-col gap-2 ml-8">
+                      {
+                        members
+                        ?.filter((item)=>item?._id !== currentMember?._id)
+                        ?.map((member)=>(
+                          <Link key={member?._id} className="table-link" href={`/dashboard/members/${member?._id}`} >{member?.name}</Link>
+                        ))
+                      }
+                    </div>
+                  </div>
+                )
+              })
+            }
+          </div> */}
+        </div>
+
       </div>
     }
     </>

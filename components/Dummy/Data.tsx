@@ -8,9 +8,9 @@ import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosGitNetwork, IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
-import { TbBuildingChurch, TbDoorExit } from "react-icons/tb";
+import { TbBuildingChurch, TbCirclesRelation, TbDoorExit } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
-import { RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
+import { RiCalendarEventLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
 import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
@@ -40,14 +40,26 @@ export const NavItems:NavigationProps[] = [
         title: 'Members',
         isAdmin:false,
         icon: <LuUserPlus/>,
-        link:'/dashboard/members/register'
+        // link:'/dashboard/members/register',
+        children:[
+          {
+            text:'Event Registrations',
+            image:<RiCalendarEventLine />,
+            path:'/dashboard/members/register'
+          },
+          {
+            text:'All Members',
+            image:<HiOutlineUserGroup />,
+            path:'/dashboard/members'
+          },
+          {
+            text:'Relationships',
+            image:<TbCirclesRelation />,
+            path:'/dashboard/members/relationships'
+          },
+        ]
     },
-    {
-        title: 'All Members',
-        isAdmin:false,
-        icon: <HiOutlineUserGroup />,
-        link:'/dashboard/members'
-    },
+    
     {
         title: 'Event Management',
         isAdmin:false,

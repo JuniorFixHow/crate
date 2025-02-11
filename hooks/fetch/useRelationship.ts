@@ -1,7 +1,7 @@
 import { IRelationship } from "@/lib/database/models/relationship.model"
 import { useAuth } from "../useAuth"
 import { checkIfAdmin } from "@/components/Dummy/contants";
-import { getRelationships, getRelationshipsForChurch } from "@/lib/actions/relationship.action";
+import { getMemberRelationship, getRelationships, getRelationshipsForChurch } from "@/lib/actions/relationship.action";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchRelationship =()=>{
@@ -29,4 +29,24 @@ export const useFetchRelationship =()=>{
     });
 
     return {relationships, refetch, isPending}
+}
+
+export const useFetchMemberRelationships = (memberId:string)=>{
+    const fetchMemberRelationship = async():Promise<IRelationship[]>=>{
+        try {
+            const relations:IRelationship[] =  await getMemberRelationship(memberId);
+            return relations;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:relationships, isPending, refetch} = useQuery({
+        queryKey:['memberrelationships', memberId],
+        queryFn: fetchMemberRelationship,
+        enabled: !!memberId
+    })
+
+    return {relationships, isPending, refetch}
 }

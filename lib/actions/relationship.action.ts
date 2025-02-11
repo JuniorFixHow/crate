@@ -70,6 +70,19 @@ export async function getRelationshipsForChurch(churchId:string) {
     }
 }
 
+export async function getMemberRelationship(memberId:string) {
+    try {
+        await connectDB();
+        const relations = await Relationship.find({members: memberId})
+        .populate('members')
+        .lean();
+        return JSON.parse(JSON.stringify(relations));
+    } catch (error) {
+        console.log(error);
+        return handleResponse(`Error occured fetching relationships`, true, {}, 500);
+    }
+}
+
 export async function deleteRelationship(id:string){
     try {
         await connectDB();
