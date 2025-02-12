@@ -1,14 +1,17 @@
+import { IMember } from "@/lib/database/models/member.model";
 import { IRelationship } from "@/lib/database/models/relationship.model";
 import { Tooltip } from "@mui/material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
+import { getOtherUserFirst, getRelationValue } from "../fxn";
 
 export const SingleRelationshipColumns = (
     handleEdit:(data:IRelationship)=>void,
     handleInfo:(data:IRelationship)=>void,
     handleDelete:(data:IRelationship)=>void,
+    member:IMember
 )=>[
     {
         field:'title',
@@ -24,8 +27,8 @@ export const SingleRelationshipColumns = (
         headerName:'Related to',
         width:200,
         renderCell:({row}:GridRenderCellParams)=>(
-            <div className="flex gap-2">
-                <Link href={`/dashboard/members/${row?.members[1]?._id}`} className="table-link" >{row?.members[1]?.name}</Link>
+            <div className="flex gap-1">
+                <Link href={`/dashboard/members/${getOtherUserFirst(row?.members, member)?._id}`} className="table-link" >{getOtherUserFirst(row?.members, member)?.name}</Link>
                 {
                     row?.members?.length > 2 &&
                     <span>{`+${row?.members?.length - 2} ${row?.members?.length === 3 ? 'other':'others'}`}</span>
@@ -36,7 +39,10 @@ export const SingleRelationshipColumns = (
     {
         field:'type',
         headerName:'Relationship',
-        width:120
+        width:120,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <span>{getRelationValue(row?.members, member, row?.type)}</span>
+        )
     },
     
 

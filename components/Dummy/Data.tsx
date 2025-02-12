@@ -43,14 +43,14 @@ export const NavItems:NavigationProps[] = [
         // link:'/dashboard/members/register',
         children:[
           {
-            text:'Event Registrations',
-            image:<RiCalendarEventLine />,
-            path:'/dashboard/members/register'
-          },
-          {
             text:'All Members',
             image:<HiOutlineUserGroup />,
             path:'/dashboard/members'
+          },
+          {
+            text:'Event Registrations',
+            image:<RiCalendarEventLine />,
+            path:'/dashboard/members/register'
           },
           {
             text:'Relationships',

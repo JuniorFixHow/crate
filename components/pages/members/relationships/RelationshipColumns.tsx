@@ -43,7 +43,7 @@ export const RelationshipColumns = (
     {
         field:'type',
         headerName:'Relationship',
-        width:120
+        width:120,
     },
     {
         field:'churchId',

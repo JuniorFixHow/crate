@@ -115,7 +115,7 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
                 <Paper className='w-full' sx={{ height: 480, }}>
                     <DataGrid
                         rows={SearchSingleRelationship(relationships!,  search)}
-                        columns={SingleRelationshipColumns(handleEdit, hadndleInfo,  hadndleDelete)}
+                        columns={SingleRelationshipColumns(handleEdit, hadndleInfo,  hadndleDelete, member)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                         getRowId={(row:IRelationship):string=>row._id}
