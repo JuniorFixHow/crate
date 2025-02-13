@@ -11,6 +11,9 @@ import { ErrorProps } from '@/types/Types';
 import { deleteMember } from '@/lib/actions/member.action';
 import { SearchMemberWithEverything } from '../pages/members/fxns';
 import MemberInfoModal from '../pages/members/MemberInfoModal';
+import { enqueueSnackbar } from 'notistack';
+import { ExcelButton } from '../features/Buttons';
+import MemberImportModal from '../pages/members/MemberImportModal';
 
 export type MembersTableProps ={
     search:string,
@@ -29,6 +32,7 @@ const MembersTable = ({
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [deleteState, setDeleteState]= useState<ErrorProps>(null);
+    const [excelMode, setExcelMode] = useState<boolean>(false);
     
     const paginationModel = { page: 0, pageSize: 10 };
     // console.log(searchMember(search, members))
@@ -63,10 +67,10 @@ const MembersTable = ({
             await deleteMember(currentMember._id);
             setDeleteMode(false);
             setCurrentMember(null);
-            setDeleteState({message:'Member deleted successfully', error:false})
+            enqueueSnackbar('Member deleted successfully', {variant:'success'});
           } catch (error) {
             console.log(error)
-            setDeleteState({message:'Error occured deleting member', error:true})
+            enqueueSnackbar('Error occured deleting member', {variant:'error'});
           }
         }
       }
@@ -79,7 +83,10 @@ const MembersTable = ({
     <div className='xl:w-[67rem] gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-row items-center justify-between">
             <span className='font-bold text-xl' >Members</span>
-            <SearchBar setSearch={setSearch} reversed />
+            <div className="flex gap-3 items-center">
+              <ExcelButton onClick={()=>setExcelMode(true)} />
+              <SearchBar setSearch={setSearch} reversed className='py-1' />
+            </div>
         </div>
 
         {
@@ -88,7 +95,7 @@ const MembersTable = ({
         }
         <DeleteDialog title={`Delete ${currentMember?.name}`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
         <MemberInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentMember={currentMember} setCurrentMember={setCurrentMember} />
-
+        <MemberImportModal infoMode={excelMode} setInfoMode={setExcelMode} />
         <div className="table-main">
         {
           loading ? 
