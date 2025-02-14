@@ -14,15 +14,17 @@ export async function createRoom(room:Partial<IRoom>){
     try {
         await connectDB();
         const newRoom = await Room.create(room);
-        return JSON.parse(JSON.stringify(newRoom));
+        return handleResponse('Room created successfully', false, newRoom, 201)
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error creating room:', error.message);
-            throw new Error(`Error occurred during room creation: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during room creation');
-        }
+        // if (error instanceof Error) {
+        //     console.error('Error creating room:', error.message);
+        //     throw new Error(`Error occurred during room creation: ${error.message}`);
+        // } else {
+        //     console.error('Unknown error:', error);
+        //     throw new Error('Error occurred during room creation');
+        // }
+        console.log(error);
+        return handleResponse('Error occured creating room', true, {}, 500)
     }
 }
 
@@ -32,28 +34,32 @@ export async function createRooms(rooms:Partial<IRoom>[]){
         const newRoom = await Room.insertMany(rooms, {ordered:false});
         return handleResponse(`${rooms?.length} rooms created successfully`, false, newRoom, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error creating room:', error.message);
-            throw new Error(`Error occurred during room creation: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during room creation');
-        }
+        // if (error instanceof Error) {
+        //     console.error('Error creating room:', error.message);
+        //     throw new Error(`Error occurred during room creation: ${error.message}`);
+        // } else {
+        //     console.error('Unknown error:', error);
+        //     throw new Error('Error occurred during room creation');
+        // }
+        console.log(error);
+        return handleResponse('Error occured creating rooms', true, {}, 500)
     }
 }
 
 export async function updateRoom(id:string, room:Partial<IRoom>){
     try {
         const rm = await Room.findByIdAndUpdate(id, room, {new:true, runValidators:true});
-        return JSON.parse(JSON.stringify(rm));
+        return handleResponse('Room updated successfully', false, rm, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error updating attendance:', error.message);
-            throw new Error(`Error occurred during attendance update: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during attendance update');
-        }
+        // if (error instanceof Error) {
+        //     console.error('Error updating room:', error.message);
+        //     throw new Error(`Error occurred during room update: ${error.message}`);
+        // } else {
+        //     console.error('Unknown error:', error);
+        //     throw new Error('Error occurred during room update');
+        // }
+        console.log(error);
+        return handleResponse('Error occured updating room', true, {}, 500)
     }
 }
 
@@ -657,7 +663,11 @@ export async function getAvailableRooms(eventId: string) {
         await connectDB(); // Ensure the DB connection is made
 
         // Find all rooms for the given eventId
-        const rooms = await Room.find({ eventId });
+        const rooms = await Room.find({ eventId })
+            .populate('venueId')
+            .populate('facId')
+            .lean() as unknown as IRoom[];
+        
 
         if (!rooms || rooms.length === 0) {
             return handleResponse('No rooms found for this event', true, {}, 404);

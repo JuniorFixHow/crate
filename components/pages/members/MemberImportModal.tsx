@@ -37,6 +37,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
         setCampusId('');
         setChurchId('');
     }
+    // alert(new Date().getFullYear())
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -70,7 +71,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                     ...member,
                     church: churchId || user?.churchId,
                     campuseId:campusId,
-                    password: getPassword(member.name!, member.phone!)
+                    password: getPassword(member.name!, new Date().getFullYear().toString())
                 }));
     
                 const res = await createMembers(body);

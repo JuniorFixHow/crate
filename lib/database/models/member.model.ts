@@ -21,6 +21,7 @@ export interface IMember extends Document{
     allergy?:string,
     employ?:string,
     status:string;
+    voice:string;
     role:string;
     roles:string[];
     password:string;
@@ -42,6 +43,7 @@ const MemberSchema = new Schema<IMember>({
     allergy:String,
     note:String,
     marital:String,
+    voice:String,
     employ:String,
     password:String,
     status:String,

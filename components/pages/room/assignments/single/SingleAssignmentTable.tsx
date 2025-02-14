@@ -3,7 +3,7 @@ import SearchBar from '@/components/features/SearchBar';
 import Subtitle from '@/components/features/Subtitle';
 import { Alert, CircularProgress, Paper } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Dispatch, SetStateAction,  useState } from 'react';
+import { ComponentProps, Dispatch, SetStateAction,  useState } from 'react';
 import { SearchRoomWithoutEvent } from './fxn';
 import { SingleAssignmentCoulmns } from './SingleAssignmentCoulmns';
 import AddButton from '@/components/features/AddButton';
@@ -21,7 +21,7 @@ type SingleAssignmentTableProps = {
     currentRegistration:IRegistration,
     eventId:string|false
     setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>
-}
+} & ComponentProps<'div'>
 
 const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurrentRoom, eventId, currentRoom}:SingleAssignmentTableProps) => {
     const paginationModel = { page: 0, pageSize: 10 };
@@ -85,51 +85,54 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
     }
 
   return (
-    <div className='flex flex-1 flex-col gap-2' >
-        <Subtitle text={type === 'Member' ? 'Pick Room':'Pick Rooms'} />
-        <div className="flex flex-col lg:w-fit lg:mt-4">
-            <span className='text-slate-500 text-[0.8rem]' >No. of beds</span>
-            <input onChange={(e) => {
-                    const value = e.target.value; // Get the input value directly
-                    setNobs(value === '' ? undefined : parseInt(value)); // Reset to undefined if empty
-                }} min={0} type="number" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
-        </div>
-        <SearchBar className='w-fit lg:self-end' setSearch={setSearch} reversed={false} />
+    <div className='flex w-1/2' >
+        <div className="flex self-end flex-col gap-2 overflow-x-hidden">
+            <Subtitle text={type === 'Member' ? 'Pick Room':'Pick Rooms'} />
+            <div className="flex flex-col lg:w-fit lg:mt-4">
+                <span className='text-slate-500 text-[0.8rem]' >No. of beds</span>
+                <input onChange={(e) => {
+                        const value = e.target.value; // Get the input value directly
+                        setNobs(value === '' ? undefined : parseInt(value)); // Reset to undefined if empty
+                    }} min={0} type="number" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
+            </div>
+            <SearchBar className='w-fit lg:self-end' setSearch={setSearch} reversed={false} />
 
-        {
-            response?.message &&
-            <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
-        }
-
-        <div className="flex w-full">
             {
-                loading ? 
-                <div className="flex-center w-full">
-                    <CircularProgress className='w-3rem' />
-                </div>
-                :
-              <Paper className='w-full' sx={{ height: 480, }}>
-                  <DataGrid
-                      rows={SearchRoomWithoutEvent(rooms, search, nobs!)}
-                      columns={SingleAssignmentCoulmns(roomIds, handleSelect, currentRoom, handleRadio, type)}
-                      initialState={{ pagination: { paginationModel } }}
-                      pageSizeOptions={[5, 10]}
-                      getRowId={(row:IRoom)=>row._id}
-                      // checkboxSelection
-                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                      sx={{ border: 0 }}
-                  />
-              </Paper>
+                response?.message &&
+                <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
+            }
+
+            <div className="flex w-full">
+                {
+                    loading ? 
+                    <div className="flex-center w-full">
+                        <CircularProgress className='w-full' />
+                    </div>
+                    :
+                <Paper className='w-full' sx={{ height: 480, }}>
+                    <DataGrid
+                        rows={SearchRoomWithoutEvent(rooms, search, nobs!)}
+                        columns={SingleAssignmentCoulmns(roomIds, handleSelect, currentRoom, handleRadio, type)}
+                        initialState={{ pagination: { paginationModel } }}
+                        pageSizeOptions={[5, 10]}
+                        getRowId={(row:IRoom)=>row._id}
+                        // checkboxSelection
+                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                        sx={{ border: 0 }}
+                    />
+                </Paper>
+                }
+            </div>
+            {
+                type === 'Member' && currentRoom &&
+                <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+            }
+            {
+                type === 'Group' && roomIds.length > 0 &&
+                <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
             }
         </div>
-        {
-            type === 'Member' && currentRoom &&
-            <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-        }
-        {
-            type === 'Group' && roomIds.length > 0 &&
-            <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-        }
+
     </div>
   )
 }

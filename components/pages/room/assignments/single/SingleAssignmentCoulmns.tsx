@@ -12,7 +12,7 @@ export const SingleAssignmentCoulmns =(
 ) => [
     {
         field:'id',
-        headerName:'Select',
+        headerName:'Assign',
         width:100,
         renderCell:(params:GridRenderCellParams) =>{
             return(
@@ -31,6 +31,17 @@ export const SingleAssignmentCoulmns =(
         field:'venue',
         headerName:'Venue',
         width:140,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <span>{row?.venueId?.name}</span>
+        )
+    },
+    {
+        field:'facId',
+        headerName:'Facility',
+        width:140,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <span>{row?.facId?.name}</span>
+        )
     },
     {
         field:'number',

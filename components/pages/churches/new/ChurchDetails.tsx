@@ -240,10 +240,10 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                 <Uploader onSuccess={handleSuccess} className="w-fit" />
             </div>
         </div>
-        <div className="flex flex-col gap-1">
+        {/* <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Address</span>
             <textarea required={!currentChurch} defaultValue={currentChurch?.address} onChange={handleChange} className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="address"  />
-        </div>
+        </div> */}
 
         {
             !currentChurch &&

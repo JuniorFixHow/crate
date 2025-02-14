@@ -57,6 +57,9 @@ export const readMembersFromExcel = (file: File): Promise<Partial<IMember>[]> =>
           "Employment Status"?: string;
           "Status"?: string;
           "Role"?: string;
+          "Voice"?: string;
+          "Dietary"?: string;
+          "Allergy Note"?: string;
           "Email"?: string;
           "Phone"?: string;
         };
@@ -73,6 +76,9 @@ export const readMembersFromExcel = (file: File): Promise<Partial<IMember>[]> =>
           employ: row["Employment Status"],
           status: row["Status"],
           role: row["Role"],
+          dietary: row["Dietary"],
+          allergy: row["Allergy Note"],
+          voice: row["Voice"],
           email: row["Email"],
           phone: row["Phone"],
         }));

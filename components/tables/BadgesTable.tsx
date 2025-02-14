@@ -103,7 +103,7 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
                     setBadge={setBadge} setDate={setDate}
                     setRoom={setRoom} reset={reset}
                 />
-                <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-[#0F1214] dark:border' >Print</button>
+                <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-[#0F1214] dark:border' >Print Badges</button>
             </div>
         }
 

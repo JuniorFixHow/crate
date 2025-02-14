@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import SearchSelectVenues from '@/components/features/SearchSelectVenue';
 import { generateNumberArray } from '@/functions/misc';
 import { IFacility } from '@/lib/database/models/facility.model';
+import { enqueueSnackbar } from 'notistack';
 
 export type NewRoomProps = {
     infoMode:boolean,
@@ -54,9 +55,11 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                 venueId,
                 churchId:user?.churchId
             }
-            await createRoom(body);
-            setResponse({message:'Room created successfully', error:false});
+            const res = await createRoom(body);
+            // setResponse({message:'Room created successfully', error:false});
             formRef.current?.reset();
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            setInfoMode(false);
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured creating room', error:true})
@@ -84,8 +87,10 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                     facId: facId||currentRoom.facId,
                 }
                 const res=  await updateRoom(currentRoom._id, body);
-                setCurrentRoom(res);
-                setResponse({message:'Room updated successfully', error:false});
+                setCurrentRoom(res?.payload as IRoom);
+                setResponse(res);
+                setInfoMode(false);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
             }
         } catch (error) {
             console.log(error);

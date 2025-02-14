@@ -5,7 +5,7 @@ import { IRoom } from '@/lib/database/models/room.model'
 import { IVenue } from '@/lib/database/models/venue.model'
 import { LinearProgress } from '@mui/material'
 import Link from 'next/link'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
 type SingleAssignmentDetailsProps = {
     type:string|null,
@@ -13,14 +13,14 @@ type SingleAssignmentDetailsProps = {
     MemberData:IRegistration,
     loading:boolean,
     currentRoom:IRoom
-}
+} & ComponentProps<'div'>
 
-const SingleAssignmentDetails = ({type, loading, GroupData, currentRoom, MemberData}:SingleAssignmentDetailsProps) => {
+const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRoom, MemberData, ...props}:SingleAssignmentDetailsProps) => {
     const venue = currentRoom?.venueId as IVenue;
     const facility = currentRoom?.facId as IFacility;
 
   return (
-    <div className='flex flex-1 flex-col gap-6' >
+    <div {...props}  className={`flex w-1/2 flex-col gap-6 ${className}`} >
         {
             loading ?
             <LinearProgress className='w-full' />
@@ -76,7 +76,7 @@ const SingleAssignmentDetails = ({type, loading, GroupData, currentRoom, MemberD
                         <div className="flex flex-col gap-2 ml-2 lg:ml-8">
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Venue:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{ `${venue} - ${currentRoom?.number}`}</span>
+                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{ `${venue?.name} - ${currentRoom?.number}`}</span>
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Floor:</span>

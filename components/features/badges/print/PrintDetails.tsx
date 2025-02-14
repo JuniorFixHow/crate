@@ -133,7 +133,7 @@ const PrintDetails = ({setCurrentReg, currentReg, setHasRegistered, hasRegistere
                                  rooms?.map((item)=>{
                                     const venue = item?.venueId as IVenue;
                                     return(
-                                        <Link className="table-link w-fit" href={{pathname:`/dashboard/rooms`, query:{id:item?._id}}} key={item?._id} >{`${venue?.name} - {item?.number}`}</Link>
+                                        <Link className="table-link w-fit" href={{pathname:`/dashboard/rooms`, query:{id:item?._id}}} key={item?._id} >{`${venue?.name} - ${item?.number}`}</Link>
                                     )
                                 })
                             }

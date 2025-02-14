@@ -39,6 +39,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     const [data, setData] = useState<Partial<IMember>>({
         role:'Member',
         marital:'Single',
+        voice:'None',
         employ:'Employed', status:'Active',
     });
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
@@ -160,6 +161,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     dietary:data.dietary || currentMemeber.dietary,
                     allergy:data.allergy || currentMemeber.allergy,
                     employ:data.employ || currentMemeber.employ,
+                    voice:data.voice || currentMemeber.voice,
                     status:data.status || currentMemeber.status,
                     ageRange:data.ageRange || currentMemeber.ageRange,
                     church:church||currentMemeber.church,
@@ -215,8 +217,12 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             <div className="flex flex-row gap-12 items-start">
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Role</span>
-                    <select onChange={handleChange} className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.role} >
+                    <select name='role' onChange={handleChange} className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.role} >
                         <option className='dark:bg-black' value="Member">Member</option>
+                        <option className='dark:bg-black' value="Non-member">Non-member</option>
+                        <option className='dark:bg-black' value="Choir Official">Choir Official</option>
+                        <option className='dark:bg-black' value="NAGACU Official">NAGACU Official</option>
+                        <option className='dark:bg-black' value="NAGSDA Official">NAGSDA Official</option>
                         <option className='dark:bg-black' value="Departmental Leader">Departmental Leader</option>
                         <option className='dark:bg-black' value="Elder">Elder</option>
                         <option className='dark:bg-black' value="Pastor">Pastor</option>
@@ -308,26 +314,28 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     <select required={!currentMemeber} onChange={handleChange} name='marital'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.marital} >
                         <option className='dark:bg-black' value="Single">Single</option>
                         <option className='dark:bg-black' value="Married">Married</option>
+                        <option className='dark:bg-black' value="Separated">Separated</option>
+                        <option className='dark:bg-black' value="Widow">Widow</option>
                     </select>
                 </div>
             </div>
 
-            {/* <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Dietary Preference</span>
                 <div className="flex flex-row items-center gap-2">
-                    <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='No'} type="radio" name="dietary" value='No'  />
-                    <span className='font-semibold text-[0.8rem]' >No</span>
+                    <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='No'} type="radio" name="dietary" value='Vegetarian'  />
+                    <span className='font-semibold text-[0.8rem]' >Vegetarian</span>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                    <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='Yes'} type="radio" name="dietary" value='Yes'  />
-                    <span className='font-semibold text-[0.8rem]' >Yes</span>
+                    <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='Yes'} type="radio" name="dietary" value='Non-vegetarian'  />
+                    <span className='font-semibold text-[0.8rem]' >Non-vegetarian</span>
                 </div>
             </div>
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Allergy</span>
                 <textarea onChange={handleChange}  placeholder='allergies separated with comma' className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="allergy"  />
-            </div> */}
+            </div>
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Member Note</span>
