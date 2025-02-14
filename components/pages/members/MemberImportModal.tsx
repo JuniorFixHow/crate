@@ -9,12 +9,13 @@ import { LuUpload } from "react-icons/lu";
 
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
+// import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
 import SearchSelectCampuses from "@/components/features/SearchSelectCampuses";
 import { IMember } from "@/lib/database/models/member.model";
 import { createMembers } from "@/lib/actions/member.action";
 import { getPassword } from "@/functions/misc";
 import { readMembersFromExcel } from "./fxns";
+import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
 
 type MemberImportModalProps = {
     infoMode:boolean;
@@ -116,12 +117,15 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Choose Church</span>
-                        <SearchSelectChurch setSelect={setChurchId} isGeneric require />
+                        <SearchSelectChurchesV2 setSelect={setChurchId} require />
                     </div>
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Select Campus</span>
-                        <SearchSelectCampuses churchId={churchId} isGeneric setSelect={setCampusId} require />
-                    </div>
+                    {
+                        churchId &&
+                        <div className="flex flex-col">
+                            <span className='text-slate-500 text-[0.8rem]' >Select Campus</span>
+                            <SearchSelectCampuses className="w-fit" churchId={churchId} isGeneric setSelect={setCampusId} require />
+                        </div>
+                    }
                     
                                       
                 </div>

@@ -1,5 +1,6 @@
 import mongoose, { Document, model, models, Schema } from "mongoose";
 import { IChurch } from "./church.model";
+import { ICampuse } from "./campuse.model";
 
 export interface IVendor extends Document {
     _id:string;
@@ -11,6 +12,7 @@ export interface IVendor extends Document {
     password:string;
     roles:string[];
     church:mongoose.Types.ObjectId|string|IChurch;
+    campusId:mongoose.Types.ObjectId|string|ICampuse;
     role:'Admin'|'Coordinator'|'Volunteer';
     gender:'Male'|'Female';
     registrants:number;
@@ -23,6 +25,7 @@ const VendorSchema = new Schema<IVendor>({
     image:{type:String, default:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png'},
     email:{type:String, required:true, unique:true},
     church:{type:Schema.Types.ObjectId, ref:'Church'},
+    campusId:{type:Schema.Types.ObjectId, ref:'Campus'},
     role:String,
     country:String,
     gender:String,
