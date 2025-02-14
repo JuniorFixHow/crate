@@ -7,11 +7,11 @@ export const SearchKey = (keys:IKey[], search:string, roomId:string, eventId:str
     ?.filter((item)=>{
         const room = item?.roomId as IRoom;
         const event = room?.eventId as IEvent;
-        return eventId === '' ? item : event._id === eventId
+        return eventId === '' ? item : event?._id === eventId
     })
     ?.filter((key)=>{
         const room = key.roomId as IRoom;
-        return roomId === '' ? key : room._id === roomId 
+        return roomId === '' ? key : room?._id === roomId 
     })
     ?.filter((key)=>{
         return search === '' ? key : Object.values(key)
