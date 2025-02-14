@@ -57,6 +57,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             const res = await createKey(data);
             formRef.current?.reset();
             setResponse(res);
+            setEditMode(false);
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured creating key', error:true})
