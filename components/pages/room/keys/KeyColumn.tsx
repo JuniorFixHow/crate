@@ -53,7 +53,7 @@ export const KeyColumns = (
         width:110,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span>{new Date(params.row?.assignedOn).toLocaleDateString()}</span>
+                <span>{params?.row?.assignedOn ? new Date(params.row?.assignedOn).toLocaleDateString() : 'Not Yet'}</span>
             )
         }
     },

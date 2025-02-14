@@ -93,6 +93,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
                 setResponse(res);
                 const key = res?.payload as IKey;
                 setCurrentKey(key);
+                setEditMode(false);
             }
         } catch (error) {
             console.log(error);
