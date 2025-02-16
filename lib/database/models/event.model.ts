@@ -9,7 +9,8 @@ export interface IEvent extends Document {
     location?: string;
     from?: string;
     to?: string;
-    type?: 'Convention' | 'Camp Meeting - Adult' | 'Conference' | 'Retreat' | 'Camp Meeting – YAYA';
+    type: 'Convention' | 'Camp Meeting - Adult' | 'Conference' | 'Retreat' | 'Camp Meeting – YAYA';
+    organizers: 'NAGACU' | 'NAGSDA' | 'Church';
     note?: string;
     adultPrice?: number;
     childPrice?: number;
@@ -26,6 +27,7 @@ const EventSchema = new Schema<IEvent>({
     from:String,
     to:String,
     type:String,
+    organizers:String,
     note:String,
     adultPrice:Number,
     childPrice:Number,

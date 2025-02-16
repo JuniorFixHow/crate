@@ -1,21 +1,21 @@
 'use client'
 import BottomActionItems from '@/components/features/BottomActionItems'
 import Title from '@/components/features/Title'
-import CircularIndeterminate from '@/components/misc/CircularProgress'
+// import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { today } from '@/functions/dates'
-import { getEvent, updateEvent } from '@/lib/actions/event.action'
+import {  updateEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, FormEvent,  useEffect,  useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 
-const EventMain = ({eventId}:{eventId:string}) => {
-    const [event, setEvent] = useState<IEvent|null>(null);
+const EventMain = ({event}:{event:IEvent}) => {
+    // const [event, setEvent] = useState<IEvent|null>(null);
     const [data, setData] = useState<Partial<IEvent>>({});
-    const [loading, setLoading] = useState<boolean>(true);
+    // const [loading, setLoading] = useState<boolean>(true);
     const [updateLoading, setUpdateLoading] = useState<boolean>(false);
-    const [loadingError, setLoadingError] = useState<string|null>(null);
+    // const [loadingError, setLoadingError] = useState<string|null>(null);
     const [error, setError] = useState<ErrorProps>(null);
 
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -27,23 +27,10 @@ const EventMain = ({eventId}:{eventId:string}) => {
     }
 
     useEffect(()=>{
-        const fetchEvent = async()=>{
-            try {
-                if(eventId){
-                    const event:IEvent = await getEvent(eventId);
-                    setEvent(event);
-                    setLoadingError(null);
-                }
-                
-            } catch (error) {
-                console.log(error);
-                setLoadingError('Error occured fetching event');
-            }finally{
-                setLoading(false);
-            }
-        }
-        fetchEvent();
-    },[eventId])
+        setData(event)
+    },[event])
+
+    
 
 
     const handleUpdateEvent = async(e:FormEvent<HTMLFormElement>)=>{
@@ -58,12 +45,12 @@ const EventMain = ({eventId}:{eventId:string}) => {
               from:data.from||event.from,
               to:data.to||event.to,
               note:data.note||event.note,
+              organizers:data.organizers||event.organizers,
               type:data.type||event.type,
               childPrice:data.childPrice||event.childPrice,
               adultPrice:data.adultPrice||event.adultPrice,
             }
             await updateEvent(event._id, body);
-            setEvent(event);
             setError({message:'Event updated successfully', error:false});
   
           }
@@ -76,7 +63,7 @@ const EventMain = ({eventId}:{eventId:string}) => {
       }
 
 
-    if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={loadingError} />
+    // if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={loadingError} />
 
   return (
     <div className='page' >
@@ -110,37 +97,60 @@ const EventMain = ({eventId}:{eventId:string}) => {
                             <input onChange={handleChange} min={today()} defaultValue={event?.to} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="to"  />
                         </div>
                     </div>
+                    <div className="flex flex-col gap-1">
+                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
+                        <select onChange={handleChange} name='type' defaultValue={event?.type}  className='border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none'  >
+                            <option className="dark:bg-black" value="Convention">Convention</option>
+                            <option className="dark:bg-black" value="Conference">Conference</option>
+                            <option className="dark:bg-black" value="Retreat">Retreat</option>
+                            <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
+                            <option className="dark:bg-black" value="Camp Meeting – YAYA">Camp Meeting – YAYA</option>
+                        </select>
+                    </div>
 
                     <div className="flex flex-row gap-12">
-                        <div className="flex flex-col gap-1">
-                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
-                            <input onChange={handleChange} min={0} defaultValue={event?.childPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="childPrice"  />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Adults&apos; price</span>
-                            <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
-                        </div>
+                            <div className="flex flex-col gap-1">
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >{( data.type === 'Conference' || data.type === 'Convention'||data.type ==='Retreat')? 'Price':"Adult's Price"}</span>
+                                <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
+                            </div>
+                        {
+                            (data.type === 'Camp Meeting – YAYA' || data.type === 'Camp Meeting - Adult') &&
+                            <div className="flex flex-col gap-1">
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
+                                <input onChange={handleChange} min={0} defaultValue={event?.childPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="childPrice"  />
+                            </div>
+                        }
                     </div>
 
                     {/* adult price {event?.adultPrice} */}
 
-                    <div className="flex flex-col gap-1">
-                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
-                        <select onChange={handleChange} name='type' defaultValue={event?.type}  className='border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none'  >
-                            <option className='dark:bg-black' value="Convension">Convension</option>
-                            <option className='dark:bg-black' value="Camp Meeting">Camp Meeting</option>
-                            <option className='dark:bg-black' value="CYP">CYP</option>
-                        </select>
-                    </div>
 
                 </div>
 
 
             {/* RIGHT */}
                 <div className="flex flex-1 flex-col justify-between">
-                    <div className="flex flex-col gap-1">
-                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
-                        <textarea onChange={handleChange} defaultValue={event?.note} placeholder='say something about this event' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
+
+                    <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-slate-400 font-semibold text-[0.8rem]">Organizers</span>
+                            <select
+                                required
+                                onChange={handleChange}
+                                name="organizers"
+                                defaultValue={event?.organizers}
+                                className="border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none"
+                            >
+                                <option className="dark:bg-black" value="NAGACU">NAGACU</option>
+                                <option className="dark:bg-black" value="NAGSDA">NAGSDA</option>
+                                <option className="dark:bg-black" value="Church">Church</option>
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
+                            <textarea onChange={handleChange} defaultValue={event?.note} placeholder='say something about this event' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
+                        </div>
                     </div>
 
                         {
@@ -149,7 +159,7 @@ const EventMain = ({eventId}:{eventId:string}) => {
                         }
                         <BottomActionItems updateLoading={updateLoading} setError={setError} event={event!} />
                 </div>
-                </div>
+               </div>
 
             </form>
         </div>

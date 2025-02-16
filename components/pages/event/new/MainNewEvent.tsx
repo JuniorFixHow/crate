@@ -12,7 +12,7 @@ import { ChangeEvent, FormEvent, useRef, useState } from 'react'
 
 
 const MainNewEvent = () => {
-  const [data, setData] = useState<Partial<IEvent>>({});
+  const [data, setData] = useState<Partial<IEvent>>({type:'Convention', organizers:'NAGACU'});
   const [location, setLocation] =useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorProps>(null);
@@ -112,63 +112,76 @@ const MainNewEvent = () => {
               </div>
             </div>
 
-            <div className="flex flex-row gap-12 items-center">
-              <div className="flex flex-col gap-1">
-                <span className="text-slate-400 font-semibold text-[0.8rem]">Adults&apos; Price</span>
-                <input
-                  
-                  onChange={handleChange}
-                  min={0}
-                  placeholder="$"
-                  className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
-                  type="number"
-                  name="adultPrice"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-slate-400 font-semibold text-[0.8rem]">Children&apos;s Price</span>
-                <input
-                  onChange={handleChange}
-                  min={0}
-                  placeholder="$"
-                  className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
-                  type="number"
-                  name="childPrice"
-                />
-              </div>
-            </div>
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 font-semibold text-[0.8rem]">Type</span>
               <select
                 required
                 onChange={handleChange}
                 name="type"
-                defaultValue=""
+                defaultValue="Convention"
                 className="border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none"
               >
-                <option className="dark:bg-black" value="">
-                  select
-                </option>
-                <option className="dark:bg-black" value="Convention">
-                  Convention
-                </option>
-                <option className="dark:bg-black" value="Camp Meeting - Adult">
-                  Camp Meeting - Adult
-                </option>
-                <option className="dark:bg-black" value="Conference">
-                  Conference
-                </option>
-                <option className="dark:bg-black" value="Retreat">
-                  Retreat
-                </option>
-                <option className="dark:bg-black" value="Camp Meeting – YAYA">
-                  Camp Meeting – YAYA
-                </option>
+                <option className="dark:bg-black" value="Convention">Convention</option>
+                <option className="dark:bg-black" value="Conference">Conference</option>
+                <option className="dark:bg-black" value="Retreat">Retreat</option>
+                <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
+                <option className="dark:bg-black" value="Camp Meeting – YAYA">Camp Meeting – YAYA</option>
               </select>
             </div>
+
+              <div className="flex flex-row gap-12 items-center">
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-400 font-semibold text-[0.8rem]">{( data.type === 'Conference' || data.type === 'Convention'||data.type ==='Retreat')? 'Price':"Adult's Price"}</span>
+                  <input
+                    
+                    onChange={handleChange}
+                    min={0}
+                    placeholder="$"
+                    className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                    type="number"
+                    name="adultPrice"
+                  />
+                </div>
+                {
+                  (data.type === 'Camp Meeting – YAYA' || data.type === 'Camp Meeting - Adult') &&
+                    <div className="flex flex-col gap-1">
+                      <span className="text-slate-400 font-semibold text-[0.8rem]">Children&apos;s Price</span>
+                      <input
+                        onChange={handleChange}
+                        min={0}
+                        placeholder="$"
+                        className="border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                        type="number"
+                        name="childPrice"
+                      />
+                    </div>
+                }
+              </div>
           </div>
          
-            <div className="flex flex-1 flex-col gap-5">
+          <div className="flex flex-1 flex-col gap-5">
+
+            <div className="flex flex-col gap-1">
+              <span className="text-slate-400 font-semibold text-[0.8rem]">Organizers</span>
+              <select
+                required
+                onChange={handleChange}
+                name="organizers"
+                defaultValue="NAGACU"
+                className="border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none"
+              >
+                <option className="dark:bg-black" value="NAGACU">
+                  NAGACU
+                </option>
+                <option className="dark:bg-black" value="NAGSDA">
+                  NAGSDA
+                </option>
+                <option className="dark:bg-black" value="Church">
+                  Church
+                </option>
+                
+              </select>
+            </div>
              
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 font-semibold text-[0.8rem]">Description</span>
@@ -177,10 +190,10 @@ const MainNewEvent = () => {
                 onChange={handleChange}
                 placeholder="type here..."
                 className="border p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
-                name="description"
+                name="note"
               />
             </div>
-            </div>
+          </div>
         </div>
 
           {error?.message && (
