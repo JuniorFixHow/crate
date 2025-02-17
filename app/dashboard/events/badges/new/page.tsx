@@ -1,4 +1,5 @@
-import NewBadgeSearch from '@/components/features/badges/NewBadgeSearch'
+// import NewBadgeSearch from '@/components/features/badges/NewBadgeSearch'
+import NewBadgeSearchV2 from '@/components/features/badges/NewBadgeSearchV2'
 import Title from '@/components/features/Title'
 import {IoIosArrowForward} from 'react-icons/io'
 // import { IoCheckmarkCircleOutline } from 'react-icons/io5'
@@ -19,7 +20,7 @@ const page = () => {
                 <span className='font-medium' >/40</span>
             </div>
         </div> */}
-        <NewBadgeSearch/>
+        <NewBadgeSearchV2/>
     </div>
   )
 }

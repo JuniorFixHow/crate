@@ -326,6 +326,40 @@ export async function getRegistrationsByGroup(groupId: string) {
     }
 }
 
+export async function registerMembersForEvent(memberIds: string[], eventId: string) {
+    try {
+        await connectDB();
+
+        // Prepare bulk operations for efficient insertion
+        const bulkOps = memberIds.map((memberId) => ({
+            updateOne: {
+                filter: { memberId, eventId }, // Check if the registration already exists
+                update: {
+                    $setOnInsert: {
+                        memberId,
+                        eventId,
+                        badgeIssued: 'No', // Default value
+                        checkedIn: { checked: false, date: null }, // Default value
+                    },
+                },
+                upsert: true, // Insert if it doesn't exist
+            },
+        }));
+
+        // Execute bulk operations
+        const result = await Registration.bulkWrite(bulkOps);
+
+        return handleResponse(
+            `Successfully registered members for the event.`,
+            false,
+            { insertedCount: result.upsertedCount, modifiedCount: result.modifiedCount },
+            200
+        );
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occurred while registering members for the event', true, {}, 500);
+    }
+}
 
 export async function deleteReg(id: string) {
     try {

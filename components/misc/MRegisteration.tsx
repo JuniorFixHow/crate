@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react';
+import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import AddButton from '@/components/features/AddButton';
 import RegisterForEvent from '@/components/shared/RegisterForEvent';
 import SearchSelectChurch from '../shared/SearchSelectChurch';
@@ -16,6 +16,7 @@ import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
 import { IGroup } from '@/lib/database/models/group.model';
 import { useAuth } from '@/hooks/useAuth';
 import SearchSelectCampuses from '../features/SearchSelectCampuses';
+import { checkIfAdmin } from '../Dummy/contants';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -46,6 +47,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
 
 
     const {user} = useAuth();
+    const isAdmin = checkIfAdmin(user);
 
     const {events} = useFetchEvents();
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -61,6 +63,12 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
 
     const formRef = useRef<HTMLFormElement>(null);
     // console.log(data);
+
+    useEffect(()=>{
+        if(!isAdmin && user){
+            setChurch(user?.churchId);
+        }
+    },[isAdmin, user])
     
 
     const openEventReg = ()=>{
@@ -126,7 +134,9 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         try {
             const body:Partial<IMember> = {
                 ...data, password:getPassword(data.name!, data.phone!),
-                registeredBy:user?.userId, church:user?.churchId, campuseId,
+                registeredBy:user?.userId, 
+                church, 
+                campuseId,
             } 
             const res = await createMember(body);
             const response = res?.payload as IMember
@@ -285,7 +295,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
 
         <div className="flex flex-col gap-5">
             {
-                currentMemeber &&
+                (currentMemeber || isAdmin) &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
                     <SearchSelectChurch require={!currentMemeber} setSelect={setChurch} isGeneric />
@@ -295,7 +305,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 user &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Campus</span>
-                    <SearchSelectCampuses  require={!currentMemeber} churchId={currentMemeber ? church : user!.churchId} setSelect={setCampuseId} isGeneric />
+                    <SearchSelectCampuses  require={!currentMemeber} churchId={(currentMemeber || isAdmin) ? church : user!.churchId} setSelect={setCampuseId} isGeneric />
                 </div>
             }
 
@@ -318,6 +328,17 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                         <option className='dark:bg-black' value="Widow">Widow</option>
                     </select>
                 </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+                <span className='text-slate-400 font-semibold text-[0.8rem]' >Voice</span>
+                <select required={!currentMemeber} onChange={handleChange} name='voice'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.voice} >
+                    <option className='dark:bg-black' value="">None</option>
+                    <option className='dark:bg-black' value="Soprano">Soprano</option>
+                    <option className='dark:bg-black' value="Alto">Alto</option>
+                    <option className='dark:bg-black' value="Tenor">Tenor</option>
+                    <option className='dark:bg-black' value="Bass">Bass</option>
+                </select>
             </div>
 
             <div className="flex flex-col gap-1">

@@ -1,5 +1,7 @@
-import { getCYPEvents, getEvents, getUserEvents } from "@/lib/actions/event.action";
+import { getCYPEvents, getEvents, getUnregisteredMembers, getUserEvents } from "@/lib/actions/event.action";
 import { IEvent } from "@/lib/database/models/event.model"
+import { IMember } from "@/lib/database/models/member.model";
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"
 
@@ -57,4 +59,26 @@ export const useFetchCYPEvents = ()=>{
         fetchEvents();
     },[])
     return {cypevents, error, loading}
+}
+
+
+export const useFetchUnregisteredMembers = (eventId:string, memberIds:string[])=>{
+    const fetchUnregistered = async():Promise<IMember[]>=>{
+       try {
+            const response = await getUnregisteredMembers(memberIds, eventId);
+            const data = response?.payload as IMember[];
+            return data;
+       } catch (error) {
+            console.log(error);
+            return [];
+       }
+    }
+
+    const {data:members, refetch, isPending, isError} = useQuery({
+        queryKey:['unregistred', memberIds, eventId],
+        queryFn:fetchUnregistered,
+        enabled: !!eventId && !!memberIds.length
+    })
+
+    return {members, refetch, isPending, isError}
 }

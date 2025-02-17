@@ -7,6 +7,8 @@ import Registration, { IRegistration } from "../database/models/registration.mod
 import Room from "../database/models/room.model";
 import Session from "../database/models/session.model";
 import { connectDB } from "../database/mongoose";
+import Member from "../database/models/member.model";
+import { handleResponse } from "../misc";
 
 export async function createEvent(event:Partial<IEvent>){
     try {
@@ -84,6 +86,28 @@ export async function getUserEvents(userId:string){
         }
     }
 }
+
+
+export async function getUnregisteredMembers(memberIds: string[], eventId: string) {
+    try {
+        await connectDB();
+
+        // Find all registrations for the given event and extract registered member IDs
+        const registrations = await Registration.find({ eventId, memberId: { $in: memberIds } }).select('memberId').lean();
+        const registeredMemberIds = registrations.map((reg) => reg.memberId.toString());
+
+        // Find members in the provided memberIds array who are not in registeredMemberIds
+        const unregisteredMembers = await Member.find({
+            _id: { $in: memberIds.filter((id) => !registeredMemberIds.includes(id)) }
+        }).lean();
+
+        return handleResponse('Unregistered members fetched successfully', false, unregisteredMembers, 200);
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occurred fetching unregistered members', true, {}, 500);
+    }
+}
+
 
 export async function getEvent(id:string){
     try {
