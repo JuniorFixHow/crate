@@ -87,7 +87,7 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                     facId: facId||currentRoom.facId,
                 }
                 const res=  await updateRoom(currentRoom._id, body);
-                setCurrentRoom(res);
+                setCurrentRoom(res?.payload as IRoom);
                 setResponse({message:'Room updated successfully', error:false});
             }
         } catch (error) {
