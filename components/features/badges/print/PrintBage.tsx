@@ -20,16 +20,17 @@ const PrintBage = () => {
     const [eventId, setEventId] = useState<string>('');
     const [registeredMembers, setRegisteredMembers] = useState<IMember[]>([]);
 
-    const localData = sessionStorage.getItem('printData'); 
+    
 
     const {isPending, members} = useFetchUnregisteredMembers(eventId, memberData.map((item)=>item?._id));
 
     useEffect(()=>{
+        const localData = sessionStorage.getItem('printData'); 
         if(localData){
             const data = JSON.parse(localData) as IMember[];
             setMemberData(data);
         }
-    },[localData])
+    },[])
 
     useEffect(()=>{
         if(members){
