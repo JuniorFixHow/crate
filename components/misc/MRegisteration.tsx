@@ -314,8 +314,18 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Employment Status</span>
                     <select required={!currentMemeber} onChange={handleChange} name='employ'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.employ} >
                         <option className='dark:bg-black' value="">select</option>
-                        <option className='dark:bg-black' value="Employed">Employed</option>
-                        <option className='dark:bg-black' value="Unemployed">Unemployed</option>
+                        <option className='dark:bg-black' value="Employed - Professional">Employed - Professional</option>
+                        <option className='dark:bg-black' value="Self Employed">Self Employed</option>
+                        <option className='dark:bg-black' value="Employed - Retail">Employed - Retail</option>
+                        <option className='dark:bg-black' value="Employed - Healthcare">Employed - Healthcare</option>
+                        <option className='dark:bg-black' value="Employed- Others">Employed- Others</option>
+                        <option className='dark:bg-black' value="Student - EC to KG">Student - EC to KG</option>
+                        <option className='dark:bg-black' value="Student - Elementary">Student - Elementary</option>
+                        <option className='dark:bg-black' value="Student -Middle School">Student -Middle School</option>
+                        <option className='dark:bg-black' value="Student - High School">Student - High School</option>
+                        <option className='dark:bg-black' value="Student University">Student University</option>
+                        <option className='dark:bg-black' value="Retired">Retired</option>
+                        <option className='dark:bg-black' value="Not currently working">Not currently working</option>
                     </select>
                 </div>
 

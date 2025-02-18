@@ -7,6 +7,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import Nagacu from "./Nagacu";
 // import { handlePrint } from "@/components/pages/churches/contract/single/fxn";
 import html2canvas  from 'html2canvas'
+import { updateBadgeIssuedForMembers } from "@/lib/actions/event.action";
 // import './printStyles.css';
 
 type BadgePreviewV2Props = {
@@ -60,15 +61,13 @@ const BadgePreviewV2 = ({infoMode, eventId, setInfoMode, data}:BadgePreviewV2Pro
                 const imgElement = printWindow.document.querySelector('img');
                 imgElement!.onload = async() => {
                     printWindow.print();
+                    const memberIds = data?.map((item)=>item?._id);
+                    try {
+                        await updateBadgeIssuedForMembers(memberIds, eventId);
+                    } catch (error) {
+                        console.log(error);
+                    }
                     window.location.reload();
-                    // const data:Partial<IRegistration> = {badgeIssued:'Yes'};
-                    // if(currentReg && currentReg.badgeIssued === 'No'){
-                    //     try {
-                    //         await updateReg(currentReg?._id, data);
-                    //     } catch (error) {
-                    //         console.log(error);
-                    //     }
-                    // }
                 };
                 imgElement!.onerror = () => {
                     console.error('Image failed to load');

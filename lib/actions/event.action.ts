@@ -109,6 +109,35 @@ export async function getUnregisteredMembers(memberIds: string[], eventId: strin
 }
 
 
+export async function updateBadgeIssuedForMembers(memberIds: string[], eventId: string) {
+    try {
+        await connectDB();
+
+        // Perform the update for all the matching registrations
+        const result = await Registration.updateMany(
+            {
+                memberId: { $in: memberIds }, // Find registrations for the given member IDs
+                eventId,                     // Match the event ID
+                badgeIssued: "No",           // Only update if the badge is currently "No"
+            },
+            {
+                $set: { badgeIssued: "Yes" }, // Update the badgeIssued field to "Yes"
+            }
+        );
+
+        return handleResponse(
+            `Successfully updated badgeIssued for ${result.modifiedCount} members.`,
+            false,
+            { modifiedCount: result.modifiedCount },
+            200
+        );
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occurred while updating badgeIssued for members', true, {}, 500);
+    }
+}
+
+
 export async function getEvent(id:string){
     try {
         await connectDB();
