@@ -62,12 +62,15 @@ const NewBadgeSearchV2 = () => {
                             </div>
                             <span className="dark:text-black text-sm" >Select All</span>
                         </div>
-                        <div onClick={()=>setSelection([])}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
-                            <div className="flex-center p-1 bg-slate-400 rounded-full">
-                                <LuCopyX />
+                        {
+                            selection?.length > 0 &&
+                            <div onClick={()=>setSelection([])}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
+                                <div className="flex-center p-1 bg-slate-400 rounded-full">
+                                    <LuCopyX />
+                                </div>
+                                <span className="dark:text-black text-sm" >Cancel Selections</span>
                             </div>
-                            <span className="dark:text-black text-sm" >Cancel Selections</span>
-                        </div>
+                        }
                         
                     </div>
                 }
