@@ -56,3 +56,20 @@ export const useFetchChurchesV2 = ()=>{
 
     return {churches, isPending, refetch}
 }
+
+
+export const useFetchChurchesV3 = ()=>{
+    
+    const fetchChurches = async():Promise<IChurch[]>=>{
+        const data:IChurch[] = await getChurches();
+
+        return data;
+    }
+
+    const {data:churches, isPending, refetch} = useQuery({
+        queryKey:['churches'],
+        queryFn: fetchChurches
+    })
+
+    return {churches, isPending, refetch}
+}

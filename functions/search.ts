@@ -44,6 +44,21 @@ export const searchMemberInversed = (text:string, members:IMember[]):IMember[]=>
     return membs
 }
 
+export const searchMemberInversedV2 = (text:string, churchId:string, members:IMember[]):IMember[]=>{
+    const membs = members
+    ?.filter((member)=>{
+      const church = member.church as IChurch;
+      return (churchId === '' || churchId === undefined) ? member : church._id === churchId
+    })
+    ?.filter((member)=>{
+        return text === '' ? null : Object.values(member)
+        .join(' ')
+        .toLowerCase()
+        .includes(text.toLowerCase())
+    })
+    return membs
+}
+
 export const searchEvent = (text:string, events:IEvent[]):IEvent[]=>{
     const evts = events.filter((event)=>{
         return text === '' ? event : Object.values(event)

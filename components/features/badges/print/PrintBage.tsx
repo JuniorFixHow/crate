@@ -10,6 +10,9 @@ import { IMember } from '@/lib/database/models/member.model';
 import AddButton from '../../AddButton';
 import { useFetchUnregisteredMembers } from '@/hooks/fetch/useEvent';
 import { CircularProgress } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { getEvent } from '@/lib/actions/event.action';
+import BadgePreviewV3 from './BadgePreviewV3';
 
 const PrintBage = () => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -42,7 +45,7 @@ const PrintBage = () => {
         }
     },[memberData, members])
 
-    console.log('registered: ',registeredMembers)
+    // console.log('registered: ',registeredMembers)
     
     // const printDiv = async () => {
     //     const printableDiv = document.getElementById('printableDiv');
@@ -101,6 +104,12 @@ const PrintBage = () => {
     //     }
     // };
 
+    const {data:event} = useQuery({
+        queryKey:['event', eventId],
+        queryFn:()=>getEvent(eventId),
+        enabled:!!eventId
+    })
+
   return (
     <div className="flex flex-col gap-8 md:flex-row md:items-stretch bg-white p-6 w-full shadow-lg border-t-0 dark:bg-[#0F1214] border">
         <PrintDetails setEventId={setEventId} eventId={eventId} memberIds={memberData.map((item)=>item?._id)}  />
@@ -118,7 +127,12 @@ const PrintBage = () => {
                 </>
             }
         </div>
-        <BadgePreviewV2 eventId={eventId} infoMode={infoMode} setInfoMode={setInfoMode} data={registeredMembers} />
+        {
+            event?.organizers === 'NAGACU'?
+            <BadgePreviewV2 eventId={eventId} infoMode={infoMode} setInfoMode={setInfoMode} data={registeredMembers} />
+            :
+            <BadgePreviewV3 eventId={eventId} infoMode={infoMode} setInfoMode={setInfoMode} data={registeredMembers} />
+        }
         <iframe
             ref={iframeRef}
             className=' hidden'
