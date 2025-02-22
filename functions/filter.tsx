@@ -235,8 +235,8 @@ export function getGenderPercentageForEvent(
   const filteredMembers = members.filter(member => memberIds.includes(member._id.toString()));
 
   // Calculate the number of members for the specified gender and total registrations
-  const genderCount = filteredMembers.filter(member => member.gender === gender).length;
-  const totalCount = filteredMembers.length;
+  const genderCount = filteredMembers.filter(member => member.gender === gender)?.length;
+  const totalCount = filteredMembers?.length;
 
   // Calculate percentage of specified gender
   const percentage = totalCount > 0 ? ((genderCount / totalCount) * 100).toFixed() : 0;
@@ -250,28 +250,28 @@ export function getGenderPercentageForEvent(
 
 
 export const getMales =(members:IMember[]):string =>{
-    const males = members.filter((m)=>m.gender === 'Male').length;
-    const percent = ((males/members.length)*100).toFixed();
+    const males = members?.filter((m)=>m.gender === 'Male')?.length;
+    const percent = ((males/members?.length)*100).toFixed();
     return `(${males}) ${percent}%`
 }
 
 export const getFemales =(members:IMember[]):string =>{
-    const females = members.filter((m)=>m.gender === 'Female').length;
-    const percent = ((females/members.length)*100).toFixed();
+    const females = members?.filter((m)=>m.gender === 'Female')?.length;
+    const percent = ((females/members?.length)*100).toFixed();
     return `(${females}) ${percent}%`
 }
 
 export const getMaleValue =(members:IMember[]):number =>{
-    const males = members.filter((m)=>m.gender === 'Male').length;
+    const males = members?.filter((m)=>m.gender === 'Male')?.length;
     return males
 }
 
 export const getFemaleValue =(members:MemberProps[]):number =>{
-    const females = members.filter((m)=>m.gender === 'Female').length;
+    const females = members?.filter((m)=>m.gender === 'Female')?.length;
     return females
 }
 export const getFamilyAndGroupValue =(members:MemberProps[]):number =>{
-    const fandg = members.filter((m)=>m.registerType !== 'Individual').length;
+    const fandg = members?.filter((m)=>m.registerType !== 'Individual')?.length;
     return fandg
 }
 
@@ -467,7 +467,7 @@ export function getUniqueValuesForEvent(
   
       case 'Individuals':
         // Count individuals (registrations without groups)
-        const individualsCount = filteredRegistrations.filter(reg => !reg.groupId).length;
+        const individualsCount = filteredRegistrations.filter(reg => !reg.groupId)?.length;
         result = individualsCount;
         break;
   

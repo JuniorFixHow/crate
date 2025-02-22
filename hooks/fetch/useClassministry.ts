@@ -27,7 +27,7 @@ export const useFetchClassministry = () =>{
     };
 
     const {
-        data:classMinistries, refetch, isPending
+        data:classMinistries=[], refetch, isPending
     } = useQuery({
         queryKey:['Classministry'],
         queryFn: fetchClassministry,

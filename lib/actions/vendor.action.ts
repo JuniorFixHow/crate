@@ -217,7 +217,7 @@ export async function getVendor(id:string){
         return JSON.parse(JSON.stringify(vendor));
     } catch (error) {
         console.log(error);
-        throw new Error('Error occured!');
+        throw new Error('Error occured fetching user!');
     }
 }
 

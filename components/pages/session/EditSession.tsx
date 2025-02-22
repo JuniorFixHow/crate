@@ -4,23 +4,29 @@ import AddButton from '@/components/features/AddButton'
 import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import Link from 'next/link'
 import { minTime, timeToString } from './fxn'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent,  useState } from 'react'
 import { ISession } from '@/lib/database/models/session.model'
-import { getSession, updateSession } from '@/lib/actions/session.action'
-import CircularIndeterminate from '@/components/misc/CircularProgress'
+import {  updateSession } from '@/lib/actions/session.action'
+// import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
 
-const EditSession = ({id}:{id:string}) => {
+type EditSessionProps = {
+  currentSession:ISession,
+}
+
+const EditSession = ({currentSession}:EditSessionProps) => {
   const [data, setData] = useState<Partial<ISession>>({});
   const [eventId, setEventId] = useState<string>('');
-  const [currentSession, setCurrentSession] = useState<ISession|null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string|null>(null);
+  // const [currentSession, setCurrentSession] = useState<ISession|null>(null);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [error, setError] = useState<string|null>(null);
   const [updateState, setUpdateState] = useState<ErrorProps>(null);
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [from, setFrom] =useState<Date|null>(null);
   const [to, setTo] =useState<Date|null>(null);
+
+
   const handleChange=(e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
     setData((prev)=>({
@@ -30,24 +36,24 @@ const EditSession = ({id}:{id:string}) => {
   }
 
   // console.log(data)
-  useEffect(()=>{
-    const fetchSession= async()=>{
-      try {
-        setLoading(true)
-        if(id){
-          const session:ISession = await getSession(id);
-          setCurrentSession(session);
-          setError(null);
-        } 
-      } catch (error) {
-        console.log(error);
-        setError('Error occured fetching session data')
-      }finally{
-        setLoading(false);
-      }
-    }
-    fetchSession();
-  },[id])
+  // useEffect(()=>{
+  //   const fetchSession= async()=>{
+  //     try {
+  //       setLoading(true)
+  //       if(id){
+  //         const session:ISession = await getSession(id);
+  //         setCurrentSession(session);
+  //         setError(null);
+  //       } 
+  //     } catch (error) {
+  //       console.log(error);
+  //       setError('Error occured fetching session data')
+  //     }finally{
+  //       setLoading(false);
+  //     }
+  //   }
+  //   fetchSession();
+  // },[id])
 
   // console.log(from?.toISOString(), to?.toISOString())
 
@@ -64,10 +70,11 @@ const EditSession = ({id}:{id:string}) => {
           to:to ? to.toISOString(): currentSession?.to,
           eventId:eventId||currentSession.eventId
         }
-        console.log('body: ',body)
-        const session:ISession =  await updateSession(currentSession._id, body);
-        setCurrentSession(session);
+        // console.log('body: ',body)
+        await updateSession(currentSession._id, body);
+        // setCurrentSession(session);
         setUpdateState({message:'Session updated successfully', error:false});
+        window.location.reload();
       }
     } catch (error) {
       setUpdateState({message:'Error occured updating session', error:true});
@@ -79,7 +86,7 @@ const EditSession = ({id}:{id:string}) => {
 
   // console.log('Date: ',new Date('2024-11-29T06:17'))
   // console.log('Session: ',currentSession)
-  if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
+  // if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
 
   return (
     <div   className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex gap-8 bg-white' >

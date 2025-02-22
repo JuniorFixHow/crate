@@ -8,7 +8,7 @@ import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosGitNetwork, IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
-import { TbBuildingChurch, TbCirclesRelation, TbDoorExit } from "react-icons/tb";
+import { TbBuildingChurch, TbCirclesRelation, TbDoorExit, TbProgressCheck } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiCalendarEventLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
@@ -197,6 +197,11 @@ export const NavItems:NavigationProps[] = [
             text:'Cards',
             path:'/dashboard/activities/cards',
             image:<FaRegAddressCard />
+          },
+          {
+            text:'Sessions',
+            path:'/dashboard/ministries/sessions',
+            image:<TbProgressCheck />
           },
 
         ]

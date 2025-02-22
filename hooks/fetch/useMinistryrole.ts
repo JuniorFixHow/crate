@@ -14,7 +14,7 @@ export const useFetchMinistryroleforMinistry = (ministryId:string)=>{
         }
     }
 
-    const {data:ministryroles, refetch, isPending} = useQuery({
+    const {data:ministryroles=[], refetch, isPending} = useQuery({
         queryKey:['ministryrole', ministryId],
         queryFn: fetchMinistryroleforMinistry,
         enabled: !!ministryId

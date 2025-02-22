@@ -1,60 +1,63 @@
 'use server'
-import Attendance from "../database/models/attendance.model";
-import Event from "../database/models/event.model";
-import Registration from "../database/models/registration.model";
-import Session, { ISession } from "../database/models/session.model";
+import CAttendance from "../database/models/classattendance.model";
+// import Attendance from "../database/models/attendance.model";
+// import Event from "../database/models/event.model";
+// import Registration from "../database/models/registration.model";
+import CSession, { IClasssession } from "../database/models/classsession.model";
+import Ministry from "../database/models/ministry.model";
 import { connectDB } from "../database/mongoose";
+import { handleResponse } from "../misc";
 
-export async function createSession(session:Partial<ISession>){
+export async function createCSession(session:Partial<IClasssession>){
     try {
         await connectDB();
-        const newSession = await Session.create(session);
-        await Event.findByIdAndUpdate(newSession.eventId, {
-            $inc:{sessions:1}
-        }, {new:true});
-        return JSON.parse(JSON.stringify(newSession));
+        const newCSession = await CSession.create(session);
+        // await Event.findByIdAndUpdate(newCSession.eventId, {
+        //     $inc:{sessions:1}
+        // }, {new:true});
+        return handleResponse( 'Session created successfully', false, newCSession, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error creating session:', error.message);
-            throw new Error(`Error occurred during session creation: ${error.message}`);
+            return handleResponse('Error occured creating session', true, {}, 500);
         } else {
             console.error('Unknown error:', error);
-            throw new Error('Error occurred during session creation');
+            return handleResponse('Error occured creating session', true, {}, 500);
         }
     }
 }
 
-export async function updateSession(id: string, session: Partial<ISession>) {
+export async function updateCSession(id: string, session: Partial<IClasssession>) {
     try {
         await connectDB();
 
-        const sess = await Session.findByIdAndUpdate(id, session, { new: true });
+        const sess = await CSession.findByIdAndUpdate(id, session, { new: true });
 
-        if (!sess) {
-            throw new Error('Session not found');
-        }
+        // if (!sess) {
+        //     throw new Error('CSession not found');
+        // }
 
-        const sessions = await Session.countDocuments({ eventId: sess.eventId });
+        // const sessions = await CSession.countDocuments({ eventId: sess.eventId });
 
-        await Event.findByIdAndUpdate(sess.eventId, { sessions }, { new: true });
+        // await Event.findByIdAndUpdate(sess.eventId, { sessions }, { new: true });
 
-        return JSON.parse(JSON.stringify(sess));
+        return handleResponse('Session created successfully', false, sess, 201);
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error updating session:', error.message);
-            throw new Error(`Error occurred during session update: ${error.message}`);
+            return handleResponse('Error occured updating session', true, {}, 500);
         } else {
             console.error('Unknown error:', error);
-            throw new Error('Error occurred during session update');
+            return handleResponse('Error occured updating session', true, {}, 500);
         }
     }
 }
 
 
-export async function getSession(id:string){
+export async function getCSession(id:string){
     try {
         await connectDB();
-        const sess = await Session.findById(id).populate('eventId').populate('createdBy').lean();
+        const sess = await CSession.findById(id).populate('classId').populate('createdBy').lean();
         return JSON.parse(JSON.stringify(sess));
     } catch (error) {
         if (error instanceof Error) {
@@ -68,10 +71,10 @@ export async function getSession(id:string){
 }
 
 
-export async function getSessions(){
+export async function getCSessions(){
     try {
         await connectDB();
-        const sess = await Session.find().populate('eventId').populate('createdBy').lean();
+        const sess = await CSession.find().populate('classId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
     } catch (error) {
@@ -85,11 +88,11 @@ export async function getSessions(){
     }
 }
 
-export async function getUserSessions(id: string, userId: string) {
+export async function getUserCSessions(id: string, userId: string) {
     try {
         await connectDB();
-        const sessions = await Session.find({ eventId: id, createdBy: userId })
-            .populate('eventId')
+        const sessions = await CSession.find({ classId: id, createdBy: userId })
+            .populate('classId')
             .populate('createdBy')
             .lean(); // Use lean() for plain JS objects
 
@@ -105,11 +108,31 @@ export async function getUserSessions(id: string, userId: string) {
     }
 }
 
-export async function getEventSessions(id: string) {
+export async function getMinistryCSessions(id: string) {
     try {
         await connectDB();
-        const sessions = await Session.find({ eventId: id })
-            .populate('eventId')
+        const sessions = await CSession.find({ classId: id })
+            .populate('classId')
+            .populate('createdBy')
+            .lean(); // Use lean() for plain JS objects
+
+        return JSON.parse(JSON.stringify(sessions));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching class sessions:', error.message);
+            throw new Error(`Error occurred while fetching class sessions: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('An unknown error occurred while fetching class sessions');
+        }
+    }
+}
+
+export async function getUserCSessionsWithoutEvent(id: string) {
+    try {
+        await connectDB();
+        const sessions = await CSession.find({ createdBy: id })
+            .populate('classId')
             .populate('createdBy')
             .lean(); // Use lean() for plain JS objects
 
@@ -125,30 +148,10 @@ export async function getEventSessions(id: string) {
     }
 }
 
-export async function getUserSessionsWithoutEvent(id: string) {
+export async function getVendorCSessionRegistrations(createdBy:string){
     try {
         await connectDB();
-        const sessions = await Session.find({ createdBy: id })
-            .populate('eventId')
-            .populate('createdBy')
-            .lean(); // Use lean() for plain JS objects
-
-        return JSON.parse(JSON.stringify(sessions));
-    } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error fetching sessions:', error.message);
-            throw new Error(`Error occurred while fetching sessions: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('An unknown error occurred while fetching sessions');
-        }
-    }
-}
-
-export async function getVendorSessionRegistrations(createdBy:string){
-    try {
-        await connectDB();
-        const members = await Session.countDocuments({createdBy});
+        const members = await CSession.countDocuments({createdBy});
         return members;
     } catch (error) {
         console.log(error);
@@ -158,20 +161,20 @@ export async function getVendorSessionRegistrations(createdBy:string){
 
 
 
-export async function getSessionMetadata(sessionId: string, eventId: string) {
+export async function getCSessionMetadata(sessionId: string, ministryId: string) {
     try {
         connectDB();
         const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
         const [attendances, recentAttendances, registrations] = await Promise.all([
-            Attendance.countDocuments({ sessionId }), // Total attendances
-            Attendance.countDocuments({ sessionId, createdAt: { $gte: thirtyMinutesAgo } }), // Attendances in last 30 mins
-            Registration.countDocuments({ eventId }) // Total registrations
+            CAttendance.countDocuments({ sessionId }), // Total attendances
+            CAttendance.countDocuments({ sessionId, createdAt: { $gte: thirtyMinutesAgo } }), // Attendances in last 30 mins
+            Ministry.findById(ministryId) // Total registrations
         ]);
+        const members = registrations?.members?.length;
+        const absent = members - attendances;
 
-        const absent = registrations - attendances;
-
-        return { registrations, attendances, recentAttendances, absent };
+        return { members, attendances, recentAttendances, absent };
     } catch (error) {
         console.error('Error fetching session metadata:', error);
         throw new Error('Error occurred fetching session data');
@@ -179,44 +182,39 @@ export async function getSessionMetadata(sessionId: string, eventId: string) {
 }
 
 
-export async function deleteSession(id: string) {
+export async function deleteCSession(id: string) {
     try {
         await connectDB();
-        const session = await Session.findById(id);
+        const session = await CSession.findById(id);
         if(!session){
             throw new Error("Session does not exist");
         }
 
-        await Event.findByIdAndUpdate(session.eventId, {
-            $inc:{sessions:-1}
-        }, {new:true})
-        await Attendance.deleteMany({sessionId:session._id});
-        await Session.findByIdAndDelete(session._id);
+        // await Event.findByIdAndUpdate(session.eventId, {
+        //     $inc:{sessions:-1}
+        // }, {new:true})
+        await CAttendance.deleteMany({sessionId:session._id});
+        await CSession.findByIdAndDelete(session._id);
 
-        return 'Session deleted succussfully';
+        return handleResponse('Session deleted succussfully', false);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting sessions:', error.message);
-            throw new Error(`Error occurred while deleting sessions: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('An unknown error occurred while deleting sessions');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('An unknown error occurred while deleting sessions', true);
     }
 }
 
 
-// export async function updateSessionStatuses() {
+// export async function updateCSessionStatuses() {
 //     try {
 //         await connectDB();
 
 //         const now = new Date();
 
 //         // Find all sessions and update their statuses based on current time
-//         const sessions = await Session.find();
+//         const sessions = await CSession.find();
 
 //         for (const session of sessions) {
-//             let newStatus: SessionStatus;
+//             let newStatus: CSessionStatus;
 
 //             if (session.startTime && session.endTime) {
 //                 if (now < session.startTime) {
@@ -235,7 +233,7 @@ export async function deleteSession(id: string) {
 //             }
 //         }
 
-//         console.log('Session statuses updated successfully.');
+//         console.log('CSession statuses updated successfully.');
 //     } catch (error) {
 //         console.error('Error updating session statuses:', error);
 //         throw new Error('Error occurred while updating session statuses.');
@@ -245,7 +243,7 @@ export async function deleteSession(id: string) {
 
 // setInterval(async () => {
 //     try {
-//         await updateSessionStatuses();
+//         await updateCSessionStatuses();
 //     } catch (error) {
 //         console.error('Failed to update session statuses:', error);
 //     }

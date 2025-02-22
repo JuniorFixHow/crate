@@ -42,7 +42,7 @@ const CPie = ({isEvent, loading, members, registrations, eventId, ...props}:CPie
                     isEvent ?
                     <Gauge
                         value= {isEvent ? getGenderPercentageForEvent(eventId!, registrations, members, 'Male').genderCount: getMaleValue(members)}
-                        valueMax={isEvent ? getGenderPercentageForEvent(eventId!, registrations, members, 'Male').totalCount: members.length}
+                        valueMax={isEvent ? getGenderPercentageForEvent(eventId!, registrations, members, 'Male').totalCount: members?.length}
                         cornerRadius="50%"
                         sx={() => ({
                             [`& .${gaugeClasses.valueText}`]: {
@@ -64,7 +64,7 @@ const CPie = ({isEvent, loading, members, registrations, eventId, ...props}:CPie
                     :
                     <Gauge
                         value= {getMaleValue(members)}
-                        valueMax={members.length}
+                        valueMax={members?.length}
                         cornerRadius="50%"
                         sx={() => ({
                             [`& .${gaugeClasses.valueText}`]: {

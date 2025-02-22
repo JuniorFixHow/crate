@@ -1,27 +1,29 @@
 'use client'
 import { Dispatch, SetStateAction, useState } from 'react'
-import Subtitle from '../Subtitle'
 import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
-import AddButton from '../AddButton'
 import { useNotification } from '@/hooks/useSound'
-import { ISession } from '@/lib/database/models/session.model'
 import { ErrorProps } from '@/types/Types'
-import { IAttendance } from '@/lib/database/models/attendance.model'
 import { isLate } from '@/components/pages/session/fxn'
-import { createAttendance } from '@/lib/actions/attendance.action'
+import Subtitle from '@/components/features/Subtitle'
+import AddButton from '@/components/features/AddButton'
 import { enqueueSnackbar } from 'notistack'
+import { IClasssession } from '@/lib/database/models/classsession.model'
+import { IMinistry } from '@/lib/database/models/ministry.model'
+import { createCAttendance } from '@/lib/actions/cattendance.action'
+import { ICAttendance } from '@/lib/database/models/classattendance.model'
 
-type OpenScannerProps = {
+type OpenScannerV2Props = {
     setStage:Dispatch<SetStateAction<number>>,
-    currentSession:ISession,
+    currentSession:IClasssession,
     setResult:Dispatch<SetStateAction<ErrorProps>>,
     setLoading: Dispatch<SetStateAction<boolean>>
 }
 
-const OpenScanner = ({setStage, currentSession, setResult, setLoading}:OpenScannerProps) => {
+const OpenScannerV2 = ({setStage, currentSession, setResult, setLoading}:OpenScannerV2Props) => {
     const {isSoundEnabled} =useNotification();
     const [hasScanned, setHasScanned] = useState<boolean>(false);
 
+    const classId = currentSession?.classId as IMinistry;
 
     const handleScan =(results:IDetectedBarcode[])=>{
         results.forEach(async(result)=>{
@@ -30,25 +32,22 @@ const OpenScanner = ({setStage, currentSession, setResult, setLoading}:OpenScann
             const memberId = result.rawValue.split(',')[0];
             setResult(null);
             try {
-                if(currentSession){
-                    const eventId = typeof currentSession?.eventId === 'object' && currentSession.eventId._id.toString();
-                    // console.log('EventId ',eventId)
-                    if(eventId && memberId){
-                        
-                        setLoading(true);
-                        const data:Partial<IAttendance> = {
-                            member:memberId,
-                            sessionId:currentSession._id,
-                            late: isLate(currentSession?.to)
-                        }
-                        // console.log('Data: ',data)
-                        const res:ErrorProps = await createAttendance(eventId, data);
-                        console.log(res);
-                        setResult(res);
-                        setHasScanned(true);
-                        setStage(3);
+                if(classId && memberId){
+                    
+                    setLoading(true);
+                    const data:Partial<ICAttendance> = {
+                        member:memberId,
+                        sessionId:currentSession._id,
+                        late: isLate(currentSession?.to)
                     }
+                    // console.log('Data: ',data)
+                    const res:ErrorProps = await createCAttendance(classId?._id, data);
+                    console.log(res);
+                    setResult(res);
+                    setHasScanned(true);
+                    setStage(3);
                 }
+                
             } catch (error) {
                 console.log(error)
                 setResult({message:'Error occured during the scan', error:true})
@@ -76,4 +75,4 @@ const OpenScanner = ({setStage, currentSession, setResult, setLoading}:OpenScann
   )
 }
 
-export default OpenScanner
+export default OpenScannerV2

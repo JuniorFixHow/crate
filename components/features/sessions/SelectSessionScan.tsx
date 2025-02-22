@@ -34,10 +34,10 @@ const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectS
                 </div>
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-4">
-                        <span className='font-medium' >Select Session</span>
+                        <span className='font-medium' >{sessions?.length ? 'Select Session':'No Sessions for this event'}</span>
                         <div className="flex overflow-y-scroll scrollbar-custom flex-col h-[40vh] pr-4 gap-4">
                             {
-                                sessions.length &&
+                                sessions.length > 0 &&
                                 searchSessionWithEvent(sessions, eventId).map((item)=>(
                                     <SelectSessionScanItem className={`${currentSession?._id === item._id && 'border-blue-700'}`} onClick={()=>setCurrentSession(item)} session={item} key={item._id} />
                                 ))

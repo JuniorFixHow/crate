@@ -1,41 +1,45 @@
-import { useFetchClassministry } from "@/hooks/fetch/useClassministry";
-// import { IClassministry } from "@/lib/database/models/classministry.model";
-import { IClassMinistryExtended } from "@/types/Types";
+import { useFetchActivitiesForMinistry } from "@/hooks/fetch/useActivity";
+import { IActivity } from "@/lib/database/models/activity.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
-import {  Dispatch, Fragment, SetStateAction, useState } from "react"
+import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectClassministriesProps = {
+type SearchSelectActivityProps = {
     setSelect?:Dispatch<SetStateAction<string>>,
+    minId:string;
     require?:boolean;
     value?:string;
     width?:number
-} 
+}
 
-const SearchSelectClassministries = ({setSelect, require, width, value,}:SearchSelectClassministriesProps) => {
-    const {classMinistries, isPending} = useFetchClassministry();
+const SearchSelectActivity = ({setSelect, require, width, minId, value}:SearchSelectActivityProps) => {
+    const {activities, isPending} = useFetchActivitiesForMinistry(minId);
     const [search, setSearch] = useState<string>('')
+    // console.log(`Fetched: ${isFetched}  Success: ${isSuccess}`)
+    // if(!isSuccess) return null;
+    
   return (
     <Autocomplete
-      // className="w-20"
       disablePortal
-      options={classMinistries as IClassMinistryExtended[]}
-      onChange={(_, v:IClassMinistryExtended|null)=>{
+      options={activities as IActivity[]}
+      onChange={(e, v:IActivity|null)=>{
+        console.log(e.target);
         setSelect!(v?._id as string); 
       }}
       inputValue={search}
-      onInputChange={(_, v)=>{
+      onInputChange={(e, v)=>{
+        console.log(e.target);
         setSearch(v)
     }}
     loading={isPending}
-    isOptionEqualToValue={(option, value)=>option?._id === value?._id}
-    getOptionLabel={(item)=>item?.title}
+    isOptionEqualToValue={(option, value)=>option._id === value._id}
+    getOptionLabel={(item)=>item?.name}
       sx={{ width }}
       renderInput={(params) => 
         <TextField
           {...params}
           required={require}
           size='small'
-          label="Ministry"
+          label="Activity"
           color='primary'
           defaultValue={value}
           className="dark:bg-slate-400 rounded"
@@ -56,4 +60,4 @@ const SearchSelectClassministries = ({setSelect, require, width, value,}:SearchS
   )
 }
 
-export default SearchSelectClassministries
+export default SearchSelectActivity

@@ -148,8 +148,7 @@ export async function getMinistriesForActivity(activityId:string){
         .populate('leaders')
         .populate('churchId')
         .lean();
-        const data  = JSON.parse(JSON.stringify(acts)) ;
-        return data;
+        return JSON.parse(JSON.stringify(acts)) ;
     } catch (error) {
         console.log(error);
         return handleResponse("Error occured fetching activities", true, {}, 500);

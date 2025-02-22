@@ -121,7 +121,7 @@ export const useFetchMembersInAChurchV2 = ()=>{
         }
     }
 
-    const {data:members, isPending, refetch} =  useQuery({
+    const {data:members=[], isPending, refetch} =  useQuery({
         queryKey:['membersinachurch'],
         queryFn:fetchMembersForChurch,
         enabled: !!user

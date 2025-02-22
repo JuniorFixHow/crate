@@ -66,7 +66,7 @@ export const useFetchChurchesV3 = ()=>{
         return data;
     }
 
-    const {data:churches, isPending, refetch} = useQuery({
+    const {data:churches=[], isPending, refetch} = useQuery({
         queryKey:['churches'],
         queryFn: fetchChurches
     })

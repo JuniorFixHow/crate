@@ -4,7 +4,7 @@ import { IMember } from "@/lib/database/models/member.model";
 // import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 export const useFetchActivities = (classId?:string, minId?:string) => {
     // const [activities, setActivities] = useState<IActivity[]>([]);
@@ -98,28 +98,24 @@ export const useFetchActivities = (classId?:string, minId?:string) => {
 };
 
 
-// export const useFetchMembersForActivities = (id:string) => {
-//     const [members, setMembers] = useState<IMember[]>([]);
-//     const [loading, setLoading] = useState<boolean>(true);
-//     const [error, setError] = useState<string | null>(null);
+export const useFetchActivitiesForMinistry=(minId:string)=>{
+    const fetchActivitiesForMinistry = async():Promise<IActivity[]> =>{
+        try {
+            if(!minId) return [];
+            const response:IActivity[] =  await getActivitiesForChurchMinistry(minId);
+            // console.log(response);
+            return response||[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
 
-//     useEffect(() => {
-//         if(!id) return;
-//         const fetchActivities = async () => {
-//             try {
-//                 const fetchedActivities: IMember[] = await getChurchMembersForMinistry(id);
-//                 setMembers(fetchedActivities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-//                 setError(null);
-//             } catch (err) {
-//                 setError('Error fetching members');
-//                 console.log(err)
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
+    const {data:activities=[], isPending, refetch, isSuccess, isFetched} = useQuery({
+        queryKey:['minactv2', minId],
+        queryFn:fetchActivitiesForMinistry,
+        enabled: !!minId
+    })
 
-//         fetchActivities();
-//     }, [id]);
-
-//     return { members, loading, error };
-// };
+    return {activities, isPending, refetch, isSuccess, isFetched}
+}

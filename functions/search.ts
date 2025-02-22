@@ -2,6 +2,7 @@ import { getActivityStatus, getTimeOfDay } from "@/components/pages/session/fxn"
 import { IAttendance } from "@/lib/database/models/attendance.model"
 import { ICampuse } from "@/lib/database/models/campuse.model"
 import { IChurch } from "@/lib/database/models/church.model"
+import { IClasssession } from "@/lib/database/models/classsession.model"
 import { IContract } from "@/lib/database/models/contract.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IFacility } from "@/lib/database/models/facility.model"
@@ -260,6 +261,30 @@ export const searchSession = (time: string, eventId: string, sessions: ISession[
           return new Date(a.from!) > new Date(b.from!) ? 1 : -1;
       })
       .sort((a, b) => {
+          // Sort by activity status in the order of 'Ongoing', 'Upcoming', 'Completed'
+          const order = { 'Ongoing': 0, 'Upcoming': 1, 'Completed': 2 };
+
+          return order[getActivityStatus(a.from, a.to)] - order[getActivityStatus(b.from, b.to)];
+      });
+
+  return sess;
+};
+
+
+export const searchSessionV2 = (time: string, activityId: string, sessions: IClasssession[]): IClasssession[] => {
+  const sess = sessions
+      ?.filter((item) => {
+          const ministry = item?.classId as IMinistry;
+          return activityId === '' ? item : ministry._id === activityId;
+      })
+      ?.filter((ses) => {
+          return time === 'All' ? ses : getTimeOfDay(ses.from!) === time;
+      })
+      ?.sort((a, b) => {
+          // Sort by date ascending
+          return new Date(a.from!) > new Date(b.from!) ? 1 : -1;
+      })
+      ?.sort((a, b) => {
           // Sort by activity status in the order of 'Ongoing', 'Upcoming', 'Completed'
           const order = { 'Ongoing': 0, 'Upcoming': 1, 'Completed': 2 };
 

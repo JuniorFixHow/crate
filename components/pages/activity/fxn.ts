@@ -5,7 +5,7 @@ export const SearchActivityWithChurch = (activities:IActivity[], search:string, 
     const data = activities
     ?.filter((item)=>{
         const church = item.churchId as IChurch;
-        return churchId === '' ? item : church._id === churchId
+        return churchId === '' ? item : church?._id === churchId
     })
     ?.filter((item)=>{
         return search === '' ?  item : Object.values(item)
