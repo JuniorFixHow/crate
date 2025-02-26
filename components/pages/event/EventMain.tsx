@@ -7,7 +7,7 @@ import {  updateEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
-import React, { ChangeEvent, FormEvent,  useEffect,  useState } from 'react'
+import React, { ChangeEvent, FormEvent,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 
 const EventMain = ({event}:{event:IEvent}) => {
@@ -26,11 +26,7 @@ const EventMain = ({event}:{event:IEvent}) => {
         }))
     }
 
-    useEffect(()=>{
-        if(event){
-            setData(event)
-        }
-    },[event])
+
 
     
 
@@ -123,6 +119,7 @@ const EventMain = ({event}:{event:IEvent}) => {
                                 <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
                             </div>
                         {
+                            data &&
                             (data?.type === `Camp Meeting - Children` || data?.type === `Camp Meeting - YAYA`) &&
                             <div className="flex flex-col gap-1">
                                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
