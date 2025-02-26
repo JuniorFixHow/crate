@@ -10,7 +10,11 @@ import { Alert } from '@mui/material'
 import React, { ChangeEvent, FormEvent,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 
-const EventMain = ({event}:{event:IEvent}) => {
+type EventMainProps = {
+    event:IEvent
+}
+
+const EventMain = ({event}:EventMainProps) => {
     // const [event, setEvent] = useState<IEvent|null>(null);
     const [data, setData] = useState<Partial<IEvent>>({});
     // const [loading, setLoading] = useState<boolean>(true);
@@ -62,6 +66,7 @@ const EventMain = ({event}:{event:IEvent}) => {
 
 
     // if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={loadingError} />
+    if(!event) return null;
 
   return (
     <div className='page' >
@@ -138,7 +143,7 @@ const EventMain = ({event}:{event:IEvent}) => {
                 <div className="flex flex-1 flex-col justify-between">
 
                     <div className="flex flex-col gap-5">
-                        {/* <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1">
                             <span className="text-slate-400 font-semibold text-[0.8rem]">Organizers</span>
                             <select
                                 required
@@ -151,7 +156,7 @@ const EventMain = ({event}:{event:IEvent}) => {
                                 <option className="dark:bg-black" value="NAGSDA">NAGSDA</option>
                                 <option className="dark:bg-black" value="Church">Church</option>
                             </select>
-                        </div> */}
+                        </div>
 
                         <div className="flex flex-col gap-1">
                             <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
