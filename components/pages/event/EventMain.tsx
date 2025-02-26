@@ -112,11 +112,11 @@ const EventMain = ({event}:{event:IEvent}) => {
 
                     <div className="flex flex-row gap-12">
                             <div className="flex flex-col gap-1">
-                                <span className='text-slate-400 font-semibold text-[0.8rem]' >{( data.type === 'Conference' || data.type === 'Convention'||data.type ==='Retreat')? 'Price':"Adult's Price"}</span>
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >{( data?.type === 'Conference' || data?.type === 'Convention'||data?.type ==='Retreat')? 'Price':"Adult's Price"}</span>
                                 <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
                             </div>
                         {
-                            (data.type === 'Camp Meeting – YAYA' || data.type === 'Camp Meeting - Adult') &&
+                            (data?.type === 'Camp Meeting – YAYA' || data?.type === 'Camp Meeting - Adult') &&
                             <div className="flex flex-col gap-1">
                                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
                                 <input onChange={handleChange} min={0} defaultValue={event?.childPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="childPrice"  />
