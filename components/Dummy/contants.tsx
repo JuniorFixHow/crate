@@ -10,6 +10,8 @@ import { getJustTime } from "../pages/session/fxn";
 import { GoInfo } from "react-icons/go";
 import { SessionPayload } from "@/lib/session";
 import { UserRoles } from "./UserRoles";
+import { IVendor } from "@/lib/database/models/vendor.model";
+import { ICampuse } from "@/lib/database/models/campuse.model";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
@@ -154,11 +156,13 @@ export const EventColumns:GridColDef[] = [
 export const MemberColumns = (
     handleDelete:(data:IMember)=>void,
     handleInfo:(data:IMember)=>void,
-)=> [
+):GridColDef[]=> [
     {
         field:'photo',
         headerName:'Photo',
         width:100,
+        disableExport: true,
+        filterable: false,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className='mt-1 relative flex-row h-full items-center pb-2 flex' >
@@ -194,6 +198,8 @@ export const MemberColumns = (
         field:'campuseId',
         headerName:'Campus',
         width:160,
+        valueFormatter: (value:ICampuse) => value?.name,
+        valueGetter: (value:ICampuse) => value?.name,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <>
@@ -211,6 +217,7 @@ export const MemberColumns = (
         field:'registeredBy',
         headerName:'Registered By',
         width:160,
+        valueFormatter: (value:IVendor) => value?.name,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
@@ -222,9 +229,11 @@ export const MemberColumns = (
         field:'createdAt',
         headerName:'Registered On',
         width:120,
-        renderCell:({row}:GridRenderCellParams)=>{
+        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
+        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
+        renderCell:({value}:GridRenderCellParams)=>{
             return(
-                <span>{new Date(row?.createdAt)?.toLocaleDateString()}</span>
+                <span>{new Date(value)?.toLocaleDateString()}</span>
             )
         }
     },
@@ -232,7 +241,9 @@ export const MemberColumns = (
     {
         field:'id',
         headerName:'Actions',
+        filterable: false,
         width:120,
+        disableExport: true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

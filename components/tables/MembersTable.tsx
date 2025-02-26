@@ -1,55 +1,38 @@
 'use client'
 import DeleteDialog from '@/components/DeleteDialog';
 import { MemberColumns } from '@/components/Dummy/contants';
-import SearchBar from '@/components/features/SearchBar';
+// import SearchBar from '@/components/features/SearchBar';
 import { useFetchMembers } from '@/hooks/fetch/useMember';
 import { IMember } from '@/lib/database/models/member.model';
-import { Alert, LinearProgress, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import React, { Dispatch, SetStateAction,  useState } from 'react'
+import { Alert,  Paper } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import  {  useState } from 'react'
 import { ErrorProps } from '@/types/Types';
 import { deleteMember } from '@/lib/actions/member.action';
-import { SearchMemberWithEverything } from '../pages/members/fxns';
+// import { SearchMemberWithEverything } from '../pages/members/fxns';
 import MemberInfoModal from '../pages/members/MemberInfoModal';
 import { enqueueSnackbar } from 'notistack';
 import { ExcelButton } from '../features/Buttons';
 import MemberImportModal from '../pages/members/MemberImportModal';
+import AddButton from '../features/AddButton';
+import Link from 'next/link';
 
-export type MembersTableProps ={
-    search:string,
-    age:string,
-    status:string,
-    date:string,
-    gender:string,
-    setSearch:Dispatch<SetStateAction<string>>
-    
-}
 
-const MembersTable = ({
-    search, setSearch, age, status, date, gender
-}:MembersTableProps) => {
+
+const MembersTable = () => {
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [deleteState, setDeleteState]= useState<ErrorProps>(null);
     const [excelMode, setExcelMode] = useState<boolean>(false);
     
-    const paginationModel = { page: 0, pageSize: 10 };
+    const paginationModel = { page: 0, pageSize: 15 };
     // console.log(searchMember(search, members))
 
     const {members, loading} = useFetchMembers();
     
 
-    // I may do this in a hook
-    // useEffect(()=>{
-    //     const data = searchParams?.get('registeredBy');
-    //     if(data){
-    //         setMembersData(members.filter((member)=>member.registeredBy === data))
-    //     }else{
-    //         setMembersData(members);
-    //     }
-
-    // },[searchParams])
+     
 
     const handleDelete=(data:IMember)=>{
         setDeleteMode(true);
@@ -80,12 +63,15 @@ const MembersTable = ({
     const message=`Are you sure you want to delete this member? This will delete their event registrations as well as attendance records.`
 
   return (
-    <div className='xl:w-[67rem] gap-4 p-6 flex flex-col rounded shadow-xl bg-white dark:bg-[#0F1214] dark:border' >
+    <div className='max-w-[98%] gap-4 p-4 bg-white flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-row items-center justify-between">
             <span className='font-bold text-xl' >Members</span>
             <div className="flex gap-3 items-center">
               <ExcelButton onClick={()=>setExcelMode(true)} />
-              <SearchBar setSearch={setSearch} reversed className='py-1' />
+              <Link href={`/dashboard/members/new`} >
+                <AddButton  text='Add Member' className="w-fit rounded"  />
+              </Link>
+              {/* <SearchBar setSearch={setSearch} reversed className='py-1' /> */}
             </div>
         </div>
 
@@ -96,21 +82,37 @@ const MembersTable = ({
         <DeleteDialog title={`Delete ${currentMember?.name}`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
         <MemberInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentMember={currentMember} setCurrentMember={setCurrentMember} />
         <MemberImportModal infoMode={excelMode} setInfoMode={setExcelMode} />
-        <div className="table-main">
+        <div className="flex flex-col">
         {
-          loading ? 
-          <LinearProgress className='w-full' />
-          :
-          <Paper className='' sx={{ height: 400, width:'100%' }}>
+          // loading ? 
+          // <LinearProgress className='w-full' />
+          // :
+          <Paper className='' sx={{ height: 'auto', }}>
               <DataGrid
-                  rows={SearchMemberWithEverything(members, gender, status, age, date, search)}
+                  rows={members}
                   getRowId={(row:IMember):string=>row._id}
                   columns={MemberColumns(handleDelete, handleInfo)}
-                  initialState={{ pagination: { paginationModel } }}
+                  initialState={{ pagination: { paginationModel },  
+                  // scroll: { top: 1000, left: 1000 },
+                }}
                   pageSizeOptions={[5, 10, 15, 20, 50, 100]}
+                  // dis
+                  slots={{toolbar:GridToolbar}}
+                  loading={loading}
+                  slotProps={{
+                    toolbar:{
+                      showQuickFilter:true,
+                      printOptions:{
+                        // disableToolbarButton:false,
+                        hideToolbar:true,
+                        hideFooter:true,
+                        
+                      }
+                    }
+                  }}
                   // checkboxSelection
                   className='dark:bg-[#0F1214] dark:border-slate-200 dark:border dark:text-[#3C60CA]'
-                  sx={{ border: 0 }}
+                  sx={{ border: 0, }}
               />
           </Paper>
         }

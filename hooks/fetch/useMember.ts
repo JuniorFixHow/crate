@@ -7,42 +7,37 @@ import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchMembers = () => {
-    const [members, setMembers] = useState<IMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
     const searchParams = useSearchParams();
 
-    useEffect(() => {
-        const fetchMembers = async () => {
-            try {
-                let fetchedMembers: IMember[];
-                const id = searchParams.get('registeredBy');
-                const campuseId = searchParams.get('campuseId');
-                    if(id){
-                        fetchedMembers = await getUserMembers(id);
-                    }
-                    else if(campuseId){
-                        fetchedMembers = await getMembersInaCampuse(campuseId);
-                    }
-                    else{
-                        fetchedMembers = await getMembers();
-                    }
-                
-                setMembers(fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching members');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchMembers = async ():Promise<IMember[]> => {
+        try {
+            let fetchedMembers: IMember[];
+            const id = searchParams.get('registeredBy');
+            const campuseId = searchParams.get('campuseId');
+                if(id){
+                    fetchedMembers = await getUserMembers(id);
+                }
+                else if(campuseId){
+                    fetchedMembers = await getMembersInaCampuse(campuseId);
+                }
+                else{
+                    fetchedMembers = await getMembers();
+                }
+            const response = fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+            return response;
+        } catch (err) {
+            console.log(err);
+            return [];
+        } 
+    };
+   
+    const {data:members=[], isPending:loading, refetch} = useQuery({
+        queryKey:['members', searchParams],
+        queryFn:fetchMembers
+    })
 
-        fetchMembers();
-    }, [ searchParams]); 
-
-    return { members, loading, error };
+    return { members, loading, refetch };
 };
 
 
