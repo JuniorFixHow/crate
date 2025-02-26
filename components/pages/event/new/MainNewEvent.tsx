@@ -125,14 +125,14 @@ const MainNewEvent = () => {
                 <option className="dark:bg-black" value="Conference">Conference</option>
                 <option className="dark:bg-black" value="Retreat">Retreat</option>
                 <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
-                <option className="dark:bg-black" value="Camp Meeting – YAYA">Camp Meeting – YAYA</option>
-                <option className="dark:bg-black" value="Camp Meeting – Children">Camp Meeting – Children</option>
+                <option className="dark:bg-black" value="Camp Meeting - YAYA">Camp Meeting - YAYA</option>
+                <option className="dark:bg-black" value="Camp Meeting - Children">Camp Meeting - Children</option>
               </select>
             </div>
 
               <div className="flex flex-row gap-12 items-center">
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-400 font-semibold text-[0.8rem]">{( data.type === 'Conference' || data.type === 'Convention'||data.type ==='Retreat')? 'Price':"Adult's Price"}</span>
+                  <span className="text-slate-400 font-semibold text-[0.8rem]">{( data?.type !== 'Camp Meeting - Children' && data?.type !== 'Camp Meeting - YAYA')? 'Price':"Adult's Price"}</span>
                   <input
                     
                     onChange={handleChange}
@@ -144,7 +144,7 @@ const MainNewEvent = () => {
                   />
                 </div>
                 {
-                  (data.type === 'Camp Meeting – YAYA' || data.type === 'Camp Meeting - Adult') &&
+                  (data?.type === 'Camp Meeting - Children' || data?.type === 'Camp Meeting - YAYA') &&
                     <div className="flex flex-col gap-1">
                       <span className="text-slate-400 font-semibold text-[0.8rem]">Children&apos;s Price</span>
                       <input

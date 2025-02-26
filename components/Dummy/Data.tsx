@@ -8,9 +8,9 @@ import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
 import { IoIosGitNetwork, IoIosTimer, IoMdGlobe } from "react-icons/io";
 import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
-import { TbBuildingChurch, TbCirclesRelation, TbDoorExit, TbProgressCheck } from "react-icons/tb";
+import { TbBuildingChurch, TbCash, TbCirclesRelation, TbDoorExit, TbProgressCheck } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
-import { RiCalendarEventLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
+import { RiCalendarEventLine, RiMoneyDollarBoxLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
 import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
@@ -224,11 +224,23 @@ export const NavItems:NavigationProps[] = [
         ]
       },
       {
-          title: 'Revenue',
-          isAdmin:false,
-          icon: <MdAttachMoney />,
-          link:'/dashboard/revenue'
+        title:'Revenue',
+        icon:<RiMoneyDollarBoxLine />,
+        isAdmin:true,
+        children:[
+          {
+            text:'Payments',
+            path:'/dashboard/revenue',
+            image:<MdAttachMoney />
+          },
+          {
+            text:'Estimated Income',
+            path:'/dashboard/income',
+            image:<TbCash />
+          },
+        ]
       },
+      
       {
           title: 'Announcements',
           isAdmin:false,
