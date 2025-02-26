@@ -1,8 +1,8 @@
 'use client'
-// import BottomActionItems from '@/components/features/BottomActionItems'
+import BottomActionItems from '@/components/features/BottomActionItems'
 import Title from '@/components/features/Title'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
-import { today } from '@/functions/dates'
+// import { today } from '@/functions/dates'
 import {  updateEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
@@ -27,7 +27,7 @@ const EventMain = ({event}:{event:IEvent}) => {
     }
 
 
-console.log(updateLoading)
+
     
 
 
@@ -85,7 +85,7 @@ console.log(updateLoading)
                         <input onChange={handleChange} defaultValue={event?.location}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="location"  />
                     </div>
 
-                    <div className="flex flex-row gap-12 items-center">
+                    {/* <div className="flex flex-row gap-12 items-center">
                         <div className="flex flex-col gap-1">
                             <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (From)</span>
                             <input onChange={handleChange} min={today()} defaultValue={event?.from} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="from"  />
@@ -94,8 +94,8 @@ console.log(updateLoading)
                             <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (To)</span>
                             <input onChange={handleChange} min={today()} defaultValue={event?.to} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="to"  />
                         </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
+                    </div> */}
+                    {/* <div className="flex flex-col gap-1">
                         <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
                         <select onChange={handleChange} name='type' defaultValue={event?.type}  className='border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none'  >
                             <option className="dark:bg-black" value="Convention">Convention</option>
@@ -105,7 +105,7 @@ console.log(updateLoading)
                             <option className="dark:bg-black" value="Camp Meeting - YAYA">Camp Meeting - YAYA</option>
                             <option className="dark:bg-black" value="Camp Meeting - Children">Camp Meeting - Children</option>
                         </select>
-                    </div>
+                    </div> */}
 
                     <div className="flex flex-row gap-12">
                             <div className="flex flex-col gap-1">
@@ -163,7 +163,7 @@ console.log(updateLoading)
                             error?.message &&
                             <Alert onClose={()=>setError(null)} severity={error.error ? 'error':'success'} >{error.message}</Alert>
                         }
-                        {/* <BottomActionItems updateLoading={updateLoading} setError={setError} event={event!} /> */}
+                        <BottomActionItems updateLoading={updateLoading} setError={setError} event={event!} />
                 </div>
                </div>
 
