@@ -9,6 +9,7 @@ import Session from "../database/models/session.model";
 import { connectDB } from "../database/mongoose";
 import Member from "../database/models/member.model";
 import { handleResponse } from "../misc";
+import '../database/models/vendor.model';
 
 export async function createEvent(event:Partial<IEvent>){
     try {
