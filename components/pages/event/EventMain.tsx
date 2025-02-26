@@ -3,7 +3,7 @@ import BottomActionItems from '@/components/features/BottomActionItems'
 import Title from '@/components/features/Title'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { today } from '@/functions/dates'
-import {  updateEvent } from '@/lib/actions/event.action'
+// import {  updateEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
@@ -40,22 +40,22 @@ const EventMain = ({event}:EventMainProps) => {
         setError(null)
         try {
             setUpdateLoading(true)
-          if(event){
-            const body:Partial<IEvent> = {
-              name:data.name||event.name,
-              location:data.location||event.location,
-              from:data.from||event.from,
-              to:data.to||event.to,
-              note:data.note||event.note,
-              organizers:data.organizers||event.organizers,
-              type:data.type||event.type,
-              childPrice:data.childPrice||event.childPrice,
-              adultPrice:data.adultPrice||event.adultPrice,
-            }
-            await updateEvent(event._id, body);
-            setError({message:'Event updated successfully', error:false});
+        //   if(event){
+        //     const body:Partial<IEvent> = {
+        //       name:data.name||event.name,
+        //       location:data.location||event.location,
+        //       from:data.from||event.from,
+        //       to:data.to||event.to,
+        //       note:data.note||event.note,
+        //       organizers:data.organizers||event.organizers,
+        //       type:data.type||event.type,
+        //       childPrice:data.childPrice||event.childPrice,
+        //       adultPrice:data.adultPrice||event.adultPrice,
+        //     }
+        //     await updateEvent(event._id, body);
+        //     setError({message:'Event updated successfully', error:false});
   
-          }
+        //   }
         } catch (error) {
           console.log(error);
           setError({message:'Error occured updating the event', error:true});
