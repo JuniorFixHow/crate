@@ -63,7 +63,7 @@ const MembersTable = () => {
     const message=`Are you sure you want to delete this member? This will delete their event registrations as well as attendance records.`
 
   return (
-    <div className='w-1/3 md:w-1/2 lg:w-4/5 xl:w-full bg-white gap-4 p-4 flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border' >
+    <div className='w-1/3 md:w-1/2 lg:w-4/5 xl:w-[98%] bg-white gap-4 p-4 flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
             <span className='font-bold text-xl' >Members</span>
             <div className="flex gap-3 items-center">

@@ -27,7 +27,9 @@ const EventMain = ({event}:{event:IEvent}) => {
     }
 
     useEffect(()=>{
-        setData(event)
+        if(event){
+            setData(event)
+        }
     },[event])
 
     
