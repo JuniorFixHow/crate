@@ -112,7 +112,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                         <LuUpload className="dark:text-white" size={26} />
                     </div>
                     <input ref={fileRef}  className="hidden" type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} />
-                    <span className="text-[0.8rem] italic font-bold mt-2 dark:text-slate-400" >{memberData?.length+' rooms loaded'}</span>
+                    <span className="text-[0.8rem] italic font-bold mt-2 dark:text-slate-400" >{memberData?.length+' members loaded'}</span>
                     <Link href='/docs/Members Template.xlsx' download='Members Template.xlsx'   className="table-link w-fit text-center" >Download upload template</Link>
                 </div>
                 <div className="flex flex-col gap-6">

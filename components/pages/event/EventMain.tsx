@@ -107,6 +107,7 @@ const EventMain = ({event}:{event:IEvent}) => {
                             <option className="dark:bg-black" value="Retreat">Retreat</option>
                             <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
                             <option className="dark:bg-black" value="Camp Meeting – YAYA">Camp Meeting – YAYA</option>
+                            <option className="dark:bg-black" value="Camp Meeting – Children">Camp Meeting – Children</option>
                         </select>
                     </div>
 
