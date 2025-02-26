@@ -1,16 +1,16 @@
-'use client'
+// 'use client'
 // import AddButton from '@/components/features/AddButton'
 import Title from '@/components/features/Title'
 // import FilterBar from '@/components/FilterBar'
 import MembersTable from '@/components/tables/MembersTable'
 // import { useFetchChurches } from '@/hooks/fetch/useChurch'
-import { Alert } from '@mui/material'
+// import { Alert } from '@mui/material'
 // import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+// import React, { useState } from 'react'
 
 const MembersMain = () => {
     // const {churches} = useFetchChurches();
-    const [noChurch, setNoChurch] = useState<boolean>(false);
+    // const [noChurch, setNoChurch] = useState<boolean>(false);
     // const [date, setDate] = useState<string>('');
     // const [status, setStatus] = useState<string>('');
     // const [age, setAge] = useState<string>('');
@@ -47,10 +47,10 @@ const MembersMain = () => {
         {/* <AddButton onClick={handleOpenNew}  text='Add Member' className="w-fit rounded"  /> */}
       </div>
 
-      {
+      {/* {
         noChurch &&
         <Alert onClose={()=>setNoChurch(false)} severity='error' >No zones available. Create a zone to add a new church</Alert>
-      }
+      } */}
 
       <MembersTable
         // age={age} status={status} gender={gender} date={date}
