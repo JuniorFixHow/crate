@@ -132,7 +132,13 @@ const MainNewEvent = () => {
 
               <div className="flex flex-row gap-12 items-center">
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-400 font-semibold text-[0.8rem]">{( data?.type !== 'Camp Meeting - Children' && data?.type !== 'Camp Meeting - YAYA')? 'Price':"Adult's Price"}</span>
+                  { 
+                    data &&
+                    ( data?.type !== 'Camp Meeting - Children' && data?.type !== 'Camp Meeting - YAYA')?
+                    <span className="text-slate-400 font-semibold text-[0.8rem]">Price</span>
+                    :
+                    <span className="text-slate-400 font-semibold text-[0.8rem]">Adult&apos;s Price</span>
+                  }
                   <input
                     
                     onChange={handleChange}
@@ -144,6 +150,7 @@ const MainNewEvent = () => {
                   />
                 </div>
                 {
+                  data &&
                   (data?.type === 'Camp Meeting - Children' || data?.type === 'Camp Meeting - YAYA') &&
                     <div className="flex flex-col gap-1">
                       <span className="text-slate-400 font-semibold text-[0.8rem]">Children&apos;s Price</span>
