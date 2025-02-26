@@ -31,7 +31,7 @@ export interface IMember extends Document{
 
 const MemberSchema = new Schema<IMember>({
     photo:{type:String, default:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png'},
-    email:{type:String, unique:true},
+    email:{type:String},
     name:{type:String, required:true},
     ageRange:String,
     church:{type:Schema.Types.ObjectId, ref:'Church', required:true},

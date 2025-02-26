@@ -202,7 +202,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Email</span>
-                <input  onChange={handleChange} defaultValue={currentMemeber?.email} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
+                <input onChange={handleChange} defaultValue={currentMemeber?.email} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Phone Number</span>

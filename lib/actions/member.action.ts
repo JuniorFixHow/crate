@@ -15,13 +15,13 @@ export async function createMember(member: Partial<IMember>) {
     try {
         await connectDB();
 
-        const {email} = member;
-        if(email){
-            const mem = await Member.findOne({email})
-            if(mem){
-                return handleResponse('Email is associated with another member', true, {}, 422);
-            }
-        }
+        // const {email} = member;
+        // if(email){
+        //     const mem = await Member.findOne({email})
+        //     if(mem){
+        //         return handleResponse('Email is associated with another member', true, {}, 422);
+        //     }
+        // }
         // Create the new member
         const newMember = await Member.create(member);
 
