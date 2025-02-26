@@ -18,7 +18,7 @@ export type CardInfoModalProps = {
 const CardInfoModal = ({infoMode, setInfoMode, setCurrentCard, currentCard}:CardInfoModalProps) => {
 
     const church = currentCard?.churchId as unknown as IChurch;
-    const members = currentCard?.members as unknown as IMember[];
+    const member = currentCard?.member as unknown as IMember;
 
     const handleClose = ()=>{
         setCurrentCard(null);
@@ -92,15 +92,11 @@ const CardInfoModal = ({infoMode, setInfoMode, setCurrentCard, currentCard}:Card
                 </div> */}
 
                 <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >{members?.length > 1 ? 'Members':'Member'}</span>
-                    {
-                        currentCard?.members?.length > 0 ?
-                        <Link href={{pathname:`/dashboard/activities/${currentCard?._id}`, query:{tab:'Members'}}}   className='text-[0.9rem] table-link' >{
-                            currentCard?.members?.length
-                        }</Link>
-                        :
-                        <span className='text-[0.9rem]' >None</span> 
-                    }
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Member</span>
+                    <Link href={{pathname:`/dashboard/members/${member?._id}`, }}   className='text-[0.9rem] table-link' >{
+                        member?.name
+                    }</Link>
+                    
                 </div>
 
                 

@@ -6,7 +6,7 @@ export interface ICard extends Document{
     _id:string;
     type:string;
     name:string;
-    members:string[] | Types.ObjectId[] | IMember[];
+    member:string | Types.ObjectId | IMember;
     churchId:string | Types.ObjectId | IChurch;
     expDate:string;
     createdAt:Date;
@@ -17,7 +17,7 @@ const CardSchema = new Schema<ICard>({
     type:String,
     name:String,
     churchId:{type:Schema.Types.ObjectId, ref:'Church'},
-    members:[{type:Schema.Types.ObjectId, ref:'Member'}],
+    member:{type:Schema.Types.ObjectId, ref:'Member'},
     expDate:String,
 }, {timestamps:true});
 

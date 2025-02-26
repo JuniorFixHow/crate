@@ -197,19 +197,19 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Pastor Name</span>
-            <input required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.pastor} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="pastor"  />
+            <input /*required={!currentChurch}*/ onChange={handleChange} defaultValue={currentChurch?.pastor} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="pastor"  />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Email</span>
-            <input required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.email} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
+            <input /*required={!currentChurch}*/ onChange={handleChange} defaultValue={currentChurch?.email} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Contact Number</span>
-            <input required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.phone} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="tel" name="phone"  />
+            <input /*required={!currentChurch}*/ onChange={handleChange} defaultValue={currentChurch?.phone} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="tel" name="phone"  />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Location</span>
-            <Address className="w-fit" required={!currentChurch} setAddress={setLocation} country={currentChurch?.location} />
+            <Address className="w-fit" /*required={!currentChurch}*/ setAddress={setLocation} country={currentChurch?.location} />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Zone</span>

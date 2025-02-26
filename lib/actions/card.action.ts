@@ -29,7 +29,7 @@ export async function updateCard(card:Partial<ICard>){
 export async function getCard(id:string){
     try {
         const act = await Card.findById(id)
-        .populate('members')
+        .populate('member')
         .populate('churchId')
         .lean();
         return JSON.parse(JSON.stringify(act));
@@ -43,7 +43,7 @@ export async function getCard(id:string){
 export async function getCards(){
     try {
         const acts = await Card.find()
-        .populate('members')
+        .populate('member')
         .populate('churchId')
         .lean();
         return JSON.parse(JSON.stringify(acts));
