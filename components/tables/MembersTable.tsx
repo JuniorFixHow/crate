@@ -63,13 +63,13 @@ const MembersTable = () => {
     const message=`Are you sure you want to delete this member? This will delete their event registrations as well as attendance records.`
 
   return (
-    <div className='w-1/3 md:w-1/2 lg:w-4/5 xl:w-[98%] bg-white gap-4 p-4 flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border' >
+    <div className='max-w-[90vw] lg:max-w-[92vw] xl:max-w-[80vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border' >
         <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
             <span className='font-bold text-xl' >Members</span>
             <div className="flex gap-3 items-center">
               <ExcelButton onClick={()=>setExcelMode(true)} />
               <Link href={`/dashboard/members/new`} >
-                <AddButton  text='Add Member' smallText className="w-fit rounded"  />
+                <AddButton  text='Add Member' smallText className="w-fit rounded py-1"  />
               </Link>
               {/* <SearchBar setSearch={setSearch} reversed className='py-1' /> */}
             </div>
@@ -93,7 +93,15 @@ const MembersTable = () => {
                   getRowId={(row:IMember):string=>row._id}
                   columns={MemberColumns(handleDelete, handleInfo)}
                   initialState={{ pagination: { paginationModel },  
-                  // scroll: { top: 1000, left: 1000 },
+                  columns:{
+                    columnVisibilityModel:{
+                      photo:false,
+                      phone:false,
+                      status:false,
+                      marital:false,
+                      voice:false,
+                    }
+                  }
                 }}
                   pageSizeOptions={[5, 10, 15, 20, 50, 100]}
                   // dis

@@ -10,6 +10,7 @@ import { IChurch } from '@/lib/database/models/church.model';
 import { createRelationship, updateRelationship } from '@/lib/actions/relationship.action';
 import SearchSelectMultipleMembers from '../features/SearchSelectMultipleMembers';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
 
 export type NewRelationshipProps = {
     infoMode:boolean,
@@ -76,8 +77,10 @@ const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  curre
             }
             const res = await createRelationship(body);
             refetch!();
-            setResponse(res);
+            // setResponse(res);
             formRef.current?.reset();
+            setInfoMode(false);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured creating relationship', error:true})
@@ -85,7 +88,7 @@ const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  curre
             setLoading(false);
         }
     }
-    console.log(data);
+    // console.log(data);
 
 
     const handleUpdateRelationship = async(e:FormEvent<HTMLFormElement>)=>{
@@ -106,10 +109,13 @@ const NewRelationship = ({infoMode, refetch, setInfoMode, fixedSelection,  curre
                 setInfoMode(false);
                 refetch!();
                 setResponse(res);
+                setInfoMode(false);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured updating relationship', error:true})
+            // enqueueSnackbar('Error occured updating relationship', {variant:'error'});
         }finally{
             setLoading(false);
         }

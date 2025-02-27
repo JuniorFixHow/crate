@@ -32,7 +32,7 @@ const SearchSelectMembers = ({setSelect, require, value}:SearchSelectMembersProp
           {...params}
           required={require}
           size='small'
-          label="Ministry"
+          label= {value??"Member"}
           color='primary'
           defaultValue={value}
           className="dark:bg-slate-400 rounded"

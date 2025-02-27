@@ -4,18 +4,19 @@ import { IChurch } from "./church.model";
 
 export interface ICard extends Document{
     _id:string;
-    type:string;
-    name:string;
+    // type:string;
+    // name:string;
     member:string | Types.ObjectId | IMember;
     churchId:string | Types.ObjectId | IChurch;
     expDate:string;
+    lastPrinted:string;
     createdAt:Date;
     updatedAt:Date;
 }
 
 const CardSchema = new Schema<ICard>({
-    type:String,
-    name:String,
+    // type:String,
+    lastPrinted:String,
     churchId:{type:Schema.Types.ObjectId, ref:'Church'},
     member:{type:Schema.Types.ObjectId, ref:'Member'},
     expDate:String,

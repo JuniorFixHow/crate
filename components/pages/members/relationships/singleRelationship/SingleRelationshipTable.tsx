@@ -2,11 +2,11 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Alert, LinearProgress, Paper } from "@mui/material";
+import {  LinearProgress, Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import SearchBar from "@/components/features/SearchBar";
 import AddButton from "@/components/features/AddButton";
-import { ErrorProps } from "@/types/Types";
+// import { ErrorProps } from "@/types/Types";
 import { IRelationship } from "@/lib/database/models/relationship.model";
 import { deleteRelationship, getRelationship } from "@/lib/actions/relationship.action";
 import DeleteDialog from "@/components/DeleteDialog";
@@ -18,6 +18,7 @@ import { SearchSingleRelationship } from "../fxn";
 import { SingleRelationshipColumns } from "./SingleRelationshipColumns";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { IMember } from "@/lib/database/models/member.model";
+import { enqueueSnackbar } from "notistack";
 
 type SingleRelationshipTableProps = {
     refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IRelationship[], Error>>;
@@ -32,7 +33,7 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
-    const [response, setReponse] = useState<ErrorProps>(null);
+    // const [response, setReponse] = useState<ErrorProps>(null);
 
     
 
@@ -74,12 +75,14 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
         try {
             if(currentRelationship){
                 const res = await deleteRelationship(currentRelationship._id);
-                setReponse(res);
+                // setReponse(res);
                 setDeleteMode(false)
+                refetch();
+                enqueueSnackbar(res?.message, {variant:res?.error?'error':'success'})
             }
         } catch (error) {
             console.log(error);
-            setReponse({message:'Error occured removing relationship', error:true})
+            enqueueSnackbar('Error occured removing relationship', {variant:'error'})
         }
     }
 
@@ -90,7 +93,7 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
 
     const message = `You're about to delete this relationsip. Do you want to continue?`
     return (
-      <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
+      <div className='table-main2' >
           <div className="flex flex-col gap-5 lg:flex-row items-start justify-end w-full">
             {/* <SearchSelectChurch setSelect={setChurchId} isGeneric /> */}
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
@@ -103,10 +106,10 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete Relationship`} message={message} onTap={handleDeleteRelationship} />
           <NewRelationship fixedSelection={[member]} refetch={refetch} currentRelationship={currentRelationship}  infoMode={newMode} setInfoMode={setNewMode} />
   
-            {
+            {/* {
                 response?.message &&
                 <Alert severity={response.error ? 'error':'success'} >{response.message}</Alert>
-            }
+            } */}
           <div className="flex w-full">
             {
                 isPending ?

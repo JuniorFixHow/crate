@@ -189,6 +189,26 @@ export const MemberColumns = (
         width:120
     },
     {
+        field:'phone',
+        headerName:'Phone',
+        width:120
+    },
+    {
+        field:'status',
+        headerName:'Status',
+        width:120
+    },
+    {
+        field:'marital',
+        headerName:'Marital Status',
+        width:120
+    },
+    {
+        field:'voice',
+        headerName:'Voice',
+        width:120
+    },
+    {
         field:'ageRange',
         headerName:'Age Group',
         width:120

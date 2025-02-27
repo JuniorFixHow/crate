@@ -44,15 +44,11 @@ const CardInfoModal = ({infoMode, setInfoMode, setCurrentCard, currentCard}:Card
 
             <div className="flex flex-col gap-4">
                 
-                <div className="flex flex-col dark:text-slate-200">                    
-                    <Link href={`/dashboard/activities/${currentCard?._id}`}   className='text-xl table-link' >{
-                    currentCard?.name
-                    }</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
+                
+                {/* <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Program</span>
                     <span className='text-[0.9rem]' >{currentCard?.type}</span>
-                </div>
+                </div> */}
                 {/* <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Happening</span>
                     <span className='text-[0.9rem]' >{currentCard?.frequency}</span>

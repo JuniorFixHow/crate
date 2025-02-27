@@ -30,6 +30,10 @@
         @apply flex w-full bg-white dark:bg-transparent dark:border p-4 rounded
     }
 
+    .table-main2{
+        @apply max-w-[90vw] lg:max-w-[92vw] xl:max-w-[80vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl dark:bg-[#0F1214] dark:border
+    }
+
     .modal{
         @apply fixed inset-0 z-50 flex-center bg-[#0F1214]/50 backdrop-blur-0
     }

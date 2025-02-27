@@ -37,7 +37,7 @@ const SingleMemberMain = ({member}:SingleMemberMainProps) => {
         </Link>
       </div>
 
-      <NewRelationship fixedSelection={[member]} infoMode={infoMode} setInfoMode={setInfoMode} />
+      <NewRelationship refetch={refetch} fixedSelection={[member]} infoMode={infoMode} setInfoMode={setInfoMode} />
 
       <div className="flex flex-col">
         <div className="flex justify-between dark:bg-black dark:border border-b border-b-slate-300 flex-row w-full px-8 py-4 bg-white">
