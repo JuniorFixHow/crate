@@ -87,7 +87,7 @@ const MembersTable = () => {
   return (
     <div className='table-main2' >
         <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
-            <span className='font-bold text-xl' >Members</span>
+            <span className='font-bold text-xl' >Cards</span>
             <div className="flex gap-3 items-center">
               {
                 selection?.length > 0 &&
