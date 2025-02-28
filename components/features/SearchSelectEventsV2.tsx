@@ -8,9 +8,10 @@ type SearchSelectEventsV2Props = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
+    width?:number
 }
 
-const SearchSelectEventsV2 = ({setSelect, require, value}:SearchSelectEventsV2Props) => {
+const SearchSelectEventsV2 = ({setSelect, width, require, value}:SearchSelectEventsV2Props) => {
     const {events, loading} = useFetchEvents();
     const [search, setSearch] = useState<string>('');
     useEffect(()=>{
@@ -32,7 +33,7 @@ const SearchSelectEventsV2 = ({setSelect, require, value}:SearchSelectEventsV2Pr
     loading={loading}
     isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.name}
-      sx={{ width: 300 }}
+      sx={{ width: width ?? 250 }}
       renderInput={(params) => 
         <TextField
           {...params}

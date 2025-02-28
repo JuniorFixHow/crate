@@ -69,6 +69,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     createdAt:serverTimestamp()
                 }
                 await signupUser(data.email!, password, fbData);
+                setOpenVendor(false);
             }
             setError(res);
             formRef.current?.reset();

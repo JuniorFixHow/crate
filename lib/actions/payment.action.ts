@@ -1,13 +1,13 @@
 'use server'
 
 import { AdultsRange, ChildrenRange } from "@/components/Dummy/contants";
-import Event from "../database/models/event.model";
+import Event, { IEvent } from "../database/models/event.model";
 import Member from "../database/models/member.model";
 import Payment, { IPayment } from "../database/models/payment.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import { IExpectedRevenue } from "@/types/Types";
-import { IChurch } from "../database/models/church.model";
+import  { IChurch } from "../database/models/church.model";
 
 export async function createPayment (payment:Partial<IPayment>){
     try {
@@ -39,6 +39,8 @@ export async function getPayments() {
 
         const payments = await Payment.find()
             .populate('payee') // Populates the Vendor (payee) field
+            .populate('churchId') 
+            .populate('eventId') 
             .populate({
                 path: 'payer', // Refers to the Registration field in Payment
                 model: 'Registration',
@@ -70,6 +72,14 @@ export async function getPayments() {
                 ],
             })
             .lean();
+            for (const payment of payments) {
+                if (!payment.payer && payment.churchId && payment.eventId) {
+                    const expectedRevenue = await getChurchExpectedRevenue(payment.eventId._id.toString(), payment.churchId._id.toString()) as number;
+                    payment.dueAmount = expectedRevenue - (payment.amount || 0);
+                } else {
+                    payment.dueAmount = 0; // No due amount if payer is not null
+                }
+            }
 
         return JSON.parse(JSON.stringify(payments));
         // return handleResponse('Payments fetched successfully', false, payments, 200);
@@ -86,6 +96,8 @@ export async function getUserPayments(userId:string) {
 
         const payments = await Payment.find({payee:userId})
             .populate('payee') // Populates the Vendor (payee) field
+            .populate('churchId') 
+            .populate('eventId') 
             .populate({
                 path: 'payer', // Refers to the Registration field in Payment
                 model: 'Registration',
@@ -117,6 +129,15 @@ export async function getUserPayments(userId:string) {
                 ],
             })
             .lean();
+
+            for (const payment of payments) {
+                if (!payment.payer && payment.churchId && payment.eventId) {
+                    const expectedRevenue = await getChurchExpectedRevenue(payment.eventId._id.toString(), payment.churchId._id.toString()) as number;
+                    payment.dueAmount = expectedRevenue - (payment.amount || 0);
+                } else {
+                    payment.dueAmount = 0; // No due amount if payer is not null
+                }
+            }
 
         return JSON.parse(JSON.stringify(payments));
         // return handleResponse('Payments fetched successfully', false, payments, 200);
@@ -132,6 +153,8 @@ export async function getChurchPayments(churchId:string) {
 
         const payments = await Payment.find({churchId})
             .populate('payee') // Populates the Vendor (payee) field
+            .populate('churchId') 
+            .populate('eventId') 
             .populate({
                 path: 'payer', // Refers to the Registration field in Payment
                 model: 'Registration',
@@ -163,6 +186,15 @@ export async function getChurchPayments(churchId:string) {
                 ],
             })
             .lean();
+
+            for (const payment of payments) {
+                if (!payment.payer && payment.churchId && payment.eventId) {
+                    const expectedRevenue = await getChurchExpectedRevenue(payment.eventId._id.toString(), payment.churchId._id.toString()) as number;
+                    payment.dueAmount = expectedRevenue - (payment.amount || 0);
+                } else {
+                    payment.dueAmount = 0; // No due amount if payer is not null
+                }
+            }
 
         return JSON.parse(JSON.stringify(payments));
         // return handleResponse('Payments fetched successfully', false, payments, 200);
@@ -179,6 +211,8 @@ export async function getPayment(id:string) {
 
         const payment = await Payment.findById(id)
             .populate('payee') // Populates the Vendor (payee) field
+            .populate('churchId')
+            .populate('eventId')
             .populate({
                 path: 'payer', // Refers to the Registration field in Payment
                 model: 'Registration',
@@ -209,7 +243,18 @@ export async function getPayment(id:string) {
                     },
                 ],
             })
-            .lean();
+            .lean() as unknown as IPayment;
+
+            // for (const payment of payments) {
+            // }
+            if (!payment?.payer && payment.churchId && payment.eventId) {
+                const event = payment.eventId as IEvent;
+                const church = payment.churchId as IChurch;
+                const expectedRevenue = await getChurchExpectedRevenue(event?._id, church?._id) as number;
+                payment.dueAmount = expectedRevenue - (payment.amount || 0);
+            } else {
+                payment.dueAmount = 0; // No due amount if payer is not null
+            }
         return JSON.parse(JSON.stringify(payment));
     } catch (error) {
         console.error('Error occurred fetching payment:', error);
@@ -222,7 +267,7 @@ export async function deletePayment(id:string){
     try {
         await connectDB();
         await Payment.findByIdAndDelete(id);
-        return handleResponse('Payment deleted successfully', true);
+        return handleResponse('Payment deleted successfully', false);
     } catch (error) {
         console.error('Error occurred deleting payment:', error);
         return handleResponse('Error occurred deleting payment', true, {}, 500);
@@ -281,6 +326,39 @@ export async function getEventEstimatedRevenue(eventId: string) {
         const result = Array.from(revenueMap.values());
 
         return handleResponse("Estimated revenue calculated successfully", false, result, 200);
+    } catch (error) {
+        console.log(error);
+        return handleResponse("Error occurred retrieving data", true, {}, 500);
+    }
+}
+
+
+
+export async function getChurchExpectedRevenue(eventId: string, churchId: string) {
+    try {
+        await connectDB();
+
+        // Fetch event pricing
+        const event = await Event.findById(eventId).select("adultPrice childPrice");
+        if (!event) {
+            return handleResponse("Event not found", true, {}, 404);
+        }
+
+        // Fetch members belonging to the given church
+        const members = await Member.find({ church: churchId }).select("ageRange");
+
+        // Count children and adults
+        const childrenCount = members.filter(member => ChildrenRange.includes(member.ageRange)).length;
+        const adultsCount = members.filter(member => AdultsRange.includes(member.ageRange)).length;
+
+        // Calculate revenue
+        const childrenRevenue = childrenCount * event.childPrice;
+        const adultsRevenue = adultsCount * event.adultPrice;
+        const totalRevenue = childrenRevenue + adultsRevenue;
+
+       
+
+        return totalRevenue;
     } catch (error) {
         console.log(error);
         return handleResponse("Error occurred retrieving data", true, {}, 500);

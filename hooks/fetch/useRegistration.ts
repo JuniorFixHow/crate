@@ -1,6 +1,9 @@
-import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId } from "@/lib/actions/registration.action";
+import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId, getRegsWithEventIdAndChurchId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
 import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchRegistrations = ()=>{
     const [registrations, setRegistrations] = useState<IRegistration[]>([]);
@@ -85,30 +88,31 @@ export const useFetchRegistrationsWithoutChurch = (id:string)=>{
 
 
 export const useFetchRegistrationsAllGroups = (id:string)=>{
-    const [eventRegistrations, setEventRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    
+    const {user} = useAuth();
 
-    useEffect(()=>{
-        if(!id) return;
-        const fetchRegistrations = async()=>{
-            const controller = new AbortController()
-            try {
-                const evts:IRegistration[] = await getRegsWithEventId(id);
-                setEventRegistrations(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registrations.')
-            }finally{
-                setLoading(false);
-            }
-            return ()=> controller.abort()
+ 
+    const fetchRegistrations = async():Promise<IRegistration[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const regs:IRegistration[] = isAdmin ? await getRegsWithEventId(id)
+            : await getRegsWithEventIdAndChurchId(id, user?.churchId);
+            
+            return regs;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchRegistrations();
-    },[id])
-    return {eventRegistrations, error, loading}
+    const {data:eventRegistrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['registrations', id],
+        queryFn:fetchRegistrations,
+        enabled:!!user && !!id
+    })
+
+    return {eventRegistrations, refetch, loading}
 }
 
 

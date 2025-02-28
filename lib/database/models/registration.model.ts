@@ -5,6 +5,7 @@ import { IRoom } from "./room.model";
 import { IEvent } from "./event.model";
 import Payment from "./payment.model";
 import { IKey } from "./key.model";
+import { IChurch } from "./church.model";
 
 export interface IRegistration extends Document{
     _id:string;
@@ -13,6 +14,7 @@ export interface IRegistration extends Document{
     groupId?:Types.ObjectId | string | IGroup;
     roomIds?:[Types.ObjectId] | string[] | IRoom[];
     eventId:Types.ObjectId | string | IEvent;
+    churchId:Types.ObjectId | string | IChurch;
     keyId:Types.ObjectId | string | IKey;
     checkedIn:{
         checked:boolean;
@@ -30,6 +32,7 @@ const RegistrationSchema = new Schema<IRegistration>({
     keyId:{type:Schema.Types.ObjectId, ref:'Key', required:false},
     roomIds:[{type:Schema.Types.ObjectId, ref:'Room', required:false}],
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},
+    churchId:{type:Schema.Types.ObjectId, ref:'church'},
 
 },{timestamps:true});
 

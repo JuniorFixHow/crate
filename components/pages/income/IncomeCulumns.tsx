@@ -6,6 +6,7 @@ export const IncomeColumns:GridColDef[]=[
     {
         field:'church',
         headerName:'Church',
+        filterable:true,
         valueFormatter:(value:IChurch)=> value?.name,
         valueGetter:(value:IChurch)=> value?.name,
         width:180,

@@ -7,9 +7,10 @@ type SearchSelectMembersProps = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
+    width?:number
 }
 
-const SearchSelectMembers = ({setSelect, require, value}:SearchSelectMembersProps) => {
+const SearchSelectMembers = ({setSelect, width, require, value}:SearchSelectMembersProps) => {
     const {members, isPending} = useFetchMembersInAChurchV2();
     const [search, setSearch] = useState<string>('')
   return (
@@ -26,7 +27,7 @@ const SearchSelectMembers = ({setSelect, require, value}:SearchSelectMembersProp
     loading={isPending}
     isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.name}
-      sx={{ width: 300 }}
+      sx={{ width: width ?? 250 }}
       renderInput={(params) => 
         <TextField
           {...params}

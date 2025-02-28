@@ -7,9 +7,10 @@ type SearchSelectChurchesV2Props = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
+    width?:number
 }
 
-const SearchSelectChurchesV2 = ({setSelect, require, value}:SearchSelectChurchesV2Props) => {
+const SearchSelectChurchesV2 = ({setSelect, width, require, value}:SearchSelectChurchesV2Props) => {
     const {churches, isPending} = useFetchChurchesV2();
     const [search, setSearch] = useState<string>('')
   return (
@@ -26,13 +27,13 @@ const SearchSelectChurchesV2 = ({setSelect, require, value}:SearchSelectChurches
     loading={isPending}
     isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.name}
-      sx={{ width: 300 }}
+      sx={{ width: width ?? 250 }}
       renderInput={(params) => 
         <TextField
           {...params}
           required={require}
           size='small'
-          label="Church"
+          label={value ?? "Church"}
           color='primary'
           defaultValue={value}
           className="dark:bg-slate-400 rounded"
