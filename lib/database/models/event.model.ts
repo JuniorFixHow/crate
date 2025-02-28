@@ -29,8 +29,8 @@ const EventSchema = new Schema<IEvent>({
     type:String,
     organizers:String,
     note:String,
-    adultPrice:Number,
-    childPrice:Number,
+    adultPrice:{type:Number, default:0},
+    childPrice:{type:Number, default:0},
     sessions:{type:Number, default:0},
     churchId:{type:Schema.Types.ObjectId, ref:'Church', required:false},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false}

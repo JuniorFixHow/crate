@@ -1,3 +1,4 @@
+import { IChurch } from "@/lib/database/models/church.model"
 import { IClassministry } from "@/lib/database/models/classministry.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IGroup } from "@/lib/database/models/group.model"
@@ -232,4 +233,14 @@ export type SignatureProps = {
 export type RoleProps = {
    title:string;
    codes:string[];
+}
+
+
+export interface IExpectedRevenue{
+   adp:number;
+   chp:number;
+   children:number;
+   adults:number;
+   total:number;
+   church:IChurch
 }

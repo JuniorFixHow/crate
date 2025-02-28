@@ -15,6 +15,8 @@ import { ICampuse } from "@/lib/database/models/campuse.model";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
+export const AdultsRange = ['11-20', '21-30', '31-40', '41-50', '51-60', '60+'];
+export const ChildrenRange = ['6-10'];
 export const ADRoles = ['SU', 'SA1', 'SA2', 'SA3', 'SA4'];
 
 export const checkIfAdmin = (user:SessionPayload|null):boolean=>{
@@ -218,6 +220,7 @@ export const MemberColumns = (
         field:'campuseId',
         headerName:'Campus',
         width:160,
+        filterable:true,
         valueFormatter: (value:ICampuse) => value?.name,
         valueGetter: (value:ICampuse) => value?.name,
         renderCell:(params:GridRenderCellParams)=>{

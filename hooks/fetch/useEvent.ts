@@ -1,39 +1,47 @@
-import { getCYPEvents, getEvents, getUnregisteredMembers, getUserEvents } from "@/lib/actions/event.action";
+import { getChurchEvents, getCYPEvents, getEvents, getUnregisteredMembers, getUserEvents } from "@/lib/actions/event.action";
 import { IEvent } from "@/lib/database/models/event.model"
 import { IMember } from "@/lib/database/models/member.model";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
 
 export const useFetchEvents = ()=>{
-    const [events, setEvents] = useState<IEvent[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+ 
     const searchParams = useSearchParams();
+    const {user} = useAuth();
 
-    useEffect(()=>{
-        const fetchEvents = async()=>{
-            const id = searchParams.get('userId');
-            try {
-                let evts:IEvent[];
-                if(id){
-                    evts = await getUserEvents(id);
-                }else{
-                    evts = await getEvents();
-                }
-                setEvents(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error)
-                setError('Error occured fetching events.')
-            }finally{
-                setLoading(false);
+    const fetchEvents = async():Promise<IEvent[]>=>{
+        const id = searchParams.get('userId');
+        try {
+            let evts:IEvent[];
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            if(id){
+                evts = await getUserEvents(id);
             }
-        }
+            else if(!isAdmin){
+                evts = await getChurchEvents(user?.churchId);
+            }
+            else{
+                evts = await getEvents();
+            }
 
-        fetchEvents();
-    },[searchParams])
-    return {events, error, loading}
+            return evts;
+            
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:events=[], isPending:loading, refetch} = useQuery({
+        queryKey:['events', searchParams],
+        queryFn:fetchEvents,
+        enabled:!!user
+    })
+    return {events, refetch, loading}
 }
 
 

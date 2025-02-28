@@ -1,11 +1,13 @@
 import { Document, model, models, Schema, Types } from "mongoose";
 import { IRegistration } from "./registration.model";
 import { IVendor } from "./vendor.model";
+import { IChurch } from "./church.model";
 
 export interface IPayment extends Document{
     _id:string,
     payer:Types.ObjectId | IRegistration | string,
     payee:Types.ObjectId | IVendor | string,
+    churchId:Types.ObjectId | IChurch | string,
     purpose:string,
     narration:string,
     amount:number,
@@ -15,7 +17,10 @@ export interface IPayment extends Document{
 
 const PaymentSchema = new Schema<IPayment>({
     payer:{
-        type:Schema.Types.ObjectId, ref:'Registration', required:true
+        type:Schema.Types.ObjectId, ref:'Registration',
+    },
+    churchId:{
+        type:Schema.Types.ObjectId, ref:'Church',
     },
     payee:{
         type:Schema.Types.ObjectId, ref:'Vendor', required:true

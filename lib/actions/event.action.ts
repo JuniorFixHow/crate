@@ -59,6 +59,22 @@ export async function getEvents(){
     }
 }
 
+export async function getChurchEvents(churchId:string){
+    try {
+        await connectDB();
+        const events = await Event.find({churchId}).populate('createdBy').lean();
+        return JSON.parse(JSON.stringify(events));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching events:', error.message);
+            throw new Error(`Error occurred during events fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during events fetch');
+        }
+    }
+}
+
 
 export async function getVendorEventRegistrations(createdBy:string){
     try {

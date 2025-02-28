@@ -162,7 +162,7 @@ export async function saveSignatureToFile(data:SignatureProps){
         const base64Data = sign.replace(/^data:image\/png;base64,/, "");
         fs.writeFileSync(filePath, base64Data, 'base64');
 
-        return handleResponse('File saved successfully', false, {filePath}, 201);
+        return handleResponse(`File saved successfully to ${filePath}`, false, {filePath}, 201);
         
     } catch (error) {
         console.log(error);

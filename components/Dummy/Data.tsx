@@ -234,7 +234,7 @@ export const NavItems:NavigationProps[] = [
             image:<MdAttachMoney />
           },
           {
-            text:'Estimated Income',
+            text:'Expected Income',
             path:'/dashboard/income',
             image:<TbCash />
           },
