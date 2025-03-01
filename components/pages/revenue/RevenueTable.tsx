@@ -155,7 +155,7 @@ const RevenueTable = () => {
                             filterModel:{
                                 items:[
                                     {
-                                        field:'eventId', operator:'equals', value:eventId
+                                        field:'eventId', operator:'contains', value:eventId
                                     }
                                 ]
                             }

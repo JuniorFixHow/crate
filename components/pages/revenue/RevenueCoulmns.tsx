@@ -35,7 +35,10 @@ export const RevenueColumns = (
         field:'eventId',
         headerName:'Event',
         valueFormatter:(value:IEvent)=>value?.name,
-        valueGetter:(value:IEvent)=>value?._id,
+        valueGetter:(value:IEvent)=>{
+            const search = Object.values(value);
+            return search;
+        },
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
@@ -69,7 +72,7 @@ export const RevenueColumns = (
         },
         valueGetter:(value:IRegistration )=>{
             const member = value?.memberId as IMember;
-            return member?.name
+            return Object.values(member)
         },
         
         renderCell:(params:GridRenderCellParams)=>{
@@ -90,7 +93,7 @@ export const RevenueColumns = (
         field:'churchId',
         headerName:'Paid By Church',
         valueFormatter:(value:IChurch)=>value?.name,
-        valueGetter:(value:IChurch)=>value?.name,
+        valueGetter:(value:IChurch)=>Object.values(value),
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -110,7 +113,7 @@ export const RevenueColumns = (
         field:'church',
         headerName:'Church Involved',
         valueFormatter:(value:IChurch)=>value?.name,
-        valueGetter:(value:IChurch)=>value?.name,
+        valueGetter:(value:IChurch)=>Object.values(value),
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -123,7 +126,7 @@ export const RevenueColumns = (
         field:'payee',
         headerName:'Received By',
         valueFormatter:(value:IVendor)=>value?.name,
-        valueGetter:(value:IVendor)=>value?.name,
+        valueGetter:(value:IVendor)=>Object.values(value),
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
