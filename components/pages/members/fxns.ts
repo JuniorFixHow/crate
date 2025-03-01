@@ -68,7 +68,7 @@ export const readMembersFromExcel = (file: File): Promise<Partial<IMember>[]> =>
         const rows: ExcelRow[] = xlsx.utils.sheet_to_json<ExcelRow>(sheet);
 
         // Map rows to the Room schema format
-        const roomsData: Partial<IMember>[] = rows.map((row) => ({
+        const membersData: Partial<IMember>[] = rows.map((row) => ({
           name: row["Full Name"],
           gender: row["Gender"],
           ageRange: row["Age Group"],
@@ -83,7 +83,7 @@ export const readMembersFromExcel = (file: File): Promise<Partial<IMember>[]> =>
           phone: row["Phone"],
         }));
 
-        resolve(roomsData);
+        resolve(membersData);
       } catch (error) {
         reject(error);
       }

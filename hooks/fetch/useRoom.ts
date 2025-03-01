@@ -2,6 +2,7 @@ import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRoo
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import { ErrorProps, IMergedRegistrationData } from "@/types/Types";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 
@@ -126,27 +127,24 @@ export const useFetchRoomsRegistrationWithKeys = () => {
 
 
 export const useFetchRoomsForVenue = (venueId:string) => {
-    const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if(!venueId) return;
-        const fetchRooms = async () => {
-            try {
-                const fetchedRooms:IRoom[] = await getRoomsInaVenue(venueId);
-                setRooms(fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching rooms');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchRooms = async ():Promise<IRoom[]> => {
+        try {
+            if(!venueId) return [];
+            const fetchedRooms:IRoom[] = await getRoomsInaVenue(venueId);
+            const res = fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+           return res;
+        } catch (err) {
+            console.log(err);
+            return [];
+        } 
+    };
+    
+    const {data:rooms=[], isPending:loading, refetch} = useQuery({
+        queryKey:['roomsinavenue', venueId],
+        queryFn:fetchRooms,
+        enabled:!!venueId
+    })
 
-        fetchRooms();
-    }, [venueId]);
-
-    return { rooms, loading, error };
+    return { rooms, loading, refetch };
 };

@@ -13,6 +13,8 @@ import { generateNumberArray } from "@/functions/misc";
 import { useAuth } from "@/hooks/useAuth";
 import { createRooms } from "@/lib/actions/room.action";
 import Link from "next/link";
+import { enqueueSnackbar } from "notistack";
+import { useFetchRoomsForVenue } from "@/hooks/fetch/useRoom";
 
 type ImportRoomModalProps = {
     infoMode:boolean;
@@ -28,6 +30,7 @@ const ImportRoomModal = ({infoMode, setInfoMode, venueId}:ImportRoomModalProps) 
     const [loading, setLoading] = useState<boolean>(false);
     const [roomsData, setRoomsData] = useState<Partial<IRoom>[]>([]);
     const {user} = useAuth();
+    const {refetch} = useFetchRoomsForVenue(venueId);
 
     const fileRef = useRef<HTMLInputElement>(null);
     const handleClose =()=>{
@@ -41,7 +44,7 @@ const ImportRoomModal = ({infoMode, setInfoMode, venueId}:ImportRoomModalProps) 
           try {
             const data = await readRoomsFromExcel(file);
             setRoomsData(data);
-            console.log(data);
+            // console.log(data);
           } catch (error) {
             console.error("Error reading Excel file:", error);
           }
@@ -74,10 +77,13 @@ const ImportRoomModal = ({infoMode, setInfoMode, venueId}:ImportRoomModalProps) 
                     eventId,
                 }));
     
-                await createRooms(body);
+                const res = await createRooms(body);
                 setResponse({ message: resMessage, error: false });
+                refetch();
                 setFacId('');
                 setEventId('');
+                setInfoMode(false);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             } else {
                 setResponse({ message: 'No valid rooms found in the dataset', error: true });
             }

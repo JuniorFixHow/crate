@@ -158,7 +158,11 @@ export async function updateMember(id: string, member: Partial<IMember>) {
 export async function createMembers(members:Partial<IMember>[]){
     try {
         await connectDB();
+        // console.log(members);
         const data = await Member.insertMany(members, {ordered:false});
+        if(data.length <= 0){
+            return handleResponse('Error occured adding members. None of them was added', true);
+        }
         return handleResponse(`${data.length} of ${members.length} members added successfully`, false, {}, 201);
     } catch (error) {
         console.log(error);

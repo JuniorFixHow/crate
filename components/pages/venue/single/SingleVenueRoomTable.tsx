@@ -1,11 +1,11 @@
 'use client'
 
 import {  useState } from "react";
-import { Alert, LinearProgress, Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import SearchBar from "@/components/features/SearchBar";
+import { Alert,  Paper } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+// import SearchBar from "@/components/features/SearchBar";
 import AddButton from "@/components/features/AddButton";
-import SearchSelectEvents from "@/components/features/SearchSelectEvents";
+// import SearchSelectEvents from "@/components/features/SearchSelectEvents";
 import DeleteDialog from "@/components/DeleteDialog";
 import { deleteRoom } from "@/lib/actions/room.action";
 import { IRoom } from "@/lib/database/models/room.model";
@@ -13,13 +13,15 @@ import {  useFetchRoomsForVenue } from "@/hooks/fetch/useRoom";
 import { ErrorProps } from "@/types/Types";
 import { SingleVenueRoomsColumns } from "./SingleVenueRoomColumns";
 import SingleVenueRoomInfoModal from "./SingleVenueRoomModal";
-import { SearchRoom } from "../../room/fxn";
+import { SearchRoomV2 } from "../../room/fxn";
 import SingleVenueNewRoom from "./SingleVenueNewRoom";
-import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
+// import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
 import ImportRoomModal from "./ImportRoomModal";
 import { MdChecklist, MdOutlineContentCopy } from "react-icons/md";
 import { LuCopyX } from "react-icons/lu";
 import CopyRoomModal from "./CopyRoomModal";
+import { ExcelButton } from "@/components/features/Buttons";
+import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
 
 
 type SingleVenueRoomTableProps = {
@@ -31,7 +33,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
-    const [search, setSearch] = useState<string>('');
+    // const [search, setSearch] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
     const [response, setReponse] = useState<ErrorProps>(null);
     const [excelMode, setExcelMode] = useState<boolean>(false);
@@ -41,7 +43,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
     const {rooms, loading} = useFetchRoomsForVenue(venueId)
    
   
-    const searched = SearchRoom(rooms, search, eventId)
+    const searched = SearchRoomV2(rooms, eventId)
 
     const paginationModel = { page: 0, pageSize: 10 };
 
@@ -91,15 +93,13 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
 
     const message = `Deleting a room will also unassign all members allocated to it. You're rather advised to edit the room or unassign the unwanted members. Do you want to continue?`
     return (
-      <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
+      <div className='table-main2' >
           <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
-            <SearchSelectEvents setSelect={setEventId} isGeneric />
+            <SearchSelectEventsV2 setSelect={setEventId}  />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
-                <div className="flex gap-1 cursor-pointer items-center px-4 py-1 border-2 rounded bg-transparent">
-                    <PiMicrosoftExcelLogoFill color="teal" size={24} />
-                    <button onClick={()=>setExcelMode(true)}  className="" >Import Rooms</button>
-                </div>
+                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
+               
+                <ExcelButton text="Import" onClick={()=>setExcelMode(true)} />
                 <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-[0.4rem]' />
             </div>
           </div> 
@@ -115,9 +115,9 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
             }
           <div className="flex w-full">
             {
-                loading ?
-                <LinearProgress className="w-full" />
-                :
+                // loading ?
+                // <LinearProgress className="w-full" />
+                // :
                 <div className="flex flex-col gap-4 w-full">
                     {
                         selection.length > 0 &&
@@ -144,11 +144,15 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
                     }
                     <Paper className='w-full' sx={{ height: 480, }}>
                         <DataGrid
-                            rows={SearchRoom(rooms, search, eventId)}
+                            loading={loading}
+                            rows={SearchRoomV2(rooms, eventId)}
                             columns={SingleVenueRoomsColumns(handleNewRoom, hadndleInfo, handleDelete, selection, hadndleSelection)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRoom):string=>row._id}
+                            slots={{
+                                toolbar:GridToolbar
+                            }}
                             // checkboxSelection
                             className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                             sx={{ border: 0 }}

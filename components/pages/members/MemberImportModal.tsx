@@ -16,6 +16,8 @@ import { createMembers } from "@/lib/actions/member.action";
 import { getPassword } from "@/functions/misc";
 import { readMembersFromExcel } from "./fxns";
 import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
+import { enqueueSnackbar } from "notistack";
+import { useFetchMembers } from "@/hooks/fetch/useMember";
 
 type MemberImportModalProps = {
     infoMode:boolean;
@@ -30,6 +32,9 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [memberData, setMembersData] = useState<Partial<IMember>[]>([]);
     const {user} = useAuth();
+    const {refetch} = useFetchMembers()
+
+    const passPiece = new Date().getMonth().toString() + new Date().getFullYear().toString();
 
     const fileRef = useRef<HTMLInputElement>(null);
     const handleClose =()=>{
@@ -37,7 +42,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
         setCampusId('');
         setChurchId('');
     }
-    // alert(new Date().getFullYear())
+    // alert(new Date().getMonth())
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -45,7 +50,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
           try {
             const data = await readMembersFromExcel(file);
             setMembersData(data);
-            console.log(data);
+            // console.log(data);
           } catch (error) {
             console.error("Error reading Excel file:", error);
           }
@@ -71,13 +76,17 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                     ...member,
                     church: churchId || user?.churchId,
                     campuseId:campusId,
-                    password: getPassword(member.name!, new Date().getFullYear().toString())
+                    password: getPassword(member.name!, passPiece),
+                    registeredBy:user?.userId
                 }));
     
                 const res = await createMembers(body);
+                refetch();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setResponse(res);
                 setChurchId('');
                 setCampusId('');
+                setInfoMode(false);
             } else {
                 setResponse({ message: 'No valid members found in the dataset', error: true });
             }

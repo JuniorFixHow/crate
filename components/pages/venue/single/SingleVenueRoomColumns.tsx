@@ -1,8 +1,9 @@
 import { IRoom } from "@/lib/database/models/room.model"
-import { GridRenderCellParams } from "@mui/x-data-grid"
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid"
 import { GoInfo } from "react-icons/go"
 import { IoTrashBinOutline } from "react-icons/io5"
 import CustomCheck from "../../group/new/CustomCheck"
+import { IVenue } from "@/lib/database/models/venue.model"
 
 export const SingleVenueRoomsColumns = (
     handleNew:(data:IRoom)=>void,
@@ -10,11 +11,13 @@ export const SingleVenueRoomsColumns = (
     handleDelete:(data:IRoom)=>void,
     selection:IRoom[],
     hnadleSelection:(data:IRoom)=>void
-) => [
+):GridColDef[] => [
     {
         field:'venueId',
         headerName:'Venue',
         width:200,
+        valueFormatter:(venue:IVenue)=>venue?.name,
+        valueGetter:(venue:IVenue)=>Object.values(venue),
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">

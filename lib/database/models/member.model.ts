@@ -35,7 +35,7 @@ const MemberSchema = new Schema<IMember>({
     name:{type:String, required:true},
     ageRange:String,
     church:{type:Schema.Types.ObjectId, ref:'Church', required:true},
-    registeredBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:true},
+    registeredBy:{type:Schema.Types.ObjectId, ref:'Vendor'},
     campuseId:{type:Schema.Types.ObjectId, ref:'Campus', required:true},
     gender:String,
     phone:String,
