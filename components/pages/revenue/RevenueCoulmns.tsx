@@ -72,7 +72,7 @@ export const RevenueColumns = (
         },
         valueGetter:(value:IRegistration )=>{
             const member = value?.memberId as IMember;
-            return Object.values(member)
+            return member?.name
         },
         
         renderCell:(params:GridRenderCellParams)=>{
