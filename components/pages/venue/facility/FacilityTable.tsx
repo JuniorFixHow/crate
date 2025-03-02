@@ -19,6 +19,8 @@ import FacilityInfoModal from "./FacilityModal";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
 import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
+import { useAuth } from "@/hooks/useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
 
 
 
@@ -36,7 +38,8 @@ const FacilityTable = () => {
 
     const searchParams = useSearchParams();
 
-   
+   const {user} = useAuth();
+   const isAdmin = checkIfAdmin(user);
   
 
     const paginationModel = { page: 0, pageSize: 10 };
@@ -93,13 +96,16 @@ const FacilityTable = () => {
     }
 
     const message = `You're about to delete a facility. This will delete rooms and keys depending on it`;
+    if(!user) return null;
     return (
       <div className='table-main2' >
            
            <div className="flex flex-col gap-2">
                 <div className="flex flex-col md:flex-row items-end gap-4">
-                    {/* <SearchSelectZones setSelect={setZoneId} isGeneric /> */}
-                    <SearchSelectChurchesV2 setSelect={setChurchId} />
+                    {
+                        isAdmin &&
+                        <SearchSelectChurchesV2 setSelect={setChurchId} />
+                    }
                 </div>
                 <div className="flex flex-row gap-4 justify-end items-center px-0 lg:px-4">
                     {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}

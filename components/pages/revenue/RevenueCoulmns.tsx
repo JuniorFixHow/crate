@@ -2,7 +2,7 @@ import { IPayment } from "@/lib/database/models/payment.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
-import { monthFirstDate } from "./fxn";
+// import { monthFirstDate } from "./fxn";
 import Link from "next/link";
 import { IChurch } from "@/lib/database/models/church.model";
 import { IVendor } from "@/lib/database/models/vendor.model";
