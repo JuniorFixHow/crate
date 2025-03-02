@@ -308,6 +308,57 @@ export async function removeMemberFromGroup(groupId: string, memberId: string, e
 }
 
 
+export async function removeMemberFromAllGroups(memberId: string) {
+    try {
+        await connectDB();
+
+        // Fetch all groups where this member is present
+        const groups = await Group.find({ members: memberId });
+
+        if (!groups.length) {
+            throw new Error('Member is not in any group');
+        }
+
+        // Fetch member details to check eligibility
+        const member = await Member.findById(memberId);
+        if (!member) {
+            throw new Error('Member not found');
+        }
+
+        // Iterate over all groups and remove the member
+        for (const group of groups) {
+            // Check if the member is eligible and decrement the eligible count if needed
+            const isMemberEligible = isEligible(member.ageRange);
+            if (isMemberEligible && group.eligible > 0) {
+                group.eligible -= 1;
+            }
+
+            // Remove the member from the group's members array
+            await group.updateOne({ $pull: { members: memberId } });
+
+            // Save the updated group with the new eligible count
+            await group.save();
+        }
+
+        // Update all registrations where the member is assigned to a group
+        await Registration.updateMany(
+            { memberId },
+            { $unset: { groupId: '', roomIds: [] } } // Remove group and room assignments
+        );
+
+        return { message: `Member removed from ${groups.length} groups across all events` };
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error removing member from all groups:', error.message);
+            throw new Error(`Error occurred while removing member from all groups: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred while removing member from all groups');
+        }
+    }
+}
+
+
 
 export async function getGroups() {
     try {

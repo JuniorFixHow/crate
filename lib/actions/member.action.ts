@@ -10,6 +10,7 @@ import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
 // import { isEligible } from "@/functions/misc";
 import Response from "../database/models/response.model";
+import { removeMemberFromAllGroups } from "./group.action";
 
 export async function createMember(member: Partial<IMember>) {
     try {
@@ -372,6 +373,7 @@ export async function deleteMember(id: string) {
         }
 
         // Check if the member is registered for an event (group/room) and handle related data
+        await removeMemberFromAllGroups(member?._id);
         const registrations = await Registration.find({ memberId: member._id });
         for (const registration of registrations) {
             // If the member is part of a group, remove them from the group's members array
@@ -398,7 +400,6 @@ export async function deleteMember(id: string) {
             Response.deleteMany({ memberId: member._id }),
         ])
         // Remove the member's attendance records, if any
-       
 
         // Delete the member itself
         await Member.deleteOne({_id:member._id});
