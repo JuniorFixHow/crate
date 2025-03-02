@@ -432,14 +432,10 @@ export async function deleteReg(id: string) {
         // Optional: Revalidate paths if needed
         revalidatePath('/dashboard/events/badges');
         
-        return 'Registration deleted successfully';
+        return handleResponse('Registration deleted successfully', false);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting registration:', error.message);
-            throw new Error(`Error occurred during registration deletion: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during registration deletion');
-        }
+        
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during registration deletion', true, {}, 500);
     }
 }

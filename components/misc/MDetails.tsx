@@ -19,6 +19,7 @@ import Link from "next/link"
 // import { useFetchMemberRelationships } from "@/hooks/fetch/useRelationship"
 // import Subtitle from "../features/Subtitle";
 import '@/components/features/customscroll.css';
+import { IVendor } from "@/lib/database/models/vendor.model"
 
 export type MDetailsProps = {
   currentMember:IMember
@@ -37,7 +38,8 @@ const MDetails = ({currentMember}:MDetailsProps) => {
   const [regError, setRegError] = useState<ErrorProps>(null);
   const [groupId, setGroupId] = useState<string>('');
 
-  const church = currentMember?.church as IChurch || undefined
+  const church = currentMember?.church as IChurch || undefined;
+  const registerer = currentMember?.registeredBy as unknown as IVendor;
 
   const router = useRouter();
   const {events} = useFetchEvents();
@@ -204,10 +206,13 @@ const MDetails = ({currentMember}:MDetailsProps) => {
                   <span className="text-[0.8rem] md:w-[30rem] text-slate-400" >{currentMember?.note}</span>
                 </div>
               }
-              <div className="flex flex-row items-center gap-4">
-                <span className="text-[0.8rem] font-semibold" >Registered By:</span>
-                <span className="text-[0.8rem] text-slate-400" >{typeof currentMember?.registeredBy === 'object' && 'name' in currentMember?.registeredBy && currentMember?.registeredBy.name}</span>
-              </div>
+              {
+                registerer &&
+                <div className="flex flex-row items-center gap-4">
+                  <span className="text-[0.8rem] font-semibold" >Registered By:</span>
+                  <span className="text-[0.8rem] text-slate-400" >{registerer?.name}</span>
+                </div>
+              }
               {
                 currentMember ?
                 <div className="flex flex-row items-center gap-4">

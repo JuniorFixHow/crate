@@ -12,6 +12,10 @@ import { SessionPayload } from "@/lib/session";
 import { UserRoles } from "./UserRoles";
 import { IVendor } from "@/lib/database/models/vendor.model";
 import { ICampuse } from "@/lib/database/models/campuse.model";
+import { IChurch } from "@/lib/database/models/church.model";
+import { IGroup } from "@/lib/database/models/group.model";
+import { IRoom } from "@/lib/database/models/room.model";
+import { ISession } from "@/lib/database/models/session.model";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
@@ -42,6 +46,8 @@ export const RegColumns:GridColDef[] = [
     {
         field:'photo',
         headerName:'Photo',
+        filterable:false,
+        disableExport:true,
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
@@ -70,6 +76,14 @@ export const RegColumns:GridColDef[] = [
         field:'church',
         headerName:'Church',
         width:160,
+        valueFormatter: (_, row:IMember) => {
+            const church = row?.church as IChurch;
+            return church?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const church = row?.church as IChurch;
+            return church ? Object.values(church) : 'N/A';
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params?.row?.church._id}}} >{params?.row?.church.name}</Link>
@@ -86,6 +100,8 @@ export const RegColumns:GridColDef[] = [
         field:'id',
         headerName:'Action',
         width:120,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
@@ -141,6 +157,8 @@ export const EventColumns:GridColDef[] = [
         field:'_id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
@@ -221,8 +239,14 @@ export const MemberColumns = (
         headerName:'Campus',
         width:160,
         filterable:true,
-        valueFormatter: (value:ICampuse) => value?.name,
-        valueGetter: (value:ICampuse) => value?.name,
+        valueFormatter: (_, row:IMember) => {
+            const campus = row?.campuseId as ICampuse;
+            return campus?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const campus = row?.campuseId as ICampuse;
+            return campus ? Object.values(campus) : 'N/A';
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <>
@@ -240,7 +264,14 @@ export const MemberColumns = (
         field:'registeredBy',
         headerName:'Registered By',
         width:160,
-        valueFormatter: (value:IVendor) => value?.name,
+        valueFormatter: (_, row:IMember) => {
+            const user = row?.registeredBy as IVendor;
+            return user?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const user = row?.registeredBy as IVendor;
+            return user ? Object.values(user) : 'N/A';
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
@@ -285,11 +316,19 @@ export const MemberColumns = (
 export const BadgesColumns =(
     handleInfo:(data:IRegistration)=>void,
     handleDelete:(data:IRegistration)=>void,
-) => [
+):GridColDef[] => [
     {
         field:'memberId',
         headerName:'Name',
         width:170,
+        valueFormatter:(_, row:IRegistration)=>{
+            const member  = row?.memberId as IMember;
+            return member?.name
+        },
+        valueGetter:(_, row:IRegistration)=>{
+            const member  = row?.memberId as IMember;
+            return Object.values(member)
+        },
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
@@ -302,6 +341,12 @@ export const BadgesColumns =(
         field:'regType',
         headerName:'Type',
         width:120,
+        valueFormatter:(_, row:IRegistration)=>{
+            return row?.groupId ? 'Group':'Individual'
+        },
+        valueGetter:(_, row:IRegistration)=>{
+            return row?.groupId ? 'Group':'Individual'
+        },
         renderCell:(params:GridRenderCellParams) =>{
             return(
                 <span >{params?.row?.groupId ? 'Group':'Individual'}</span>
@@ -312,6 +357,12 @@ export const BadgesColumns =(
         field:'status',
         headerName:'Room Assign. Status',
         width:180,
+        valueFormatter:(_, row:IRegistration)=>{
+            return row?.roomIds!.length > 0 ? 'Assigned':'Pending'
+        },
+        valueGetter:(_, row:IRegistration)=>{
+            return row?.roomIds!.length > 0 ? 'Assigned':'Pending'
+        },
         renderCell:(params:GridRenderCellParams) =>{
             return(
                 <span >{params?.row?.roomIds?.length > 0 ? 'Assigned':'Pending'}</span>
@@ -328,6 +379,15 @@ export const BadgesColumns =(
         field:'groupId',
         headerName:"Group",
         width:130,
+        valueFormatter:(_,row:IRegistration)=>{
+            const group = row?.groupId as IGroup;
+            return group ? group?.name : 'N/A'
+        },
+        valueGetter:(_,row:IRegistration)=>{
+            const group = row?.groupId as IGroup;
+            return group ? Object.values(group):'N/A'
+        },
+       
         renderCell:(params:GridRenderCellParams) => {
           return(
             <div className="flex">
@@ -345,6 +405,14 @@ export const BadgesColumns =(
         field:'roomId',
         headerName:"Room",
         width:120,
+        valueFormatter:(_, row:IRegistration)=>{
+            const rooms = row?.roomIds as unknown as IRoom[];
+            return rooms?.length ? rooms[0]?.number : 'Unallocated'
+        },
+        valueGetter:(_, row:IRegistration)=>{
+            const rooms = row?.roomIds as unknown as IRoom[];
+            return rooms?.length ? rooms[0]?.number : 'Unallocated'
+        },
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex">
@@ -363,6 +431,8 @@ export const BadgesColumns =(
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
@@ -378,11 +448,19 @@ export const BadgesColumns =(
 
 export const AttendanceColumns = (
     handleDelete:(data:IAttendance)=>void
-)=> [
+):GridColDef[]=> [
     {
         field:'member',
         headerName:'Member',
         width:170,
+        valueFormatter: (_, row:IAttendance) => {
+            const member = row?.member as IMember;
+            return member?.name;
+        },
+        valueGetter: (_, row:IAttendance) => {
+            const member = row?.member as IMember;
+            return member ? Object.values(member) : 'N/A';
+        },
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
@@ -395,6 +473,8 @@ export const AttendanceColumns = (
         field:'createdAt',
         headerName:'Time',
         width:120,
+        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
+        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
         renderCell:(params:GridRenderCellParams) => {
             return(
                 <span className='' >{getJustTime(params?.row?.createdAt)}</span>
@@ -411,6 +491,14 @@ export const AttendanceColumns = (
         field:'sessionId',
         headerName:"Session",
         width:150,
+        valueFormatter: (_, row:IAttendance) => {
+            const session = row?.sessionId as ISession;
+            return session?.name;
+        },
+        valueGetter: (_, row:IAttendance) => {
+            const session = row?.sessionId as ISession;
+            return session ? Object.values(session) : 'N/A';
+        },
         renderCell:(params:GridRenderCellParams) => {
             return(
               <div className="flex items-center justify-center">
@@ -425,6 +513,8 @@ export const AttendanceColumns = (
         field:'_id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

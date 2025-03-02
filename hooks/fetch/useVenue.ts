@@ -1,31 +1,34 @@
-import { getVenues } from "@/lib/actions/venue.action";
+import { getVenues, getVenuesForChurch } from "@/lib/actions/venue.action";
 import { IVenue } from "@/lib/database/models/venue.model";
-import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 
 export const useFetchVenues = () => {
-    const [venues, setVenues] = useState<IVenue[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchVenues = async () => {
-            try {
-                const fetchedVenues: IVenue[] = await getVenues();
-                setVenues(fetchedVenues.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching venues');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {user} = useAuth();
 
-        fetchVenues();
-    }, []);
+    const fetchVenues = async ():Promise<IVenue[]> => {
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const fetchedVenues: IVenue[] = isAdmin ? await getVenues() : getVenuesForChurch(user?.churchId);
+            const sorted = fetchedVenues.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted
+        } catch (err) {
+            console.log(err);
+            return [];
+        }
+    }
 
-    return { venues, loading, error };
+    const {data:venues=[], isPending:loading, refetch} = useQuery({
+        queryKey:['venues'],
+        queryFn:fetchVenues,
+        enabled:!!user
+    })
+
+    return { venues, loading, refetch };
 };
 
 

@@ -15,6 +15,14 @@ export const SearchVenueWithchurch =(venues:IVenue[], search:string, churchId:st
     return data;
 }
 
+export const SearchVenueWithchurchV2 =(venues:IVenue[], churchId:string):IVenue[]=>{
+    const data = venues.filter((item)=>{
+        return churchId === '' ? item : item.churchId === churchId
+    })
+
+    return data;
+}
+
 export const totalRoomsForVenue = (facilities:IFacility[]):number=>{
     const total = facilities.reduce((sum, facility)=> sum + Number(facility.rooms), 0);
     return total;

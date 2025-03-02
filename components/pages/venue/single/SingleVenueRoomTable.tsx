@@ -153,6 +153,15 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
                             slots={{
                                 toolbar:GridToolbar
                             }}
+                            slotProps={{
+                                toolbar:{
+                                    printOptions:{
+                                        hideFooter:true,
+                                        hideToolbar:true
+                                    },
+                                    showQuickFilter:true
+                                }
+                            }}
                             // checkboxSelection
                             className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                             sx={{ border: 0 }}

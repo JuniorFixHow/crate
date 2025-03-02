@@ -85,7 +85,7 @@ const DashboardEvent = ({loading, churches, zones, events, members, registration
         </div>
       </div>
 
-      <BadgesTable eventId={eventId} setEventId={setEventId} noHeader />
+      <BadgesTable eventId={eventId} setEventId={setEventId} />
     </div>
   )
 }

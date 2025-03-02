@@ -25,12 +25,14 @@ const RevenueInfoModal = ({infoMode, setInfoMode, currentRevenue, setCurrentReve
         setInfoMode(false);
     }
     const registration = currentRevenue?.payer as IRegistration;
-    const event = registration?.eventId as IEvent;
+    // const event = registration?.eventId as IEvent;
     const payee = currentRevenue?.payee as IVendor;
     const member = registration?.memberId as IMember;
     const church = member?.church as IChurch;
     const zone = church?.zoneId as IZone;
     const group = registration?.groupId as IGroup;
+    const pchurch = currentRevenue?.churchId as IChurch;
+    const pevent = currentRevenue?.eventId as IEvent;
   return (
     <Modal
         open={infoMode}
@@ -58,29 +60,42 @@ const RevenueInfoModal = ({infoMode, setInfoMode, currentRevenue, setCurrentReve
                 }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Paid By</span>
-                    <Link href={`/dashboard/members/${member?._id}`}  className='table-link w-fit' >{member?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
-                    <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link w-fit' >{zone?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link w-fit' >{church?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link href={`/dashboard/events/${event?._id}`}  className='table-link w-fit' >{event?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Group</span>
                     {
-                        group ?
-                        <Link href={`/dashboard/groups/${group?._id}`}  className='table-link w-fit' >{group?.name}</Link>
-                        :
-                        <span className='text-[0.9rem]' >None</span>
+                        currentRevenue?.payer ? 
+                        <Link href={`/dashboard/members/${member?._id}`}  className='table-link w-fit' >{member?.name}</Link> :
+                        <Link href={{pathname:`/dashboard/churches`, query:{id:pchurch?._id}}}  className='table-link w-fit' >{pchurch?.name}</Link>
                     }
                 </div>
+                {
+                    currentRevenue?.payer &&
+                    <>
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
+                        <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link w-fit' >{zone?.name}</Link>
+                    </div>
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
+                        <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link w-fit' >{church?.name}</Link>
+                    </div>
+                    </>
+                }
+                <div className="flex flex-col dark:text-slate-200">
+                    <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
+                    <Link href={`/dashboard/events/${pevent?._id}`}  className='table-link w-fit' >{pevent?.name}</Link>
+                </div>
+
+                {
+                    currentRevenue?.payer &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Group</span>
+                        {
+                            group ?
+                            <Link href={`/dashboard/groups/${group?._id}`}  className='table-link w-fit' >{group?.name}</Link>
+                            :
+                            <span className='text-[0.9rem]' >None</span>
+                        }
+                    </div>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Payment Purpose</span>
                     <span className='text-[0.9rem]' >{currentRevenue?.purpose}</span>

@@ -1,40 +1,46 @@
-import { getAvailableFacilities, getFacilities, getFacilitiesForaVenue } from "@/lib/actions/facility.action";
+import { getAvailableFacilities, getFacilities, getFacilitiesForaChurch, getFacilitiesForaVenue } from "@/lib/actions/facility.action";
 import { IFacility } from "@/lib/database/models/facility.model";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 
 export const useFetchFacilities = () => {
-    const [facilities, setFacilities] = useState<IFacility[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    
     const searchParam = useSearchParams();
+    const {user} = useAuth();
 
-    useEffect(() => {
-        const fetchFacilities = async () => {
-            const venueId = searchParam.get('venueId');
-            try {
-                let fetchedFacilities: IFacility[];
-                if(venueId){
-                    fetchedFacilities = await getFacilitiesForaVenue(venueId)
-                }else{
-
-                    fetchedFacilities = await getFacilities();
-                } 
-                setFacilities(fetchedFacilities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching facilities');
-                console.log(err)
-            } finally {
-                setLoading(false);
+    
+    const fetchFacilities = async ():Promise<IFacility[]> => {
+        const venueId = searchParam.get('venueId');
+        const isAdmin = checkIfAdmin(user);
+        try {
+            if(!user) return [];
+            let fetchedFacilities: IFacility[];
+            if(venueId){
+                fetchedFacilities = await getFacilitiesForaVenue(venueId)
             }
-        };
+            else{
 
-        fetchFacilities();
-    }, [searchParam]);
+                fetchedFacilities = isAdmin ? await getFacilities() : await getFacilitiesForaChurch(user?.churchId);
+            } 
+            const sorted = fetchedFacilities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (err) {
+            console.log(err);
+            return [];
+        } 
+    };
 
-    return { facilities, loading, error };
+    const {data:facilities=[], isPending:loading, refetch} = useQuery({
+        queryKey:['facilities', searchParam],
+        queryFn: fetchFacilities,
+        enabled:!!user
+    })
+    
+    return { facilities, loading, refetch };
 };
 
 

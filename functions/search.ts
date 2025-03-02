@@ -203,32 +203,12 @@ export const searchItems = (
 export const searchBadge = (
   badges:IRegistration[],
   eventId:string,
-  badge:string, date:string, room:string,  search:string
 ):IRegistration[]=>{
     const bdg = badges.filter((item)=>{
-      if(typeof item.eventId === 'object'){
-        return eventId === '' ? item : item.eventId._id === eventId
-      }
+      const event = item?.eventId as IEvent;
+      return eventId === '' ? item : event?._id === eventId
     })
-    .filter((item)=>{
-      return badge === '' ? item : item.badgeIssued === badge
-    })
-    .filter((item)=>{
-      return date === '' ? item : item.createdAt && new Date(item?.createdAt).toLocaleDateString() === new Date(date).toLocaleDateString()
-    })
-    .filter((item)=>{
-      if(room === ''){
-        return item
-      }else if(room === 'Assigned'){
-        return item.roomIds && item.roomIds?.length > 0
-      }else if(room === 'Unassigned'){
-        return item?.roomIds === undefined || item.roomIds?.length === 0
-      }
-    })
-    .filter((item)=>{
-      return search === '' ? item : Object.values(item.memberId)
-      .join(' ').toLowerCase().includes(search.toLowerCase()) 
-    })
+    
     return bdg
 }
 

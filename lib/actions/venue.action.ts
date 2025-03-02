@@ -43,6 +43,20 @@ export async function getVenues(){
     }
 }
 
+
+export async function getVenuesForChurch(churchId:string){
+    try {
+        await connectDB();
+        const venues = await Venue.find({churchId})
+        .populate('facilities')
+        .lean();
+        return JSON.parse(JSON.stringify(venues));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching venues', true, {}, 500)
+    }
+}
+
 export async function getVenue(id:string){
     try {
         await connectDB();

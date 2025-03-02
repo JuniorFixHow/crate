@@ -25,7 +25,7 @@ export const RevenueColumns = (
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <span onClick={()=>handleNew(params?.row)}  className="table-link" >{monthFirstDate(params.row?.createdAt)}</span>
+                    <span onClick={()=>handleNew(params?.row)}  className="table-link" >{new Date(params.row?.createdAt).toLocaleDateString()}</span>
                 </div>
             )
         }
@@ -34,10 +34,13 @@ export const RevenueColumns = (
     {
         field:'eventId',
         headerName:'Event',
-        valueFormatter:(value:IEvent)=>value?.name,
-        valueGetter:(value:IEvent)=>{
-            const search = Object.values(value);
-            return search;
+        valueFormatter:(_, value:IPayment)=>{
+            const event = value?.eventId as IEvent;
+            return  event?.name
+        },
+        valueGetter:(_, value:IPayment)=>{
+            const event = value?.eventId as IEvent;
+            return Object.values(event)
         },
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -66,13 +69,15 @@ export const RevenueColumns = (
         field:'payer',
         headerName:'Paid By Member',
         width:180,
-        valueFormatter:(value:IRegistration )=>{
-            const member = value?.memberId as IMember;
-            return member?.name
+        valueFormatter:(_, value:IPayment )=>{
+            const reg = value?.payer as IRegistration;
+            const member = reg?.memberId as IMember;
+            return reg ? member?.name :'N/A'
         },
-        valueGetter:(value:IRegistration )=>{
-            const member = value?.memberId as IMember;
-            return member?.name
+        valueGetter:(_, value:IPayment )=>{
+            const reg = value?.payer as IRegistration;
+            const member = reg?.memberId as IMember;
+            return reg ? Object.values(member) : 'N/A'
         },
         
         renderCell:(params:GridRenderCellParams)=>{
@@ -92,8 +97,14 @@ export const RevenueColumns = (
     {
         field:'churchId',
         headerName:'Paid By Church',
-        valueFormatter:(value:IChurch)=>value?.name,
-        valueGetter:(value:IChurch)=>Object.values(value),
+        valueFormatter:(_, value:IPayment)=>{
+            const church = value?.churchId as IChurch;
+            return !value?.payer ? church?.name : 'N/A'
+        },
+        valueGetter:(_, value:IPayment)=>{
+            const church = value?.churchId as IChurch;
+            return !value?.payer ? Object.values(church) : 'N/A'
+        },
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -112,8 +123,14 @@ export const RevenueColumns = (
     {
         field:'church',
         headerName:'Church Involved',
-        valueFormatter:(value:IChurch)=>value?.name,
-        valueGetter:(value:IChurch)=>Object.values(value),
+        valueFormatter:(_, value:IPayment)=>{
+            const church = value?.churchId as IChurch;
+            return church?.name
+        },
+        valueGetter:(_, value:IPayment)=>{
+            const church = value?.churchId as IChurch;
+            return Object.values(church)
+        },
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
@@ -125,8 +142,14 @@ export const RevenueColumns = (
     {
         field:'payee',
         headerName:'Received By',
-        valueFormatter:(value:IVendor)=>value?.name,
-        valueGetter:(value:IVendor)=>Object.values(value),
+        valueFormatter:(_, value:IPayment)=>{
+            const user = value.payee as IVendor;
+            return user?.name;
+        },
+        valueGetter:(_, value:IPayment)=>{
+            const user = value.payee as IVendor;
+            return Object.values(user);
+        },
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(

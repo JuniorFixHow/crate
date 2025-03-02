@@ -1,11 +1,11 @@
 import { IFacility } from "@/lib/database/models/facility.model"
-import { GridRenderCellParams } from "@mui/x-data-grid"
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid"
 import { IoTrashBinOutline } from "react-icons/io5"
 
 export const SingleFacilityColumns = (
     handleEdit:(data:IFacility)=>void, 
     handleDelete:(data:IFacility)=>void
-) =>[
+):GridColDef[] =>[
     {
         field:'name',
         headerName:'Name',
@@ -32,6 +32,8 @@ export const SingleFacilityColumns = (
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

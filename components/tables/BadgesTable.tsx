@@ -1,50 +1,53 @@
 'use client'
 import { BadgesColumns } from '@/components/Dummy/contants'
 import BadgeInfoModal from '@/components/features/badges/BadgeInfoModal'
-import SearchBar from '@/components/features/SearchBar'
+// import SearchBar from '@/components/features/SearchBar'
 import { searchBadge } from '@/functions/search'
-import { Alert, LinearProgress, Paper } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import {  Paper } from '@mui/material'
+import { DataGrid, GridToolbar } from '@mui/x-data-grid'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import RegistrationFilterBar from '../features/badges/RegistrationFilterBar'
+// import RegistrationFilterBar from '../features/badges/RegistrationFilterBar'
 import { useFetchRegistrations } from '@/hooks/fetch/useRegistration'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { deleteReg, getReg } from '@/lib/actions/registration.action'
 import DeleteDialog from '../DeleteDialog'
-import { ErrorProps } from '@/types/Types'
+// import { ErrorProps } from '@/types/Types'
 import { IMember } from '@/lib/database/models/member.model'
+import { enqueueSnackbar } from 'notistack'
 
 type BadgesTableProps = {
-    noHeader?:boolean,
+    // noHeader?:boolean,
     eventId:string,
     setEventId?:Dispatch<SetStateAction<string>>
 }
-const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
+
+
+const BadgesTable = ({eventId}:BadgesTableProps) => {
     const searchParams = useSearchParams();
-    const [search, setSearch] = useState<string>('');
-    const [room, setRoom] = useState<string>('');
-    const [badge, setBadge] = useState<string>('');
-    const [date, setDate] = useState<string>('');
+    // const [search, setSearch] = useState<string>('');
+    // const [room, setRoom] = useState<string>('');
+    // const [badge, setBadge] = useState<string>('');
+    // const [date, setDate] = useState<string>('');
 
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [currentEventReg, setCurrentEventReg] = useState<IRegistration|null>(null);
-    const [deleteError, setDeleteError] = useState<ErrorProps>(null)
+    // const [deleteError, setDeleteError] = useState<ErrorProps>(null)
 
     const paginationModel = { page: 0, pageSize: 15 };
     const router = useRouter();
 
-    const {registrations, loading} = useFetchRegistrations();
+    const {registrations, loading, refetch} = useFetchRegistrations();
     const member = currentEventReg?.memberId as unknown as IMember;
 
-    const reset = ()=>{
-        setRoom('');
-        setDate('');
-        setEventId!('');
-        setSearch('');
-        setBadge('');
-    }
+    // const reset = ()=>{
+    //     setRoom('');
+    //     setDate('');
+    //     setEventId!('');
+    //     setSearch('');
+    //     setBadge('');
+    // }
     const handleInfo = (data:IRegistration)=>{
         setInfoMode(true);
         setCurrentEventReg(data);
@@ -76,18 +79,19 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
 
 
     const handleDeleteReg = async()=>{
-        setDeleteError(null);
+        // setDeleteError(null);
         try {
             if(currentEventReg){
-                await deleteReg(currentEventReg?._id)
-                setDeleteError({message:'Record deleted successfully', error:false});
+                const res  = await deleteReg(currentEventReg?._id)
                 setDeleteMode(false);
                 setCurrentEventReg(null);
                 router.refresh();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setDeleteError({message:'Error occured trying to delete the registration', error:true})
+            enqueueSnackbar('Error occured trying to delete the registration', {variant:'error'})
         }
     }
 
@@ -97,12 +101,12 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
   return (
     <div className='flex flex-col gap-4 w-full' >
         {
-            !noHeader &&
-            <div className="flex flex-row items-start justify-between">
-                <RegistrationFilterBar 
+            // !noHeader &&
+            <div className="flex flex-row items-start justify-end">
+                {/* <RegistrationFilterBar 
                     setBadge={setBadge} setDate={setDate}
                     setRoom={setRoom} reset={reset}
-                />
+                /> */}
                 <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-[#0F1214] dark:border' >Print Badges</button>
             </div>
         }
@@ -113,29 +117,40 @@ const BadgesTable = ({noHeader, setEventId, eventId}:BadgesTableProps) => {
         {/* table */}
 
         <div className="flex flex-col gap-2">
-            <div className="flex items-center flex-row justify-end w-full">
+            {/* <div className="flex items-center flex-row justify-end w-full">
                 <SearchBar className='py-1' setSearch={setSearch} reversed={false} />
-            </div>
+            </div> */}
 
-        {
+        {/* {
             deleteError?.message &&
             <Alert onClose={()=>setDeleteError(null)} severity={deleteError.error ? 'error':'success'} >{deleteError.message}</Alert>
-        }
+        } */}
         <div className="table-main">
             {
-                loading ?
-                <LinearProgress className='w-full' />
-                :
-                <Paper  className='w-full' sx={{ height: 480, }}>
+                // loading ?
+                // <LinearProgress className='w-full' />
+                // :
+                <Paper  className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         getRowId={(row:IRegistration)=>row._id}
-                        rows={searchBadge(registrations, eventId, badge, date, room, search)}
+                        rows={searchBadge(registrations, eventId)}
                         columns={BadgesColumns(handleInfo, handleDelete)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 50, 100]}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
+                        slots={{toolbar:GridToolbar}}
+                        loading={loading}
+                        slotProps={{
+                            toolbar:{
+                                showQuickFilter:true,
+                                printOptions:{
+                                    hideFooter:true,
+                                    hideToolbar:true,
+                                }
+                            }
+                        }}
                     />
                 </Paper>
             }

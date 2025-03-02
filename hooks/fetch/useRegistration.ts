@@ -6,29 +6,26 @@ import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchRegistrations = ()=>{
-    const [registrations, setRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    // const [registrations, setRegistrations] = useState<IRegistration[]>([]);
+    // const [error, setError] = useState<string|null>(null);
+    // const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(()=>{
-        const fetchRegistrations = async()=>{
-            const controller = new AbortController()
-            try {
-                const evts:IRegistration[] = await getRegs();
-                setRegistrations(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registrations.')
-            }finally{
-                setLoading(false);
-            }
-            return ()=> controller.abort()
+    const fetchRegistrations = async():Promise<IRegistration[]>=>{
+        try {
+            const evts:IRegistration[] = await getRegs();
+            return evts;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchRegistrations();
-    },[])
-    return {registrations, error, loading}
+    const {data:registrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['registrations'],
+        queryFn:fetchRegistrations
+    })
+
+    return {registrations, refetch, loading}
 }
 
 

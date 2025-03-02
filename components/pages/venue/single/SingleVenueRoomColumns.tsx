@@ -4,6 +4,7 @@ import { GoInfo } from "react-icons/go"
 import { IoTrashBinOutline } from "react-icons/io5"
 import CustomCheck from "../../group/new/CustomCheck"
 import { IVenue } from "@/lib/database/models/venue.model"
+// import { IEvent } from "@/lib/database/models/event.model"
 
 export const SingleVenueRoomsColumns = (
     handleNew:(data:IRoom)=>void,
@@ -16,8 +17,14 @@ export const SingleVenueRoomsColumns = (
         field:'venueId',
         headerName:'Venue',
         width:200,
-        valueFormatter:(venue:IVenue)=>venue?.name,
-        valueGetter:(venue:IVenue)=>Object.values(venue),
+        valueFormatter:(_, value:IRoom)=>{
+            const venue = value?.venueId as IVenue;
+            return  venue?.name
+        },
+        valueGetter:(_, value:IRoom)=>{
+            const venue = value?.venueId as IVenue;
+            return Object.values(venue)
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
@@ -48,6 +55,8 @@ export const SingleVenueRoomsColumns = (
         field:'_id',
         headerName:'Actions',
         width:120,
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">

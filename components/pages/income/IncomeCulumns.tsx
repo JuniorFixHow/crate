@@ -1,4 +1,5 @@
 import { IChurch } from "@/lib/database/models/church.model";
+import { IExpectedRevenue } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
@@ -7,8 +8,14 @@ export const IncomeColumns:GridColDef[]=[
         field:'church',
         headerName:'Church',
         filterable:true,
-        valueFormatter:(value:IChurch)=> value?.name,
-        valueGetter:(value:IChurch)=> value?.name,
+        valueFormatter:(_, value:IExpectedRevenue)=> {
+            const church = value?.church as IChurch;
+            return church?.name;
+        },
+        valueGetter:(_, value:IExpectedRevenue)=> {
+            const church = value?.church as IChurch;
+            return Object.values(church);
+        },
         width:180,
         renderCell:({row}:GridRenderCellParams)=>(
             <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:row?.church?._id}}} >{row?.church?.name}</Link>

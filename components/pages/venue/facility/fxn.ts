@@ -16,3 +16,14 @@ export const SearchFacilityWithChurch = (
 
     return data;
 }
+
+export const SearchFacilityWithChurchV2 = (
+    facilities:IFacility[], churchId:string
+):IFacility[]=>{
+    const data = facilities.
+    filter((item)=>{
+        return churchId === '' ? item : item.churchId === churchId
+    });
+
+    return data;
+}

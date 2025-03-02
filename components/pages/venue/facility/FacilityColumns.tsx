@@ -1,5 +1,6 @@
 import { IFacility } from "@/lib/database/models/facility.model"
-import { GridRenderCellParams } from "@mui/x-data-grid"
+import { IVenue } from "@/lib/database/models/venue.model"
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid"
 import Link from "next/link"
 import { GoInfo } from "react-icons/go"
 import { IoTrashBinOutline } from "react-icons/io5"
@@ -8,7 +9,7 @@ export const FacilityColumns = (
     handleInfo:(data:IFacility)=>void, 
     handleEdit:(data:IFacility)=>void, 
     handleDelete:(data:IFacility)=>void
-) =>[
+):GridColDef[] =>[
     {
         field:'name',
         headerName:'Name',
@@ -35,6 +36,14 @@ export const FacilityColumns = (
         field:'venueId',
         headerName:'Venue',
         width:200,
+        valueFormatter:(_, item:IFacility)=>{
+            const venue = item?.venueId as IVenue;
+            return venue?.name;
+        },
+        valueGetter:(_, item:IFacility)=>{
+            const venue = item?.venueId as IVenue;
+            return Object.values(venue);
+        },
         renderCell:(param:GridRenderCellParams)=>{
             return(
                 <Link href={`/dashboard/venues/${param.row?.venueId?._id}`}  className="table-link" >{param.row?.venueId?.name}</Link>
@@ -46,6 +55,8 @@ export const FacilityColumns = (
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
