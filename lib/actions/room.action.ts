@@ -573,13 +573,8 @@ export async function removeGroupFromAllRooms(groupId: string) {
 
         return handleResponse(`Group removed from all rooms successfully`, false, {}, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error removing group from all rooms:', error.message);
-            throw new Error(`Error occurred while removing group from all rooms: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred while removing group from all rooms');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred while removing group from all rooms', true, {}, 500);
     }
 }
 
@@ -614,15 +609,11 @@ export async function deleteRoom(id: string) {
         // Delete the room after updates are done
         await Room.deleteOne({_id:id});
 
-        return 'Room deleted successfully';
+        return handleResponse('Room deleted successfully', false);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting room:', error.message);
-            throw new Error(`Error occurred during room deletion: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during room deletion');
-        }
+        
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during room deletion', true, {}, 500)
     }
 }
 

@@ -1,16 +1,28 @@
 import AddButton from "@/components/features/AddButton";
+import { IGroup } from "@/lib/database/models/group.model";
+import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
-import {  GridRenderCellParams } from "@mui/x-data-grid";
+import { IRoom } from "@/lib/database/models/room.model";
+import {  GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
 export const AssignmentColumns =(
     handleUnassign:(data:IRegistration)=>void,
     loading:boolean
-) => [
+):GridColDef[] => [
     {
         field:'memberId',
         headerName:'Member',
         width:140,
+        valueFormatter:(_, item:IRegistration)=>{
+            const member = item?.memberId as IMember;
+            return member?.name;
+        },
+        valueGetter:(_, item:IRegistration)=>{
+            const member = item?.memberId as IMember;
+            return Object.values(member);
+        },
+       
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?._id}}} >{params?.row?.memberId?.name}</Link>
@@ -22,6 +34,14 @@ export const AssignmentColumns =(
         field:'regType',
         headerName:'Type',
         width:150,
+        valueFormatter:(_, item:IRegistration)=>{
+            const group = item?.groupId as IGroup;
+            return group ? 'Group':'Individual'
+        },
+        valueGetter:(_, item:IRegistration)=>{
+            const group = item?.groupId as IGroup;
+            return group ? 'Group':'Individual'
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full items-center">
@@ -34,6 +54,14 @@ export const AssignmentColumns =(
         field:'status',
         headerName:'Room Assignment Status',
         width:200,
+        valueFormatter:(_, item:IRegistration)=>{
+            const rooms = item?.roomIds as IRoom[];
+            return rooms?.length ? 'Checked-in':'Pending'
+        },
+        valueGetter:(_, item:IRegistration)=>{
+            const rooms = item?.roomIds as IRoom[];
+            return rooms?.length ? 'Checked-in':'Pending'
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full items-center">
@@ -46,6 +74,8 @@ export const AssignmentColumns =(
         field:'id',
         headerName:'Action',
         width:140,
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="h-full flex items-center">

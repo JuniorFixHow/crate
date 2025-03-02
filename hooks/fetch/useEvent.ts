@@ -21,11 +21,9 @@ export const useFetchEvents = ()=>{
             if(id){
                 evts = await getUserEvents(id);
             }
-            else if(!isAdmin){
-                evts = await getChurchEvents(user?.churchId);
-            }
+           
             else{
-                evts = await getEvents();
+                evts = isAdmin ? await getEvents() : await getChurchEvents(user?.churchId);
             }
 
             return evts;

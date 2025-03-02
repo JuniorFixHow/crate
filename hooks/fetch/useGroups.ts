@@ -2,6 +2,7 @@ import {  getEventGroups, getOptionalEventGroups } from "@/lib/actions/group.act
 import { getRoomsAssignedToGroup } from "@/lib/actions/room.action";
 import { IGroup } from "@/lib/database/models/group.model"
 import { IRoom } from "@/lib/database/models/room.model";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react"
 
 export const useFetchGroups = (id?:string)=>{
@@ -29,28 +30,26 @@ export const useFetchGroups = (id?:string)=>{
 }
 
 export const useFetchGroupsForEvent = (id:string)=>{
-    const [groups, setGroups] = useState<IGroup[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(()=>{
-        if(!id) return;
-        const fetchGroups = async()=>{
-            try {
-                const evts:IGroup[] = await getEventGroups(id);
-                setGroups(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching groups.')
-            }finally{
-                setLoading(false);
-            }
+       
+    const fetchGroups = async():Promise<IGroup[]>=>{
+        try {
+            if(!id) return [];
+            const groups:IGroup[] = await getEventGroups(id);
+            const sorted =  groups.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchGroups();
-    },[id])
-    return {groups, error, loading}
+    const {data:groups=[], isPending:loading, refetch} = useQuery({
+        queryKey:['groupsforevent', id],
+        queryFn:fetchGroups,
+        enabled:!!id
+    })
+
+    return {groups, refetch, loading}
 }
 
 

@@ -37,6 +37,16 @@ export const SearchEventRegWithStatus = (eventsRegs:IRegistration[], search:stri
     });
     return data;
 }
+export const SearchEventRegWithChurch = (eventsRegs:IRegistration[],  churchId:string):IRegistration[]=>{
+    const data = eventsRegs
+    .filter((item)=>{
+        const member = item.memberId as unknown as IMember
+        const church =  member.church as unknown as IChurch
+        return churchId === '' ? item : church._id === churchId
+    })
+    
+    return data;
+}
 
 export const SearchGroupWithStatus = (eventsRegs:IGroup[], search:string, status:string, churchId:string, zoneId:string):IGroup[]=>{
     const data = eventsRegs
@@ -65,5 +75,14 @@ export const SearchGroupWithStatus = (eventsRegs:IGroup[], search:string, status
         .toLowerCase()
         .includes(search.toLowerCase())
     });
+    return data;
+}
+export const SearchGroupWithChurch = (eventsRegs:IGroup[],  churchId:string):IGroup[]=>{
+    const data = eventsRegs
+    .filter((item)=>{
+        const church = item.churchId as IChurch;
+        return churchId === '' ? item : church._id === churchId;
+    })
+    
     return data;
 }

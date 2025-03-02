@@ -57,30 +57,26 @@ export const useFetchRegistrationsWithEvents = (id:string, churchId:string)=>{
 }
 
 export const useFetchRegistrationsWithoutChurch = (id:string)=>{
-    const [eventRegistrations, setEventRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(()=>{
-        if(!id) return;
-        const fetchRegistrations = async()=>{
-            const controller = new AbortController()
-            try {
-                const evts:IRegistration[] = await getEligibleRegistrationsWithoutGroups(id);
-                setEventRegistrations(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registrations.')
-            }finally{
-                setLoading(false);
-            }
-            return ()=> controller.abort()
+    const fetchRegistrations = async():Promise<IRegistration[]>=>{
+        try {
+            if(!id) return [];
+            const evts:IRegistration[] = await getEligibleRegistrationsWithoutGroups(id);
+            const sorted = evts.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchRegistrations();
-    },[id])
-    return {eventRegistrations, error, loading}
+    const {data:eventRegistrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['registrationswithoutgroups', id],
+        queryFn:fetchRegistrations,
+        enabled:!!id
+    })
+
+    return {eventRegistrations, refetch, loading}
 }
 
 

@@ -1,5 +1,7 @@
+import { IFacility } from "@/lib/database/models/facility.model";
 import { IRoom } from "@/lib/database/models/room.model";
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { IVenue } from "@/lib/database/models/venue.model";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
@@ -8,11 +10,19 @@ export const RoomsColumns = (
     handleInfo:(data:IRoom)=>void,
     handleDelete:(data:IRoom)=>void,
     handleNew:(data:IRoom)=>void,
-) => [
+):GridColDef[] => [
     {
         field:'venueId',
         headerName:'Venue',
         width:200,
+        valueFormatter:(_, item:IRoom)=>{
+            const venue = item?.venueId as IVenue;
+            return venue?.name;
+        },
+        valueGetter:(_, item:IRoom)=>{
+            const venue = item?.venueId as IVenue;
+            return Object.values(venue);
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
@@ -21,10 +31,19 @@ export const RoomsColumns = (
             )
         }
     },
+
     {
         field:'facId',
         headerName:'Facility',
         width:200,
+        valueFormatter:(_, item:IRoom)=>{
+            const fac = item?.facId as IFacility;
+            return fac?.name;
+        },
+        valueGetter:(_, item:IRoom)=>{
+            const fac = item?.facId as IFacility;
+            return Object.values(fac);
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:'/dashboard/venues/facilities', query:{id:params.row?.facId?._id}}} >{params.row?.facId?.name}</Link>
@@ -55,6 +74,8 @@ export const RoomsColumns = (
         field:'_id',
         headerName:'Actions',
         width:120,
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
