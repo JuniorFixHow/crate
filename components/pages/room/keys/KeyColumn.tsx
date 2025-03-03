@@ -26,7 +26,7 @@ export const KeyColumns = (
     {
         field:'roomId',
         headerName:'Room',
-        width:150,
+        width:160,
         valueFormatter:(_, key:IKey)=>{
             const room = key.roomId as IRoom;
             const venue = room?.venueId as IVenue;
@@ -38,7 +38,7 @@ export const KeyColumns = (
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:'/dashboard/rooms', query:{id:params.row?.roomId?._id}}} >{params.row?.roomId?.venue} {params.row?.roomId?.number}</Link>
+                <Link className="table-link" href={{pathname:'/dashboard/rooms', query:{id:params.row?.roomId?._id}}} >{params.row?.roomId?.venueId?.name} {params.row?.roomId?.number}</Link>
             )
         }
     },

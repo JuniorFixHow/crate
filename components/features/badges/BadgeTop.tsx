@@ -1,10 +1,10 @@
 'use client'
 import { IoCheckmarkCircleOutline  } from "react-icons/io5";
 import { ComponentProps, Dispatch, SetStateAction } from "react";
-import SearchSelectEvents from "../SearchSelectEvents";
 import { checkBadgeIssued } from "./fxn";
 import { useFetchEvents } from "@/hooks/fetch/useEvent";
 import { useFetchRegistrations } from "@/hooks/fetch/useRegistration";
+import SearchSelectEventsV2 from "../SearchSelectEventsV2";
 
 type BadgeTopProps = {
     eventId:string,
@@ -21,7 +21,7 @@ const BadgeTop = ({ setEventId,eventId, className, ...props}:BadgeTopProps) => {
   return (
     <div {...props}  className={`flex flex-row items-end gap-8 ${className}`}>
         <div className="flex flex-row relative">
-            <SearchSelectEvents setSelect={setEventId} isGeneric />
+            <SearchSelectEventsV2 setSelect={setEventId} />
             {/* {
                 value &&
                 <IoCloseSharp className="text-red-700 cursor-pointer absolute -top-4 right-0 z-50" onClick={()=>setValue(false)} />

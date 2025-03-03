@@ -121,10 +121,12 @@ const AssignmentTable = () => {
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} onTap={currentAssGroup ? handleRemoveGroup:handleRemoveMember} title='Unassign room' message={currentAssignment ? message:message2} />
         <div className="table-main2">
             <div className="flex justify-between items-center">
-                <div className="flex gap-4 items-end">
-                    {/* <SearchSelectZones isGeneric setSelect={setZoneId} /> */}
-                    <SearchSelectChurchesV2  setSelect={setChurchId} />
-                </div>
+                {
+                    isAdmin &&
+                    <div className="flex gap-4 items-end">
+                        <SearchSelectChurchesV2  setSelect={setChurchId} />
+                    </div>
+                }
 
             </div>
                 

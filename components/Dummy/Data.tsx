@@ -70,7 +70,7 @@ export const NavItems:NavigationProps[] = [
                 path:'/dashboard/events'
             },
             {
-                text:'Registrations',
+                text:'Attendees',
                 image:<LuScanLine/>,
                 path:'/dashboard/events/badges'
             },
