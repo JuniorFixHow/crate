@@ -13,6 +13,8 @@ import { IGroup } from '@/lib/database/models/group.model';
 import { IRegistration } from '@/lib/database/models/registration.model';
 import { ErrorProps } from '@/types/Types';
 import { addGroupToRoom, addMemberToRoom } from '@/lib/actions/room.action';
+import { IMember } from '@/lib/database/models/member.model';
+import { enqueueSnackbar } from 'notistack';
 
 type SingleAssignmentTableProps = {
     type:string,
@@ -52,15 +54,13 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
             setResponse(null);
             setAddLoading(true);
             if(currentRegistration && currentRoom){
-                const memberId = typeof currentRegistration.memberId === 'object' && currentRegistration.memberId._id;
-                const res = await addMemberToRoom(memberId.toString(), currentRoom._id);
-                if(res){
-                    setResponse(res!);
-                }
+                const member = currentRegistration?.memberId as IMember
+                const res = await addMemberToRoom(member?._id, currentRoom._id);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured adding member to room',error:true});
+            enqueueSnackbar('Error occured adding member to room', {variant:'error'});
         }finally{
             setAddLoading(false);
         }
@@ -72,13 +72,11 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
             setAddLoading(true);
             if(currentGroup && eventId){
                 const res = await addGroupToRoom(roomIds, currentGroup._id, eventId);
-                if(res){
-                    setResponse(res!);
-                }
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured adding group to room',error:true});
+            enqueueSnackbar('Error occured adding group to room', {variant:'error'});
         }finally{
             setAddLoading(false);
         }
@@ -109,12 +107,12 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
                         <CircularProgress className='w-full' />
                     </div>
                     :
-                <Paper className='w-full' sx={{ height: 480, }}>
+                <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         rows={SearchRoomWithoutEvent(rooms, search, nobs!)}
                         columns={SingleAssignmentCoulmns(roomIds, handleSelect, currentRoom, handleRadio, type)}
                         initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10]}
+                        pageSizeOptions={[5, 10, 20, 30, 50]}
                         getRowId={(row:IRoom)=>row._id}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
@@ -123,14 +121,16 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
                 </Paper>
                 }
             </div>
-            {
-                type === 'Member' && currentRoom &&
-                <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-            }
-            {
-                type === 'Group' && roomIds.length > 0 &&
-                <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-            }
+            <div className="flex">
+                {
+                    type === 'Member' && currentRoom &&
+                    <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+                }
+                {
+                    type === 'Group' && roomIds.length > 0 &&
+                    <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+                }
+            </div>
         </div>
 
     </div>

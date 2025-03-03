@@ -68,7 +68,7 @@ const KeyInfoModal = ({infoMode, setInfoMode, currentKey, setCurrentKey}:KeyInfo
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Key Status</span>
-                    <span className='text-[0.9rem]' >{currentKey?.returned ? 'Returned':'In use'}</span>
+                    <span className='text-[0.9rem]' >{currentKey?.holder && !currentKey?.returned ? 'In user':'Available'}</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Returned On</span>

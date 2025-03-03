@@ -1,30 +1,26 @@
 'use client'
 import { getKeys } from "@/lib/actions/key.action";
 import { IKey } from "@/lib/database/models/key.model"
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchKeys = ()=>{
-    const [keys, setKeys] = useState<IKey[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
-
-    useEffect(()=>{
-        const fetchKeys = async() =>{
-            try {
-                const res:IKey[] = await getKeys();
-                // console.log(res);
-                setKeys(res?.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()));
-                setError(null);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured trying to fetch keys.')
-            }finally{
-                setLoading(false);
-            }
+  
+    const fetchKeys = async():Promise<IKey[]> =>{
+        try {
+            const res:IKey[] = await getKeys();
+            // console.log(res);
+            const sorted  = res?.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchKeys()
-    },[])
+    const {data:keys=[], isPending:loading, refetch} = useQuery({
+        queryKey:['keys'],
+        queryFn:fetchKeys
+    })
 
-    return {keys, loading, error}
+    return {keys, loading, refetch}
 }

@@ -1,14 +1,17 @@
 'use client'
 
 import AddButton from "@/components/features/AddButton"
-import SearchSelectEvents from "@/components/features/SearchSelectEvents"
+import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2"
 import SearchSelectMemberForKey from "@/components/features/SearchSelectMemberForKey"
-import SearchSelectRooms from "@/components/features/SearchSelectRooms"
+import SearchSelectRoomsV2 from "@/components/features/SearchSelectRoomsV2"
 import { useFetchMembersInRoom } from "@/hooks/fetch/useRoom"
 import { createKey, returnKey, updateKey } from "@/lib/actions/key.action"
 import { IKey } from "@/lib/database/models/key.model"
+import { IRoom } from "@/lib/database/models/room.model"
+import { IVenue } from "@/lib/database/models/venue.model"
 import { ErrorProps } from "@/types/Types"
 import { Alert, Modal } from "@mui/material"
+import { enqueueSnackbar } from "notistack"
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
 
 type NewKeyProps = {
@@ -27,7 +30,9 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
     const [eventId, setEventId] =useState<string>('');
     const [returnLoading, setReturnLoading] =useState<boolean>(false);
 
-    const {members} = useFetchMembersInRoom(roomId)
+    const {members} = useFetchMembersInRoom(roomId);
+    const room = currentKey?.roomId as IRoom;
+    const venue = room?.venueId as IVenue;
 
     const handleClose = ()=>{
         setEditMode(false);
@@ -56,8 +61,8 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             }
             const res = await createKey(data);
             formRef.current?.reset();
-            setResponse(res);
             setEditMode(false);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
         } catch (error) {
             console.log(error);
             setResponse({message:'Error occured creating key', error:true})
@@ -91,10 +96,10 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
                     }
                 }
                 const res = await updateKey(currentKey._id, data);
-                setResponse(res);
                 const key = res?.payload as IKey;
                 setCurrentKey(key);
                 setEditMode(false);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
@@ -112,7 +117,8 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             setReturnLoading(true);
             if(currentKey){
                 const res = await returnKey(currentKey._id);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                setEditMode(false);
             }
         } catch (error) {
             console.log(error);
@@ -141,13 +147,13 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
 
                 <div className="flex flex-col">
                     <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                    <SearchSelectEvents isGeneric setSelect={setEventId} />
+                    <SearchSelectEventsV2 setSelect={setEventId} />
                 </div>
 
                 <div className="flex gap-12 items-end">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Select Room</span>
-                        <SearchSelectRooms eventId={eventId} isGeneric require={!currentKey} setSelect={setRoomId} />
+                        <SearchSelectRoomsV2 eventId={eventId} value={currentKey ? `${venue?.name} - ${room?.number}`:'Room'} require={!currentKey} setSelect={setRoomId} />
                     </div>
                     {
                         roomId && members.length > 0 &&
