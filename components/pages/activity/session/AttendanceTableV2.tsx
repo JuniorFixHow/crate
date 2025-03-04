@@ -1,5 +1,5 @@
-import SearchBar from "@/components/features/SearchBar";
-import { Alert, LinearProgress, Paper } from "@mui/material";
+// import SearchBar from "@/components/features/SearchBar";
+import { Alert,  Paper } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 // import { useRouter } from "next/router";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import { deleteCAttendance } from "@/lib/actions/cattendance.action";
 import { enqueueSnackbar } from "notistack";
 import DeleteDialog from "@/components/DeleteDialog";
 import { AttendanceColumnsV2 } from "./AttendanceColumnsV2";
-import { searchAttenanceV2 } from "./fxn";
+// import { searchAttenanceV2 } from "./fxn";
 import { useFetchCAttendances } from "@/hooks/fetch/useCAttendance";
 
 type AttendanceTableV2Props = {
