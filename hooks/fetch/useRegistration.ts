@@ -110,52 +110,48 @@ export const useFetchRegistrationsAllGroups = (id:string)=>{
 
 
 export const useFetchReadyRegistrations = (eventId:string)=>{
-    const [readyRegistrations, setReadyRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(()=>{
-        if(!eventId) return;
-        const fetchReadyReg = async()=>{
-            try {
-                const res = await getReadyRegsWithEventId(eventId);
-                setReadyRegistrations(res);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registration data')
-            }finally{
-                setLoading(false);
-            }
+    const fetchReadyReg = async():Promise<IRegistration[]>=>{
+        try {
+            if(!eventId) return [];
+            const res:IRegistration[] = await getReadyRegsWithEventId(eventId);
+            const sorted  = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchReadyReg();
-    },[eventId])
+    const {data:readyRegistrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['checkedinregistrations', eventId],
+        queryFn:fetchReadyReg,
+        enabled:!!eventId
+    })
 
-    return {loading, readyRegistrations, error}
+    return {loading, readyRegistrations, refetch}
 }
 
 
 export const useFetchCheckedInRegistrations = (eventId:string)=>{
-    const [checkRegistrations, setCheckRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(()=>{
-        if(!eventId) return;
-        const fetchReadyReg = async()=>{
-            try {
-                const res = await getCheckedInReg(eventId);
-                setCheckRegistrations(res);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registration data')
-            }finally{
-                setLoading(false);
-            }
+   
+    const fetchReadyReg = async():Promise<IRegistration[]>=>{
+        try {
+            if(!eventId) return [];
+            const res:IRegistration[] = await getCheckedInReg(eventId);
+            const sorted  = res.sort((a, b)=> new Date(a.checkedIn.date!)<new Date(b.checkedIn.date!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchReadyReg();
-    },[eventId])
+    const {data:checkRegistrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['checkedinregistrations', eventId],
+        queryFn:fetchReadyReg,
+        enabled:!!eventId
+    })
 
-    return {loading, checkRegistrations, error}
+    return {loading, checkRegistrations, refetch}
 }

@@ -6,7 +6,7 @@ type NoSessionsProps ={
 
 const NoSessions = ({loading}:NoSessionsProps) => {
   return (
-    <div className="flex-center px-4 flex-col h-[20rem] bg-white shadow dark:bg-[#0F1214] dark:border" >
+    <div className="flex-center max-w-[90vw] lg:max-w-[92vw] xl:max-w-[80vw] px-4 flex-col h-[20rem] bg-white shadow dark:bg-[#0F1214] dark:border" >
         {
             loading ? 
             <CircularProgress size='3rem' />

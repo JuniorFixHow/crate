@@ -1,16 +1,16 @@
 'use client'
 import { useEffect, useState } from "react"
 import ArrivalTop from "./ArrivalTop"
-import ArrivalSearch from "./ArrivalSearch";
+// import ArrivalSearch from "./ArrivalSearch";
 import AddButton from "@/components/features/AddButton";
-import { Alert, LinearProgress, Paper } from "@mui/material";
+import { Alert,  Paper } from "@mui/material";
 import { ErrorProps } from "@/types/Types";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import DeleteDialog from "@/components/DeleteDialog";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useFetchCheckedInRegistrations } from "@/hooks/fetch/useRegistration";
 import { useFetchEvents } from "@/hooks/fetch/useEvent";
-import { SearchCheckedReg } from "./fxn";
+// import { SearchCheckedReg } from "./fxn";
 import { ArrivalColumns } from "./ArrivalColumns";
 import Link from "next/link";
 import ArrivalInfoModal from "./ArrivalInfoModal";
@@ -18,8 +18,6 @@ import { updateReg } from "@/lib/actions/registration.action";
 
 const ArrivalTable = () => {
     const [eventId, setEventId] = useState<string>('');
-    const [date, setDate] = useState<string>('');
-    const [search, setSearch] = useState<string>('');
 
     const [response, setResponse] = useState<ErrorProps>(null);
     const [currentRegistration, setCurrentRegistration] = useState<IRegistration|null>(null);
@@ -67,11 +65,11 @@ const ArrivalTable = () => {
 
     const paginationModel = { page: 0, pageSize: 15 };
   return (
-    <div className="shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded" >
+    <div className="table-main2" >
         <ArrivalTop eventId={eventId} setEventId={setEventId} />
 
         <div className="flex items-start gap-4 justify-end">
-          <ArrivalSearch setDate={setDate} setSearch={setSearch} />
+          {/* <ArrivalSearch setDate={setDate} setSearch={setSearch} /> */}
           <Link href={'/dashboard/events/arrivals/new'} >
             <AddButton text="New Arrival" noIcon smallText className="rounded" />
           </Link>
@@ -86,23 +84,46 @@ const ArrivalTable = () => {
           <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
         }
         <div className="flex w-full">
-          {
-            loading ?
-            <LinearProgress className='w-full' />
-            :
-            <Paper className='w-full' sx={{ height: 480, }}>
-                <DataGrid
-                    getRowId={(row:IRegistration):string=> row?._id as string}
-                    rows={SearchCheckedReg(checkRegistrations, search, date)}
-                    columns={ArrivalColumns(handleInfo, handleDelete)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
-                    // checkboxSelection
-                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                    sx={{ border: 0 }}
-                />
-            </Paper>
-          }
+          <Paper className='w-full' sx={{ height: 'auto', }}>
+              <DataGrid
+                  getRowId={(row:IRegistration):string=> row?._id as string}
+                  rows={checkRegistrations}
+                  columns={ArrivalColumns(handleInfo, handleDelete)}
+                  initialState={{ 
+                    pagination: { paginationModel },
+                    columns:{
+                      columnVisibilityModel:{
+                          email:false,
+                          ageRange:false,
+                          gender:false,
+                          phone:false,
+                          mstatus:false,
+                          marital:false,
+                          employ:false,
+                          voice:false,
+                          role:false,
+                          church:false,
+                          campus:false,
+                          createdAt:false,
+                      }
+                  } 
+                  }}
+                  pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
+                  // checkboxSelection
+                  className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                  sx={{ border: 0 }}
+                  loading={loading}
+                  slots={{toolbar:GridToolbar}}
+                  slotProps={{
+                    toolbar:{
+                      printOptions:{
+                        hideFooter:true,
+                        hideToolbar:true
+                      }
+                    }
+                  }}
+              />
+          </Paper>
         </div>
     </div>
   )

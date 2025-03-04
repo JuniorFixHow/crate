@@ -16,8 +16,8 @@ const Sessions = () => {
   // const [selectedDate, setSelectedDate] = useState<string>(date.toLocaleDateString())
   const [selectedTime, setSelectedTime] = useState<string>('All');
   const [eventId, setEventId] = useState<string>('');
-  const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
-  const {sessions} = useFetchSessionsWithEvent(eventId);
+  // const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
+  const {sessions, loading, refetch} = useFetchSessionsWithEvent(eventId);
   
   // const ses = searchSession(selectedTime, SessionsData)[0]
   const [currentSession, setCuurentSession] = useState<ISession|null>(null);
@@ -43,10 +43,10 @@ const Sessions = () => {
         <AddButton onClick={()=>router.push('/dashboard/events/sessions/new')} text='Create Session' noIcon smallText className='rounded' />
       </div>
       <div className="flex flex-col lg:flex-row gap-4">
-        <SessionSide eventId={eventId} setEventId={setEventId} sessions={sessions} selectedTime={selectedTime} setSelectedTime={setSelectedTime}  value={hasClickedEllipses} setValue={setHasClickedEllipses} setCurrentSession={setCuurentSession} currentSession={currentSession!} />
+        <SessionSide refetch={refetch} eventId={eventId} setEventId={setEventId} sessions={sessions} selectedTime={selectedTime} setSelectedTime={setSelectedTime}   setCurrentSession={setCuurentSession} currentSession={currentSession!} />
         <div className="flex flex-col gap-2 grow">
           {/* <SessionDates text={selectedDate} setText={setSelectedDate} /> */}
-          <SessionContent eventId={eventId} currentSession={currentSession!} />
+          <SessionContent loading={loading} eventId={eventId} currentSession={currentSession!} />
         </div>
       </div>
     </div>

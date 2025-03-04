@@ -11,10 +11,10 @@ import SessionContentV2 from "./SessionContentV2";
 const Sessions = ()=>{
    const [selectedTime, setSelectedTime] = useState<string>('All');
     const [ministryId, setMinistryId] = useState<string>('');
-    const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
+    // const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
     const [currentSession, setCurrentSession] = useState<IClasssession|null>(null);
 
-    const {sessions, isPending} = useFetchClassSession(ministryId);
+    const {sessions, isPending, refetch} = useFetchClassSession(ministryId);
 
     useEffect(()=>{
       if(sessions?.length){
@@ -36,10 +36,9 @@ const Sessions = ()=>{
               <AddButton text='Create Session' noIcon smallText className='rounded' />
             </Link>
           </div>
-          <div className="flex flex-row gap-4">
-            <SessionSideV2 minstryId={ministryId} setMinistryId={setMinistryId} sessions={sessions  as IClasssession[]} selectedTime={selectedTime} setSelectedTime={setSelectedTime}  value={hasClickedEllipses} setValue={setHasClickedEllipses} setCurrentSession={setCurrentSession} currentSession={currentSession!} />
+          <div className="flex flex-col lg:flex-row gap-4 ">
+            <SessionSideV2 refetch={refetch} minstryId={ministryId} setMinistryId={setMinistryId} sessions={sessions  as IClasssession[]} selectedTime={selectedTime} setSelectedTime={setSelectedTime} setCurrentSession={setCurrentSession} currentSession={currentSession!} />
             <div className="flex flex-col gap-2 grow">
-              {/* <SessionDates text={selectedDate} setText={setSelectedDate} /> */}
               <SessionContentV2 isLoading={!!ministryId && isPending} classId={ministryId} currentSession={currentSession!} />
             </div>
           </div>

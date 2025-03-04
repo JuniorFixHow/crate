@@ -4,37 +4,41 @@ import Subtitle from "@/components/features/Subtitle"
 import { searchSession } from "@/functions/search"
 import { deleteSession } from "@/lib/actions/session.action"
 import { ISession } from "@/lib/database/models/session.model"
-import { BooleanStateProp } from "@/types/Types"
+// import { BooleanStateProp } from "@/types/Types"
 import Link from "next/link"
-import { ComponentProps, Dispatch, MouseEvent, SetStateAction, useState } from "react"
-import { FaEllipsisV } from "react-icons/fa"
+import { ComponentProps, Dispatch,  SetStateAction, useState } from "react"
+// import { FaEllipsisV } from "react-icons/fa"
 import {  getActivityStatus } from "./fxn"
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
 import '@/components/features/customscroll.css';
 import { enqueueSnackbar } from "notistack"
+import { IoMdTrash } from "react-icons/io"
+import { RiPencilFill } from "react-icons/ri"
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 
 
-export type SessionSideProps = BooleanStateProp & ComponentProps<'div'> & {
+export type SessionSideProps = ComponentProps<'div'> & {
     setCurrentSession:Dispatch<SetStateAction<ISession|null>>,
     currentSession:ISession,
     selectedTime:string,
     eventId:string,
+    refetch:(options?: RefetchOptions)=>Promise<QueryObserverResult<ISession[], Error>>
     setEventId:Dispatch<SetStateAction<string>>,
     sessions:ISession[]
     setSelectedTime:Dispatch<SetStateAction<string>>,
 }
-const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventId, setSelectedTime, value, setValue, setCurrentSession,className}:SessionSideProps) => {
+const SessionSide = ({currentSession, refetch, sessions, selectedTime, eventId, setEventId, setSelectedTime,   setCurrentSession,className}:SessionSideProps) => {
      const [deleteMode, setDeleteMode] = useState<boolean>(false);
      
     const message = 'Deleting a session will delete its subsequent attendance records. Continue?'
-    const tapEllipse = (event:MouseEvent<SVGElement>, item:ISession)=>{
-        event.stopPropagation();
-        setCurrentSession(item);
-        setValue(prevValue => !prevValue);
-    }
+    // const tapEllipse = (event:MouseEvent<SVGElement>, item:ISession)=>{
+    //     event.stopPropagation();
+    //     setCurrentSession(item);
+    //     setValue(prevValue => !prevValue);
+    // }
     const handleClickSession = (session:ISession)=>{
         setCurrentSession(session);
-        setValue(false);
+        // setValue(false);
     }
 
     const handleDeleteSession = async()=>{
@@ -43,6 +47,7 @@ const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventI
                 const res = await deleteSession(currentSession._id);
                 setDeleteMode(false);
                 setCurrentSession(null);
+                refetch();
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
@@ -52,11 +57,11 @@ const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventI
     }
    
   return (
-    <div className='flex flex-row w-[21rem] sm:w-[96%] scrollbar-custom overflow-x-scroll lg:flex-col lg:w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
+    <div className='flex flex-row max-w-[90vw] scrollbar-custom overflow-x-scroll lg:overflow-hidden lg:flex-col lg:w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
       <Subtitle className="hidden md:block" text="Sessions" />
-      <div className="flex flex-col gap-3">
+      <div className="flex lg:flex-col gap-3">
         <SearchSelectEventsV2 width={190} setSelect={setEventId} />
-        <select onChange={(e)=>setSelectedTime(e.target.value)}  className="bg-transparent py-1 border rounded outline-none" defaultValue='All' >
+        <select onChange={(e)=>setSelectedTime(e.target.value)}  className="bg-transparent h-fit py-2 lg:py-1 border rounded outline-none" defaultValue='All' >
             <option className="dark:bg-[#0F1214]" value="All">All</option>
             <option className="dark:bg-[#0F1214]" value="Morning">Morning</option>
             <option className="dark:bg-[#0F1214]" value="Afternoon">Afternoon</option>
@@ -75,12 +80,21 @@ const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventI
                         <small className="font-medium" >Status:</small>
                         <small>{getActivityStatus(session.from!, session.to!)}</small>
                     </div>
-                    <div className="flex flex-row gap-2 items-center">
-                        <small className="font-medium" >Date</small>
-                        <small className="text-[0.8rem]" > {new Date(session.from!).toLocaleDateString()}</small>
+                    <div className="flex justify-between items-end">
+                        <div className="flex flex-row gap-2 items-center">
+                            <small className="font-medium" >Date</small>
+                            <small className="text-[0.8rem]" > {new Date(session.from!).toLocaleDateString()}</small>
+                        </div>
+                        <div className="flex items-center">
+                            <Link className="w-full" href={`/dashboard/events/sessions/${session?._id}`} >
+                                <RiPencilFill size={20} className="text-blue-600" />
+                            </Link>
+                            <IoMdTrash onClick={()=>setDeleteMode(true)} size={20} className="text-red-600 cursor-pointer" />
+
+                        </div>
                     </div>
                 </div>
-                <FaEllipsisV className="z-50" onClick={(event)=>tapEllipse(event, session)} />
+                {/* <FaEllipsisV className="z-50" onClick={(event)=>tapEllipse(event, session)} />
                 {
                     value && currentSession?._id === session?._id &&
                     <div className="flex flex-col z-20 bg-white dark:bg-[#0F1214] absolute -right-28 top-10 w-28 rounded border items-center">
@@ -93,7 +107,7 @@ const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventI
                             <span>Delete</span>
                         </div>
                     </div>
-                }
+                } */}
             </div>
         </div>
         ))

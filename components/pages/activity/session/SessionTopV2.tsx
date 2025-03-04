@@ -47,9 +47,9 @@ const SessionContentTopV2 = ({currentSession, ministryId}:SessionContentTopV2Pro
     const live = currentSession?.from && currentSession?.to && getActivityStatus(currentSession.from, currentSession.to);
 
   return (
-    <div className='flex flex-col rounded gap-2 bg-white border dark:bg-[#0F1214] px-1 pt-1 py-4' >
+    <div className='flex max-w-[90vw] lg:max-w-[92vw] xl:max-w-[80vw] flex-col rounded gap-2 bg-white border dark:bg-[#0F1214] px-1 pt-1 py-4' >
         <div className="flex flex-row items-center gap-4">
-            <span className='font-semibold' >Attendance Overview</span>
+            <span className='font-semibold hidden md:block' >Attendance Overview</span>
             <TbLivePhotoFilled className={`${live === 'Upcoming'?'text-blue-700':live==='Ongoing'? 'text-green-700':'text-slate-400'}`} />
             <div className="flex flex-row items-center gap-2">
                 <span className='font-medium text-[0.8rem]' >Time:</span>

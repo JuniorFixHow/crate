@@ -15,6 +15,7 @@ import DeleteDialog from '../DeleteDialog'
 // import { ErrorProps } from '@/types/Types'
 import { IMember } from '@/lib/database/models/member.model'
 import { enqueueSnackbar } from 'notistack'
+import AddButton from '../features/AddButton'
 
 type BadgesTableProps = {
     // noHeader?:boolean,
@@ -99,7 +100,7 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
 
 
   return (
-    <div className='flex flex-col gap-4 w-full' >
+    <div className='table-main2' >
         {
             // !noHeader &&
             <div className="flex flex-row items-start justify-end">
@@ -107,7 +108,7 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
                     setBadge={setBadge} setDate={setDate}
                     setRoom={setRoom} reset={reset}
                 /> */}
-                <button onClick={()=>router.push('/dashboard/events/badges/new')}  className='bg-white px-4 py-2 hover:bg-slate-200 dark:hover:border-blue-800 shadow dark:bg-[#0F1214] dark:border' >Print Badges</button>
+                <AddButton smallText text='Print Badges' onClick={()=>router.push('/dashboard/events/badges/new')} className='py-2 rounded' noIcon  />
             </div>
         }
 
@@ -125,35 +126,49 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
             deleteError?.message &&
             <Alert onClose={()=>setDeleteError(null)} severity={deleteError.error ? 'error':'success'} >{deleteError.message}</Alert>
         } */}
-        <div className="table-main">
-            {
-                // loading ?
-                // <LinearProgress className='w-full' />
-                // :
-                <Paper  className='w-full' sx={{ height: 'auto', }}>
-                    <DataGrid
-                        getRowId={(row:IRegistration)=>row._id}
-                        rows={searchBadge(registrations, eventId)}
-                        columns={BadgesColumns(handleInfo, handleDelete)}
-                        initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10, 15, 20, 50, 100]}
-                        // checkboxSelection
-                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                        sx={{ border: 0 }}
-                        slots={{toolbar:GridToolbar}}
-                        loading={loading}
-                        slotProps={{
-                            toolbar:{
-                                showQuickFilter:true,
-                                printOptions:{
-                                    hideFooter:true,
-                                    hideToolbar:true,
-                                }
+        <div className="">
+            <Paper  className='w-full' sx={{ height: 'auto', }}>
+                <DataGrid
+                    getRowId={(row:IRegistration)=>row._id}
+                    rows={searchBadge(registrations, eventId)}
+                    columns={BadgesColumns(handleInfo, handleDelete)}
+                    initialState={{ 
+                        pagination: { paginationModel },
+                        columns:{
+                            columnVisibilityModel:{
+                                email:false,
+                                ageRange:false,
+                                gender:false,
+                                phone:false,
+                                mstatus:false,
+                                marital:false,
+                                employ:false,
+                                voice:false,
+                                role:false,
+                                church:false,
+                                campus:false,
+                                createdAt:false,
                             }
-                        }}
-                    />
-                </Paper>
-            }
+                        } 
+                    }}
+                    pageSizeOptions={[5, 10, 15, 20, 50, 100]}
+                    // checkboxSelection
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                    sx={{ border: 0 }}
+                    slots={{toolbar:GridToolbar}}
+                    loading={loading}
+                    slotProps={{
+                        toolbar:{
+                            showQuickFilter:true,
+                            printOptions:{
+                                hideFooter:true,
+                                hideToolbar:true,
+                            }
+                        }
+                    }}
+                />
+            </Paper>
+            
         </div>
     </div>
     </div>

@@ -80,14 +80,20 @@ export async function getRegs(){
         .populate('groupId')
         .populate({
             path:'memberId',
-            populate:{
-                path:'church',
-                model:'Church',
-                populate:{
-                    path:'zoneId',
-                    model:'Zone'
+            populate:[
+                {
+                    path:'church',
+                    model:'Church',
+                    populate:{
+                        path:'zoneId',
+                        model:'Zone'
+                    }
+                },
+                {
+                    path:'campuseId',
+                    model:'Campus',
                 }
-            }
+            ]
         })
         .populate('eventId')
         .populate('roomIds')
