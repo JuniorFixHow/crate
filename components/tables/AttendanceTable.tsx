@@ -1,30 +1,27 @@
 import { AttendanceColumns } from "@/components/Dummy/contants";
-import SearchBar from "@/components/features/SearchBar";
-import { searchAttenance } from "@/functions/search";
+
 import { useFetchAttendances } from "@/hooks/fetch/useAttendance";
-import { Alert, LinearProgress, Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Paper } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 // import { useRouter } from "next/router";
 import { useState } from "react";
 import { ISession } from "@/lib/database/models/session.model";
 import { IAttendance } from "@/lib/database/models/attendance.model";
 import DeleteDialog from "../DeleteDialog";
 import { deleteAttendance } from "@/lib/actions/attendance.action";
-import { ErrorProps } from "@/types/Types";
+import { enqueueSnackbar } from "notistack";
 
 type AttendanceTableProps = {
     currentSession:ISession
 }
 
 const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
-    const [search, setSearch] = useState<string>('');
     const [currentAttendance, setCurrentAttendance] = useState<IAttendance|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [deleteState, setDeleteState] = useState<ErrorProps>(null);
 
     const paginationModel = { page: 0, pageSize: 10 };
     // const router = useRouter();
-    const {attendances, loading} = useFetchAttendances(currentSession?._id);
+    const {attendances, loading, refetch} = useFetchAttendances(currentSession?._id);
 
     if(!currentSession) return null
     const handleDelete = (data:IAttendance)=>{
@@ -35,47 +32,53 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
     const handleDeleteAttendance = async()=>{
         try {
             if(currentAttendance){
-                await deleteAttendance(currentAttendance?._id);
-                setDeleteState({message:'Record deleted successfully', error:false});
+                const res = await deleteAttendance(currentAttendance?._id);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setDeleteMode(false);
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setDeleteState({message:'Error occured deleting the record', error:true})
+            enqueueSnackbar('Error occured deleting the record', {variant:'error'});
         }
     }
 
     const message = `You're about to delete this attendance record. Have you thought this through?`
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white border dark:bg-[#0F1214] rounded">
-        <div className="flex items-center flex-row justify-between w-full">
+    <div className="table-main2">
+        {/* <div className="flex items-center flex-row justify-between w-full">
             <SearchBar className='py-1' setSearch={setSearch} reversed={false} />
-        </div>
+        </div> */}
         <DeleteDialog message={message} onTap={handleDeleteAttendance} value={deleteMode} setValue={setDeleteMode} title="Delete Record" />
 
-        {
-            deleteState?.message &&
-            <Alert onClose={()=>setDeleteState(null)} severity={deleteState.error ? 'error':'success'} >{deleteState.message}</Alert>
-        }
-        <div className="table-main">
-            {
-                loading ?
-                <LinearProgress className="w-full" />
-                :
-                <Paper className='' sx={{ height: 480, }}>
+        
+        <div className="">
+            
+                <Paper className='' sx={{ height: 'auto', }}>
                     <DataGrid
-                        rows={searchAttenance(search, attendances)}
+                        loading={loading}
+                        rows={attendances}
                         columns={AttendanceColumns(handleDelete)}
                         initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10]}
+                        pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                         getRowId={(row:IAttendance)=>row._id}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:text-blue-800'
                         sx={{ border: 0 }}
+                        slots={{toolbar:GridToolbar}}
+                        slotProps={{
+                            toolbar:{
+                                showQuickFilter:true,
+                                printOptions:{
+                                    hideFooter:true,
+                                    hideToolbar:true
+                                }
+                            }
+                        }}
                     />
                 </Paper>
-            }
+            
         </div>
     </div>
   )

@@ -56,7 +56,7 @@ const MainNewEvent = () => {
 
   return (
     <div className="page">
-      <form ref={formRef} onSubmit={handleNewEvent} className="px-8 py-4 flex-col dark:bg-[#0F1214] rounded dark:border flex gap-8 bg-white">
+      <form ref={formRef} onSubmit={handleNewEvent} className="px-3 md:px-8 py-4 flex-col dark:bg-[#0F1214] rounded dark:border flex gap-8 bg-white">
         <span className="font-bold text-xl">Add Event</span>
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
           {/* LEFT */}
@@ -73,9 +73,9 @@ const MainNewEvent = () => {
                 name="name"
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 pr-4 md:pr-0">
               <span className="text-slate-400 font-semibold text-[0.8rem]">Location</span>
-              <Address setAddress={setLocation} required className='' />
+              <Address setAddress={setLocation} required className='w-full md:w-fit' />
               {/* <input
                 required
                 onChange={handleChange}
@@ -85,7 +85,7 @@ const MainNewEvent = () => {
                 name="location"
               /> */}
             </div>
-            <div className="flex flex-row gap-12 items-center">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-12 md:items-center">
               <div className="flex flex-col gap-1">
                 <span className="text-slate-400 font-semibold text-[0.8rem]">Date (From)</span>
                 <input

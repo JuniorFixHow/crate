@@ -4,6 +4,7 @@ import Event from "../database/models/event.model";
 import Registration from "../database/models/registration.model";
 import Session, { ISession } from "../database/models/session.model";
 import { connectDB } from "../database/mongoose";
+import { handleResponse } from "../misc";
 
 export async function createSession(session:Partial<ISession>){
     try {
@@ -193,15 +194,10 @@ export async function deleteSession(id: string) {
         await Attendance.deleteMany({sessionId:session._id});
         await Session.findByIdAndDelete(session._id);
 
-        return 'Session deleted succussfully';
+        return handleResponse('Session deleted succussfully', false, {}, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting sessions:', error.message);
-            throw new Error(`Error occurred while deleting sessions: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('An unknown error occurred while deleting sessions');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred while deleting sessions', true, {}, 500);
     }
 }
 

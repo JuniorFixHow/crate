@@ -8,16 +8,16 @@ import { useEffect, useState } from 'react'
 
 import { searchSession } from '@/functions/search'
 import { useRouter } from 'next/navigation'
-import { useFetchSessions } from '@/hooks/fetch/useSession'
+import {  useFetchSessionsWithEvent } from '@/hooks/fetch/useSession'
 import { ISession } from '@/lib/database/models/session.model'
-import { LinearProgress } from '@mui/material'
+// import { LinearProgress } from '@mui/material'
 
 const Sessions = () => {
   // const [selectedDate, setSelectedDate] = useState<string>(date.toLocaleDateString())
   const [selectedTime, setSelectedTime] = useState<string>('All');
   const [eventId, setEventId] = useState<string>('');
   const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
-  const {sessions, loading} = useFetchSessions();
+  const {sessions} = useFetchSessionsWithEvent(eventId);
   
   // const ses = searchSession(selectedTime, SessionsData)[0]
   const [currentSession, setCuurentSession] = useState<ISession|null>(null);
@@ -29,7 +29,7 @@ const Sessions = () => {
   },[eventId, selectedTime, sessions])
   const router = useRouter();
 
-  if(loading) return <div className='w-full' ><LinearProgress   className={`${loading ? 'flex-center':'hidden'}`}   /></div> 
+  // if(loading) return <div className='w-full' ><LinearProgress   className={`${loading ? 'flex-center':'hidden'}`}   /></div> 
 
 
 
@@ -42,7 +42,7 @@ const Sessions = () => {
         </div>
         <AddButton onClick={()=>router.push('/dashboard/events/sessions/new')} text='Create Session' noIcon smallText className='rounded' />
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <SessionSide eventId={eventId} setEventId={setEventId} sessions={sessions} selectedTime={selectedTime} setSelectedTime={setSelectedTime}  value={hasClickedEllipses} setValue={setHasClickedEllipses} setCurrentSession={setCuurentSession} currentSession={currentSession!} />
         <div className="flex flex-col gap-2 grow">
           {/* <SessionDates text={selectedDate} setText={setSelectedDate} /> */}

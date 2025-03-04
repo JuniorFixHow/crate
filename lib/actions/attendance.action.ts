@@ -4,6 +4,7 @@ import Attendance, { IAttendance } from "../database/models/attendance.model";
 import Registration from "../database/models/registration.model";
 import { connectDB } from "../database/mongoose";
 import Member from "../database/models/member.model";
+import { handleResponse } from "../misc";
 
 export async function createAttendance(eventId:string, att:Partial<IAttendance>){
     try {
@@ -101,14 +102,9 @@ export async function getAttendance(id:string){
 export async function deleteAttendance(id:string){
     try {
         await Attendance.findByIdAndDelete(id);
-        return 'Attendance deleted successfully';
+        return handleResponse('Attendance deleted successfully', false);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting attendance:', error.message);
-            throw new Error(`Error occurred during attendance deletion: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during attendance deletion');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during attendance deletion', true, {}, 500);
     }
 }

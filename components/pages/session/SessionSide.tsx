@@ -1,6 +1,5 @@
 'use client'
 import DeleteDialog from "@/components/DeleteDialog"
-import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 import Subtitle from "@/components/features/Subtitle"
 import { searchSession } from "@/functions/search"
 import { deleteSession } from "@/lib/actions/session.action"
@@ -10,6 +9,9 @@ import Link from "next/link"
 import { ComponentProps, Dispatch, MouseEvent, SetStateAction, useState } from "react"
 import { FaEllipsisV } from "react-icons/fa"
 import {  getActivityStatus } from "./fxn"
+import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import '@/components/features/customscroll.css';
+import { enqueueSnackbar } from "notistack"
 
 
 export type SessionSideProps = BooleanStateProp & ComponentProps<'div'> & {
@@ -38,21 +40,22 @@ const SessionSide = ({currentSession, sessions, selectedTime, eventId, setEventI
     const handleDeleteSession = async()=>{
         try {
             if(currentSession){
-                await deleteSession(currentSession._id);
+                const res = await deleteSession(currentSession._id);
                 setDeleteMode(false);
                 setCurrentSession(null);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            alert('Error occured deleting the session')
+            enqueueSnackbar('Error occured deleting the session', {variant:'error'});
         }
     }
    
   return (
-    <div className='flex  flex-col w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
-      <Subtitle text="Sessions" />
+    <div className='flex flex-row w-[21rem] sm:w-[96%] scrollbar-custom overflow-x-scroll lg:flex-col lg:w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
+      <Subtitle className="hidden md:block" text="Sessions" />
       <div className="flex flex-col gap-3">
-        <SearchSelectEvents setSelect={setEventId} />
+        <SearchSelectEventsV2 width={190} setSelect={setEventId} />
         <select onChange={(e)=>setSelectedTime(e.target.value)}  className="bg-transparent py-1 border rounded outline-none" defaultValue='All' >
             <option className="dark:bg-[#0F1214]" value="All">All</option>
             <option className="dark:bg-[#0F1214]" value="Morning">Morning</option>

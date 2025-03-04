@@ -70,14 +70,14 @@ const EventMain = ({event}:EventMainProps) => {
 
   return (
     <div className='page' >
-        <div className='flex flex-col gap-6 p-4 pl-8 xl:pl-4' >
+        <div className='flex flex-col gap-6' >
             <div className="flex flex-row items-baseline gap-2">
                 <Title clickable link='/dashboard/events' text='Events' />
                 <IoIosArrowForward/>
                 <Title text='Event Details' />
             </div>
     
-            <form onSubmit={handleUpdateEvent}   className='px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white' >
+            <form onSubmit={handleUpdateEvent}   className='px-3 md:px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white' >
                 {/* <span className='font-bold text-xl' >Add Event</span> */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
                 <div className="flex flex-1 flex-col gap-5">
@@ -90,7 +90,7 @@ const EventMain = ({event}:EventMainProps) => {
                         <input onChange={handleChange} defaultValue={event?.location}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="location"  />
                     </div>
 
-                    <div className="flex flex-row gap-12 items-center">
+                    <div className="flex flex-col gap-4 md:flex-row md:gap-12 md:items-center">
                         <div className="flex flex-col gap-1">
                             <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (From)</span>
                             <input onChange={handleChange} min={today()} defaultValue={event?.from} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="from"  />
