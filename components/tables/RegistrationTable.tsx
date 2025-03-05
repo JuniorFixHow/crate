@@ -40,7 +40,7 @@ const RegistrationTable = () => {
                             pagination: { paginationModel },
                             columns:{
                                 columnVisibilityModel:{
-                                //   photo:false,
+                                  registeredBy:false,
                                   phone:false,
                                   status:false,
                                   marital:false,
