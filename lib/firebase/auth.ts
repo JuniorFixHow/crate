@@ -1,9 +1,10 @@
+'use server'
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 import { auth, db } from "./firebase";
 import {  IUser } from "@/types/Types";
 import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { handleResponse } from "../misc";
-import { enqueueSnackbar } from "notistack";
+// import { enqueueSnackbar } from "notistack";
 import admin from "./admin";
 import { updateVendor } from "../actions/vendor.action";
 import { IVendor } from "../database/models/vendor.model";
@@ -77,7 +78,7 @@ export async function deleteUserById(userId:string){
         console.log(`User with UID: ${userId} has been deleted.`);
     } catch (error) {
         console.log(error);
-        enqueueSnackbar('Error occured deleting user', {variant:'error'});
+        // enqueueSnackbar('Error occured deleting user', {variant:'error'});
     }
 }
 
@@ -87,7 +88,7 @@ export async function deleteUserFromFirestore(userId:string){
         console.log(`User data deleted from Firestore.`);
     } catch (error) {
         console.error("Error deleting user from Firestore:", error);
-        enqueueSnackbar("Error deleting user from Firestore:", {variant:'error'});
+        // enqueueSnackbar("Error deleting user from Firestore:", {variant:'error'});
     }
 };
 
