@@ -39,7 +39,6 @@ const Login = () => {
             setResponse(res)
             const user = res?.payload as IUser;
             if(user){
-
                 const session:SessionPayload = {
                     userId:user?.id,
                     email:user?.email,
@@ -47,6 +46,7 @@ const Login = () => {
                     name:user?.name,
                     photo:user?.photo,
                     role:user?.role,
+                    uid: user?.uid,
                     roles:user?.roles,
                     country:user?.country,
                     isAdmin:user?.isAdmin,

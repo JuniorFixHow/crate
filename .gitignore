@@ -29,6 +29,9 @@ yarn-error.log*
 .env*.local
 .env
 
+#lib files
+.crate-8f979-firebase-adminsdk-71ojt-3f291f6981.json
+
 # vercel
 .vercel
 

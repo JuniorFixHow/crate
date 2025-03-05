@@ -19,6 +19,7 @@ export type SessionPayload = {
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,
+   uid:string;
    roles:string[];
    role:'Admin'|'Coordinator'|'Volunteer'
    expires?:Date

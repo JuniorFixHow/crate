@@ -197,6 +197,7 @@ export interface IUser {
    email:string,
    name:string,
    country:string,
+   uid:string;
    churchId:string,
    photo:string,
    emailVerified:boolean,

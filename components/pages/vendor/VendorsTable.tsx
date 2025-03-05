@@ -18,6 +18,7 @@ import { deleteVendor, getVendor } from '@/lib/actions/vendor.action'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2'
+import { deleteUserCompletely } from '@/lib/firebase/auth'
 
 const VendorsTable = () => {
     const [church, setChurch] = useState<string>('');
@@ -63,6 +64,7 @@ const VendorsTable = () => {
         setDeleteState({message:'', error:false})
         if(currentVendor){
           try {
+            await deleteUserCompletely(currentVendor?._id);
             const res = await deleteVendor(currentVendor._id);
             setDeleteMode(false);
             setCurrentVendor(null);
@@ -96,11 +98,11 @@ const VendorsTable = () => {
 
   return (
     <div className='table-main2' >
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 md:flex-row md:justify-between items-center">
             <SearchSelectChurchesV2 setSelect={setChurch} />
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-2 w-full md:w-fit">
                 {/* <SearchBar reversed={false} setSearch={setSearch} /> */}
-                <AddButton onClick={handleOpenNew} noIcon text='Add User' smallText className='rounded' />
+                <AddButton onClick={handleOpenNew} noIcon text='Add User' smallText className='rounded w-[16rem] py-2 flex-center md:w-fit md:py-1' />
             </div>
         </div>
         {
@@ -112,7 +114,7 @@ const VendorsTable = () => {
             <Alert severity='error' >There is no church to select for a vendor. Please, create a church first.</Alert>
         }
         <DeleteDialog onTap={handleDeleteVendor} message={message} title={`Delete ${currentVendor?.name}`} value={deleteMode} setValue={setDeleteMode} />
-        <VendorInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
+        <VendorInfoModal refetch={refetch} infoMode={infoMode} setInfoMode={setInfoMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
         <NewVendor openVendor={newMode} setOpenVendor={setNewMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 

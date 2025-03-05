@@ -11,15 +11,19 @@ import { IVendor } from '@/lib/database/models/vendor.model';
 import { deleteVendor } from '@/lib/actions/vendor.action';
 import { IChurch } from '@/lib/database/models/church.model';
 import { IZone } from '@/lib/database/models/zone.model';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
+import { deleteUserCompletely } from '@/lib/firebase/auth';
 
 export type VendorInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentVendor:IVendor|null,
-    setCurrentVendor:Dispatch<SetStateAction<IVendor|null>>
+    setCurrentVendor:Dispatch<SetStateAction<IVendor|null>>,
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IVendor[], Error>>
 }
 
-const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor}:VendorInfoModalProps) => {
+const VendorInfoModal = ({infoMode, setInfoMode, refetch, currentVendor, setCurrentVendor}:VendorInfoModalProps) => {
 
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const church = currentVendor?.church as IChurch;
@@ -32,13 +36,16 @@ const VendorInfoModal = ({infoMode, setInfoMode, currentVendor, setCurrentVendor
     const handleDelete = async()=>{
         try {
             if(currentVendor){
-                await deleteVendor(currentVendor._id);
+                await deleteUserCompletely(currentVendor?._id);
+                const res = await deleteVendor(currentVendor._id);
                 setDeleteMode(false);
                 setInfoMode(false);
-                window.location.reload();
+                refetch();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
+            enqueueSnackbar('Error occured deleting user', {variant:'error'});
         }
     }
   return (
