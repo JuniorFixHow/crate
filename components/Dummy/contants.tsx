@@ -72,6 +72,38 @@ export const RegColumns:GridColDef[] = [
         headerName:'Gender',
         width:80
     },
+
+
+    {
+        field:'phone',
+        headerName:'Phone',
+        width:120
+    },
+    {
+        field:'status',
+        headerName:'Status',
+        width:120
+    },
+    {
+        field:'marital',
+        headerName:'Marital Status',
+        width:120
+    },
+    {
+        field:'voice',
+        headerName:'Voice',
+        width:120
+    },
+    {
+        field:'employ',
+        headerName:'Employment Status',
+        width:120
+    },
+   
+    
+    
+    
+
     {
         field:'church',
         headerName:'Church',
@@ -90,12 +122,65 @@ export const RegColumns:GridColDef[] = [
             )
         }
     },
-    {
-        field:'status',
-        headerName:'Type',
-        width:90
-    },
+   
     
+    {
+        field:'campuseId',
+        headerName:'Campus',
+        width:160,
+        filterable:true,
+        valueFormatter: (_, row:IMember) => {
+            const campus = row?.campuseId as ICampuse;
+            return campus?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const campus = row?.campuseId as ICampuse;
+            return campus ? Object.values(campus) : 'N/A';
+        },
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <>
+                {
+                    params.row.campuseId ? 
+                    <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                    :
+                    <span>None</span>
+                }
+                </>
+            )
+        }
+    },
+    {
+        field:'registeredBy',
+        headerName:'Registered By',
+        width:160,
+        valueFormatter: (_, row:IMember) => {
+            const user = row?.registeredBy as IVendor;
+            return user?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const user = row?.registeredBy as IVendor;
+            return user ? Object.values(user) : 'N/A';
+        },
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
+            )
+        }
+    },
+
+    {
+        field:'createdAt',
+        headerName:'Registered On',
+        width:120,
+        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
+        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
+        renderCell:({value}:GridRenderCellParams)=>{
+            return(
+                <span>{new Date(value)?.toLocaleDateString()}</span>
+            )
+        }
+    },
     {
         field:'id',
         headerName:'Action',
@@ -226,6 +311,11 @@ export const MemberColumns = (
     {
         field:'voice',
         headerName:'Voice',
+        width:120
+    },
+    {
+        field:'employ',
+        headerName:'Employment Status',
         width:120
     },
     {

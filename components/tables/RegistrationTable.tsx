@@ -36,7 +36,19 @@ const RegistrationTable = () => {
                         getRowId={(row:IMember)=>row._id}
                         rows={members}
                         columns={RegColumns}
-                        initialState={{ pagination: { paginationModel } }}
+                        initialState={{ 
+                            pagination: { paginationModel },
+                            columns:{
+                                columnVisibilityModel:{
+                                //   photo:false,
+                                  phone:false,
+                                  status:false,
+                                  marital:false,
+                                  voice:false,
+                                  employ:false,
+                                }
+                              }
+                         }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'

@@ -10,8 +10,12 @@ import { createVendor, updateVendor } from '@/lib/actions/vendor.action'
 import { useRouter } from 'next/navigation'
 import { serverTimestamp } from 'firebase/firestore'
 import { signupUser } from '@/lib/firebase/auth'
-import SearchSelectZones from '@/components/features/SearchSelectZones'
-import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
+// import SearchSelectZones from '@/components/features/SearchSelectZones'
+// import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
+// import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2'
+import SearchSelectZoneV2 from '@/components/features/SearchSelectZonesV2'
+import SearchSelectChurchesWithZone from '@/components/features/SearchSelectChurchesWithZone'
+import { enqueueSnackbar } from 'notistack'
 
 type NewVendorProps = {
     openVendor:boolean,
@@ -59,7 +63,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     email:data.email!,
                     name:data.name!,
                     churchId:church,
-                    country:data.country!,
+                    country:'USA',
                     photo:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
                     id:response._id,
                     emailVerified:false,
@@ -71,8 +75,9 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                 await signupUser(data.email!, password, fbData);
                 setOpenVendor(false);
             }
-            setError(res);
+            // setError(res);
             formRef.current?.reset();
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             router.refresh();
         } catch (error) {
             console.log(error);
@@ -102,11 +107,12 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                 const response = res?.payload as IVendor
                 setCurrentVendor(response);
                 router.refresh();
-                setError(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                setOpenVendor(false);
             }
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured updating member. Please, Retry.', error:true})
+            enqueueSnackbar('Error occured updating user', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -143,14 +149,14 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     </div>
 
 
-                    <div className="flex flex-col gap-2">
+                    {/* <div className="flex flex-col gap-2">
                         <span className='text-slate-500 text-[0.8rem]' >Country</span>
                         <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.country : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="country" >
                             <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
                             <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">United States</option>
                             <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Coordinator">Ghana</option>
                         </select>
-                    </div>
+                    </div> */}
 
 
 
@@ -166,20 +172,20 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
 
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Zone</span>
-                        <SearchSelectZones require={!currentVendor} setSelect={setZoneId} isGeneric />
+                        <SearchSelectZoneV2 require={!currentVendor} setSelect={setZoneId} />
                     </div>
 
                    
 
-                    <div className="flex flex-col md:flex-row gap-4 md:gap-12 items-end">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-12">
                         <div className="flex flex-col gap-2">
                             <span className='text-slate-500 text-[0.8rem]' >Church</span>
-                            <SearchSelectChurchForRoomAss require={!currentVendor} zoneId={zoneId} isGeneric setSelect={setChurch} />
+                            <SearchSelectChurchesWithZone require={!currentVendor} zoneId={zoneId} setSelect={setChurch} />
                             {/* <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric /> */}
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <span className='text-slate-500 text-[0.8rem]' >Role</span>
+                            <span className='text-slate-500 text-[0.8rem]' >User Type</span>
                             <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.role : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="role" >
                                 <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
                                 <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">Volunteer</option>

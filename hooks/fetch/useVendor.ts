@@ -7,28 +7,33 @@ import {  checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchVendors = () => {
-    const [vendors, setVendors] = useState<IVendor[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchVendors = async () => {
-            try {
-                const fetchedVendors: IVendor[] = await getVendors();
-                setVendors(fetchedVendors.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching vendors');
-                console.log(err)
-            } finally {
-                setLoading(false);
+    const {user} = useAuth();
+     
+    const fetchVendor = async (): Promise<IVendor[]> => {
+        try {
+            if (!user) {
+                return []; // Return an empty array if user is not defined
             }
-        };
+    
+            const isAdmin = checkIfAdmin(user);
+    
+            const users: IVendor[] =  isAdmin ? await getVendors() : await getVendorsInAChurch(user!.churchId)
+            const sorted = users.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+    
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    };
 
-        fetchVendors();
-    }, []);
+    const {data:vendors=[], isPending:loading, refetch} = useQuery({
+        queryKey:['allusers'],
+        queryFn:fetchVendor,
+        enabled:!!user
+    })
 
-    return { vendors, loading, error };
+    return { vendors, loading, refetch };
 };
 
 
@@ -90,7 +95,7 @@ export const useFetchVendorsQuery = ()=>{
     };
 
 
-    const {data:users} = useQuery({
+    const {data:users=[]} = useQuery({
         queryKey:['users'],
         queryFn:fetchVendor,
         enabled:!!user

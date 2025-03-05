@@ -49,8 +49,8 @@ export const useFetchChurchesV2 = ()=>{
         return data;
     }
 
-    const {data:churches, isPending, refetch} = useQuery({
-        queryKey:['churches', zoneId],
+    const {data:churches=[], isPending, refetch} = useQuery({
+        queryKey:['churcheswithzone', zoneId],
         queryFn: fetchChurches
     })
 

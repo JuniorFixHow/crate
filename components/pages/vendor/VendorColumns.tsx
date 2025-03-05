@@ -1,5 +1,6 @@
+import { IChurch } from "@/lib/database/models/church.model";
 import { IVendor } from "@/lib/database/models/vendor.model";
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
@@ -9,7 +10,7 @@ export const VendorsColumns = (
     handleInfo:(data:IVendor)=>void,
     handleDelete:(data:IVendor)=>void,
     handleNew:(data:IVendor)=>void,
-) => [
+):GridColDef[] => [
     {
         field:'name',
         headerName:'Vendor',
@@ -44,7 +45,15 @@ export const VendorsColumns = (
     {
         field:'church',
         headerName:'Church',
-        width:100,
+        width:150,
+        valueFormatter:(_, user:IVendor)=>{
+            const church = user?.church as IChurch;
+            return church?.name;
+        },
+        valueGetter:(_, user:IVendor)=>{
+            const church = user?.church as IChurch;
+            return Object.values(church);
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex gap-1 items-center justify-center">
@@ -70,7 +79,8 @@ export const VendorsColumns = (
         field:'id',
         headerName:'Actions',
         width:80,
-        // params:GridRenderCellParams
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
             return(

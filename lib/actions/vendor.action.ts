@@ -57,13 +57,8 @@ export async function createVendor(vendor: Partial<IVendor>) {
 
 
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error creating user:', error.message);
-            throw new Error(`Error occurred during user creation: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during user creation');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during user creation', true, {}, 500)
     }
 }
 
@@ -129,7 +124,7 @@ export async function updateVendor(id: string, vendor: Partial<IVendor>) {
 
     } catch (error) {
         console.error('Error occurred updating user:', error);
-        throw new Error('Error occurred updating user');
+        return handleResponse('Error occurred updating user', true, {}, 500)
     }
 }
 
@@ -278,11 +273,12 @@ export async function deleteVendor(id: string) {
 
         // Return success message
         revalidatePath('/dashboard/users')
-        return 'User deleted successfully';
+        return handleResponse('User deleted successfully', false);
 
     } catch (error) {
         console.error('Error occurred during user deletion:', error);
-        throw new Error('Error occurred during user deletion');
+        // throw new Error('Error occurred during user deletion');
+        return handleResponse('Error occurred during user deletion', true);
     }
 }
 

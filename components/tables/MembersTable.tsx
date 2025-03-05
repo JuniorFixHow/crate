@@ -100,6 +100,7 @@ const MembersTable = () => {
                       status:false,
                       marital:false,
                       voice:false,
+                      employ:false,
                     }
                   }
                 }}
