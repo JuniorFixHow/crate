@@ -7,4 +7,6 @@ if(!admin.apps.length){
     })
 }
 
+export const adb = admin.firestore();
+
 export default admin;

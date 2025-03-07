@@ -2,7 +2,7 @@
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import AddButton from '@/components/features/AddButton';
 import RegisterForEvent from '@/components/shared/RegisterForEvent';
-import SearchSelectChurch from '../shared/SearchSelectChurch';
+// import SearchSelectChurch from '../shared/SearchSelectChurch';
 import { IMember } from '@/lib/database/models/member.model';
 import { ErrorProps } from '@/types/Types';
 import { getPassword } from '@/functions/misc';
@@ -17,6 +17,7 @@ import { IGroup } from '@/lib/database/models/group.model';
 import { useAuth } from '@/hooks/useAuth';
 import SearchSelectCampuses from '../features/SearchSelectCampuses';
 import { checkIfAdmin } from '../Dummy/contants';
+import SearchSelectChurchesV3 from '../features/SearchSelectChurchesV3';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -298,7 +299,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 (currentMemeber || isAdmin) &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
-                    <SearchSelectChurch require={!currentMemeber} setSelect={setChurch} isGeneric />
+                    <SearchSelectChurchesV3 require={!currentMemeber} setSelect={setChurch} />
                 </div>
             }
             {

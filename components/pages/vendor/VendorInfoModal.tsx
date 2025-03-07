@@ -13,7 +13,8 @@ import { IChurch } from '@/lib/database/models/church.model';
 import { IZone } from '@/lib/database/models/zone.model';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
-import { deleteUserCompletely } from '@/lib/firebase/auth';
+import { deleteUserCompletely } from '@/lib/firebase/auth.admin';
+import { useAuth } from '@/hooks/useAuth';
 
 export type VendorInfoModalProps = {
     infoMode:boolean,
@@ -28,6 +29,9 @@ const VendorInfoModal = ({infoMode, setInfoMode, refetch, currentVendor, setCurr
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const church = currentVendor?.church as IChurch;
     const zone = church?.zoneId as IZone
+
+    const {user} = useAuth();
+
     const handleClose = ()=>{
         setCurrentVendor(null);
         setInfoMode(false);
@@ -104,7 +108,10 @@ const VendorInfoModal = ({infoMode, setInfoMode, refetch, currentVendor, setCurr
                 </div>
                 
             </div>
-            <AddButton onClick={()=>setDeleteMode(true)} text='Delete Account' className='rounded mt-8 justify-center' isDanger noIcon smallText />
+            {
+                user?.userId !== currentVendor?._id &&
+                <AddButton onClick={()=>setDeleteMode(true)} text='Delete Account' className='rounded mt-8 justify-center' isDanger noIcon smallText />
+            }
         </div>
     </Modal>
   )

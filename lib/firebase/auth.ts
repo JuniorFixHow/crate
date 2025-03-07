@@ -1,14 +1,14 @@
-'use server'
+// 'use server'
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 import { auth, db } from "./firebase";
 import {  IUser } from "@/types/Types";
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { collection, doc,  getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { handleResponse } from "../misc";
 // import { enqueueSnackbar } from "notistack";
-import admin from "./admin";
-import { getVendor, updateVendor } from "../actions/vendor.action";
+// import admin from "./admin";
+import {  updateVendor } from "../actions/vendor.action";
 import { IVendor } from "../database/models/vendor.model";
-import { deleteSession } from "../session";
+// import { deleteSession } from "../session";
 
 export async function signupUser(email:string, password:string, data:IUser ){
     try {
@@ -20,8 +20,12 @@ export async function signupUser(email:string, password:string, data:IUser ){
             photoURL:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png'
         });
         await sendEmailVerification(user);
-        
-        await setDoc(doc(collection(db, 'Users'), id), {...data, uid:user.uid});
+        const udata = {
+            ...data,
+            uid:user.uid
+        }
+        console.log(udata);
+        await setDoc(doc(collection(db, 'Users'), id), udata);
         const body: Partial<IVendor>={
             uid:user?.uid
         }
@@ -72,52 +76,3 @@ export async function signinUser(email:string, password:string){
     }
 }
 
-export async function deleteUserById(userId:string){
-    try {
-        const res = await admin.auth().deleteUser(userId);
-        console.log(res);
-        console.log(`User with UID: ${userId} has been deleted.`);
-    } catch (error) {
-        console.log(error);
-        // enqueueSnackbar('Error occured deleting user', {variant:'error'});
-    }
-}
-
-export async function deleteUserFromFirestore(userId:string){
-    try {
-        await admin.firestore().collection("users").doc(userId).delete();
-        console.log(`User data deleted from Firestore.`);
-    } catch (error) {
-        console.error("Error deleting user from Firestore:", error);
-        // enqueueSnackbar("Error deleting user from Firestore:", {variant:'error'});
-    }
-};
-
-export async function deleteUserCompletely(userId:string){
-    try {
-        const docRef = doc(db, 'users', userId);
-        const data = await getDoc(docRef);
-        if(data.exists()){
-            const user = data.data() as IUser;
-
-            await deleteUserById(user?.uid);
-            await deleteUserFromFirestore(userId);
-        }
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-
-export async function confirmUserData(userId:string){
-    try {
-        const docRef = doc(db, 'users', userId);
-        const data = await getDoc(docRef);
-        const user = await getVendor(userId);
-        if(!user || !data.exists()){
-            await deleteSession();
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}

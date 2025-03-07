@@ -18,7 +18,7 @@ import { deleteVendor, getVendor } from '@/lib/actions/vendor.action'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2'
-import { deleteUserCompletely } from '@/lib/firebase/auth'
+import { deleteUserCompletely } from '@/lib/firebase/auth.admin'
 
 const VendorsTable = () => {
     const [church, setChurch] = useState<string>('');
@@ -116,7 +116,7 @@ const VendorsTable = () => {
         <DeleteDialog onTap={handleDeleteVendor} message={message} title={`Delete ${currentVendor?.name}`} value={deleteMode} setValue={setDeleteMode} />
         <VendorInfoModal refetch={refetch} infoMode={infoMode} setInfoMode={setInfoMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
-        <NewVendor openVendor={newMode} setOpenVendor={setNewMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
+        <NewVendor refetch={refetch} openVendor={newMode} setOpenVendor={setNewMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
         <div className="flex">
             <Paper className='w-full' sx={{ height: 'auto', }}>

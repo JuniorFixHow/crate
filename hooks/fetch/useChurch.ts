@@ -3,6 +3,8 @@ import { IChurch } from "@/lib/database/models/church.model";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
 
 export const useFetchChurches = () => {
     const [churches, setChurches] = useState<IChurch[]>([]);
@@ -37,22 +39,59 @@ export const useFetchChurches = () => {
 };
 
 export const useFetchChurchesV2 = ()=>{
+    const {user} = useAuth();
     const searchParams = useSearchParams();
     const zoneId = searchParams.get('zoneId');
     
     const fetchChurches = async():Promise<IChurch[]>=>{
+        if(!user) return [];
+
+        const isAdmin = checkIfAdmin(user);
         const data:IChurch[] = zoneId ? 
         await getChurchesInaZone(zoneId)
         :
         await getChurches();
 
-        const sorted = data.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+        const sorted = data
+        .filter((item)=>{
+            return isAdmin ? item : item.name !== 'CRATE Main'
+        })
+        .sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
         return sorted;
     }
 
     const {data:churches=[], isPending, refetch} = useQuery({
         queryKey:['churcheswithzone', zoneId],
-        queryFn: fetchChurches
+        queryFn: fetchChurches,
+        enabled:!!user
+    })
+
+    return {churches, isPending, refetch}
+}
+
+
+export const useFetchChurchesV4 = ()=>{
+    const {user} = useAuth();
+    
+    const fetchChurches = async():Promise<IChurch[]>=>{
+        if(!user) return [];
+
+        const isAdmin = checkIfAdmin(user);
+       if(!isAdmin) return [];
+        const data:IChurch[] =await getChurches();
+
+        const sorted = data
+        .filter((item)=>{
+            return item.name !== 'CRATE Main'
+        })
+        .sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+        return sorted;
+    }
+
+    const {data:churches=[], isPending, refetch} = useQuery({
+        queryKey:['churcheswithzonev2',],
+        queryFn: fetchChurches,
+        enabled:!!user
     })
 
     return {churches, isPending, refetch}

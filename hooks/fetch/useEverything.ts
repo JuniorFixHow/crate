@@ -5,38 +5,48 @@ import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IVendor } from "@/lib/database/models/vendor.model";
 import { IZone } from "@/lib/database/models/zone.model";
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query";
+// import { useEffect, useState } from "react"
+
+
+type EveryTypeProps = {
+    members:IMember[];
+    registrations:IRegistration[];
+    churches:IChurch[];
+    zones:IZone[];
+    vendors:IVendor[];
+    events:IEvent[]
+}
 
 export const useFetchEverything = ()=>{
-    const [members, setMembers] = useState<IMember[]>([]);
-    const [registrations, setRegistrations] = useState<IRegistration[]>([]);
-    const [churches, setChurches] = useState<IChurch[]>([]);
-    const [zones, setZones] = useState<IZone[]>([]);
-    const [vendors, setVendors] = useState<IVendor[]>([]);
-    const [events, setEvents] = useState<IEvent[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(()=>{
-        const fetchEvents = async()=>{
-            try {
-                const res = await getEverything();
-                setMembers(res?.members);
-                setRegistrations(res?.registrations);
-                setChurches(res?.churches);
-                setZones(res?.zones);
-                setVendors(res?.vendors);
-                setEvents(res?.events);
-                setError(null); 
-            } catch (error) {
-                console.log(error)
-                setError('Error occured fetching data.')
-            }finally{
-                setLoading(false);
-            }
+    const Empty:EveryTypeProps = {
+        members:[],
+        registrations:[],
+        churches:[],
+        zones:[],
+        vendors:[],
+        events:[]
+    }
+
+
+    
+    const fetchEverything = async():Promise<EveryTypeProps>=>{
+        try {
+            const res = await getEverything() as EveryTypeProps;
+            return res;
+        } catch (error) {
+            console.log(error)
+            return Empty;
         }
+    }
+    
+    const {data=Empty, isPending:loading, refetch} = useQuery({
+        queryKey:['everything'],
+        queryFn:fetchEverything
+    })
 
-        fetchEvents();
-    },[])
-    return {members, registrations, churches, zones, vendors, events, error, loading}
+    const {members, registrations, churches, zones, vendors, events} = data;
+
+    return {members, registrations, churches, zones, vendors, events, refetch, loading}
 }

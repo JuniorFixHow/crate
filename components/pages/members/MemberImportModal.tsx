@@ -15,9 +15,9 @@ import { IMember } from "@/lib/database/models/member.model";
 import { createMembers } from "@/lib/actions/member.action";
 import { getPassword } from "@/functions/misc";
 import { readMembersFromExcel } from "./fxns";
-import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
 import { enqueueSnackbar } from "notistack";
 import { useFetchMembers } from "@/hooks/fetch/useMember";
+import SearchSelectChurchesV3 from "@/components/features/SearchSelectChurchesV3";
 
 type MemberImportModalProps = {
     infoMode:boolean;
@@ -127,7 +127,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Choose Church</span>
-                        <SearchSelectChurchesV2 setSelect={setChurchId} require />
+                        <SearchSelectChurchesV3 setSelect={setChurchId} require />
                     </div>
                     {
                         churchId &&

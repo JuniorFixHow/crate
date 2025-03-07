@@ -38,8 +38,8 @@ export const VendorsColumns = (
         }
     },
     {
-        field:'country',
-        headerName:'Country',
+        field:'role',
+        headerName:'Type',
         width:120,
     },
     {

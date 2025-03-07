@@ -8,7 +8,7 @@ import { IVendor } from '@/lib/database/models/vendor.model'
 import { getPassword } from '@/functions/misc'
 import { createVendor, updateVendor } from '@/lib/actions/vendor.action'
 import { useRouter } from 'next/navigation'
-import { serverTimestamp } from 'firebase/firestore'
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { signupUser } from '@/lib/firebase/auth'
 // import SearchSelectZones from '@/components/features/SearchSelectZones'
 // import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
@@ -16,15 +16,18 @@ import { signupUser } from '@/lib/firebase/auth'
 import SearchSelectZoneV2 from '@/components/features/SearchSelectZonesV2'
 import SearchSelectChurchesWithZone from '@/components/features/SearchSelectChurchesWithZone'
 import { enqueueSnackbar } from 'notistack'
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
+import { db } from '@/lib/firebase/firebase'
 
 type NewVendorProps = {
     openVendor:boolean,
     setOpenVendor:Dispatch<SetStateAction<boolean>>,
     currentVendor:IVendor|null,
-    setCurrentVendor:Dispatch<SetStateAction<IVendor|null>>
+    setCurrentVendor:Dispatch<SetStateAction<IVendor|null>>;
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IVendor[], Error>>
 }
 
-const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:NewVendorProps) => {
+const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurrentVendor}:NewVendorProps) => {
     const handleClose=()=>{
         setOpenVendor(false);
         setCurrentVendor(null);
@@ -75,6 +78,7 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                 }
                 await signupUser(data.email!, password, fbData);
                 setOpenVendor(false);
+                refetch()
             }
             // setError(res);
             formRef.current?.reset();
@@ -94,7 +98,6 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
         try {
             setLoading(true);
             if(currentVendor){
-
                 const body:Partial<IVendor> = {
                     name:data.name || currentVendor?.name,
                     email:data.email || currentVendor?.email,
@@ -105,9 +108,11 @@ const NewVendor = ({openVendor, setOpenVendor, currentVendor, setCurrentVendor}:
                     church: church || currentVendor?.church
                 }
                 const res:ErrorProps = await updateVendor(currentVendor?._id, body);
+                await updateDoc(doc(db, 'users', currentVendor?._id), body);
                 const response = res?.payload as IVendor
                 setCurrentVendor(response);
                 router.refresh();
+                refetch();
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setOpenVendor(false);
             }

@@ -73,10 +73,10 @@ export const useFetchVendorsQuery = ()=>{
 
     const fetchVendor = async (): Promise<IVendor[]> => {
         try {
-            // if (!user) {
-            //     return []; // Return an empty array if user is not defined
-            // }
-    
+            if (!user) {
+                return []; // Return an empty array if user is not defined
+            }
+            // console.log(isAdmin)
             const isAdmin = checkIfAdmin(user);
     
             let users: IVendor[];

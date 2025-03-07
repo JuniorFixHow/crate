@@ -2,13 +2,15 @@
 import { Grey } from '@/components/Dummy/contants'
 import { useTheme } from '@/hooks/useTheme';
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, {  useEffect, useRef, useState } from 'react'
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineWbSunny } from "react-icons/md";
 import { FaRegMoon } from "react-icons/fa"
 import { useAuth } from '@/hooks/useAuth';
 import SearchResult from './SearchResult';
 import Link from 'next/link';
+import { confirmUserData } from '@/lib/firebase/auth.admin';
+// import { confirmUserData } from '@/lib/firebase/auth';
 
 const Header = () => {
   const {theme, toggleTheme} = useTheme();
@@ -16,6 +18,27 @@ const Header = () => {
   // alert(user?.churchId)
 
   const [search, setSearch] = useState<string>('');
+
+  const userRef = useRef(user);
+
+useEffect(() => {
+  userRef.current = user; // Update ref when user changes
+}, [user]);
+
+useEffect(() => {
+  const fetchData = () => {
+    if (userRef.current) {
+      console.log('Running')
+      confirmUserData(userRef.current.userId);
+    }
+  };
+
+  fetchData(); // Run immediately
+
+  const interval = setInterval(fetchData, 30000);
+
+  return () => clearInterval(interval);
+}, []);
 
   return (
     <header className='flex-wrap relative flex p-4 pl-8 xl:pl-4 flex-row justify-between rounded-lg border-b border-slate-200' >
