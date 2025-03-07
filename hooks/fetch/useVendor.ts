@@ -1,7 +1,6 @@
 import { getVendorStats } from "@/lib/actions/misc";
 import { getVendors, getVendorsInAChurch } from "@/lib/actions/vendor.action";
 import { IVendor } from "@/lib/database/models/vendor.model";
-import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import {  checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
@@ -44,28 +43,28 @@ export const useFetchVendorStats = (id:string)=>{
         sessions:number,
         revenue:number,
     }
-    const [stats, setStats] = useState<StatsProps>({members:0, events:0, sessions:0, revenue:0});
-    const [statsLoading, setStatsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(()=>{
-        if(!id) return;
-        const fetchStats = async()=>{
-            try {
-                const res = await getVendorStats(id);
-                setStats({members:res?.members, events:res?.events, sessions:res?.sessions, revenue:res?.totalAmount})
-            } catch (error) {
-                setError('Error occured while loading data.')
-                console.log(error)
-            }finally{
-                setStatsLoading(false);
-            }
+    const empty:StatsProps ={members:0, events:0, sessions:0, revenue:0} ;
+    
+    const fetchStats = async():Promise<StatsProps>=>{
+        try {
+            if(id) return empty;
+            const res = await getVendorStats(id);
+            const stats = {members:res?.members, events:res?.events, sessions:res?.sessions, revenue:res?.totalAmount};
+            return stats;
+        } catch (error) {
+            console.log(error);
+            return empty;
         }
-        fetchStats();
-    },[id])
+    }
 
+    const {data:stats=empty, isPending:statsLoading, refetch} = useQuery({
+        queryKey:['userstats', id],
+        queryFn:fetchStats,
+        enabled:!!id
+    })
 
-    return {stats, error, statsLoading}
+    return {stats, refetch, statsLoading}
 }
 
 

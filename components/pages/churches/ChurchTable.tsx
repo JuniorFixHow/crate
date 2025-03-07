@@ -1,36 +1,36 @@
 'use client'
 import AddButton from '@/components/features/AddButton';
-import SearchBar from '@/components/features/SearchBar'
 import React, { useEffect, useState } from 'react'
-import { Alert, LinearProgress, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { SearchChurch } from './fxn';
+import {  Paper } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import {  SearchChurchV2 } from './fxn';
 import { ChurchColumns } from './ChurchColumns';
 import DeleteDialog from '@/components/DeleteDialog';
 import ChurchInfoModal from './ChurchInfoModal';
 import NewChurch from './NewChurch';
 import { useSearchParams } from 'next/navigation';
 // import { useFetchZones } from '@/hooks/fetch/useZone';
-import { useFetchChurches } from '@/hooks/fetch/useChurch';
+import {  useFetchChurchesV2 } from '@/hooks/fetch/useChurch';
 import { IChurch } from '@/lib/database/models/church.model';
 import { deleteChurch, getChurch } from '@/lib/actions/church.action';
-import SearchSelectZones from '@/components/features/SearchSelectZones';
-import { ErrorProps } from '@/types/Types';
+// import { ErrorProps } from '@/types/Types';
 import Link from 'next/link';
+import SearchSelectZoneV2 from '@/components/features/SearchSelectZonesV2';
+import { enqueueSnackbar } from 'notistack';
 
 const ChurchTable = () => {
-    const [search, setSearch] = useState<string>('');
+    // const [search, setSearch] = useState<string>('');
     const [zone, setZone] = useState<string>('');
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     // const [noZone, setNoZone] = useState<boolean>(false);
     const [currentChurch, setCurrentChurch] = useState<IChurch|null>(null);
-    const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
+    // const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
     // console.log('zone: ', zone)
 
     // const {zones} = useFetchZones();
-    const {churches, loading} = useFetchChurches();
+    const {churches, isPending, refetch} = useFetchChurchesV2();
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -72,16 +72,18 @@ const ChurchTable = () => {
     // }
 
     const handleDeleteChurch = async()=>{
-        setDeleteState({message:'', error:false})
         if(currentChurch){
           try {
-            await deleteChurch(currentChurch._id);
+            const res = await deleteChurch(currentChurch._id);
             setDeleteMode(false);
             setCurrentChurch(null);
-            setDeleteState({message:'Zone deleted successfully', error:false})
+            refetch();
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            // setDeleteState({message:'Zone deleted successfully', error:false})
           } catch (error) {
             console.log(error)
-            setDeleteState({message:'Error occured deleting zone', error:true})
+            enqueueSnackbar('Error occured deleting church', {variant:'error'});
+            // setDeleteState({message:'Error occured deleting zone', error:true})
           }
         }
       }
@@ -89,14 +91,14 @@ const ChurchTable = () => {
 
     const message = 'Deleting the church will delete all members and campuses that have been registered for it. Proceed?'
   return (
-    <div className='shadow p-4 flex  gap-6 flex-col bg-white dark:bg-[#0F1214] dark:border rounded' >
+    <div className='table-main2' >
         <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <div className="flex">
 
-                <SearchSelectZones isGeneric setSelect={setZone} />
+                <SearchSelectZoneV2  setSelect={setZone} />
             </div>
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
+                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
                 <Link href={'/dashboard/churches/new'} >
                   <AddButton  smallText text='Add Church' noIcon className='rounded' />
                 </Link>
@@ -111,29 +113,42 @@ const ChurchTable = () => {
             noZone &&
             <Alert onClose={()=>setNoZone(false)} severity='error' >No zones available. Create a zone to add a new church</Alert>
         } */}
-        {
+        {/* {
             deleteState?.message &&
             <Alert onClose={()=>setDeleteState({message:'', error:false})}  className='text-center' severity={deleteState.error ? 'error':'success'} >{deleteState.message}</Alert>
-        }
+        } */}
 
         <div className="flex w-full">
-          {
-            loading ?
-            <LinearProgress className='w-full' />
-            :
-            <Paper className='w-full' sx={{ height: 480, }}>
+            <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     getRowId={(row:IChurch):string=> row?._id as string}
-                    rows={SearchChurch(churches, search, zone)}
+                    rows={SearchChurchV2(churches,  zone)}
                     columns={ChurchColumns(hadndleInfo,  hadndleDelete)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10]}
+                    initialState={{ 
+                      pagination: { paginationModel },
+                      columns:{
+                        columnVisibilityModel:{
+                          contractId:false
+                        }
+                      } 
+                    }}
+                    loading={isPending}
+                    pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
+                    slots={{toolbar:GridToolbar}}
+                    slotProps={{
+                      toolbar:{
+                        showQuickFilter:true,
+                        printOptions:{
+                          hideFooter:true,
+                          hideToolbar:true
+                        }
+                      }
+                    }}
                     // checkboxSelection
                     className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                     sx={{ border: 0 }}
                 />
             </Paper>
-          }
         </div>
 
     </div>

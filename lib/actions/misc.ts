@@ -67,10 +67,11 @@ export async function getSession(): Promise<SessionPayload | null>{
 export async function getEverything(){
     try {
         await connectDB();
+        const developersChurch = await Church.findOne({ name: "CRATE Main" }).select("_id");
         const [z, c, m, r, v, e] = await Promise.all([
             Zone.find().lean(),
-            Church.find().populate('zoneId').lean(),
-            Member.find().populate({
+            Church.find({name: {$ne:'CRATE Main'}}).populate('zoneId').lean(),
+            Member.find({church:{$ne:developersChurch?._id}}).populate({
                 path: 'church',         
                 populate: {
                     path: 'zoneId',    
@@ -113,12 +114,14 @@ export async function getVendorStats(vendorId:string){
         await connectDB();
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const developersChurch = await Church.findOne({ name: "CRATE Main" }).select("_id");
     
         // Fetch counts for the past 7 days
         const [memberCount, eventCount, sessionCount, revenue] = await Promise.all([
           Member.countDocuments({
             registeredBy: vendorId,
             createdAt: { $gte: sevenDaysAgo },
+            church: {$ne:developersChurch?._id}
           }),
           Event.countDocuments({
             createdBy: vendorId,

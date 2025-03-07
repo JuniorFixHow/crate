@@ -46,7 +46,8 @@ export const useFetchChurchesV2 = ()=>{
         :
         await getChurches();
 
-        return data;
+        const sorted = data.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+        return sorted;
     }
 
     const {data:churches=[], isPending, refetch} = useQuery({

@@ -14,6 +14,10 @@ export async function createChurch(church: Partial<IChurch>) {
     try {
         await connectDB();
 
+        const {name} = church;
+        if(name === 'CRATE Main'){
+            return handleResponse(`The name "CRATE Main" is reserved`, true, {}, 403);
+        }
         // Create the new church
         const newChurch = await Church.create(church);
 
@@ -30,7 +34,7 @@ export async function createChurch(church: Partial<IChurch>) {
             $inc: { churches: 1 } // Increment the 'churches' field by 1
         }, { new: true });
 
-        return handleResponse('New Church created successfully', false, newChurch, 201)
+        return handleResponse('New church created successfully', false, newChurch, 201)
         
     } catch (error) {
         console.log(error);
@@ -43,6 +47,15 @@ export async function updateChurch(id: string, church: Partial<IChurch>) {
     try {
         await connectDB();
 
+        const c = await Church.findById(id);
+        if(c.name === 'CRATE Main'){
+            return handleResponse(`You cannot alter this church`, true, {}, 403);
+        }
+
+        const {name} = church;
+        if(name === 'CRATE Main'){
+            return handleResponse(`The name "CRATE Main" is reserved`, true, {}, 403);
+        }
         // Update the church document
         const updatedChurch = await Church.findByIdAndUpdate(id, church, { new: true });
 
@@ -119,7 +132,10 @@ export async function deleteChurch(id: string) {
         // Find the church by its ID
         const church = await Church.findById(id);
         if (!church) {
-            throw new Error('Church not found');
+            return handleResponse('Church not found!', true, {}, 404);
+        }
+        if(church.name === 'CRATE Main'){
+            return handleResponse('You cannot delete this church', true, {}, 403);
         }
 
         // Find members related to this church
@@ -156,10 +172,10 @@ export async function deleteChurch(id: string) {
         // Delete the church itself
         await Church.findByIdAndDelete(church._id);
 
-        return 'Church deleted successfully';
+        return handleResponse('Church deleted successfully', false, {}, 201);
     } catch (error) {
         console.error('Error deleting church:', error);
-        throw new Error('Error occurred during church deletion');
+        return handleResponse('Error occurred during church deletion', true, {}, 500);
     }
 }
 

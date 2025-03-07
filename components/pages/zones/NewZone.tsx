@@ -1,27 +1,30 @@
 'use client'
 import AddButton from '@/components/features/AddButton'
-import { ErrorProps } from '@/types/Types'
-import { Alert} from '@mui/material'
+// import { ErrorProps } from '@/types/Types'
+// import { Alert} from '@mui/material'
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import '../../../components/features/customscroll.css';
 import { createZone, updateZone } from '@/lib/actions/zone.action'
 import { IZone } from '@/lib/database/models/zone.model'
 import Address from '@/components/shared/Address'
+import { enqueueSnackbar } from 'notistack'
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 type NewZoneProps = {
     openZone:boolean,
     setOpenZone:Dispatch<SetStateAction<boolean>>,
     currentZone:IZone|null,
-    setCurrentZone:Dispatch<SetStateAction<IZone|null>>
+    setCurrentZone:Dispatch<SetStateAction<IZone|null>>,
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IZone[], Error>>
 }
 
-const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZoneProps) => {
+const NewZone = ({openZone, setOpenZone, refetch, currentZone, setCurrentZone}:NewZoneProps) => {
     const handleClose=()=>{
         setOpenZone(false);
         setCurrentZone(null);
     }
 
-    const [error, setError]=useState<ErrorProps>({message:'', error:false});
+    // const [error, setError]=useState<ErrorProps>({message:'', error:false});
     const [loading, setLoading] = useState<boolean>(false);
     const [name, setName] = useState<string>('');
     const [country, setCountry] = useState<string>('USA');
@@ -30,17 +33,18 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
 
     const handleNewZone = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setError({message:'', error:false});
         try {
             setLoading(true);
             const data:Partial<IZone> = {name, country};
             const res = await createZone(data);
-            console.log(res)
-            setError({message:'Zone added successfully', error:false});
+            // console.log(res)
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            setOpenZone(false);
             formRef.current?.reset();
+            refetch();
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding zone', error:true})
+            enqueueSnackbar('Error occured adding zone', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -48,7 +52,6 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
 
     const handleUpdateZone = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setError({message:'', error:false});
         try {
             setLoading(true);
             const data:Partial<IZone> = {
@@ -57,12 +60,13 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
             };
             if(currentZone){
                 const zone = await updateZone(currentZone._id, data);
-                setCurrentZone(zone);
-                setError({message:'Zone updated successfully', error:false});
+                setOpenZone(false);
+                enqueueSnackbar(zone?.message, {variant:zone?.error ? 'error':'success'});
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured updating zone', error:true})
+            enqueueSnackbar('Error occured updating zone', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -80,7 +84,7 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Zone name</span>
-                        <input onChange={(e)=>setName(e.target.value)} required={!currentZone} defaultValue={currentZone?currentZone.name : ''} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
+                        <input readOnly={!!currentZone && currentZone?.name === 'CRATE Main'} onChange={(e)=>setName(e.target.value)} required={!currentZone} defaultValue={currentZone?currentZone.name : ''} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Location</span>
@@ -90,12 +94,12 @@ const NewZone = ({openZone, setOpenZone, currentZone, setCurrentZone}:NewZonePro
                     
                 </div>
 
-                {
+                {/* {
                     error?.message &&
                     <Alert onClose={()=>setError({message:'', error:false})} severity={error.error ? 'error':'success'} >
                         {error.message}
                     </Alert>
-                }
+                } */}
 
                 <div className="flex flex-row items-center justify-between">
                     <AddButton disabled={loading}  type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentZone? 'Update':'Add'} smallText noIcon />

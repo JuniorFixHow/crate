@@ -1,5 +1,5 @@
 import { IZone } from "@/lib/database/models/zone.model"
-import {  GridRenderCellParams } from "@mui/x-data-grid"
+import {  GridColDef, GridRenderCellParams } from "@mui/x-data-grid"
 import { GoInfo } from "react-icons/go"
 import { IoTrashBinOutline } from "react-icons/io5"
 
@@ -7,7 +7,7 @@ export const ZoneColumns =(
     onZoneClick:(data:IZone)=>void, 
     onDelete:(data:IZone)=>void,
     handleInfo:(data:IZone)=>void
-)=> [
+):GridColDef[]=> [
     {
         field:'name',
         headerName:'Name',
@@ -46,6 +46,8 @@ export const ZoneColumns =(
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

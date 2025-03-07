@@ -14,6 +14,7 @@ export const useFetchCampuses = () =>{
         const fetchCampuses = async()=>{
             try {
                 const churchId = searchParams.get('churchId');
+                // add admin search here
                 let res:ICampuse[];
                 if(churchId){
                     res = await getChurchCampuses(churchId);

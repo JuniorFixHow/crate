@@ -1,14 +1,16 @@
-import {  GridRenderCellParams } from "@mui/x-data-grid"
+import {  GridColDef, GridRenderCellParams } from "@mui/x-data-grid"
 import { IoTrashBinOutline } from "react-icons/io5"
 import { GoInfo } from "react-icons/go";
 import { IChurch } from "@/lib/database/models/church.model";
 import Link from "next/link";
+import { IContract } from "@/lib/database/models/contract.model";
+import { IZone } from "@/lib/database/models/zone.model";
 
 export const ChurchColumns = (
     handleInfo:(data:IChurch)=>void, 
     // handleNewChurch:(data:IChurch)=>void,
     handleDeleteChurch:(data:IChurch)=>void
-)=> [
+):GridColDef[]=> [
     {
         field:'name',
         headerName:'Name',
@@ -42,7 +44,15 @@ export const ChurchColumns = (
     {
         field:'contractId',
         headerName:"Licence",
-        width:100, 
+        width:100,
+        valueFormatter:(_, church:IChurch)=>{
+            const contract = church?.contractId as IContract;
+            return contract?.title ?? '';
+        }, 
+        valueGetter:(_, church:IChurch)=>{
+            const contract = church?.contractId as IContract;
+            return contract ? Object.values(contract) : '';
+        }, 
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <>
@@ -61,6 +71,14 @@ export const ChurchColumns = (
         field:'zone',
         headerName:"Zone",
         width:100, 
+        valueFormatter:(_, church:IChurch)=>{
+            const zone = church?.zoneId as IZone;
+            return zone?.name;
+        }, 
+        valueGetter:(_, church:IChurch)=>{
+            const zone = church?.zoneId as IZone;
+            return Object.values(zone);
+        }, 
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <Link className="table-link" href={{pathname:'/dashboard/zones', query:{id:params.row.zoneId._id}}} >{params.row.zoneId.name}</Link>
@@ -82,6 +100,8 @@ export const ChurchColumns = (
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

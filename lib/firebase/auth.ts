@@ -6,8 +6,9 @@ import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } fro
 import { handleResponse } from "../misc";
 // import { enqueueSnackbar } from "notistack";
 import admin from "./admin";
-import { updateVendor } from "../actions/vendor.action";
+import { getVendor, updateVendor } from "../actions/vendor.action";
 import { IVendor } from "../database/models/vendor.model";
+import { deleteSession } from "../session";
 
 export async function signupUser(email:string, password:string, data:IUser ){
     try {
@@ -106,3 +107,17 @@ export async function deleteUserCompletely(userId:string){
         console.log(error);
     }
 };
+
+
+export async function confirmUserData(userId:string){
+    try {
+        const docRef = doc(db, 'users', userId);
+        const data = await getDoc(docRef);
+        const user = await getVendor(userId);
+        if(!user || !data.exists()){
+            await deleteSession();
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}

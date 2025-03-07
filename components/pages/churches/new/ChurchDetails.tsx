@@ -1,6 +1,6 @@
 'use client'
 import AddButton from "@/components/features/AddButton";
-import SearchSelectZones from "@/components/features/SearchSelectZones";
+// import SearchSelectZones from "@/components/features/SearchSelectZones";
 import Address from "@/components/shared/Address";
 import Uploader from "@/components/shared/Uploader";
 import { IChurch } from "@/lib/database/models/church.model";
@@ -18,7 +18,12 @@ import { createCampuses } from "@/lib/actions/campuse.action";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "@/components/DeleteDialog";
 import React from "react";
-import SearchSelectContracts from "@/components/features/SearchSelectContracts";
+// import SearchSelectContracts from "@/components/features/SearchSelectContracts";
+import SearchSelectZoneV2 from "@/components/features/SearchSelectZonesV2";
+import SearchSelectContractsV2 from "@/components/features/SearchSelectContractsV2";
+import { enqueueSnackbar } from "notistack";
+import { IContract } from "@/lib/database/models/contract.model";
+import { IZone } from "@/lib/database/models/zone.model";
 
 export type SocialProps = {
     id:string,
@@ -54,6 +59,8 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
 
     const buttonRef = useRef<HTMLButtonElement>(null);
 
+    const contract = currentChurch?.contractId as IContract;
+    const zone = currentChurch?.zoneId as IZone;
 
     const formRef = useRef<HTMLFormElement>(null);
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
@@ -108,8 +115,9 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                     createdBy:user?.userId
                 }
                 const newChurch = await createChurch(body);
+                enqueueSnackbar(newChurch?.message, {variant:newChurch?.error ? 'error':'success'});
                 const church = newChurch?.payload as IChurch;
-                setResponse(newChurch);
+                // setResponse(newChurch);
                 if((campuses.length > 0) && (newChurch?.code === 201)){
                     const formattedCampuses:Partial<ICampuse>[] = campuses.map((campuse)=>({
                         name:campuse.name,
@@ -119,13 +127,13 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                     }))
     
                     const res = await createCampuses(formattedCampuses);
-                    setResponse(res);
+                    enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 }
                 formRef.current?.reset();
                 setnocontractMode(false);
             } catch (error) {
                 console.log(error);
-                setResponse({message:'Error occured adding church', error:true})
+                enqueueSnackbar('Error occured adding church', {variant:'error'});
                 setnocontractMode(false);
             }finally{
                 setLoading(false);
@@ -161,7 +169,7 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
                     socials:formattedLinks,
                 }
                 const res = await updateChurch(currentChurch!._id, body);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 window.location.reload();
             } catch (error) {
                 console.log(error);
@@ -176,11 +184,14 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const handleDeleteChurch = async()=>{
         try {
             setdelLoading(true);
-            await deleteChurch(currentChurch!._id);
-            router.back();
+            const res = await deleteChurch(currentChurch!._id);
+            enqueueSnackbar(res?.message, {variant: res?.error ? 'error':'success'});
+            if(res?.code === 201){
+                router.back();
+            }
         } catch (error) {
            console.log(error);
-           setResponse({message:'Error occured deleting church', error:true}) 
+           enqueueSnackbar('Error occured deleting church', {variant:'error'});
         }finally{
             setdelLoading(false);
         }
@@ -189,11 +200,11 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const warning = 'You are about to create a church with no contract. This will render the new church unlicensed. Proceed?'
 
   return (
-   <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
+   <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-4 md:px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
     <div className="flex flex-col gap-5 flex-1">
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Church Name</span>
-            <input required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+            <input readOnly={!!currentChurch && currentChurch?.name === 'CRATE Main'} required={!currentChurch} onChange={handleChange} defaultValue={currentChurch?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Pastor Name</span>
@@ -213,12 +224,12 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
         </div>
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Zone</span>
-            <SearchSelectZones className="w-fit" isGeneric setSelect={setZoneId} require={!currentChurch} />
+            <SearchSelectZoneV2 value={zone?.name} setSelect={setZoneId} require={!currentChurch} />
         </div>
 
         <div className="flex flex-col gap-1">
             <span className='text-slate-400 font-semibold text-[0.8rem]' >Select Contract</span>
-            <SearchSelectContracts className="w-fit" isGeneric setSelect={setContractId} />
+            <SearchSelectContractsV2 value={contract?.title??''}  setSelect={setContractId} />
         </div>
 
     </div>
