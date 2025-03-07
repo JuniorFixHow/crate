@@ -1,21 +1,29 @@
-import { Alert, Modal } from "@mui/material"
+import {  Modal } from "@mui/material"
 import { CampusInfoModalProps } from "./CampusInfoModal"
 import AddButton from "@/components/features/AddButton";
 import '../../../../components/features/customscroll.css';
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { createCampuse, updateCampuse } from "@/lib/actions/campuse.action";
-import { ErrorProps } from "@/types/Types";
+// import { ErrorProps } from "@/types/Types";
 import { ICampuse } from "@/lib/database/models/campuse.model";
-import SearchSelectZones from "@/components/features/SearchSelectZones";
-import SearchSelectChurchForRoomAss from "@/components/features/SearchSelectChurchForRoomAss";
+// import SearchSelectZones from "@/components/features/SearchSelectZones";
+// import SearchSelectChurchForRoomAss from "@/components/features/SearchSelectChurchForRoomAss";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { enqueueSnackbar } from "notistack";
+import SearchSelectZoneV2 from "@/components/features/SearchSelectZonesV2";
+import SearchSelectChurchesWithZone from "@/components/features/SearchSelectChurchesWithZone";
 
-const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:CampusInfoModalProps) => {
+export type NewCampusProps = {
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ICampuse[], Error>>
+} & CampusInfoModalProps
+
+const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoMode}:NewCampusProps) => {
     const handleClose = ()=>{
         setCurrentCampus(null);
         setInfoMode(false);
     }
 
-    const [error, setError] = useState<ErrorProps>({message:'', error:false});
+    // const [error, setError] = useState<ErrorProps>({message:'', error:false});
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] =useState<Partial<ICampuse>>({});
     const [zoneId, setZoneId] = useState<string>('');
@@ -26,7 +34,6 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
 
     const handleNewCampus = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setError({message:'', error:false});
         try {
             setLoading(true);
             const body:Partial<ICampuse> = {
@@ -34,11 +41,13 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
                 churchId
             };
             const res = await createCampuse(body);
-            setError(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             formRef.current?.reset();
+            refetch();
+            setInfoMode(false);
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding church', error:true})
+            enqueueSnackbar('Error occured adding campus', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -54,7 +63,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
 
     const handleUpdateCampus = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setError({message:'', error:false});
+        // setError({message:'', error:false});
         try {
             setLoading(true);
             const body:Partial<ICampuse> = {
@@ -63,14 +72,15 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
                 type:data?.type||currentCampus?.type, 
             };
             const res = await updateCampuse(body);
+            setInfoMode(false);
             // const result = res?.payload as ICampuse;
             // setCurrentCampus(result);
             // console.log(body)
-            setError(res);
             formRef.current?.reset();
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured adding campus', error:true})
+            enqueueSnackbar('Error occured adding campus', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -108,20 +118,20 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, setInfoMode}:Camp
                         <>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Set Zone</span>
-                            <SearchSelectZones require={true} isGeneric setSelect={setZoneId} className="dark:text-white" />
+                            <SearchSelectZoneV2 require={true} width={290}  setSelect={setZoneId}  />
                         </div>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Set Church</span>
-                            <SearchSelectChurchForRoomAss require={true} zoneId={zoneId} isGeneric setSelect={setChurchId} className="dark:text-white" />
+                            <SearchSelectChurchesWithZone require={true} width={290} zoneId={zoneId} setSelect={setChurchId}  />
                         </div>
                         </>
                     }
                 </div>
 
-                {
+                {/* {
                     error?.message &&
                     <Alert onClose={()=>setError(null)} severity={error.error ? `error`:'success'} >{error.message}</Alert>
-                }
+                } */}
 
                 <div className="flex flex-row items-center justify-between">
                     <AddButton disabled={loading} type="submit"  className='rounded w-[45%] justify-center' text={loading? 'loading...' : currentCampus? 'Update':'Add'} smallText noIcon />

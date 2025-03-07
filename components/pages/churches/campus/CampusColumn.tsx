@@ -1,5 +1,6 @@
 import { ICampuse } from "@/lib/database/models/campuse.model";
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { IChurch } from "@/lib/database/models/church.model";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
@@ -8,7 +9,7 @@ export const CampusColumn = (
     handleInfo:(data:ICampuse)=>void, 
     handleNewCampus:(data:ICampuse)=>void,
     handleDeleteCampus:(data:ICampuse)=>void
-) =>[
+):GridColDef[] =>[
     {
         field:'name',
         headerName:'Name',
@@ -28,6 +29,14 @@ export const CampusColumn = (
         field:'churchId',
         headerName:'Church',
         width:200,
+        valueFormatter:(_, campus:ICampuse)=>{
+            const church = campus?.churchId as IChurch;
+            return church?.name??'';
+        },
+        valueGetter:(_, campus:ICampuse)=>{
+            const church = campus?.churchId as IChurch;
+            return church ? Object.values(church) : '';
+        },
         renderCell:(param:GridRenderCellParams)=>{
             return(
                 <Link href={{pathname:'/dashboard/churches', query:{id:param.row?.churchId?._id}}}  className="table-link" >{param.row?.churchId?.name}</Link>
@@ -38,6 +47,12 @@ export const CampusColumn = (
         field:'members',
         headerName:'Members',
         width:100,
+        valueFormatter:(_, campus:ICampuse)=>{
+            return campus?.members?.length
+        },
+        valueGetter:(_, campus:ICampuse)=>{
+            return campus?.members?.length
+        },
         renderCell:(param:GridRenderCellParams)=>{
             return(
                 <>
@@ -55,6 +70,8 @@ export const CampusColumn = (
         field:'id',
         headerName:'Actions',
         width:80,
+        filterable:false,
+        disableExport:true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)

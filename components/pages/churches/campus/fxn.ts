@@ -25,3 +25,16 @@ export const SearchCampuseWithEverything = (
 
     return data;
 }
+
+export const SearchCampuseWithoutZone = (
+    campuses:ICampuse[], churchId:string,
+):ICampuse[]=>{
+    const data = campuses
+    .filter((item)=>{
+        const church = item.churchId as IChurch;
+        return churchId === '' || churchId === undefined ? item : church._id === churchId
+    })
+    
+
+    return data;
+}

@@ -2,36 +2,40 @@
 import { getCampuses, getChurchCampuses } from "@/lib/actions/campuse.action";
 import { ICampuse } from "@/lib/database/models/campuse.model"
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchCampuses = () =>{
-    const [campuses, setCampuses] = useState<ICampuse[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
     const searchParams = useSearchParams();
+    const {user} = useAuth();
 
-    useEffect(()=>{
-        const fetchCampuses = async()=>{
-            try {
-                const churchId = searchParams.get('churchId');
-                // add admin search here
-                let res:ICampuse[];
-                if(churchId){
-                    res = await getChurchCampuses(churchId);
-                }else{
-                    res = await getCampuses();
-                }
-                setCampuses(res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-            } catch (error) {
-                setError('Error occured fetching campuses');
-                console.log(error);
-            }finally{
-                setLoading(false);
+    
+    const fetchCampuses = async():Promise<ICampuse[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const churchId = searchParams.get('churchId');
+            // add admin search here
+            let res:ICampuse[];
+            if(churchId){
+                res = await getChurchCampuses(churchId);
+            }else{
+                res = isAdmin ? await getCampuses() : getChurchCampuses(user?.churchId) ;
             }
+            const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
-        fetchCampuses();
+    }
 
-    },[searchParams])
+    const {data:campuses=[], isPending:loading, refetch} = useQuery({
+        queryKey:['campuses', searchParams],
+        queryFn:fetchCampuses,
+        enabled:!!user
+    })
 
-    return {campuses, loading, error}
+    return {campuses, loading, refetch}
 }
