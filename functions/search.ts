@@ -52,10 +52,16 @@ export const searchMemberInversedV2 = (text:string, churchId:string, members:IMe
       return (churchId === '' || churchId === undefined) ? member : church._id === churchId
     })
     ?.filter((member)=>{
-        return text === '' ? null : Object.values(member)
-        .join(' ')
-        .toLowerCase()
-        .includes(text.toLowerCase())
+        if(text === '' && churchId){
+          return member
+        }else if(text === '' && !churchId){
+          return null;
+        }else{
+          return Object.values(member)
+          .join(' ')
+          .toLowerCase()
+          .includes(text.toLowerCase())
+        }
     })
     return membs
 }

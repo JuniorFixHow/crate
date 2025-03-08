@@ -5,11 +5,12 @@ import CustomCheck from "../../group/new/CustomCheck"
 import { IVendor } from "@/lib/database/models/vendor.model"
 import { useEffect, useState } from "react"
 import AddButton from "@/components/features/AddButton"
-import { ErrorProps } from "@/types/Types"
-import { Alert } from "@mui/material"
+// import { ErrorProps } from "@/types/Types"
+// import { Alert } from "@mui/material"
 import { updateVendorRoles } from "@/lib/actions/vendor.action"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase/firebase"
+import { enqueueSnackbar } from "notistack"
 
 type RolesProps = {
     selection:IVendor[]
@@ -18,7 +19,7 @@ type RolesProps = {
 const Roles = ({selection}:RolesProps) => {
     const [roles, setRoles] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [response, setResponse] = useState<ErrorProps>(null);
+    // const [response, setResponse] = useState<ErrorProps>(null);
 
     useEffect(()=>{
         if(selection.length === 1){
@@ -28,6 +29,8 @@ const Roles = ({selection}:RolesProps) => {
             ))
         }
     },[selection])
+
+    // console.log(selection, roles)
 
     const handleSelect = (role:string)=>{
         setRoles((pre)=>{
@@ -43,27 +46,30 @@ const Roles = ({selection}:RolesProps) => {
         try {
             setLoading(true);
             const userIds = selection?.map((item)=>item._id);
-            const res = await updateVendorRoles(userIds, roles);
+            const filtered = roles.filter((item)=>item !== null);
+            const res = await updateVendorRoles(userIds, filtered);
             if(res?.code === 201){
                 await Promise.all(
                     userIds.map((id)=>(
-                        updateDoc(doc(db, "Users", id), {roles})
+                        updateDoc(doc(db, "Users", id), {roles:filtered})
                     ))
                 )
-                const message = 'Roles removed successfully';
-                const message2 = `${roles.length > 1 ? 'Roles':'Role'} assigned successfully`;
-                setResponse({message: roles.length>0 ? message2:message, error:false});
+                // const message = 'Roles removed successfully';
+                // const message2 = `${roles.length > 1 ? 'Roles':'Role'} assigned successfully`;
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                // setResponse({message: roles.length>0 ? message2:message, error:false});
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured. Please Retry', error:true});
+            // setResponse({message:'Error occured. Please Retry', error:true});
+            enqueueSnackbar('An unknown error occured. Please Retry', {variant:'error'});
         }finally{
             setLoading(false);
         }
     }
 
   return (
-    <div className="flex flex-col gap-5 rounded bg-white dark:border dark:bg-transparent" >
+    <div className="table-main2" >
         <div className="flex flex-col gap-2">
             <div className="flex justify-between p-4">
                 <span className="text-2xl font-semibold" >Assign Roles</span>
@@ -73,12 +79,12 @@ const Roles = ({selection}:RolesProps) => {
                 }
             </div>
             <hr className="w-full border" />
-            {
+            {/* {
                 response?.message &&
                 <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
-            }
+            } */}
         </div>
-        <div className="flex flex-col gap-10 p-4 w-3/4">
+        <div className="flex flex-col gap-10 p-4 md:w-3/4">
             {
                 UserRoles?.slice(1).map((role)=>{
                     // const checked = roles.includes(code);
@@ -86,7 +92,7 @@ const Roles = ({selection}:RolesProps) => {
                     return(
                         <div className="flex flex-col gap-3" key={role?.title} >
                                 <Subtitle text={role?.title} />
-                            <div className="flex gap-12">
+                            <div className="flex flex-wrap gap-12">
                                 <div className="flex flex-col gap-2 items-center ">
                                     <span className="italic font-semibold" >Create</span>
                                     <CustomCheck onClick={()=>handleSelect(codes[0])} checked={roles.includes(codes[0])} />

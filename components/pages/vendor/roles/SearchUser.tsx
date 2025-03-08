@@ -7,6 +7,7 @@ import { LiaTimesSolid } from 'react-icons/lia';
 import SearchUserItem from './misc/SearchUserItem';
 import { SearchUserReversed } from './fxn';
 import { useAuth } from '@/hooks/useAuth';
+import TipUser from '@/components/misc/TipUser';
 // import { SessionPayload } from '@/lib/session';
 
 type SearchUserProps = {
@@ -21,6 +22,8 @@ const SearchUser = ({selection, setSelection}:SearchUserProps) => {
 
     // console.log(users)
 
+    const searched = SearchUserReversed(users, search);
+
     const unslect = (user:IVendor)=>{
         setSelection((pre)=>{
             return pre.filter((item)=>item._id !== user?._id)
@@ -28,8 +31,12 @@ const SearchUser = ({selection, setSelection}:SearchUserProps) => {
     }
   return (
     <div className='flex flex-col' >
-        <div className="flex bg-white dark:bg-transparent dark:border p-4">
+        <div className="flex flex-col gap-4 bg-white dark:bg-transparent dark:border p-4">
             <SearchUserBar setSearch={setSearch} />
+            {
+                searched.length === 0 &&
+                <TipUser text="Search user's name to assign them roles. You can only see roles under permissions, and you can't assign them to yourself." />
+            }
         </div>
         <hr className='w-full border-slate-300' />
         <div className="flex flex-col gap-4 bg-white dark:bg-transparent dark:border p-4" >
@@ -46,7 +53,7 @@ const SearchUser = ({selection, setSelection}:SearchUserProps) => {
 
             <div className="flex flex-col gap-6">
                 {
-                    SearchUserReversed(users as IVendor[], search)
+                    SearchUserReversed(users, search)
                     ?.filter((item)=>item._id !== user?.userId)
                     ?.map((vendor)=>{
                         const isSelected = selection.find((item)=>item?._id === vendor?._id);

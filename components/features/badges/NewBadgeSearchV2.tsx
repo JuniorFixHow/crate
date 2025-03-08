@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import SearchSelectChurchesV2 from "../SearchSelectChurchesV2";
 import { MdChecklist } from "react-icons/md";
 import { LuCopyX } from "react-icons/lu";
+import TipUser from "@/components/misc/TipUser";
 
 const NewBadgeSearchV2 = () => {
     const [search, setSearch] = useState<string>('');
@@ -24,7 +25,7 @@ const NewBadgeSearchV2 = () => {
     
     
     // const titles = ['Members', 'Churches'];
-    console.log('Church: ', churchId);
+    // console.log('Church: ', churchId);
 
     const handleSelect = (member:IMember)=>{
         setSelection((pre)=>{
@@ -77,7 +78,13 @@ const NewBadgeSearchV2 = () => {
 
             </div>
             <div className="flex gap-4 items-center">
-                <LongSearchbar className='grow' setSearch={setSearch} placeholder='type here to search for a member'  />
+                <div className="flex flex-col gap-4 grow">
+                    <LongSearchbar setSearch={setSearch} placeholder='type here to search for a member'  />
+                    {
+                        searched.length === 0 &&
+                        <TipUser text="Search member's name to print their badges" />
+                    }
+                </div>
                 {
                     selection?.length > 0 &&
                     <AddButton onClick={gotoPrint} text="Proceed" smallText noIcon className='rounded-full py-2 px-4' />

@@ -7,8 +7,8 @@ const page = () => {
   return (
     <div className="flex flex-col gap-6 p-4 pl-8 xl:pl-4 relative" >
         <div className="flex flex-row items-baseline gap-2">
-            <Title clickable link='/dashboard/events/badges' text='Badges' />
-            <IoIosArrowForward/>
+            <Title className="hidden md:block" clickable link='/dashboard/events/badges' text='Badges' />
+            <IoIosArrowForward className="hidden md:block" />
             <Title link='/dashboard/events/badges/new' clickable text='New Badge' />
             <IoIosArrowForward/>
             <Title text='Print' />

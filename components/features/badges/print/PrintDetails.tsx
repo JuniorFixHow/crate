@@ -4,7 +4,7 @@ import AddButton from "@/components/features/AddButton"
 import { Alert, CircularProgress } from "@mui/material"
 // import {  useSearchParams } from "next/navigation"
 import { Dispatch, SetStateAction,  useState } from "react"
-import SearchSelectEvents from "../../SearchSelectEvents"
+// import SearchSelectEvents from "../../SearchSelectEvents"
 // import { IRegistration } from "@/lib/database/models/registration.model"
 import { ErrorProps } from "@/types/Types"
 // import { checkMemberRegistration } from "@/lib/actions/event.action"
@@ -13,6 +13,7 @@ import {  registerMembersForEvent } from "@/lib/actions/registration.action"
 // import { IRoom } from "@/lib/database/models/room.model"
 // import { IVenue } from "@/lib/database/models/venue.model"
 import { useFetchUnregisteredMembers } from "@/hooks/fetch/useEvent"
+import SearchSelectEventsV2 from "../../SearchSelectEventsV2"
 
 type PrintDetailsProps = {
     // setCurrentReg:Dispatch<SetStateAction<IRegistration|null>>,
@@ -79,7 +80,7 @@ const PrintDetails = ({ memberIds, setEventId, eventId}:PrintDetailsProps) => {
 
         <div className="flex gap-4 items-center">
             <div className="flex gap-4 items-end">
-                <SearchSelectEvents className="w-fit" isGeneric setSelect={setEventId} />
+                <SearchSelectEventsV2   setSelect={setEventId} />
                 {
                     isPending && eventId && memberIds.length &&
                     <CircularProgress size='30px' />
