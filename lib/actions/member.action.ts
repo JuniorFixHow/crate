@@ -10,7 +10,7 @@ import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
 // import { isEligible } from "@/functions/misc";
 import Response from "../database/models/response.model";
-import { removeMemberFromAllGroups } from "./group.action";
+import {  removeMemberFromAllGroupsBeforeDeletion } from "./group.action";
 
 export async function createMember(member: Partial<IMember>) {
     try {
@@ -62,7 +62,7 @@ export async function createMember(member: Partial<IMember>) {
 
     } catch (error) {
         console.log(error);
-        throw new Error('Error occurred during member creation');
+        return handleResponse('Error occurred during member creation', true, {}, 500);
     }
 }
 
@@ -150,7 +150,7 @@ export async function updateMember(id: string, member: Partial<IMember>) {
         return handleResponse('Member updated successfully', false, updatedMember, 201); // Return the updated member
     } catch (error) {
         console.error('Error occurred updating member:', error);
-        throw new Error('Error occurred updating member');
+        return handleResponse('Error occurred updating member', true, {}, 500)
     }
 }
 
@@ -351,6 +351,7 @@ export async function getUnassignedMembers(eventId: string, churchId:string) {
 
 
 
+
 export async function deleteMember(id: string) {
     try {
         await connectDB();
@@ -373,7 +374,7 @@ export async function deleteMember(id: string) {
         }
 
         // Check if the member is registered for an event (group/room) and handle related data
-        await removeMemberFromAllGroups(member?._id);
+        await removeMemberFromAllGroupsBeforeDeletion(member?._id);
         const registrations = await Registration.find({ memberId: member._id });
         for (const registration of registrations) {
             // If the member is part of a group, remove them from the group's members array

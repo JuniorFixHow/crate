@@ -6,6 +6,7 @@ import Registration from "../database/models/registration.model";
 import Room from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import '../database/models/venue.model';
 
 export async function createGroup(group: Partial<IGroup>) {
     try {
@@ -295,15 +296,10 @@ export async function removeMemberFromGroup(groupId: string, memberId: string, e
             });
         }
 
-        return JSON.parse(JSON.stringify(group)); // Return the updated group
+        return handleResponse('Member removed successfully', false, group, 201); // Return the updated group
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error removing member from group:', error.message);
-            throw new Error(`Error occurred while removing member from group: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred while removing member from group');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred while removing member from group', true, {}, 500);
     }
 }
 
@@ -359,6 +355,107 @@ export async function removeMemberFromAllGroups(memberId: string) {
 }
 
 
+export async function removeMemberFromGroupBeforeDeletion(memberId: string, eventId: string) {
+    try {
+        await connectDB();
+
+        // Find the member's registration to check if they have a group
+        const memberRegistration = await Registration.findOne({ memberId, eventId });
+
+        // If no registration found, return early and allow deletion to continue
+        if (!memberRegistration) {
+            console.log('Member registration not found, skipping group removal');
+            return;
+        }
+
+        // If the member has no assigned group, return early and allow deletion to continue
+        if (!memberRegistration.groupId) {
+            console.log('Member is not assigned to any group, skipping group removal');
+            return;
+        }
+
+        // Find the group
+        const group = await Group.findById(memberRegistration.groupId);
+        if (!group) {
+            console.log('Group not found, skipping group removal');
+            return;
+        }
+
+        // Remove the member from the group
+        await group.updateOne({ $pull: { members: memberId } });
+
+        // Adjust the eligible count if necessary
+        const member = await Member.findById(memberId);
+        if (member && isEligible(member.ageRange) && group.eligible > 0) {
+            group.eligible -= 1;
+            await group.save();
+        }
+
+        console.log(`Successfully removed member ${memberId} from group ${group._id}`);
+    } catch (error) {
+        console.error('Error occurred while removing member from group:', error);
+        // Do not throw the error so the registration deletion can continue
+    }
+}
+
+
+
+export async function removeMemberFromAllGroupsBeforeDeletion(memberId: string) {
+    try {
+        await connectDB();
+
+        // Fetch all registrations of the member (across all events)
+        const registrations = await Registration.find({ memberId });
+
+        if (!registrations.length) {
+            console.log(`No registrations found for member ${memberId}, skipping group removal.`);
+            return;
+        }
+
+        for (const registration of registrations) {
+            // Check if the registration has a group
+            if (!registration.groupId) {
+                console.log(`Member ${memberId} is not assigned to a group for event ${registration.eventId}, skipping.`);
+                continue;
+            }
+
+            // Find the group
+            const group = await Group.findById(registration.groupId);
+            if (!group) {
+                console.log(`Group ${registration.groupId} not found, skipping.`);
+                continue;
+            }
+
+            // Remove the member from the group's members list
+            await group.updateOne({ $pull: { members: memberId } });
+
+            // Decrement eligible count if applicable
+            const member = await Member.findById(memberId);
+            if (member && isEligible(member.ageRange) && group.eligible > 0) {
+                group.eligible -= 1;
+            }
+
+            // Save the updated group
+            await group.save();
+
+            console.log(`Removed member ${memberId} from group ${group._id}`);
+        }
+
+        // Update all registrations to remove group references
+        await Registration.updateMany(
+            { memberId },
+            { $unset: { groupId: "", roomIds: [] } } // Remove group and room assignments
+        );
+
+        console.log(`All group references removed for member ${memberId}`);
+        
+    } catch (error) {
+        console.error("Error occurred while removing member from all groups:", error);
+    }
+}
+
+
+
 
 export async function getGroups() {
     try {
@@ -387,7 +484,13 @@ export async function getEventGroups(eventId:string) {
         const groups = await Group.find({eventId})
             .populate('eventId')     // Populate the single event reference
             .populate('members')     // Populate array of members
-            .populate('roomIds')     // Populate array of rooms
+            .populate({
+                path:'roomIds',
+                populate:{
+                    path:'venueId',
+                    model:'Venue'
+                }
+            })     // Populate array of rooms
             .populate({
                 path:'churchId',
                 populate:{
@@ -520,13 +623,8 @@ export async function deleteGroup(id: string) {
 
         return handleResponse('Group deleted successfully', false, group, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error deleting group:', error.message);
-            throw new Error(`Error occurred during group deletion: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during group deletion');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during group deletion', true, {}, 500);
     }
 }
 

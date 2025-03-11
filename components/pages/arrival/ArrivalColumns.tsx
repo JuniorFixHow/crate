@@ -16,6 +16,14 @@ export const ArrivalColumns = (
         field:'memberId',
         headerName:'Member',
         width:200,
+        valueFormatter:(_, row:IRegistration)=>{
+            const member  = row?.memberId as IMember;
+            return member?.name;
+        },
+        valueGetter:(_, row:IRegistration)=>{
+            const member  = row?.memberId as IMember;
+            return Object.values(member);
+        },
         renderCell:(param:GridRenderCellParams)=>{
             const member = param.row?.memberId;
             return(
@@ -26,12 +34,18 @@ export const ArrivalColumns = (
     {
         field:'checkedIn',
         headerName:'Arrived On',
+        valueFormatter:(_, reg:IRegistration)=>{
+            return reg?.checkedIn?.checked ? new Date(reg?.checkedIn.date).toLocaleDateString():'';
+        },
+        valueGetter:(_, reg:IRegistration)=>{
+            return reg?.checkedIn?.checked ? new Date(reg?.checkedIn.date).toLocaleDateString():'';
+        },
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <div className="flex-center">
                     <span>{formatTimestamp(param.row?.checkedIn?.date)}</span>
-                </div>
+                // <div className="flex-center">
+                // </div>
             )
         }
     },

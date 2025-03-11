@@ -3,8 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {  LinearProgress, Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import SearchBar from "@/components/features/SearchBar";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+// import SearchBar from "@/components/features/SearchBar";
 import AddButton from "@/components/features/AddButton";
 // import { ErrorProps } from "@/types/Types";
 import { IRelationship } from "@/lib/database/models/relationship.model";
@@ -14,7 +14,7 @@ import NewRelationship from "@/components/misc/NewRelationship";
 
 // import { useFetchMemberRelationships } from "@/hooks/fetch/useRelationship";
 import RelationshipInfoModal from "../RelationshipInfoModal";
-import { SearchSingleRelationship } from "../fxn";
+// import { SearchSingleRelationship } from "../fxn";
 import { SingleRelationshipColumns } from "./SingleRelationshipColumns";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { IMember } from "@/lib/database/models/member.model";
@@ -22,7 +22,7 @@ import { enqueueSnackbar } from "notistack";
 
 type SingleRelationshipTableProps = {
     refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IRelationship[], Error>>;
-    relationships: IRelationship[] | undefined;
+    relationships: IRelationship[];
     isPending:boolean;
     member:IMember
 }
@@ -32,7 +32,7 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [search, setSearch] = useState<string>('');
+    // const [search, setSearch] = useState<string>('');
     // const [response, setReponse] = useState<ErrorProps>(null);
 
     
@@ -97,7 +97,7 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
           <div className="flex flex-col gap-5 lg:flex-row items-start justify-end w-full">
             {/* <SearchSelectChurch setSelect={setChurchId} isGeneric /> */}
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} />
+                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
                 <AddButton onClick={handleOpenNew} smallText text='Add Relationship' noIcon className='rounded py-1' />
                 {/* <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button> */}
             </div>
@@ -115,13 +115,23 @@ const SingleRelationshipTable = ({refetch, relationships, member, isPending}:Sin
                 isPending ?
                 <LinearProgress className="w-full" />
                 :
-                <Paper className='w-full' sx={{ height: 480, }}>
+                <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
-                        rows={SearchSingleRelationship(relationships!,  search)}
+                        rows={relationships}
                         columns={SingleRelationshipColumns(handleEdit, hadndleInfo,  hadndleDelete, member)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                         getRowId={(row:IRelationship):string=>row._id}
+                        slots={{toolbar:GridToolbar}}
+                        slotProps={{
+                            toolbar:{
+                                showQuickFilter:true,
+                                printOptions:{
+                                    hideFooter:true,
+                                    hideToolbar:true
+                                }
+                            }
+                        }}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}

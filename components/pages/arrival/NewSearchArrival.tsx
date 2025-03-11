@@ -27,7 +27,7 @@ const NewArrivalSearch = () => {
         setEventId(events[0]?._id)
     },[events])
 
-    const message = "Only members registered for the selected event with badges printed, rooms allocated and keys assigned will appear in this search"
+    const message = "Only members registered for the selected event with badges printed and rooms allocated will appear in this search"
 
   return (
     <div className="flex flex-col bg-white dark:bg-transparent dark:border p-4 rounded shadow gap-3">

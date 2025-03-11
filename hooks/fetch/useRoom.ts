@@ -1,7 +1,7 @@
 import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRooms, getRoomsForChurch, getRoomsInaVenue } from "@/lib/actions/room.action";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
-import { ErrorProps, IMergedRegistrationData } from "@/types/Types";
+import {  IMergedRegistrationData } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
@@ -36,41 +36,26 @@ export const useFetchRooms = () => {
 
 
 export const useFetchAvailableRooms = (eventId: string) => {
-    const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!eventId) return;
+    const fetchRooms = async ():Promise<IRoom[]> => {
+        try {
+            if(!eventId) return [];
+            const fetchedRooms: IRoom[] = await getAvailableRooms(eventId);
+            const sorted = fetchedRooms.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+            return sorted;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    };
 
-        const fetchRooms = async () => {
-            try {
-                setLoading(true); // Set loading before API call
-                const fetchedRooms: ErrorProps = await getAvailableRooms(eventId);
+    const {data:rooms=[], isPending:loading, refetch} = useQuery({
+        queryKey:['availablerooms', eventId],
+        queryFn:fetchRooms,
+        enabled:!!eventId
+    })
 
-                if (fetchedRooms?.error) {
-                    setError(fetchedRooms.message || 'Failed to fetch rooms');
-                    return;
-                }
-
-                if (fetchedRooms?.payload) {
-                    const items = fetchedRooms.payload as IRoom[]; // Type assertion
-                    setRooms(items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()));
-                }
-
-                setError(null); // Reset error on success
-            } catch (err) {
-                setError('Error fetching rooms');
-                console.error(err);
-            } finally {
-                setLoading(false); // Ensure loading is false after API call
-            }
-        };
-
-        fetchRooms();
-    }, [eventId]);
-
-    return { rooms, loading, error };
+    return { rooms, loading, refetch };
 };
 
 

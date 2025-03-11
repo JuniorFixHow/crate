@@ -1,88 +1,87 @@
 'use client'
 import AddButton from '@/components/features/AddButton';
 import Subtitle from '@/components/features/Subtitle';
-import { Alert, LinearProgress, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { Paper } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react'
 import { SingleGroupColumns } from './SingleGroupsColumns';
 import NewGroupMember from './NewGroupMember';
 import DeleteDialog from '@/components/DeleteDialog';
 import SingleGroupDown from './SingleGroupDown';
 import { IGroup } from '@/lib/database/models/group.model';
-import { deleteGroup, getGroup, removeMemberFromGroup } from '@/lib/actions/group.action';
+import { deleteGroup,  removeMemberFromGroup } from '@/lib/actions/group.action';
 import { IRegistration } from '@/lib/database/models/registration.model';
 import { getRegistrationsByGroup } from '@/lib/actions/registration.action';
 import { IMember } from '@/lib/database/models/member.model';
-import { ErrorProps } from '@/types/Types';
+// import { ErrorProps } from '@/types/Types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import GroupRooms from './GroupRooms';
 import SelectRoomsForGroups from './SelectRoomsForGroups';
+import { useQuery } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
+import { IEvent } from '@/lib/database/models/event.model';
 
-const SingleGroupTable = ({id}:{id:string}) => {
+type SingleGroupTableProps = {
+  currentGroup:IGroup
+}
+
+const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [currentGroup, setCurrentGroup]= useState<IGroup|null>(null);
+    // const [currentGroup, setCurrentGroup]= useState<IGroup|null>(null);
     const paginationModel = { page: 0, pageSize: 10 };
-    const [loading, setLoading] = useState<boolean>(true);
-    const [registrations, setRegistrations] = useState<IRegistration[]>([]);
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [registrations, setRegistrations] = useState<IRegistration[]>([]);
     const [removeModde, setRemoveMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
-    const [response, setResponse] = useState<ErrorProps>(null);
+    // const [response, setResponse] = useState<ErrorProps>(null);
     const [viewmode, setViewmode] = useState<string>('Details');
     const [showRooms, setShowRooms] = useState<boolean>(false);
     const router = useRouter();
 
     const searchParams = useSearchParams();
 
-    useEffect(() => {
-      const fetchGroup = async () => {
-        if (id) {
-          try {
-            const [group, regs] = await Promise.all([
-              getGroup(id), 
-              getRegistrationsByGroup(id) 
-            ]);
-            
-            setCurrentGroup(group);
-            setRegistrations(regs);
-            // console.log('registrations: ',regs);
-        
-          } catch (error) {
-            console.log(error);
-          } finally {
-            setLoading(false);
-          }
-        }
-      };
     
-      fetchGroup();
-    }, [id]);
-
-
+    const fetchRegistrations = async ():Promise<IRegistration[]> => {
+      try {
+        if(!currentGroup) return [];
+        const regs:IRegistration[]  =  await getRegistrationsByGroup(currentGroup?._id);
+        return regs;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    };
+    
+    const {data:registrations=[], isPending:loading, refetch} = useQuery({
+      queryKey:['group', currentGroup?._id],
+      queryFn:fetchRegistrations,
+      enabled:!!currentGroup
+    })
+    
     useEffect(()=>{
       const id = searchParams.get('tab');
       if(id){
         setViewmode('Rooms');
       }
     },[searchParams])
-
     
     const handleRemove = (data:IMember)=>{
       setRemoveMode(true);
-      setCurrentMember(data)
+      setCurrentMember(data);
     }
 
     const handleDeleteGroup = async()=>{
       try {
         if(currentGroup){
-          await deleteGroup(currentGroup._id)
-          setResponse({message:'Group removed successfully', error:false});
+          const res = await deleteGroup(currentGroup._id)
+          enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
           setDeleteMode(false);
           router.push('/dashboard/groups')
         }
       } catch (error) {
         console.log(error);
-        setResponse({message:'Error occured deleteing group', error:true});
+        enqueueSnackbar('Error occured deleteing group', {variant:'error'});
       }
     }
 
@@ -90,17 +89,16 @@ const SingleGroupTable = ({id}:{id:string}) => {
 
     const handleRemoveMember = async()=>{
       try {
-        if(currentGroup && currentMember){
-          const eventId = typeof currentGroup.eventId === 'object' && '_id' in currentGroup.eventId && currentGroup?.eventId._id;
-          if(eventId){
-            await removeMemberFromGroup(currentGroup._id, currentMember._id, eventId.toString());
-            setResponse({message:'Member removed successfully', error:false});
-            setRemoveMode(false);
-          }
+        const event = currentGroup?.eventId as IEvent;
+        if(currentMember){
+          const res = await removeMemberFromGroup(currentGroup._id, currentMember._id, event._id);
+          enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+          setRemoveMode(false);
+          refetch()
         }
       } catch (error) {
         console.log(error);
-        setResponse({message:'Error occured deleteing group', error:true});
+        enqueueSnackbar('Error occured removing member from group', {variant:'error'});
       }
     }
 
@@ -108,9 +106,9 @@ const SingleGroupTable = ({id}:{id:string}) => {
     const warn = `You're about to remove this member from the group. Are you aware?`
     const message = `Deleting will remove all members in the group as well. You're rather advised to remove the unwanted members. Do you still want to delete the group?`
   return (
-    <div className='w-full flex flex-col' >
-      <div className="w-full flex justify-between p-4 rounded-t border border-slate-300 bg-white dark:bg-[#0F1214]">
-        <div className="flex gap-10">
+    <div className='table-main2' >
+      <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-10">
             <Subtitle text={currentGroup ? currentGroup?.name:''} />
             {
               currentGroup &&
@@ -122,13 +120,16 @@ const SingleGroupTable = ({id}:{id:string}) => {
                 }
               </div>
             }
-            {
-              !(currentGroup?.type === 'Couple' && currentGroup?.eligible >= 2) &&
-              <AddButton onClick={()=>setNewMode(true)} text='Add a member' smallText className='rounded' />
-            }
-            <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />
+
+            <div className="flex items-center gap-4">
+              {
+                !(currentGroup?.type === 'Couple' && currentGroup?.eligible >= 2) &&
+                <AddButton onClick={()=>setNewMode(true)} text='Add a member' smallText className='rounded' />
+              }
+              <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />
+            </div>
         </div>
-        <AddButton onClick={()=>setDeleteMode(true)} text='Delete Group' className='rounded' noIcon smallText isDanger />
+        <AddButton onClick={()=>setDeleteMode(true)} text='Delete Group' className='rounded w-fit' noIcon smallText isDanger />
       </div>
       <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-[#0F1214] p-4">
         <DeleteDialog onTap={handleDeleteGroup} message={message} setValue={setDeleteMode} value={deleteMode} title={`Delete ${currentGroup?.name}`} />
@@ -139,32 +140,38 @@ const SingleGroupTable = ({id}:{id:string}) => {
         <SelectRoomsForGroups currentGroup={currentGroup} setShowRooms={setShowRooms} showRooms={showRooms} />
 
         <div className="flex flex-col gap-2">
-          {
+          {/* {
             response?.message &&
             <Alert severity={response.error ? 'error':'success'} >{response.message}</Alert>
-          }
+          } */}
 
 
           {
             viewmode === 'Details' ?
             <div className="flex w-full">
-              {
-                loading?
-                <LinearProgress className='w-full' />
-                :
-                <Paper className='w-full' sx={{ height: 480, }}>
-                    <DataGrid
-                      rows={registrations}
-                      getRowId={(row:IRegistration)=>row._id}
-                      columns={SingleGroupColumns(handleRemove)}
-                      initialState={{ pagination: { paginationModel } }}
-                      pageSizeOptions={[5, 10]}
-                      // checkboxSelection
-                      className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                      sx={{ border: 0 }}
-                    />
-                </Paper>
-              }
+              <Paper className='w-full' sx={{ height: 'auto', }}>
+                  <DataGrid
+                    rows={registrations}
+                    loading={loading}
+                    getRowId={(row:IRegistration)=>row._id}
+                    columns={SingleGroupColumns(handleRemove)}
+                    initialState={{ pagination: { paginationModel } }}
+                    pageSizeOptions={[5, 10, 20, 30, 50, 100]}
+                    slots={{toolbar:GridToolbar}}
+                    slotProps={{
+                      toolbar:{
+                        showQuickFilter:true,
+                        printOptions:{
+                          hideFooter:true,
+                          hideToolbar:true
+                        }
+                      },
+                    }}
+                    // checkboxSelection
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                    sx={{ border: 0 }}
+                  />
+              </Paper>
             </div>
 
             :
@@ -172,7 +179,7 @@ const SingleGroupTable = ({id}:{id:string}) => {
 
           }
 
-            <SingleGroupDown setCurrentGroup={setCurrentGroup!} currentGroup={currentGroup!} />
+            <SingleGroupDown currentGroup={currentGroup!} />
           
         </div>
       </div>

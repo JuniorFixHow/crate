@@ -12,11 +12,12 @@ import { useFetchFreeMembers } from '@/hooks/fetch/useMember'
 import { ErrorProps } from '@/types/Types'
 import { IEvent } from '@/lib/database/models/event.model'
 import { IChurch } from '@/lib/database/models/church.model'
+import TipUser from '@/components/misc/TipUser'
 
 export type NewGroupMemberProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
-    currentGroup:IGroup|null,
+    currentGroup:IGroup,
 }
 
 const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProps) => {
@@ -29,6 +30,8 @@ const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProp
         setInfoMode(false);
         setSearch('');
     }
+
+    const searched = SearchMemberReversed(members, search);
 
 
   return (
@@ -53,7 +56,13 @@ const NewGroupMember = ({infoMode, setInfoMode, currentGroup}:NewGroupMemberProp
                     loading ?
                     <LinearProgress/>
                     :
-                    <LongSearchbar setSearch={setSearch} reversed={false} />
+                    <div className="flex flex-col gap-4">
+                        <LongSearchbar setSearch={setSearch} reversed={false} />
+                        {
+                            searched.length === 0 &&
+                            <TipUser text="Only members from the group's church will appear here" />
+                        }
+                    </div>
                 }
 
                 {

@@ -1,21 +1,23 @@
 import AddButton from "@/components/features/AddButton";
 import { IGroup } from "@/lib/database/models/group.model";
 import { IRoom } from "@/lib/database/models/room.model";
-import { Alert, LinearProgress, Modal, Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import {  Modal, Paper } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { SearchRoomsForSelections } from "./fxn";
 import { useFetchAvailableRooms } from "@/hooks/fetch/useRoom";
 import SearchBar from "@/components/features/SearchBar";
 import { GroupSelectionCoulmns } from "./GroupSelectionCoulmns";
-import { ErrorProps } from "@/types/Types";
-import { Types } from "mongoose";
+// import { ErrorProps } from "@/types/Types";
+// import { Types } from "mongoose";
 import { addGroupToRoom } from "@/lib/actions/room.action";
+import { IEvent } from "@/lib/database/models/event.model";
+import { enqueueSnackbar } from "notistack";
 
 type SelectRoomsForGroupsProps = {
     showRooms:boolean,
     setShowRooms:Dispatch<SetStateAction<boolean>>,
-    currentGroup:IGroup|null
+    currentGroup:IGroup
 }
 
 const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoomsForGroupsProps) => {
@@ -23,9 +25,12 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
     const [addLoading, setAddLoading] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
     const [total, setTotal] = useState<number>(0);
-    const [response, setResponse] = useState<ErrorProps>(null);
-    const eventId = (typeof currentGroup?.eventId === 'object' && currentGroup.eventId._id.toString()) || ''
-    const {rooms, loading} = useFetchAvailableRooms( eventId)
+    // const [response, setResponse] = useState<ErrorProps>(null);
+    const event = currentGroup?.eventId as IEvent;
+    const eventId = event?._id;
+
+    
+    const {rooms, loading, refetch} = useFetchAvailableRooms( eventId)
     
     const paginationModel = { page: 0, pageSize: 10 };
     
@@ -53,18 +58,19 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
     }
 
     const addRooms = async () => {
-        setResponse(null);
         try {
             setAddLoading(true);
     
             if (currentGroup) {
                 // Extract room IDs from the current group, handling all possible types
-                const existingRoomIds = (currentGroup.roomIds || []).map((room: IRoom | string | Types.ObjectId) => {
-                    if (typeof room === 'object' && '_id' in room) {
-                        return room._id.toString(); // Room is an object with _id property
-                    }
-                    return room.toString(); // Room is either a string or ObjectId
-                });
+                const roomIdArray = currentGroup?.roomIds as IRoom[];
+                // const existingRoomIds = (currentGroup.roomIds || []).map((room: IRoom | string | Types.ObjectId) => {
+                //     if (typeof room === 'object' && '_id' in room) {
+                //         return room._id.toString(); // Room is an object with _id property
+                //     }
+                //     return room.toString(); // Room is either a string or ObjectId
+                // });
+                const existingRoomIds = roomIdArray?.map((item)=>item?._id);
     
                 // Extract room IDs from selected rooms
                 const selectedRoomIds = selectedRooms.map(room => room._id);
@@ -74,13 +80,14 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
     
                 const res = await addGroupToRoom(roomIds, currentGroup._id, eventId)
     
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                refetch();
             } else {
-                setResponse({ message: 'No group selected', error: true });
+                enqueueSnackbar('No group selected', {variant:'error'});
             }
         } catch (error) {
             console.error('Error occurred assigning rooms to group:', error);
-            setResponse({ message: 'Error occurred assigning rooms to group', error: true });
+            enqueueSnackbar('Error occurred assigning rooms to group', {variant:'error'});
         } finally {
             setAddLoading(false);
         }
@@ -111,28 +118,35 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
                     }
                     <AddButton onClick={handleClose} isCancel disabled={addLoading}  className="rounded" noIcon smallText text="Cancel" />
                 </div>
-                {
+                {/* {
                     response?.message &&
                     <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
-                }
+                } */}
                 <div className="flex w-full">
-                    {
-                        loading ?
-                        <LinearProgress className="w-full" />
-                        :
-                        <Paper className='w-full' sx={{ height: 480, }}>
+                    <Paper className='w-full' sx={{ height: 480, }}>
                         <DataGrid
                             rows={SearchRoomsForSelections(rooms, search)}
                             columns={GroupSelectionCoulmns(selectedRooms, handleSelect)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRoom)=>row._id}
+                            loading={loading}
+                            slots={{toolbar:GridToolbar}}
+                            slotProps={{
+                                toolbar:{
+                                    showQuickFilter:true,
+                                    printOptions:{
+                                        hideFooter:true,
+                                        hideToolbar:true
+                                    }
+                                }
+                            }}
+                            disableDensitySelector
                             // checkboxSelection
                             className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                             sx={{ border: 0 }}
                         />
                     </Paper>
-                    }
                 </div>
             </div>
         </div>

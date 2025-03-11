@@ -14,6 +14,7 @@ import { deleteSession } from '@/lib/session';
 import { IVendor } from '@/lib/database/models/vendor.model';
 import { useAuth } from '@/hooks/useAuth';
 import { getVendor } from '@/lib/actions/vendor.action';
+import '@/components/features/customscroll.css';
 
 type TitleProps = {
   parent: string;
@@ -119,9 +120,9 @@ const Navbar = () => {
 
   return (
     <div
-      className={`flex xl:p-4 z-20 min-h-full absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${
+      className={`flex xl:p-4 z-20 min-h-screen absolute xl:relative dark:border-r border-slate-200  lg:flex flex-col gap-6 ${
         toggle ? 'pt-4' : 'p-4'
-      } bg-white dark:bg-[#0F1214] shadow-xl rounded-lg`}
+      } bg-white dark:bg-[#0F1214] shadow-xl rounded-lg scrollbar-custom`}
     >
       <div className="flex flex-col gap-6 relative h-fit">
         <div className="flex flex-row items-center w-full justify-between">

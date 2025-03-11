@@ -2,8 +2,9 @@ import Title from '@/components/features/Title'
 import React from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 import SingleGroupTable from './SingleGroupTable'
+import { IGroup } from '@/lib/database/models/group.model'
 
-const SingleGroupMain = ({id}:{id:string}) => {
+const SingleGroupMain = ({group}:{group:IGroup}) => {
   return (
     <div className='page' >
         <div className="flex flex-row gap-2 items-baseline">
@@ -11,7 +12,7 @@ const SingleGroupMain = ({id}:{id:string}) => {
           <IoIosArrowForward/>
           <Title text="Edit Group" />
         </div>
-        <SingleGroupTable id={id} />
+        <SingleGroupTable currentGroup={group} />
     </div>
   )
 }

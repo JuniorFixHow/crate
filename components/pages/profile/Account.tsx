@@ -2,7 +2,7 @@
 import Image from "next/image"
 import { ChangeEvent, ComponentProps,   useEffect,  useState, } from "react"
 import { ErrorProps } from "@/types/Types"
-import SearchSelectChurch from "@/components/shared/SearchSelectChurch"
+// import SearchSelectChurch from "@/components/shared/SearchSelectChurch"
 import AddButton from "@/components/features/AddButton"
 import {  CloudinaryUploadWidgetInfo, CloudinaryUploadWidgetResults } from "next-cloudinary"
 import Uploader from "@/components/shared/Uploader"
@@ -12,13 +12,13 @@ import { getVendor, updateVendor } from "@/lib/actions/vendor.action"
 import { useAuth } from "@/hooks/useAuth"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase/firebase"
-import { createSession, SessionPayload } from "@/lib/session"
+import { createSession, deleteSession, SessionPayload } from "@/lib/session"
 
 export type ProfileProps =  ComponentProps<'div'>
 
 const Account = ({className, ...props}:ProfileProps) => {
     const [image, setImage] = useState<string>('');
-    const [churchId, setChurchId] = useState<string>('');
+    // const [churchId, setChurchId] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
     const [currentUser, setCurrentUser] = useState<IVendor|null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -92,12 +92,12 @@ const Account = ({className, ...props}:ProfileProps) => {
                 email:data.email || currentUser?.email,
                 phone:data.phone || currentUser?.phone,
                 gender:data.gender || currentUser?.gender,
-                church:churchId || currentUser?.church,
+                // church:churchId || currentUser?.church,
             }
             const userData = {
                 name:data.name || user?.name,
                 email:data.email || user?.email,
-                churchId:churchId || user?.churchId
+                // churchId:churchId || user?.churchId
             }
             if(user){
                 const [mongo, fb] = await Promise.all([
@@ -105,7 +105,7 @@ const Account = ({className, ...props}:ProfileProps) => {
                     updateDoc(doc(db, 'Users', user.userId), {
                         name:userData.name,
                         email:userData.email,
-                        churchId:userData.churchId
+                        // churchId:userData.churchId
                     })
                 ])
                 setResponse(mongo);
@@ -113,7 +113,7 @@ const Account = ({className, ...props}:ProfileProps) => {
                     ...user,
                     name:userData.name!,
                     email:userData.email!,
-                    churchId:userData.churchId!,
+                    // churchId:userData.churchId!,
                 }
                 await createSession(session);
                 console.log(fb);
@@ -129,13 +129,13 @@ const Account = ({className, ...props}:ProfileProps) => {
     // console.log('phone: ',currentUser?.phone)
     
   return (
-    <div   className={`flex-col ${className} justify-between`} {...props} >
+    <div   className={`flex-col ${className} justify-between gap-8`} {...props} >
         {
             fetchLoading ?
             <LinearProgress className="w-full" />
             :
 
-            <div className={` flex flex-row items-center h-fit gap-4 md:gap-10`}  >
+            <div className={` flex flex-col md:flex-row items-center h-fit gap-4 md:gap-10`}  >
                 <div className="flex flex-col gap-4">
                     {
                         user &&
@@ -181,18 +181,20 @@ const Account = ({className, ...props}:ProfileProps) => {
                         <span className="text-[0.8rem] font-semibold dark:text-white" >Phone Number</span>
                         <input onChange={handleChange} type="text" name="phone" defaultValue={currentUser?.phone} className="border-b dark:bg-transparent px-1 outline-none py-1 text-slate-400 text-[0.8rem]" />
                     </div>
-                    <div className="flex flex-col gap-1">
+                    {/* <div className="flex flex-col gap-1">
                         <span className="text-[0.8rem] font-semibold dark:text-white" >Local Church</span>
                         <SearchSelectChurch setSelect={setChurchId} isGeneric />
-                    </div>
+                    </div> */}
                 </div>
 
                 
             </div>
         }
 
-
-        <AddButton type='button' onClick={handleUpdate} text={loading ? 'loading...':'Save Changes'} noIcon smallText className="rounded w-fit p-2 self-end" />
+        <div className="flex items-center gap-4 self-end">
+            <AddButton type='button' onClick={deleteSession} text={'Logout'} isDanger noIcon smallText className="rounded w-fit p-2 md:hidden" />
+            <AddButton type='button' onClick={handleUpdate} text={loading ? 'loading...':'Save Changes'} noIcon smallText className="rounded w-fit p-2 self-end" />
+        </div>
     </div>
   )
 }

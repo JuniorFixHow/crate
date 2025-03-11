@@ -9,10 +9,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 export type DeleteDialogProps = {
     title:string,
     message:string,
+    loading?:boolean;
     onTap:()=>Promise<void>
 } & BooleanStateProp
 
-export default function DeleteDialog({value, setValue, title, message, onTap}:DeleteDialogProps) {
+export default function DeleteDialog({value, loading, setValue, title, message, onTap}:DeleteDialogProps) {
 
 
   return (
@@ -34,7 +35,7 @@ export default function DeleteDialog({value, setValue, title, message, onTap}:De
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={()=>setValue(false)}>Cancel</Button>
-          <Button onClick={onTap}>
+          <Button disabled={loading} onClick={onTap}>
             Proceed
           </Button>
         </DialogActions>

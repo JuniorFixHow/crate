@@ -4,14 +4,14 @@ import { updateGroup } from '@/lib/actions/group.action'
 import { IGroup } from '@/lib/database/models/group.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
-import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useState } from 'react'
+import React, { ChangeEvent,  FormEvent,  useState } from 'react'
 
 type SingleGroupDownProps = {
     currentGroup:IGroup,
-    setCurrentGroup:Dispatch<SetStateAction<IGroup|null>>
+    // setCurrentGroup:Dispatch<SetStateAction<IGroup|null>>
 }
 
-const SingleGroupDown = ({currentGroup, setCurrentGroup}:SingleGroupDownProps) => {
+const SingleGroupDown = ({currentGroup}:SingleGroupDownProps) => {
     const [data, setData] = useState<Partial<IGroup>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -35,8 +35,8 @@ const SingleGroupDown = ({currentGroup, setCurrentGroup}:SingleGroupDownProps) =
                 }
                 const res = await updateGroup(currentGroup._id, body);
                 // console.log('Body: ', body)
-                const result = res?.payload as IGroup
-                setCurrentGroup(result);
+                // const result = res?.payload as IGroup
+                // setCurrentGroup(result);
                 setResponse(res);
             }
             setResponse({message:'Group updated successfully', error:false})

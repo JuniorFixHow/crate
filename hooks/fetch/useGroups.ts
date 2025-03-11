@@ -54,26 +54,23 @@ export const useFetchGroupsForEvent = (id:string)=>{
 
 
 export const useFetchRoomsForGroup = (id:string)=>{
-    const [groupRooms, setGroupRooms] = useState<IRoom[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(()=>{
-        if(!id) return;
-        const fetchGroupRooms = async()=>{
-            try {
-                const rms = await getRoomsAssignedToGroup(id);
-                const data = rms?.payload as IRoom[]
-                setGroupRooms(data);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching group rooms')
-            }finally{
-                setLoading(false);
-            }
+    const fetchGroupRooms = async():Promise<IRoom[]>=>{
+        try {
+            if(!id) return [];
+            const rooms:IRoom[] = await getRoomsAssignedToGroup(id);
+            return rooms;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
-        fetchGroupRooms();
-    },[id])
+    }
 
-    return {groupRooms, error, loading}
+    const {data:groupRooms=[], refetch, isPending:loading} = useQuery({
+        queryKey:['roomsforgroup', id],
+        queryFn:fetchGroupRooms,
+        enabled:!!id
+    })
+
+    return {groupRooms, refetch, loading}
 }

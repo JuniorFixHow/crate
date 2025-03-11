@@ -98,10 +98,16 @@ const BadgeInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEvent
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Key</span>
-                    <Link href={{pathname:`/dashboard/rooms/keys`, query:{id:key?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
-                        key?.code
-                    }</Link>
+                    {
+                        key ?
+                        <Link href={{pathname:`/dashboard/rooms/keys`, query:{id:key?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
+                            key?.code
+                        }</Link>
+                        :
+                        <span className='text-[0.9rem]' >None</span> 
+                    }
                 </div>
+
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
                     <Link href={`/dashboard/events/${event?._id}`}   className='text-[0.9rem] dark:text-white table-link' >{

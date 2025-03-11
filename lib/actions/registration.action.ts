@@ -11,6 +11,7 @@ import { IMember } from "../database/models/member.model";
 import { IChurch } from "../database/models/church.model";
 import { isEligible } from "@/functions/misc";
 import { handleResponse } from "../misc";
+import { removeMemberFromGroupBeforeDeletion } from "./group.action";
 
 export async function createRegistration(memberId:string, eventId:string, registration:Partial<IRegistration>){
     try {
@@ -62,13 +63,14 @@ export async function updateReg (id:string, registration:Partial<IRegistration>)
         const reg = await Registration.findByIdAndUpdate(id, registration, {new:true});
         return handleResponse('Registration updated sucessfully', false, reg, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error updating registration:', error.message);
-            throw new Error(`Error occurred during registration update: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during registration update');
-        }
+        // if (error instanceof Error) {
+        //     console.error('Error updating registration:', error.message);
+        //     throw new Error(`Error occurred during registration update: ${error.message}`);
+        // } else {
+        //     throw new Error();
+        // }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during registration update', true, {}, 500);
     }
 }
 
@@ -183,7 +185,7 @@ export async function getReadyRegsWithEventId(eventId:string){
         const regs = await Registration.find({
             eventId,
             badgeIssued: "Yes",
-            keyId: { $exists: true, $ne: null },
+            // keyId: { $exists: true, $ne: null },
             'checkedIn.checked':{$ne:true},
             roomIds: { $exists: true, $not: { $size: 0 } },
         })
@@ -413,6 +415,7 @@ export async function deleteReg(id: string) {
         const { memberId, groupId, roomIds, eventId } = registration;
 
         // Remove the registration
+        await removeMemberFromGroupBeforeDeletion(memberId, eventId);
         await Registration.deleteOne({_id:id});
 
         // Remove the member from any group they belong to for this event
@@ -427,7 +430,7 @@ export async function deleteReg(id: string) {
         // Remove the member from all rooms assigned in this event
         if (roomIds && roomIds.length > 0) {
             await Registration.updateMany(
-                { roomIds: { $in: roomIds }, eventId },
+                { roomIds: { $in: roomIds }, eventId, memberId },
                 { $pull: { roomIds: { $in: roomIds } } }
             );
         }

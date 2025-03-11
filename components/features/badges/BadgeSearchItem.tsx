@@ -15,6 +15,7 @@ import { IZone } from "@/lib/database/models/zone.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { createRegistration, updateReg } from "@/lib/actions/registration.action";
 import RegisterForEvent from "@/components/shared/RegisterForEvent";
+import { enqueueSnackbar } from "notistack";
 
 export type BadgeSearchItemProps = {
     member:IMember,
@@ -118,7 +119,7 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
     }
 
     const checkInMember = async()=>{
-        setResponse!(null);
+        // setResponse!(null);
         try {
             setLoading(true);
             if(currentRegistration){
@@ -131,11 +132,11 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
                     }
                 }
                 const res = await updateReg(currentRegistration._id, data);
-                setResponse!(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            setResponse!({message:'Error occured processing check-in', error:true})
+            enqueueSnackbar('Error occured processing check-in', {variant:'error'});
         }finally{
             setLoading(false);
         }

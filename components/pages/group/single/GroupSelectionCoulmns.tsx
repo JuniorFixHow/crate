@@ -1,17 +1,20 @@
 import CustomCheck from "@/components/pages/group/new/CustomCheck";
-import {  GridRenderCellParams } from "@mui/x-data-grid";
+import {  GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { IRoom } from "@/lib/database/models/room.model";
 import Link from "next/link";
+import { IVenue } from "@/lib/database/models/venue.model";
 
 export const GroupSelectionCoulmns =(
     selectedRooms:IRoom[],
     handleSelect:(data:IRoom)=>void,
 
-) => [
+):GridColDef[] => [
     {
         field:'id',
         headerName:'Select',
         width:100,
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams) =>{
             return(
                 <div className="h-full flex-center" >
@@ -21,9 +24,21 @@ export const GroupSelectionCoulmns =(
         }
     },
     {
-        field:'venue',
+        field:'venueId',
         headerName:'Venue',
+        valueFormatter:(_, room:IRoom)=>{
+            const venue = room?.venueId as IVenue;
+            return venue?.name;
+        },
+        valueGetter:(_, room:IRoom)=>{
+            const venue = room?.venueId as IVenue;
+            return Object.values(venue);
+        },
         width:140,
+        renderCell:({row}:GridRenderCellParams)=>(
+            <Link href={`/dashboard/venues/${row?.venueId?._id}`}  className="table-link" >{row?.venueId?.name}</Link>
+        )
+        
     },
     {
         field:'number',
@@ -31,7 +46,7 @@ export const GroupSelectionCoulmns =(
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link text-center" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.venue}</Link>
+                <Link className="table-link" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.number}</Link>
             )
         }
     },

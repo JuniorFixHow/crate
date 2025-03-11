@@ -327,13 +327,8 @@ export async function addGroupToRoom(roomIds: string[], groupId: string, eventId
 
         return handleResponse(`Group successfully assigned to room(s)`, false, {}, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error adding group to room:', error.message);
-            throw new Error(`Error occurred while adding group to room: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred while adding group to room');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred while adding group to room', true, {}, 500);
     }
 }
 
@@ -489,13 +484,8 @@ export async function removeGroupFromRoom(roomId: string, groupId: string) {
 
         return handleResponse(`Group removed from room successfully`, false, {}, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error removing group from room:', error.message);
-            throw new Error(`Error occurred while removing group from room: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred while removing group from room');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred while removing group from room', true, {}, 500);
     }
 }
 
@@ -694,11 +684,13 @@ export async function getAvailableRooms(eventId: string) {
             return room.nob && registrationsForRoom < room.nob;
         });
 
-        if (availableRooms.length > 0) {
-            return handleResponse('Available rooms found', false, availableRooms, 200);
-        } else {
-            return handleResponse('No available rooms found for this event', true, {}, 404);
-        }
+        // if (availableRooms.length > 0) {
+        //     return handleResponse('Available rooms found', false, availableRooms, 200);
+        // } else {
+        //     return handleResponse('No available rooms found for this event', true, {}, 404);
+        // }
+
+        return JSON.parse(JSON.stringify(availableRooms));
     } catch (error) {
         console.error('Error fetching available rooms:', error);
         return handleResponse('Error occurred while fetching available rooms', true, {}, 500);
@@ -726,8 +718,11 @@ export const getRoomsAssignedToGroup = async (groupId: string) => {
         }
 
         // Fetch all rooms associated with the group
-        const rooms = await Room.find({ _id: { $in: group.roomIds } });
-        return handleResponse('Rooms retrieved successfully', false, rooms, 200);
+        const rooms = await Room.find({ _id: { $in: group.roomIds } })
+        .populate('venueId')
+        .populate('facId')
+        .lean();
+        return JSON.parse(JSON.stringify(rooms));
     } catch (error) {
         console.error('Error retrieving rooms for group:', error);
         return handleResponse(`Error retrieving rooms for group`, true, {}, 500);

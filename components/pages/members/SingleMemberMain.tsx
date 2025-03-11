@@ -28,8 +28,8 @@ const SingleMemberMain = ({member}:SingleMemberMainProps) => {
     <div className="page" >
         <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-2 items-baseline">
-          <Title clickable link="/dashboard/members" text="Member Registration" />
-          <IoIosArrowForward/>
+          <Title clickable link="/dashboard/members" text="Member Registration"  className="hidden md:block" />
+          <IoIosArrowForward className="hidden md:block" />
           <Title text="Member Info" />
         </div>
         <Link className="w-fit" href='/dashboard/members/new' >
@@ -40,8 +40,8 @@ const SingleMemberMain = ({member}:SingleMemberMainProps) => {
       <NewRelationship refetch={refetch} fixedSelection={[member]} infoMode={infoMode} setInfoMode={setInfoMode} />
 
       <div className="flex flex-col">
-        <div className="flex justify-between dark:bg-black dark:border border-b border-b-slate-300 flex-row w-full px-8 py-4 bg-white">
-          <div className="flex gap-4">
+        <div className="flex items-start md:items-center justify-between dark:bg-black dark:border border-b border-b-slate-300 flex-row w-full px-8 py-4 bg-white">
+          <div className="flex flex-col md:flex-row gap-4">
             {
               tabs.map((item)=>(
                 <div key={item} onClick={()=>setTab(item)} className={`flex cursor-pointer ${tab===item && 'border-b-2 border-b-blue-500 rounded-b px-2'}`}>

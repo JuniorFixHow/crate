@@ -42,7 +42,7 @@ export const useFetchMemberRelationships = (memberId:string)=>{
         }
     }
 
-    const {data:relationships, isPending, refetch} = useQuery({
+    const {data:relationships=[], isPending, refetch} = useQuery({
         queryKey:['memberrelationships', memberId],
         queryFn: fetchMemberRelationship,
         enabled: !!memberId

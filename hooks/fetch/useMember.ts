@@ -8,11 +8,16 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useFetchMembers = () => {
 
+    const {user} = useAuth();
     const searchParams = useSearchParams();
 
+    
     const fetchMembers = async ():Promise<IMember[]> => {
         try {
             let fetchedMembers: IMember[];
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            console.log(isAdmin)
             const id = searchParams.get('registeredBy');
             const campuseId = searchParams.get('campuseId');
                 if(id){
@@ -22,8 +27,10 @@ export const useFetchMembers = () => {
                     fetchedMembers = await getMembersInaCampuse(campuseId);
                 }
                 else{
-                    fetchedMembers = await getMembers();
+                    fetchedMembers = isAdmin ? await getMembers() : getMembersInaChurch(user?.churchId);
                 }
+
+                // console.log(fetchedMembers)
             const response = fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
             return response;
         } catch (err) {
@@ -34,7 +41,8 @@ export const useFetchMembers = () => {
    
     const {data:members=[], isPending:loading, refetch} = useQuery({
         queryKey:['members', searchParams],
-        queryFn:fetchMembers
+        queryFn:fetchMembers,
+        enabled:!!user
     })
 
     return { members, loading, refetch };
@@ -42,31 +50,27 @@ export const useFetchMembers = () => {
 
 
 export const useFetchFreeMembers = (eventId:string, churchId:string) => {
-    const [members, setMembers] = useState<IMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    
+    const fetchMembers = async () => {
+        try {
+            if(!churchId || !eventId) return [];
+            const fetchedMembers: IMember[] = await getUnassignedMembers(eventId, churchId);
+            
+            const sorted = fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (err) {
+            console.log(err);
+            return [];
+        }
+    };
 
+    const {data:members=[], isPending:loading, refetch} = useQuery({
+        queryKey:['freemembers', churchId, eventId],
+        queryFn:fetchMembers,
+        enabled: !!churchId && !!eventId
+    })
 
-    useEffect(() => {
-        if(!eventId || !churchId) return;
-        const fetchMembers = async () => {
-            try {
-                const fetchedMembers: IMember[] = await getUnassignedMembers(eventId, churchId);
-                
-                setMembers(fetchedMembers.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching members');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchMembers();
-    }, [eventId, churchId]); 
-
-    return { members, loading, error };
+    return { members, loading, refetch };
 };
 
 

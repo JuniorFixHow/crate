@@ -8,8 +8,8 @@ const NewMember = () => {
     <div className="p-4 pl-8 xl:pl-4 flex flex-col gap-4" >
       <div className="flex flex-col gap-4">
         <div className="flex flex-row gap-2 items-center">
-          <Title clickable link="/dashboard/members" text="Member Registration" />
-          <IoIosArrowForward/>
+          <Title className="hidden md:block" clickable link="/dashboard/members" text="Member Registration" />
+          <IoIosArrowForward className="hidden md:block" />
           <Title text="Add new member" />
         </div>
       </div>

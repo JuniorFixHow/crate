@@ -123,7 +123,7 @@ export const searchCampus = (text:string, churchId:string, campuses:ICampuse[]):
     const evts = campuses
     .filter((item)=>{
       const church = item.churchId as IChurch;
-      return churchId === '' ? item : church._id === churchId
+      return churchId === '' ? item : church?._id === churchId
     })
     .filter((campus)=>{
         return text === '' ? campus : Object.values(campus)
@@ -131,6 +131,16 @@ export const searchCampus = (text:string, churchId:string, campuses:ICampuse[]):
         .toLowerCase()
         .includes(text.toLowerCase())
     })
+    return evts
+}
+
+export const searchCampusV2 = (churchId:string, campuses:ICampuse[]):ICampuse[]=>{
+    const evts = campuses
+    .filter((item)=>{
+      const church = item.churchId as IChurch;
+      return churchId === '' ? item : church?._id === churchId
+    })
+   
     return evts
 }
 

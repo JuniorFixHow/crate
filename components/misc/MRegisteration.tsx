@@ -7,7 +7,7 @@ import { IMember } from '@/lib/database/models/member.model';
 import { ErrorProps } from '@/types/Types';
 import { getPassword } from '@/functions/misc';
 import { createMember, updateMember } from '@/lib/actions/member.action';
-import { Alert } from '@mui/material';
+// import { Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useFetchEvents } from '@/hooks/fetch/useEvent';
 import { IRegistration } from '@/lib/database/models/registration.model';
@@ -15,9 +15,11 @@ import { createRegistration } from '@/lib/actions/registration.action';
 import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
 import { IGroup } from '@/lib/database/models/group.model';
 import { useAuth } from '@/hooks/useAuth';
-import SearchSelectCampuses from '../features/SearchSelectCampuses';
+// import SearchSelectCampuses from '../features/SearchSelectCampuses';
 import { checkIfAdmin } from '../Dummy/contants';
 import SearchSelectChurchesV3 from '../features/SearchSelectChurchesV3';
+import { enqueueSnackbar } from 'notistack';
+import SearchSelectCampusesV2 from '../features/SearchSelectCampusesV2';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -44,7 +46,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         voice:'None',
         employ:'Employed', status:'Active',
     });
-    const [error, setError] = useState<ErrorProps>({message:'', error:false});
+    // const [error, setError] = useState<ErrorProps>({message:'', error:false});
 
 
     const {user} = useAuth();
@@ -66,11 +68,12 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     // console.log(data);
 
     useEffect(()=>{
-        if(!isAdmin && user){
+        if(!isAdmin && user && !currentMemeber){
             setChurch(user?.churchId);
         }
-    },[isAdmin, user])
+    },[currentMemeber, isAdmin, user])
     
+    if(!user) return null;
 
     const openEventReg = ()=>{
         setOpen(true);
@@ -95,7 +98,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     badgeIssued:'No',
                 } 
                 const res:ErrorProps = await createRegistration( newMember._id, eventId, data);
-                setRegError(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
                 if(res?.code === 201){
                     const groups:IGroup[] = await getEventGroups(eventId);
                     if(groups.length){
@@ -105,7 +108,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             }
         } catch (error) {
             console.log(error);
-            setRegError({message:'Error occured registering the member for the event', error:true});
+            enqueueSnackbar('Error occured registering the member for the event')
         }finally{
             setRegLoading(false);
         }
@@ -117,11 +120,11 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             if(newMember){
                 setRegLoading(true);
                 const res:ErrorProps = await addMemberToGroup(groupId, newMember._id, eventId)
-                setRegError(res);  
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
             }
         } catch (error) {
             console.log(error);
-            setRegError({message:'Error occured registering the member for the group', error:true});
+            enqueueSnackbar('Error occured registering the member for the group', {variant:'error'});
         }finally{
             setRegLoading(false);
         }
@@ -131,7 +134,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     const handleNewMember = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setLoading(true);
-        setError({message:'', error:false});
+        // setError({message:'', error:false});
         try {
             const body:Partial<IMember> = {
                 ...data, password:getPassword(data.name!, data.phone!),
@@ -142,14 +145,14 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             const res = await createMember(body);
             const response = res?.payload as IMember
             setNewMember(response);
-            setError(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             formRef.current?.reset();
             if(events.length && res?.code === 201){
                 openEventReg();
             }
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured trying to add member.', error:true})
+            enqueueSnackbar('Error occured trying to add member.', {variant:'error'})
             
         }finally{
             setLoading(false);
@@ -159,7 +162,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     const handleUpdateMember = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setLoading(true);
-        setError({message:'', error:false});
+        // setError({message:'', error:false});
         try {
             if(currentMemeber){
                 const id = currentMemeber?._id;
@@ -179,35 +182,37 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     campuseId:campuseId||currentMemeber.campuseId
                 } 
                 const res = await updateMember(id, body);
-                setError(res)
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 router.refresh();
             }
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured trying to update member.', error:true})
+            enqueueSnackbar('Error occured trying to update member', {variant:'error'});
             
         }finally{
             setLoading(false);
         }
     }
-
-
+    
+    
     // console.log('GID: ', groupId);
+    
+    const cId = (currentMemeber || isAdmin) ? church : user?.churchId;
 
   return (
     <form ref={formRef} onSubmit={currentMemeber ? handleUpdateMember : handleNewMember}   className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
         <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Full Name</span>
-                <input required={!currentMemeber} onChange={handleChange} defaultValue={currentMemeber?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+                <input required={!currentMemeber} onChange={handleChange} defaultValue={currentMemeber?.name} placeholder='type here...' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Email</span>
-                <input onChange={handleChange} defaultValue={currentMemeber?.email} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
+                <input onChange={handleChange} defaultValue={currentMemeber?.email} placeholder='type here...' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="email" name="email"  />
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Phone Number</span>
-                <input required={!currentMemeber} defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
+                <input required={!currentMemeber} defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
             </div>
             <RegisterForEvent  
                 eventId={eventId} 
@@ -306,11 +311,11 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 user &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Campus</span>
-                    <SearchSelectCampuses  require={!currentMemeber} churchId={(currentMemeber || isAdmin) ? church : user!.churchId} setSelect={setCampuseId} isGeneric />
+                    <SearchSelectCampusesV2  require={!currentMemeber} churchId={cId} setSelect={setCampuseId} />
                 </div>
             }
 
-            <div className="flex flex-row gap-12 items-start">
+            <div className="flex flex-col gap-5 md:flex-row md:gap-12 items-start">
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Employment Status</span>
                     <select required={!currentMemeber} onChange={handleChange} name='employ'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.employ} >
@@ -341,7 +346,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 </div>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 w-fit">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Voice</span>
                 <select required={!currentMemeber} onChange={handleChange} name='voice'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.voice} >
                     <option className='dark:bg-black' value="">None</option>
@@ -366,18 +371,18 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Allergy</span>
-                <textarea onChange={handleChange}  placeholder='allergies separated with comma' className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="allergy"  />
+                <textarea onChange={handleChange}  placeholder='allergies separated with comma' className='border rounded resize-none p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="allergy"  />
             </div>
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Member Note</span>
-                <textarea onChange={handleChange}  placeholder='say something about this member' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
+                <textarea onChange={handleChange}  placeholder='say something about this member' className='border rounded p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
             </div>
 
-            {
+            {/* {
                 error?.message &&
                 <Alert onClose={()=>setError({message:'', error:false})} severity={error.error ? 'error':'success'} >{error.message}</Alert>
-            }
+            } */}
             <div className="flex flex-row items-center gap-2 mt-4 md:mt-12">
                 <AddButton disabled={loading} type='submit' text={loading ? 'loading...' : currentMemeber?'Save Changes':'Add Member'} noIcon smallText className='rounded w-full flex-center' />
                 {

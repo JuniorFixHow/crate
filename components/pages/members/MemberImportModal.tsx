@@ -10,7 +10,7 @@ import { LuUpload } from "react-icons/lu";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 // import SearchSelectChurch from "@/components/shared/SearchSelectChurch";
-import SearchSelectCampuses from "@/components/features/SearchSelectCampuses";
+// import SearchSelectCampuses from "@/components/features/SearchSelectCampuses";
 import { IMember } from "@/lib/database/models/member.model";
 import { createMembers } from "@/lib/actions/member.action";
 import { getPassword } from "@/functions/misc";
@@ -18,6 +18,7 @@ import { readMembersFromExcel } from "./fxns";
 import { enqueueSnackbar } from "notistack";
 import { useFetchMembers } from "@/hooks/fetch/useMember";
 import SearchSelectChurchesV3 from "@/components/features/SearchSelectChurchesV3";
+import SearchSelectCampusesV2 from "@/components/features/SearchSelectCampusesV2";
 
 type MemberImportModalProps = {
     infoMode:boolean;
@@ -133,7 +134,7 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                         churchId &&
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Campus</span>
-                            <SearchSelectCampuses className="w-fit" churchId={churchId} isGeneric setSelect={setCampusId} require />
+                            <SearchSelectCampusesV2 churchId={churchId} setSelect={setCampusId} require />
                         </div>
                     }
                     

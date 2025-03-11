@@ -3,16 +3,17 @@ import AddButton from "@/components/features/AddButton"
 import { useFetchRoomsForGroup } from "@/hooks/fetch/useGroups"
 import { IGroup } from "@/lib/database/models/group.model"
 import { IRoom } from "@/lib/database/models/room.model"
-import { Alert, LinearProgress, Paper } from "@mui/material"
-import { DataGrid } from "@mui/x-data-grid"
+import { Alert,  Paper } from "@mui/material"
+import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import { useState } from "react"
 import { SingleGrpRoomColumns } from "./SingleGrpRoomColumns"
 import { ErrorProps } from "@/types/Types"
 import { removeGroupFromAllRooms, removeGroupFromRoom } from "@/lib/actions/room.action"
 import { IVenue } from "@/lib/database/models/venue.model"
+import { enqueueSnackbar } from "notistack"
 
 type GroupRoomsProps = {
-    currentGroup:IGroup|null
+    currentGroup:IGroup
 }
 
 const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
@@ -22,8 +23,9 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
     const [response, setResponse] = useState<ErrorProps>(null);
 
     const [deleteLoading, setDeleteLoading] = useState<boolean>()
+    const [removeLoading, setRemoveLoading] = useState<boolean>()
 
-    const {groupRooms, loading} = useFetchRoomsForGroup(currentGroup ? currentGroup._id:'')
+    const {groupRooms, loading, refetch} = useFetchRoomsForGroup(currentGroup?._id);
 
     const paginationModel = { page: 0, pageSize: 10 };
     const removeMessae = `You're about to remove this room from the group. Continue?`
@@ -36,15 +38,18 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
 
     const removeRoom = async()=>{
         try {
+            setRemoveLoading(true);
             if(currentGroup && currentRoom){
-                const res = await removeGroupFromRoom(currentRoom._id, currentGroup._id)
-                setResponse({message:'Room removed successfully', error:false});
-                setResponse(res);
-                setRemoveMode(false);  
+                const res = await removeGroupFromRoom(currentRoom._id, currentGroup._id);
+                enqueueSnackbar(res?.message, {variant: res?.error ? 'error':'success'});
+                setRemoveMode(false);
+                refetch();  
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured removing room', error:true});
+            enqueueSnackbar('An unknown error occured removing group from room', {variant:'error'});
+        }finally{
+            setRemoveLoading(false);
         }
     }
 
@@ -53,12 +58,13 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
             setDeleteLoading(true);
             if(currentGroup){
                 const res = await removeGroupFromAllRooms(currentGroup?._id);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant: res?.error ? 'error':'success'});
                 setDeleteMode(false);
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured removing rooms.', error:true})
+            enqueueSnackbar('Error occured removing rooms', {variant:'error'});
         }finally{
             setDeleteLoading(false);
         }
@@ -79,8 +85,8 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
             <AddButton onClick={handleShowDelete} disabled={deleteLoading} text={deleteLoading ? 'loading...' : (currentGroup?.roomIds && currentGroup?.roomIds?.length > 1) ? "Remove Rooms":'Remove Room'} noIcon isCancel smallText className="rounded" type="button" />
         </div>
 
-        <DeleteDialog message={removeMessae} onTap={removeRoom} title={`Remove ${venue?.name} ${currentRoom?.number} ${currentRoom?.number}`} value={removeMode} setValue={setRemoveMode} />
-        <DeleteDialog message={deleteMessae} onTap={deleteRoom} title={`Remove all groups`} value={deleteMode} setValue={setDeleteMode} />
+        <DeleteDialog loading={removeLoading} message={removeMessae} onTap={removeRoom} title={`Remove ${venue?.name} ${currentRoom?.number}`} value={removeMode} setValue={setRemoveMode} />
+        <DeleteDialog loading={deleteLoading} message={deleteMessae} onTap={deleteRoom} title={`Remove all groups`} value={deleteMode} setValue={setDeleteMode} />
         
         {
             response?.message &&
@@ -88,23 +94,29 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
         }
 
         <div className="flex w-full">
-            {
-                loading ? 
-                <LinearProgress className="w-full" />
-                :
-                <Paper className='w-full' sx={{ height: 480, }}>
-                    <DataGrid
-                        rows={groupRooms}
-                        getRowId={(row:IRoom)=>row._id}
-                        columns={SingleGrpRoomColumns(handleRemove)}
-                        initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10]}
-                        // checkboxSelection
-                        className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                        sx={{ border: 0 }}
-                    />
-                </Paper>
-            }
+            <Paper className='w-full' sx={{ height: 'auto', }}>
+                <DataGrid
+                    rows={groupRooms}
+                    getRowId={(row:IRoom)=>row._id}
+                    loading={loading}
+                    columns={SingleGrpRoomColumns(handleRemove)}
+                    initialState={{ pagination: { paginationModel } }}
+                    pageSizeOptions={[5, 10, 20, 30, 50, 100]}
+                    slots={{toolbar:GridToolbar}}
+                    slotProps={{
+                        toolbar:{
+                            showQuickFilter:true,
+                            printOptions:{
+                                hideFooter:true,
+                                hideToolbar:true,
+                            }
+                        }
+                    }}
+                    // checkboxSelection
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                    sx={{ border: 0 }}
+                />
+            </Paper>
         </div>
     </div>
   )

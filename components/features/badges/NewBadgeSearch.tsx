@@ -7,6 +7,7 @@ import { useFetchMembers } from '@/hooks/fetch/useMember'
 import {  searchMemberInversed } from '@/functions/search'
 import Link from 'next/link'
 import TipUser from '@/components/misc/TipUser'
+import { LinearProgress } from '@mui/material'
 
 type NewBadgeSearchProps = {
   isRegisterItem?:boolean;
@@ -14,12 +15,16 @@ type NewBadgeSearchProps = {
 
 const NewBadgeSearch = ({isRegisterItem}:NewBadgeSearchProps) => {
     const [search, setSearch] = useState<string>('');
-    const {members} = useFetchMembers();
+    const {members, loading} = useFetchMembers();
     const searched = searchMemberInversed(search, members);
+    // console.log(members.length)
   return (
     <div className="flex flex-col">
         <div className='p-4 shadow-xl flex-col flex bg-white dark:bg-[#0F1214] border gap-4' >
             <LongSearchbar className='w-full' setSearch={setSearch} placeholder='type here to search for a member'  />
+            {
+              loading && <LinearProgress className='w-full' />
+            }
             {
               searched.length === 0 &&
               <TipUser text="Search member's name to register them for events" />

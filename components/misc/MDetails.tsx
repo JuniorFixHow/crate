@@ -174,7 +174,7 @@ const MDetails = ({currentMember}:MDetailsProps) => {
               </div>
               {
                 church &&
-                <div className="flex flex-row items-center gap-4">
+                <div className="flex flex-row items-start gap-4">
                   <span className="text-[0.8rem] font-semibold" >Church:</span>
                   <Link  href={{pathname:'/dashboard/churches', query:{id:church._id}}}  className="table-link" >{church?.name}</Link>
                 </div>
