@@ -32,11 +32,11 @@ export const SingleGroupColumns =(
         headerName:'Checked-in',
         width:100,
         valueFormatter:(_, reg:IRegistration)=>{
-            const rooms = reg.roomIds;
+            const rooms = reg?.roomIds;
             return rooms && rooms?.length > 0 ? 'Yes':'No'
         },
         valueGetter:(_, reg:IRegistration)=>{
-            const rooms = reg.roomIds;
+            const rooms = reg?.roomIds;
             return rooms && rooms?.length > 0 ? 'Yes':'No'
         },
         renderCell:(params:GridRenderCellParams)=>{
