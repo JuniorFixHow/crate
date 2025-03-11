@@ -11,6 +11,7 @@ import { handleResponse } from "../misc";
 // import { isEligible } from "@/functions/misc";
 import Response from "../database/models/response.model";
 import {  removeMemberFromAllGroupsBeforeDeletion } from "./group.action";
+import '../database/models/campuse.model'
 
 export async function createMember(member: Partial<IMember>) {
     try {

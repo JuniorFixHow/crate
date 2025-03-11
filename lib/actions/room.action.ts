@@ -9,6 +9,7 @@ import { handleResponse } from "../misc";
 import Key from "../database/models/key.model";
 import { isEligible } from "@/functions/misc";
 import '../database/models/venue.model';
+import '../database/models/facility.model';
 
 export async function createRoom(room:Partial<IRoom>){
     try {
