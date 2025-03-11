@@ -7,6 +7,7 @@ import Room from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import '../database/models/venue.model';
+import '../database/models/event.model';
 
 export async function createGroup(group: Partial<IGroup>) {
     try {

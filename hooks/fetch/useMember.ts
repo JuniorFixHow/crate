@@ -17,7 +17,7 @@ export const useFetchMembers = () => {
             let fetchedMembers: IMember[];
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
-            console.log(isAdmin)
+            // console.log(isAdmin)
             const id = searchParams.get('registeredBy');
             const campuseId = searchParams.get('campuseId');
                 if(id){
