@@ -277,7 +277,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                   
          
                 </div>
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Status</span>
                     
                     <div className="flex flex-row items-center gap-2">
@@ -292,7 +292,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                         <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.status === 'Moved away'} type="radio" name="status" value='Moved away'  />
                         <span className='font-semibold text-[0.8rem]' >Moved away</span>
                     </div>
-                </div>
+                </div> */}
             </div>
 
         </div>
@@ -316,7 +316,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             }
 
             <div className="flex flex-col gap-5 md:flex-row md:gap-12 items-start">
-                <div className="flex flex-col gap-1">
+               {/* <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Employment Status</span>
                     <select required={!currentMemeber} onChange={handleChange} name='employ'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.employ} >
                         <option className='dark:bg-black' value="">select</option>
@@ -333,7 +333,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                         <option className='dark:bg-black' value="Retired">Retired</option>
                         <option className='dark:bg-black' value="Not currently working">Not currently working</option>
                     </select>
-                </div>
+                </ div> */}
 
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Marital Status</span>
@@ -357,7 +357,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 </select>
             </div>
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Dietary Preference</span>
                 <div className="flex flex-row items-center gap-2">
                     <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='No'} type="radio" name="dietary" value='Vegetarian'  />
@@ -367,12 +367,12 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     <input required={!currentMemeber} onChange={handleChange} defaultChecked={currentMemeber?.dietary==='Yes'} type="radio" name="dietary" value='Non-vegetarian'  />
                     <span className='font-semibold text-[0.8rem]' >Non-vegetarian</span>
                 </div>
-            </div>
+            </div> */}
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Allergy</span>
                 <textarea onChange={handleChange}  placeholder='allergies separated with comma' className='border rounded resize-none p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="allergy"  />
-            </div>
+            </div> */}
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Member Note</span>
