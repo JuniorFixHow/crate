@@ -45,7 +45,7 @@ const SearchSelectCampusesV2 = ({setSelect, width, churchId, require, value}:Sea
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {(churchId && loading) ? <CircularProgress color="inherit" size={20} /> : null}
+                  {(!!churchId && loading) ? <CircularProgress color="inherit" size={20} /> : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),

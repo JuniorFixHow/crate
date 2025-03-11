@@ -63,7 +63,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
                   initialState={{ pagination: { paginationModel } }}
                   pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                   slots={{toolbar:GridToolbar}}
-                  loading={loading}
+                  loading={loading && !!eventId}
                   slotProps={{
                     toolbar:{
                       showQuickFilter:true,
