@@ -34,7 +34,9 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
         if (data) {
           setEventId(data);
         }else{
-          setEventId(events[0]?._id)
+          if(events?.length){
+            setEventId(events[0]?._id)
+          }
         }
       };  
       fetchChurch(); 
