@@ -1,7 +1,7 @@
 'use client'
 import DeleteDialog from '@/components/DeleteDialog';
 import AddButton from '@/components/features/AddButton';
-import SearchBar from '@/components/features/SearchBar';
+// import SearchBar from '@/components/features/SearchBar';
 import { deleteSection } from '@/lib/actions/section.action';
 import { ISection } from '@/lib/database/models/section.model';
 import { ErrorProps } from '@/types/Types';
