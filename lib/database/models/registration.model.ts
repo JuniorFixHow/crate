@@ -38,7 +38,7 @@ const RegistrationSchema = new Schema<IRegistration>({
 
 RegistrationSchema.pre('deleteOne', {document:false, query:true}, async function(next){
     try {
-        const payerId = this.getQuery()._id;
+        const payerId = this.getQuery().memberId;
         await Payment.deleteMany({payer:payerId});
         next();
     } catch (error) {

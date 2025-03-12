@@ -18,6 +18,20 @@ export async function createResponse(response:Partial<IResponse>){
     }
 }
 
+export async function createResponses(responses:Partial<IResponse>[]){
+    try {
+        await connectDB();
+        const {sectionId} = responses[0];
+        const createdResponses = await Response.insertMany(responses, {ordered:false});
+        const responseIds = createdResponses.map((r)=>r._id);
+        await Section.findByIdAndUpdate(sectionId, {$push: {responses: {$each:responseIds}}})
+        return handleResponse('Response created successfully', false, createdResponses, 201)
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured creating the response', true, {}, 500)
+    }
+}
+
 export async function updateResponse(id:string, response:Partial<IResponse>){
     try {
         await connectDB();

@@ -19,7 +19,6 @@ export interface IResponse extends Document{
 
 
 const ResponseSchema =  new Schema<IResponse>({
-    id:String,
     answer:String,
     type:String,
     options:[String],

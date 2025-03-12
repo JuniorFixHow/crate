@@ -1,25 +1,27 @@
 'use client'
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react';
 import AddButton from '@/components/features/AddButton';
-import RegisterForEvent from '@/components/shared/RegisterForEvent';
+// import RegisterForEvent from '@/components/shared/RegisterForEvent';
 // import SearchSelectChurch from '../shared/SearchSelectChurch';
 import { IMember } from '@/lib/database/models/member.model';
-import { ErrorProps } from '@/types/Types';
+// import { ErrorProps } from '@/types/Types';
 import { getPassword } from '@/functions/misc';
 import { createMember, updateMember } from '@/lib/actions/member.action';
 // import { Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useFetchEvents } from '@/hooks/fetch/useEvent';
-import { IRegistration } from '@/lib/database/models/registration.model';
-import { createRegistration } from '@/lib/actions/registration.action';
-import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
-import { IGroup } from '@/lib/database/models/group.model';
+// import { IRegistration } from '@/lib/database/models/registration.model';
+// import { createRegistration } from '@/lib/actions/registration.action';
+// import { addMemberToGroup, getEventGroups } from '@/lib/actions/group.action';
+// import { IGroup } from '@/lib/database/models/group.model';
 import { useAuth } from '@/hooks/useAuth';
 // import SearchSelectCampuses from '../features/SearchSelectCampuses';
 import { checkIfAdmin } from '../Dummy/contants';
 import SearchSelectChurchesV3 from '../features/SearchSelectChurchesV3';
 import { enqueueSnackbar } from 'notistack';
 import SearchSelectCampusesV2 from '../features/SearchSelectCampusesV2';
+import QuestionStarter from '../shared/QuestionStarter';
+import RegisterForEventV2 from '../shared/RegisterForEventV2';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -29,17 +31,22 @@ export type MRegisterationProps = {
 
 const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => {
 
-    const [open, setOpen] = useState<boolean>(false);
-    const [openG, setOpenG] = useState<boolean>(false);
-    const [openV, setOpenV] = useState<boolean>(false);
-    const [regLoading, setRegLoading] = useState<boolean>(false);
-    const [regError, setRegError] = useState<ErrorProps>(null);
+    // const [open, setOpen] = useState<boolean>(false);
+    // const [openG, setOpenG] = useState<boolean>(false);
+    // const [openV, setOpenV] = useState<boolean>(false);
+    // const [regLoading, setRegLoading] = useState<boolean>(false);
+    // const [regError, setRegError] = useState<ErrorProps>(null);
+    // const [groupId, setGroupId] = useState<string>('');
+    
     const [loading, setLoading] = useState<boolean>(false);
-    const [eventId, setEventId] = useState<string>('');
-    const [groupId, setGroupId] = useState<string>('');
-    const [campuseId, setCampuseId] = useState<string>('');
     const [newMember, setNewMember] = useState<IMember|null>(null);
+    const [campuseId, setCampuseId] = useState<string>('');
     const [church, setChurch] = useState<string>('');
+    
+    const [start, setStart] = useState<boolean>(false);
+    const [openReg, setOpenReg] = useState<boolean>(false);
+    const [eventId, setEventId] = useState<string>('');
+
     const [data, setData] = useState<Partial<IMember>>({
         role:'Member',
         marital:'Single',
@@ -65,6 +72,12 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     const router = useRouter();
 
     const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(()=>{
+        if(currentMemeber){
+            setNewMember(currentMemeber)
+        }
+    },[currentMemeber])
     // console.log(data);
 
     useEffect(()=>{
@@ -75,60 +88,60 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     
     if(!user) return null;
 
-    const openEventReg = ()=>{
-        setOpen(true);
-        setOpenV(true);
-        setOpenG(false);
-    }
+    // const openEventReg = ()=>{
+    //     setOpen(true);
+    //     setOpenV(true);
+    //     setOpenG(false);
+    // }
 
-    const openGroupReg = ()=>{
-        setOpenV(false);
-        setOpenG(true);
-    }
+    // const openGroupReg = ()=>{
+    //     setOpenV(false);
+    //     setOpenG(true);
+    // }
 
     
-    const handleEventReg = async()=>{
-        setRegError(null);
-        try {
-            if(newMember){
-                setRegLoading(true);
-                const data:Partial<IRegistration> = {
-                    memberId:newMember._id,
-                    eventId,
-                    badgeIssued:'No',
-                } 
-                const res:ErrorProps = await createRegistration( newMember._id, eventId, data);
-                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
-                if(res?.code === 201){
-                    const groups:IGroup[] = await getEventGroups(eventId);
-                    if(groups.length){
-                        openGroupReg();
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(error);
-            enqueueSnackbar('Error occured registering the member for the event')
-        }finally{
-            setRegLoading(false);
-        }
-    }
+    // const handleEventReg = async()=>{
+    //     setRegError(null);
+    //     try {
+    //         if(newMember){
+    //             setRegLoading(true);
+    //             const data:Partial<IRegistration> = {
+    //                 memberId:newMember._id,
+    //                 eventId,
+    //                 badgeIssued:'No',
+    //             } 
+    //             const res:ErrorProps = await createRegistration( newMember._id, eventId, data);
+    //             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
+    //             if(res?.code === 201){
+    //                 const groups:IGroup[] = await getEventGroups(eventId);
+    //                 if(groups.length){
+    //                     openGroupReg();
+    //                 }
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         enqueueSnackbar('Error occured registering the member for the event')
+    //     }finally{
+    //         setRegLoading(false);
+    //     }
+    // }
 
-    const handleGroupReg = async()=>{
-        setRegError(null);
-        try {
-            if(newMember){
-                setRegLoading(true);
-                const res:ErrorProps = await addMemberToGroup(groupId, newMember._id, eventId)
-                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
-            }
-        } catch (error) {
-            console.log(error);
-            enqueueSnackbar('Error occured registering the member for the group', {variant:'error'});
-        }finally{
-            setRegLoading(false);
-        }
-    }
+    // const handleGroupReg = async()=>{
+    //     setRegError(null);
+    //     try {
+    //         if(newMember){
+    //             setRegLoading(true);
+    //             const res:ErrorProps = await addMemberToGroup(groupId, newMember._id, eventId)
+    //             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});  
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         enqueueSnackbar('Error occured registering the member for the group', {variant:'error'});
+    //     }finally{
+    //         setRegLoading(false);
+    //     }
+    // }
 
     
     const handleNewMember = async(e:FormEvent<HTMLFormElement>)=>{
@@ -148,7 +161,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             formRef.current?.reset();
             if(events.length && res?.code === 201){
-                openEventReg();
+                setOpenReg(true);
             }
         } catch (error) {
             console.log(error);
@@ -214,7 +227,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Phone Number</span>
                 <input required={!currentMemeber} defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
             </div>
-            <RegisterForEvent  
+            {/* <RegisterForEvent  
                 eventId={eventId} 
                 setSelect={setEventId} 
                 open={open} 
@@ -229,7 +242,15 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 setShowGroup={setOpenG}
                 loading={regLoading}
                 error={regError}
-             />
+             /> */}
+             
+            {
+                (newMember) &&
+                <>
+                <QuestionStarter memberId={currentMemeber? currentMemeber?._id : newMember?._id} eventId={eventId} start={start} setStart={setStart} />
+                <RegisterForEventV2 eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMemeber? currentMemeber?._id : newMember?._id} setShowStart={setStart}  />
+                </>
+            }
             <div className="flex flex-row gap-12 items-start">
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Role</span>
@@ -388,7 +409,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 {
                     currentMemeber &&
                     <>
-                    <AddButton disabled={loading} onClick={()=>setOpen(true)} text='Register Event' isCancel noIcon smallText className='rounded w-full flex-center' />
+                    <AddButton disabled={loading} onClick={()=>setOpenReg(true)} text='Register Event' isCancel noIcon smallText className='rounded w-full flex-center' />
                     <AddButton disabled={loading} onClick={()=>setHasOpen!(false)} text='Cancel' isDanger noIcon smallText className='rounded w-full flex-center' />
                     </>
                 }

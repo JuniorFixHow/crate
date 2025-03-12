@@ -22,7 +22,7 @@ export async function createQuestions(questions: Partial<IQuestion>[]) {
     }
 
     // Create questions in bulk
-    const createdQuestions = await Question.insertMany(questions);
+    const createdQuestions = await Question.insertMany(questions, {ordered:false});
 
     // Update the section with the new questions
     const questionIds = createdQuestions.map((q) => q._id);

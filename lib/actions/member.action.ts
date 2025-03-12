@@ -438,10 +438,10 @@ export async function deleteMember(id: string) {
             registrants: totalZoneRegistrants
         }, { new: true });
 
-        return 'Member deleted successfully';
+        return handleResponse('Member deleted successfully', false);
     } catch (error) {
         console.error('Error occurred during member deletion:', error);
-        throw new Error('Error occurred during member deletion');
+        return handleResponse('Error occurred during member deletion', true, {}, 500);
     }
 }
 

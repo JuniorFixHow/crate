@@ -3,16 +3,16 @@ import AddButton from "@/components/features/AddButton"
 import Image from "next/image"
 import {  useState } from "react"
 import MRegisteration from "./MRegisteration"
-import RegisterForEvent from "@/components/shared/RegisterForEvent"
+// import RegisterForEvent from "@/components/shared/RegisterForEvent"
 import { IMember } from "@/lib/database/models/member.model"
 import { deleteMember } from "@/lib/actions/member.action"
 import { useRouter } from "next/navigation"
 // import CircularIndeterminate from "./CircularProgress"
-import { ErrorProps } from "@/types/Types"
-import { createRegistration } from "@/lib/actions/registration.action"
-import { IRegistration } from "@/lib/database/models/registration.model"
-import { addMemberToGroup, getEventGroups } from "@/lib/actions/group.action"
-import { IGroup } from "@/lib/database/models/group.model"
+// import { ErrorProps } from "@/types/Types"
+// import { createRegistration } from "@/lib/actions/registration.action"
+// import { IRegistration } from "@/lib/database/models/registration.model"
+// import { addMemberToGroup, getEventGroups } from "@/lib/actions/group.action"
+// import { IGroup } from "@/lib/database/models/group.model"
 import { useFetchEvents } from "@/hooks/fetch/useEvent"
 import { IChurch } from "@/lib/database/models/church.model"
 import Link from "next/link"
@@ -20,23 +20,30 @@ import Link from "next/link"
 // import Subtitle from "../features/Subtitle";
 import '@/components/features/customscroll.css';
 import { IVendor } from "@/lib/database/models/vendor.model"
+import { enqueueSnackbar } from "notistack"
+import QuestionStarter from "../shared/QuestionStarter"
+import RegisterForEventV2 from "../shared/RegisterForEventV2"
 
 export type MDetailsProps = {
   currentMember:IMember
 }
 const MDetails = ({currentMember}:MDetailsProps) => {
   const [hasOpen, setHasOpen] = useState<boolean>(false)
-  const [open, setOpen] = useState<boolean>(false);
-  const [eventId, setEventId] = useState<string>('');
+  // const [open, setOpen] = useState<boolean>(false);
+  // const [eventId, setEventId] = useState<string>('');
   // const [fetchLoading, setFetchLoading] = useState<boolean>(true);
   // const [error, setError] = useState<string|null>(null);
   // const [currentMember, setCurrentMember] = useState<IMember|null>(null);
 
-  const [openG, setOpenG] = useState<boolean>(false);
-  const [openV, setOpenV] = useState<boolean>(false);
-  const [regLoading, setRegLoading] = useState<boolean>(false);
-  const [regError, setRegError] = useState<ErrorProps>(null);
-  const [groupId, setGroupId] = useState<string>('');
+  // const [openG, setOpenG] = useState<boolean>(false);
+  // const [openV, setOpenV] = useState<boolean>(false);
+  // const [regLoading, setRegLoading] = useState<boolean>(false);
+  // const [regError, setRegError] = useState<ErrorProps>(null);
+  // const [groupId, setGroupId] = useState<string>('');
+
+  const [start, setStart] = useState<boolean>(false);
+    const [openReg, setOpenReg] = useState<boolean>(false);
+    const [eventId, setEventId] = useState<string>('');
 
   const church = currentMember?.church as IChurch || undefined;
   const registerer = currentMember?.registeredBy as unknown as IVendor;
@@ -48,7 +55,8 @@ const MDetails = ({currentMember}:MDetailsProps) => {
       const handleDeleteMember = async()=>{
         if(currentMember){
           try {
-            await deleteMember(currentMember._id);
+            const res =  await deleteMember(currentMember._id);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             router.push('/dashboard/members');
           } catch (error) {
             console.log(error)
@@ -56,59 +64,59 @@ const MDetails = ({currentMember}:MDetailsProps) => {
         }
       }
 
-      const openEventReg = ()=>{
-        setOpen(true);
-        setOpenV(true);
-        setOpenG(false);
-    }
+    //   const openEventReg = ()=>{
+    //     setOpen(true);
+    //     setOpenV(true);
+    //     setOpenG(false);
+    // }
 
-    const openGroupReg = ()=>{
-        setOpenV(false);
-        setOpenG(true);
-    }
+    // const openGroupReg = ()=>{
+    //     setOpenV(false);
+    //     setOpenG(true);
+    // }
 
-      const handleEventReg = async()=>{
-        setRegError(null);
-        try {
-            if(currentMember){
-                setRegLoading(true);
-                const data:Partial<IRegistration> = {
-                    memberId:currentMember._id,
-                    eventId,
-                    badgeIssued:'No',
-                } 
-                const res:ErrorProps = await createRegistration(currentMember._id, eventId, data);
-                setRegError(res);
-                if(res?.code === 201){
-                  const groups:IGroup[] = await getEventGroups(eventId);
-                  if(groups.length){
-                      openGroupReg();
-                  }
-                }
-            }
-        } catch (error) {
-            console.log(error);
-            setRegError({message:'Error occured registering the member for the event', error:true});
-        }finally{
-            setRegLoading(false);
-        }
-    }
+    //   const handleEventReg = async()=>{
+    //     setRegError(null);
+    //     try {
+    //         if(currentMember){
+    //             setRegLoading(true);
+    //             const data:Partial<IRegistration> = {
+    //                 memberId:currentMember._id,
+    //                 eventId,
+    //                 badgeIssued:'No',
+    //             } 
+    //             const res:ErrorProps = await createRegistration(currentMember._id, eventId, data);
+    //             setRegError(res);
+    //             if(res?.code === 201){
+    //               const groups:IGroup[] = await getEventGroups(eventId);
+    //               if(groups.length){
+    //                   openGroupReg();
+    //               }
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         setRegError({message:'Error occured registering the member for the event', error:true});
+    //     }finally{
+    //         setRegLoading(false);
+    //     }
+    // }
 
-    const handleGroupReg = async()=>{
-        setRegError(null);
-        try {
-            if(currentMember){
-                setRegLoading(true);
-                const res:ErrorProps = await addMemberToGroup(groupId, currentMember._id, eventId)
-                setRegError(res);
-            }
-        } catch (error) {
-            console.log(error);
-            setRegError({message:'Error occured registering the member for the group', error:true});
-        }finally{
-            setRegLoading(false);
-        }
-    }
+    // const handleGroupReg = async()=>{
+    //     setRegError(null);
+    //     try {
+    //         if(currentMember){
+    //             setRegLoading(true);
+    //             const res:ErrorProps = await addMemberToGroup(groupId, currentMember._id, eventId)
+    //             setRegError(res);
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         setRegError({message:'Error occured registering the member for the group', error:true});
+    //     }finally{
+    //         setRegLoading(false);
+    //     }
+    // }
 
       // if(fetchLoading) return <CircularIndeterminate className={`${fetchLoading ? 'flex-center':'hidden'}`}  error={error} />
 
@@ -126,7 +134,7 @@ const MDetails = ({currentMember}:MDetailsProps) => {
           </div>
         }
         
-        <RegisterForEvent  
+        {/* <RegisterForEvent  
             eventId={eventId} 
             setSelect={setEventId} 
             open={open} 
@@ -141,7 +149,15 @@ const MDetails = ({currentMember}:MDetailsProps) => {
             setShowGroup={setOpenG}
             loading={regLoading}
             error={regError}
-        />
+        /> */}
+
+{
+                (currentMember) &&
+                <>
+                <QuestionStarter memberId={currentMember?._id} eventId={eventId} start={start} setStart={setStart} />
+                <RegisterForEventV2 eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMember?._id} setShowStart={setStart}  />
+                </>
+            }
 
         <div className="flex w-full h-full flex-col gap-8 lg:gap-0 lg:flex-row">
           <div className="flex flex-col gap-3 items-start flex-1">
@@ -227,7 +243,7 @@ const MDetails = ({currentMember}:MDetailsProps) => {
                 <AddButton onClick={()=>setHasOpen(true)} noIcon className="rounded" smallText text="Edit" />
                   {
                     events.length>0 &&
-                    <AddButton isCancel onClick={openEventReg} noIcon className="rounded" smallText text="Register Event" />
+                    <AddButton isCancel onClick={()=>setOpenReg(true)} noIcon className="rounded" smallText text="Register Event" />
                   }
                 <AddButton onClick={handleDeleteMember}  isDanger noIcon className="rounded" smallText text="Delete" />
               </div>

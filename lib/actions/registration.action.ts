@@ -1,6 +1,6 @@
 'use server'
 import { revalidatePath } from "next/cache";
-import Attendance from "../database/models/attendance.model";
+import Attendance, { IAttendance } from "../database/models/attendance.model";
 import Group from "../database/models/group.model";
 import Registration, { IRegistration } from "../database/models/registration.model";
 
@@ -12,6 +12,8 @@ import { IChurch } from "../database/models/church.model";
 import { isEligible } from "@/functions/misc";
 import { handleResponse } from "../misc";
 import { removeMemberFromGroupBeforeDeletion } from "./group.action";
+import Response from "../database/models/response.model";
+import { ISession } from "../database/models/session.model";
 
 export async function createRegistration(memberId:string, eventId:string, registration:Partial<IRegistration>){
     try {
@@ -432,7 +434,17 @@ export async function deleteReg(id: string) {
         }
 
         // Delete attendance records for the member
-        await Attendance.deleteMany({ member: memberId });
+        const attendances = await Attendance.find({ member: memberId }).populate('sessionId');
+
+        const filteredAttendances = attendances.filter((item: IAttendance) => {
+            const session = item.sessionId as ISession;
+            return session.eventId === eventId;
+        });
+
+        const attIds = filteredAttendances.map((item) => item._id);
+
+        await Attendance.deleteMany({ _id: { $in: attIds } });
+        await Response.deleteMany({ memberId, cypsetId: eventId });
 
         // Optional: Revalidate paths if needed
         revalidatePath('/dashboard/events/badges');

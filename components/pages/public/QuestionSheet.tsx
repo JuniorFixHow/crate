@@ -3,8 +3,13 @@ import AddButton from "@/components/features/AddButton"
 import { IQuestion } from "@/lib/database/models/question.model"
 import { ISection } from "@/lib/database/models/section.model"
 // import { Modal } from "@mui/material"
-import { ComponentProps, Dispatch, SetStateAction, useState } from "react";
+import {  ComponentProps, Dispatch, SetStateAction, useEffect, useState } from "react";
 import '@/components/features/customscroll.css';
+import { IResponse } from "@/lib/database/models/response.model";
+import { createResponses } from "@/lib/actions/response.action";
+import { enqueueSnackbar } from "notistack";
+import { createRegistration } from "@/lib/actions/registration.action";
+import { IRegistration } from "@/lib/database/models/registration.model";
 
 type QuestionSheetProps = {
   setOpen:Dispatch<SetStateAction<boolean>>,
@@ -12,15 +17,105 @@ type QuestionSheetProps = {
   memberId:string
   sections:ISection[]
 } & ComponentProps<'div'>
+
+
+
 const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: QuestionSheetProps) => {
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-    console.log(eventId, memberId)
+    const [responses, setResponses] = useState<{ [key: string]: string | string[] }>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    // console.log(eventId, memberId)
+    const currentSection = sections[currentSectionIndex];
+    const questions = currentSection.questions as IQuestion[]; // Assuming each section has a `questions` array
   
-    const handleNext = () => {
+
+    useEffect(() => {
+      const initialResponses: { [key: string]: string } = {};
+      questions.forEach((question) => {
+        if (question.type === "select" && question.options?.length) {
+          initialResponses[question._id] = question.options[0]; // Set first option as default
+        }
+      });
+      setResponses((prev) => ({ ...prev, ...initialResponses }));
+    }, [questions]);
+
+    const handleEvent = async():Promise<boolean>=>{
+      try {
+        const data:Partial<IRegistration> = {
+            memberId:memberId,
+            eventId,
+            badgeIssued:'No',
+        } 
+        const res = await createRegistration(memberId, eventId, data);
+        enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+        return res?.error ? false:true;
+      } catch (error) {
+        console.log(error);
+        enqueueSnackbar('Error occured registering for the event', {variant:'error'});
+        return false;
+      }
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value, type } = e.target;
+    
+      if (type === "checkbox") {
+        const target = e.target as HTMLInputElement; // Explicitly assert type for checkbox
+        setResponses((prev) => {
+          const prevValues = (prev[name] as string[]) || [];
+          return {
+            ...prev,
+            [name]: target.checked
+              ? [...prevValues, value] // Add value if checked
+              : prevValues.filter((v) => v !== value), // Remove if unchecked
+          };
+        });
+      } else {
+        setResponses((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    };
+    
+  
+    // Handle form submission
+    const handleFormSubmit = async() => {
+      const formattedResponses: Partial<IResponse>[] = Object.entries(responses).map(([questionId, answer]) => ({
+        answer: Array.isArray(answer) ? "" : answer, // If checkbox, leave answer empty
+        type: questions.find((q) => q._id === questionId)?.type || "",
+        options: Array.isArray(answer) ? answer : undefined, // Store checkbox selections
+        questionId,
+        cypsetId:eventId,
+        sectionId: currentSection._id,
+        memberId,
+
+      }));
+  
+      try {
+        setLoading(true)
+        const event = await handleEvent();
+        if(event){
+          const res = await createResponses(formattedResponses);
+          enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+          setOpen(false);
+        }
+      } catch (error) {
+        console.log(error);
+        enqueueSnackbar('Error occured submitting responses', {variant:'error'});
+      }finally{
+        setLoading(false);
+      }
+
+    };
+
+    console.log("OLD: ",responses)
+
+    const handleNext = async() => {
       if (currentSectionIndex < sections.length - 1) {
         setCurrentSectionIndex((prev) => prev + 1);
       } else {
-        console.log("Submit action here");
+        await handleFormSubmit();
       }
     };
   
@@ -32,13 +127,11 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
       }
     };
   
-    const currentSection = sections[currentSectionIndex];
-    const questions = currentSection.questions as IQuestion[]; // Assuming each section has a `questions` array
   
     return (
       <div {...props}  className="flex overflow-y-scroll scrollbar-custom2 flex-col gap-8 bg-white h-full dark:bg-[#0F1214] dark:border w-full rounded p-6">
         <div className="flex flex-col gap-2 items-center">
-          <span className="font-semibold dark:text-white">
+          <span className="font-bold text-[2rem] dark:text-white">
             {currentSection?.title}
           </span>
         </div>
@@ -52,7 +145,7 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
                 </label>
   
                 {question.type === "text" && (
-                  <input name={question?.id}
+                  <input onChange={handleChange} name={question?._id}
                     type="text"
                     className="border w-full dark:text-white p-1 outline-none rounded bg-transparent"
                     placeholder="Type here"
@@ -60,14 +153,14 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
                 )}
   
                 {question.type === "textarea" && (
-                  <textarea name={question?.id}
+                  <textarea onChange={handleChange} name={question?._id}
                     className="border w-full dark:text-white p-1 rounded outline-none bg-transparent"
                     placeholder="Type here"
                   ></textarea>
                 )}
   
                 {question.type === "number" && (
-                  <input name={question.id}
+                  <input onChange={handleChange} name={question._id}
                     type="number"
                     className="border rounded w-full dark:text-white p-1 outline-none bg-transparent"
                     placeholder="Type here"
@@ -75,7 +168,7 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
                 )}
   
                 {question.type === "select" && (
-                  <select name={question?.id}  className="border rounded dark:text-white p-1 w-full outline-none bg-transparent">
+                  <select defaultValue={question?.options?.[0]} onChange={handleChange} name={question?._id}  className="border rounded dark:text-white p-1 w-full outline-none bg-transparent">
                     {question.options?.map((option, index) => (
                       <option
                         key={index}
@@ -92,9 +185,10 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
                   question.options?.map((option, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <input
+                        onChange={handleChange}
                         type={question.type}
                         id={`${question.id}-${index}`}
-                        name={question.id}
+                        name={question._id}
                         value={option}
                       />
                       <label
@@ -123,7 +217,8 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
             <AddButton
               type="button"
               className="rounded"
-              text={currentSectionIndex === sections.length - 1 ? "Submit" : "Next"}
+              disabled={loading}
+              text={currentSectionIndex === sections.length - 1 ? loading ? "loading...":"Submit" : "Next"}
               isCancel={currentSectionIndex < sections.length - 1}
               onClick={handleNext}
               smallText
