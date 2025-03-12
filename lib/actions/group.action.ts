@@ -237,7 +237,7 @@ export async function addMemberToGroup(groupId: string, memberId: string, eventI
         return handleResponse('Member added successfully', false, group, 201);
     } catch (error) {
         console.error('Error adding member to group:', error instanceof Error ? error.message : error);
-        throw new Error(`Error occurred while adding member to group`);
+        return handleResponse(`Error occurred while adding member to group`, true, {}, 500);
     }
 }
 

@@ -11,6 +11,7 @@ import { createQuestions } from "@/lib/actions/question.action"
 import { useSearchParams } from "next/navigation"
 import { getSection } from "@/lib/actions/section.action"
 import { ISection } from "@/lib/database/models/section.model"
+import { enqueueSnackbar } from "notistack"
 // import { ICYPSet } from "@/lib/database/models/cypset.model"
 
 const NewEditor = ({currentSection}:NewPlaygroundProps) => {
@@ -27,10 +28,10 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
     try {
         setLoading(true);
         const res = await createQuestions(questions);
-        setResponse(res);
+        enqueueSnackbar(res?.message, {variant: res?.error ? 'error':'success'});
     } catch (error) {
         console.log(error);
-        setResponse({message:'Error occured saving questions', error:true})
+        enqueueSnackbar('Error occured saving questions', {variant:'error'});
     }finally{
         setLoading(false);
     }

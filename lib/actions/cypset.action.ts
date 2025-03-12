@@ -69,6 +69,27 @@ export async function getCYPSets(){
     }
 }
 
+export async function getCYPSetsForEvent(eventId:string){
+    try {
+        await connectDB();
+        const cyps = await CYPSet.find({eventId})
+        .populate({
+            path:'sections',
+            populate:{
+                path:'questions',
+                model:'Question'
+            }
+        })
+        .populate('eventId')
+        .lean();
+
+        return JSON.parse(JSON.stringify(cyps));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching the sets', true, {}, 500)
+    }
+}
+
 
 export async function deleteCYPSet(id:string){
     try {

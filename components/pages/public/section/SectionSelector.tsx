@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
 import SectionSelectCenter from "./SectionSelectCenter";
+import { enqueueSnackbar } from "notistack";
 
 type SectionSelectorProps = {
     infoMode:boolean,
@@ -44,7 +45,7 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
             }
             const res = await createSection(data);
             const section = res?.payload as ISection; 
-            setResponse(res)
+            // setResponse(res)
             setSectionId(section._id);
             formRef.current?.reset();
             if(choice === 'One'){
@@ -54,9 +55,10 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
                 setOpenSelect(true);
                 // setInfoMode(false);
             }
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured creating section', error:true})
+            enqueueSnackbar('Error occured creating section', {variant:'error'});
         }finally{
             setLoading(false);
         }

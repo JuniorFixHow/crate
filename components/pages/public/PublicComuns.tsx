@@ -1,10 +1,13 @@
 import { ICYPSet } from "@/lib/database/models/cypset.model";
+import { Tooltip } from "@mui/material";
 import { GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
+import { FaPen } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
 
 export const PublicColumns = (
     handleDelete:(data:ICYPSet)=>void,
+    handleEdit:(data:ICYPSet)=>void,
 ) => [
     {
         field:'createdAt',
@@ -69,6 +72,9 @@ export const PublicColumns = (
             return(
                 <div className="flex h-full flex-row items-center gap-4">
                     <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    <Tooltip onClick={()=>handleEdit(params.row)} title='Edit' >
+                        <FaPen className="cursor-pointer text-blue-900" />
+                    </Tooltip>
                 </div>
             )
         }

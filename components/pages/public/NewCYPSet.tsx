@@ -1,6 +1,6 @@
 'use client'
 import AddButton from "@/components/features/AddButton";
-import SearchSelectCYPEvents from "@/components/features/SearchSelectCYPEvents";
+// import SearchSelectCYPEvents from "@/components/features/SearchSelectCYPEvents";
 import Subtitle from "@/components/features/Subtitle";
 import { ErrorProps } from "@/types/Types";
 import {  FormEvent,  useRef, useState } from "react"
@@ -9,14 +9,17 @@ import { Alert } from "@mui/material";
 import { ICYPSet } from "@/lib/database/models/cypset.model";
 import { createCpySet } from "@/lib/actions/cypset.action";
 import { useAuth } from "@/hooks/useAuth";
+import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import { enqueueSnackbar } from "notistack";
 
 
 
 const NewCYPSet = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [title, setTitle] = useState<string>('');
-    const [response, setResponse] = useState<ErrorProps>(null);
+    const [description, setDescription] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
+    const [response, setResponse] = useState<ErrorProps>(null);
     const [cypsetId, setCypsetId] = useState<string>('');
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const {user} = useAuth();
@@ -31,6 +34,7 @@ const NewCYPSet = () => {
 
                 const data:Partial<ICYPSet> ={
                     title,
+                    description,
                     eventId,
                     createdBy:user.userId
                 } 
@@ -41,10 +45,11 @@ const NewCYPSet = () => {
                 setCypsetId(cyp._id);
                 setInfoMode(true);
                 formRef.current?.reset();
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured creating new set', error:true});
+            enqueueSnackbar('Error occured creating new set', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -61,10 +66,14 @@ const NewCYPSet = () => {
         }
         <form ref={formRef} onSubmit={handleNewSet}  className="flex flex-col justify-between grow">
             <div className="flex flex-col gap-5">
-                <SearchSelectCYPEvents className="w-fit" setSelect={setEventId} require isGeneric />
-                <div className="flex flex-col max-w-[50%]">
+                <SearchSelectEventsV2 setSelect={setEventId} require />
+                <div className="flex flex-col md:max-w-[50%]">
                     <span className='text-slate-500 text-[0.8rem]' >Title</span>
                     <input onChange={(e)=>setTitle(e.target.value)} name='title' required  type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
+                </div>
+                <div className="flex flex-col md:max-w-[50%]">
+                    <span className='text-slate-500 text-[0.8rem]' >Description</span>
+                    <textarea onChange={(e)=>setDescription(e.target.value)} name='description' required   className='border rounded px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                 </div>
             </div>
             <div className="flex flex-col gap-3 w-full">

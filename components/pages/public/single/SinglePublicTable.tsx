@@ -5,26 +5,27 @@ import SearchBar from '@/components/features/SearchBar';
 import { deleteSection } from '@/lib/actions/section.action';
 import { ISection } from '@/lib/database/models/section.model';
 import { ErrorProps } from '@/types/Types';
-import { Alert, LinearProgress, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { Alert,  Paper } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import React, { useState } from 'react'
 import {  useFetchSectionsForSet } from '@/hooks/fetch/useSection';
-import { SearchSection } from '../section/fxn';
+// import { SearchSection } from '../section/fxn';
 import SectionSelector from '../section/SectionSelector';
 import { SinglePublicColumns } from './SinglePublicColumns';
+import { enqueueSnackbar } from 'notistack';
 
 type SinglePublicTableProps = {
     cypsetId:string
 }
 
 const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
-    const [search, setSearch] = useState<string>('');
+    // const [search, setSearch] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentSection, setCurrentSection] = useState<ISection|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
 
-    const {sections, loading} = useFetchSectionsForSet(cypsetId)
+    const {sections, loading, refetch} = useFetchSectionsForSet(cypsetId)
 
     const message = `Deleting a section will delete its questions and responses received for it. Are you sure?`;
 
@@ -34,10 +35,12 @@ const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
                 const res = await deleteSection(currentSection._id);
                 setResponse(res);
                 setDeleteMode(false);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured deleting section', error:true})
+            enqueueSnackbar('Error occured deleting section', {variant:'error'});
         }
     }
 
@@ -53,10 +56,10 @@ const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
     const paginationModel = { page: 0, pageSize: 10 };
 
   return (
-    <div className='table-w' >
+    <div className='table-main2' >
         <div className="flex justify-end items-end">
             <div className="flex gap-4 items-center">
-                <SearchBar setSearch={setSearch} reversed={false} />
+                {/* <SearchBar setSearch={setSearch} reversed={false} /> */}
                 <AddButton onClick={handleNew} text='Add New Section' noIcon className='rounded' smallText />
             </div>
         </div>
@@ -70,23 +73,30 @@ const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
 
 
         <div className="flex w-full">
-          {
-            loading ?
-            <LinearProgress className='w-full' />
-            :
-            <Paper className='w-full' sx={{ height: 480, }}>
+          
+            <Paper className='w-full' sx={{ height: 'auto', }}>
               <DataGrid
-                  rows={SearchSection(sections, search)}
+                  rows={sections}
                   columns={SinglePublicColumns( handleDelete)}
                   initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10]}
+                  pageSizeOptions={[5, 10, 20]}
                   getRowId={(row:ISection):string=>row._id}
+                  slots={{toolbar:GridToolbar}}
+                  loading={loading && !!cypsetId}
+                  slotProps={{
+                    toolbar:{
+                        showQuickFilter:true,
+                        printOptions:{
+                            hideFooter:true,
+                            hideToolbar:true
+                        }
+                    }
+                  }}
                   // checkboxSelection
                   className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                   sx={{ border: 0 }}
               />
             </Paper>
-          }
         </div>
     </div>
   )

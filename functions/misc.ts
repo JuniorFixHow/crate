@@ -26,3 +26,13 @@ export const formatDashboardLink = (text:string):number|string=>{
 export const generateNumberArray = (n: number): string[] => {
     return ["G", ...Array.from({ length: n - 1 }, (_, i) => (i + 1).toString())];
 };
+
+
+export const truncateText = (text: string, sm: number, md: number, lg: number) => {
+    if (typeof window !== "undefined") {
+      const width = window.innerWidth;
+      const limit = width < 768 ? sm : width < 1024 ? md : lg; // Adjust breakpoints
+      return text.length > limit ? text.slice(0, limit) + "..." : text;
+    }
+    return text;
+  };

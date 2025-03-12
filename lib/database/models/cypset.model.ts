@@ -12,6 +12,7 @@ export interface ICYPSet extends Document{
     published:boolean,
     eventId:IEvent|Types.ObjectId|string;
     title:string,
+    description:string;
     createdAt?:Date;
     updatedAt?:Date; 
 }
@@ -19,6 +20,7 @@ export interface ICYPSet extends Document{
 
 const CYPSetSchema =  new Schema<ICYPSet>({
     title:String,
+    description:String,
     published:{type:Boolean, default:false},
     sections:[{type:Schema.Types.ObjectId, ref:'Section'}],
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},

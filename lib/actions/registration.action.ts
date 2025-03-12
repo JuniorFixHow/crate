@@ -22,6 +22,7 @@ export async function createRegistration(memberId:string, eventId:string, regist
             res = {
                 message:'Member has already registered for this event',
                 error:true,
+                payload:{},
                 code:422
             }
         }else{
@@ -33,15 +34,10 @@ export async function createRegistration(memberId:string, eventId:string, regist
                 code:201
             }
         }
-        return JSON.parse(JSON.stringify(res));
+        return handleResponse(res.message, res.error, res.payload, res.code);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error creating registration:', error.message);
-            throw new Error(`Error occurred during registration creation`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during registration creation');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during registration creation', true, {}, 500)
     }
 }
 

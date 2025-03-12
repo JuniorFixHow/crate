@@ -325,6 +325,26 @@ export const MemberColumns = (
     },
     
     {
+        field:'church',
+        headerName:'Church',
+        width:160,
+        filterable:true,
+        valueFormatter: (_, row:IMember) => {
+            const church = row?.church as IChurch;
+            return church?.name;
+        },
+        valueGetter: (_, row:IMember) => {
+            const church = row?.church as IChurch;
+            return church ? Object.values(church) : 'N/A';
+        },
+        renderCell:(params:GridRenderCellParams)=>{
+            return(
+                <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params.row?.church?._id}}} >{params.row?.church?.name}</Link>
+               
+            )
+        }
+    },
+    {
         field:'campuseId',
         headerName:'Campus',
         width:160,
