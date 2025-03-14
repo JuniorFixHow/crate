@@ -22,7 +22,7 @@ type QuestionSheetProps = {
 
 const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: QuestionSheetProps) => {
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-    const [responses, setResponses] = useState<{ [key: string]: string | string[] }>({});
+    const [responses, setResponses] = useState<{ [key: string]: Partial<IResponse> }>({});
     const [loading, setLoading] = useState<boolean>(false);
     // console.log(eventId, memberId)
     const currentSection = sections[currentSectionIndex];
@@ -30,14 +30,23 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
   
 
     useEffect(() => {
-      const initialResponses: { [key: string]: string } = {};
+      const initialResponses: { [key: string]: Partial<IResponse> } = {};
+    
       questions.forEach((question) => {
         if (question.type === "select" && question.options?.length) {
-          initialResponses[question._id] = question.options[0]; // Set first option as default
+          initialResponses[question._id] = {
+            answer: question.options[0], // Set first option as default
+            options: question.options,
+            type: question.type,
+            questionId: question._id,
+            sectionId: question.sectionId, // ✅ Assign correct sectionId from question
+          };
         }
       });
+    
       setResponses((prev) => ({ ...prev, ...initialResponses }));
     }, [questions]);
+    
 
     const handleEvent = async():Promise<boolean>=>{
       try {
@@ -59,57 +68,70 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { name, value, type } = e.target;
     
-      if (type === "checkbox") {
-        const target = e.target as HTMLInputElement; // Explicitly assert type for checkbox
-        setResponses((prev) => {
-          const prevValues = (prev[name] as string[]) || [];
+      setResponses((prev) => {
+        const question = questions.find((q) => q._id === name);
+        if (!question) return prev; // Safety check
+    
+        if (type === "checkbox") {
+          const target = e.target as HTMLInputElement;
+          const prevValues = (prev[name]?.options as string[]) || [];
+    
           return {
             ...prev,
-            [name]: target.checked
-              ? [...prevValues, value] // Add value if checked
-              : prevValues.filter((v) => v !== value), // Remove if unchecked
+            [name]: {
+              ...prev[name],
+              answer: "",
+              options: target.checked ? [...prevValues, value] : prevValues.filter((v) => v !== value),
+              type: question.type,
+              questionId: name,
+              memberId,
+              cypsetId:currentSection?.cypsetId.toString(),
+              sectionId: question.sectionId, // ✅ Assign correct sectionId from question
+            },
           };
-        });
-      } else {
-        setResponses((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      }
+        } else {
+          return {
+            ...prev,
+            [name]: {
+              ...prev[name],
+              answer: value,
+              options: undefined,
+              type: question.type,
+              memberId,
+              cypsetId:currentSection?.cypsetId.toString(),
+              questionId: name,
+              sectionId: question.sectionId, // ✅ Assign correct sectionId from question
+            },
+          };
+        }
+      });
     };
+    
     
   
     // Handle form submission
-    const handleFormSubmit = async() => {
-      const formattedResponses: Partial<IResponse>[] = Object.entries(responses).map(([questionId, answer]) => ({
-        answer: Array.isArray(answer) ? "" : answer, // If checkbox, leave answer empty
-        type: questions.find((q) => q._id === questionId)?.type || "",
-        options: Array.isArray(answer) ? answer : undefined, // Store checkbox selections
-        questionId,
-        cypsetId:eventId,
-        sectionId: currentSection._id,
-        memberId,
-
-      }));
-  
+    const handleFormSubmit = async () => {
+      const formattedResponses: Partial<IResponse>[] = Object.values(responses);
+      // console.log("Formatted Responses:", formattedResponses);
+    
       try {
-        setLoading(true)
+        setLoading(true);
         const event = await handleEvent();
-        if(event){
+        if (event) {
           const res = await createResponses(formattedResponses);
-          enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+          enqueueSnackbar(res?.message, { variant: res?.error ? "error" : "success" });
           setOpen(false);
         }
       } catch (error) {
         console.log(error);
-        enqueueSnackbar('Error occured submitting responses', {variant:'error'});
-      }finally{
+        enqueueSnackbar("Error occurred submitting responses", { variant: "error" });
+      } finally {
         setLoading(false);
       }
-
     };
 
-    console.log("OLD: ",responses)
+    // console.log("OLD: ",responses)
+    // console.log(questions.map((item)=>item.sectionId))
 
     const handleNext = async() => {
       if (currentSectionIndex < sections.length - 1) {
@@ -131,7 +153,7 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
     return (
       <div {...props}  className="flex overflow-y-scroll scrollbar-custom2 flex-col gap-8 bg-white h-full dark:bg-[#0F1214] dark:border w-full rounded p-6">
         <div className="flex flex-col gap-2 items-center">
-          <span className="font-bold text-[2rem] dark:text-white">
+          <span className="font-bold text-[1.4rem] md:text-[2rem] dark:text-white">
             {currentSection?.title}
           </span>
         </div>

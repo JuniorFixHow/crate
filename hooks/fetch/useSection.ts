@@ -1,31 +1,32 @@
-import { getSections, getSectionsForSet, getSectionsWithQuestions } from "@/lib/actions/section.action";
+import { getSections, getSectionsForChurch, getSectionsForSet, getSectionsWithQuestions, getSectionsWithQuestionsForChurch } from "@/lib/actions/section.action";
 import { ISection } from "@/lib/database/models/section.model"
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
 
 export const useFetchSections = ()=>{
-    const [sections, setSections] = useState<ISection[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
-
-    useEffect(()=>{
-        const fetchSections = async()=>{
-            try {
-                const res = await getSections();
-                setSections(res);
-                setError(null);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching sections');
-            }finally{
-                setLoading(false);
-            }
+   const {user} = useAuth();
+    
+    const fetchSections = async():Promise<ISection[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const res:ISection[] = isAdmin ? await getSections() : await getSectionsForChurch(user?.churchId);
+            const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchSections();
-    },[])
+    const {data:sections=[], isPending:loading, refetch} = useQuery({
+        queryKey:['sectionsforset'],
+        queryFn:fetchSections,
+        enabled:!!user
+    })
 
-    return {sections, loading, error}
+    return {sections, loading, refetch}
 }
 
 export const useFetchSectionsForSet = (id:string)=>{
@@ -53,26 +54,26 @@ export const useFetchSectionsForSet = (id:string)=>{
 }
 
 export const useFetchSectionsWithQuestions = ()=>{
-    const [sections, setSections] = useState<ISection[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
+    const {user} = useAuth();
 
-    useEffect(()=>{
-        const fetchSections = async()=>{
-            try {
-                const res = await getSectionsWithQuestions();
-                setSections(res);
-                setError(null);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching sections');
-            }finally{
-                setLoading(false);
-            }
+    const fetchSections = async():Promise<ISection[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const res:ISection[] = isAdmin ? await getSectionsWithQuestions() : await getSectionsWithQuestionsForChurch(user?.churchId);
+            const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchSections();
-    },[])
+    const {data:sections=[], isPending:loading, refetch} = useQuery({
+        queryKey:['sectionswithquestion'],
+        queryFn: fetchSections,
+        enabled:!!user
+    })
 
-    return {sections, loading, error}
+    return {sections, loading, refetch}
 }

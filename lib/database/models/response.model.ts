@@ -23,7 +23,7 @@ const ResponseSchema =  new Schema<IResponse>({
     type:String,
     options:[String],
     memberId:{type:Schema.Types.ObjectId, ref:'Member', required:true},
-    cypsetId:{type:Schema.Types.ObjectId, ref:'CPYSet'},
+    cypsetId:{type:Schema.Types.ObjectId, ref:'CYPSet'},
     sectionId:{type:Schema.Types.ObjectId, ref:'Section'},
     questionId:{type:Schema.Types.ObjectId, ref:'Question', required:true}
 },{timestamps:true})

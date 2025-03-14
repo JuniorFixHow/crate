@@ -4,6 +4,7 @@ import Section, { ISection } from "./section.model";
 import { IEvent } from "./event.model";
 import Question from "./question.model";
 import Response from "./response.model";
+import { IChurch } from "./church.model";
 
 export interface ICYPSet extends Document{ 
     _id:string;
@@ -11,6 +12,7 @@ export interface ICYPSet extends Document{
     sections:ISection[]|[Types.ObjectId]|string[];
     published:boolean,
     eventId:IEvent|Types.ObjectId|string;
+    churchId:IChurch|Types.ObjectId|string;
     title:string,
     description:string;
     createdAt?:Date;
@@ -24,6 +26,7 @@ const CYPSetSchema =  new Schema<ICYPSet>({
     published:{type:Boolean, default:false},
     sections:[{type:Schema.Types.ObjectId, ref:'Section'}],
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},
+    churchId:{type:Schema.Types.ObjectId, ref:'Church', required:true},
     createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:true},
 },{timestamps:true})
 

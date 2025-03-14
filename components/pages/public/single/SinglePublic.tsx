@@ -20,7 +20,7 @@ const SinglePublic = ({cypset}:SinglePublicProps) => {
 
             <PublicTitleChanger cyp={cypset} />
         </div>
-      <SinglePublicTable cypsetId={cypset._id} />
+      <SinglePublicTable cypset={cypset} />
     </div>
   )
 }

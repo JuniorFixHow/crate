@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
 import SectionSelectCenter from "./SectionSelectCenter";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "@/hooks/useAuth";
 
 type SectionSelectorProps = {
     infoMode:boolean,
@@ -26,8 +27,10 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
     const [sectionId, setSectionId] = useState<string>('');
 
     const {sections} = useFetchSectionsWithQuestions();
-
     const router = useRouter();
+    const {user} = useAuth();
+
+    
 
     const formRef = useRef<HTMLFormElement>(null);
     const handleClose = ()=>{
@@ -41,7 +44,8 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
             setLoading(true);
             const data:Partial<ISection> = {
                 cypsetId,
-                title
+                title,
+                churchId:user?.churchId
             }
             const res = await createSection(data);
             const section = res?.payload as ISection; 

@@ -13,12 +13,14 @@ import {  useFetchSectionsForSet } from '@/hooks/fetch/useSection';
 import SectionSelector from '../section/SectionSelector';
 import { SinglePublicColumns } from './SinglePublicColumns';
 import { enqueueSnackbar } from 'notistack';
+import ResponseMain from './responses/ResponseMain';
+import { ICYPSet } from '@/lib/database/models/cypset.model';
 
 type SinglePublicTableProps = {
-    cypsetId:string
+    cypset:ICYPSet
 }
 
-const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
+const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
     // const [search, setSearch] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
@@ -26,16 +28,18 @@ const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [title, setStitle]= useState<string>('Sections');
 
-    const {sections, loading, refetch} = useFetchSectionsForSet(cypsetId)
+    const {sections, loading, refetch} = useFetchSectionsForSet(cypset?._id)
 
     const message = `Deleting a section will delete its questions and responses received for it. Are you sure?`;
 
-    const titles = ['Sections', 'Responses']
+    const hasQuestions = sections?.some((item)=>item?.questions?.length > 0);
+
+    const titles = hasQuestions ? ['Sections', 'Responses'] : ['Sections']
 
     const handleDeleteSection = async()=>{
         try {
             if(currentSection){
-                const res = await deleteSection(currentSection._id);
+                const res = await deleteSection(currentSection?._id);
                 setResponse(res);
                 setDeleteMode(false);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
@@ -79,37 +83,43 @@ const SinglePublicTable = ({cypsetId}:SinglePublicTableProps) => {
         </div>
 
         <DeleteDialog title={`Delete ${currentSection?.title}`} message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleDeleteSection} />
-        <SectionSelector setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypsetId} />
+        <SectionSelector setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypset?._id} />
         {
             response?.message &&
             <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
         }
 
 
-        <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 'auto', }}>
-              <DataGrid
-                  rows={sections}
-                  columns={SinglePublicColumns( handleDelete)}
-                  initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10, 20, 30, 50, 100]}
-                  getRowId={(row:ISection):string=>row._id}
-                  slots={{toolbar:GridToolbar}}
-                  loading={loading && !!cypsetId}
-                  slotProps={{
-                    toolbar:{
-                        showQuickFilter:true,
-                        printOptions:{
-                            hideFooter:true,
-                            hideToolbar:true
+        {
+            title === 'Sections' ?
+            <div className="flex w-full">
+                <Paper className='w-full' sx={{ height: 'auto', }}>
+                <DataGrid
+                    rows={sections}
+                    columns={SinglePublicColumns( handleDelete)}
+                    initialState={{ pagination: { paginationModel } }}
+                    pageSizeOptions={[5, 10, 20, 30, 50, 100]}
+                    getRowId={(row:ISection):string=>row?._id}
+                    slots={{toolbar:GridToolbar}}
+                    loading={loading && !!cypset?._id}
+                    slotProps={{
+                        toolbar:{
+                            showQuickFilter:true,
+                            printOptions:{
+                                hideFooter:true,
+                                hideToolbar:true
+                            }
                         }
-                    }
-                  }}
-                  className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
-                  sx={{ border: 0 }}
-              />
-            </Paper>
-        </div>
+                    }}
+                    className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
+                    sx={{ border: 0 }}
+                />
+                </Paper>
+            </div>
+            :
+            <ResponseMain setId={cypset._id} />
+        }
+
     </div>
   )
 }

@@ -72,6 +72,21 @@ export async function getSections(){
     }
 }
 
+export async function getSectionsForChurch(churchId:string){
+    try {
+        await connectDB();
+        const sections = await Section.find({churchId})
+        .populate('questions')
+        .populate('responses')
+        .populate('cypsetId')
+        .lean();
+        return JSON.parse(JSON.stringify(sections));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching sections', true)
+    }
+}
+
 export async function getSection(id:string){
     try {
         await connectDB();
@@ -103,6 +118,18 @@ export async function getSectionsWithQuestions(){
     try {
         await connectDB();
         const sections = await Section.find({ questions: { $exists: true, $ne: [] } }).populate('cypsetId').lean();
+        return JSON.parse(JSON.stringify(sections));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching sections', true)
+    }
+}
+
+export async function getSectionsWithQuestionsForChurch(churchId:string){
+    try {
+        await connectDB();
+        const sections = await Section.find({ questions: { $exists: true, $ne: [] }, churchId })
+        .populate('cypsetId').lean();
         return JSON.parse(JSON.stringify(sections));
     } catch (error) {
         console.log(error);

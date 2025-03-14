@@ -2,12 +2,14 @@ import { CallbackError, Document, model, models, Schema, Types } from "mongoose"
 import Question, { IQuestion } from "./question.model";
 import Response, { IResponse } from "./response.model";
 import { ICYPSet } from "./cypset.model";
+import { IChurch } from "./church.model";
 
 export interface ISection extends Document{
     _id:string,
     number:number,
     title:string,
     cypsetId:string | Types.ObjectId | ICYPSet;
+    churchId:string | Types.ObjectId | IChurch;
     questions:IQuestion[]|[Types.ObjectId]|string[];
     responses:IResponse[]|[Types.ObjectId]|string[];
     createdAt?:Date,
@@ -20,6 +22,7 @@ const SectionSchema = new Schema<ISection>({
     questions:[{type:Schema.Types.ObjectId, ref:'Question'}],
     responses:[{type:Schema.Types.ObjectId, ref:'Response'}],
     cypsetId:{type:Schema.Types.ObjectId, ref:'CYPSet', required:true},
+    churchId:{type:Schema.Types.ObjectId, ref:'Church'},
 },{timestamps:true});
 
 

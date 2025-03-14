@@ -82,6 +82,24 @@ export async function getQuestions(){
     }
 }
 
+export async function getQuestionsForSet(cypsetId:string){
+    try {
+        await connectDB();
+        // Find sections with the given cypsetId
+        const sections = await Section.find({ cypsetId }).select("questions");
+        // Extract all question IDs
+        const questionIds = sections.flatMap(section => section.questions);
+
+        // Fetch all questions
+        const questions = await Question.find({ _id: { $in: questionIds } });
+
+        return JSON.parse(JSON.stringify(questions));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching the questions', true, {}, 500)
+    }
+}
+
 
 export async function deleteQuestion(id:string){
     try {

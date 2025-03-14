@@ -43,7 +43,10 @@ export async function getCYPSet(id:string){
     try {
         await connectDB();
         const cyp = await CYPSet.findById(id)
-        .populate('sections')
+        .populate({
+            path:'sections',
+            
+        })
         .lean();
 
         return JSON.parse(JSON.stringify(cyp));

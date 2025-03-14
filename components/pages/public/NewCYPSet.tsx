@@ -36,6 +36,7 @@ const NewCYPSet = () => {
                     title,
                     description,
                     eventId,
+                    churchId:user?.churchId,
                     createdBy:user.userId
                 } 
                 const res = await createCpySet(data);

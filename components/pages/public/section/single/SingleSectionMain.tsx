@@ -14,8 +14,8 @@ const SingleSectionMain = ({section}:SingleSectionMainProps) => {
     <div className="page" >
         <div className="flex justify-between items-center">
             <div className="flex flex-row gap-2 items-baseline">
-                <Title clickable link={`/dashboard/events/public/${cypset?._id}`} text={`${cypset?.title}`} />
-                <IoIosArrowForward/>
+                <Title clickable link={`/dashboard/events/public/${cypset?._id}`} text={`${cypset?.title}`}  className="hidden md:block" />
+                <IoIosArrowForward className="hidden md:block" />
                 <Title  text={section?.title} />
             </div>
             <SectionTitleChanger section={section} />

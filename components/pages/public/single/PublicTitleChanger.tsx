@@ -3,14 +3,14 @@ import { updateCYPSet } from "@/lib/actions/cypset.action"
 import { ICYPSet } from "@/lib/database/models/cypset.model"
 // import { ErrorProps } from "@/types/Types"
 import { enqueueSnackbar } from "notistack"
-import { FormEvent, useState } from "react"
+import { ComponentProps, FormEvent, useState } from "react"
 import { FaPen } from "react-icons/fa"
 
 type PublicTitleChangerProps = {
     cyp:ICYPSet
-}
+} & ComponentProps<'form'>
 
-const PublicTitleChanger = ({cyp}:PublicTitleChangerProps) => {
+const PublicTitleChanger = ({cyp, className, ...props}:PublicTitleChangerProps) => {
     const [editMode, setEditMode] =useState<boolean>(false);
     const [loading, setLoading] =useState<boolean>(false);
     // const [response, setResponse] = useState<ErrorProps>(null);
@@ -33,7 +33,7 @@ const PublicTitleChanger = ({cyp}:PublicTitleChangerProps) => {
     }
 
   return (
-    <form onSubmit={handleNewTitle} className="flex flex-col gap-1" >
+    <form {...props} onSubmit={handleNewTitle} className={`md:flex flex-col gap-1 hidden ${className}`} >
         {
             !editMode ?
             <div className="flex gap-2">
