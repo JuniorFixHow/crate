@@ -14,13 +14,14 @@ type NewMemberProps = {
     open:boolean,
     eventId:string,
     memberId:string,
+    churchId:string,
     setEventId:Dispatch<SetStateAction<string>>,
     setOpen:Dispatch<SetStateAction<boolean>>,
     setShowStart:Dispatch<SetStateAction<boolean>>,
 }
 
 const RegisterForEventV2 = ({
-   eventId, setEventId, open, setOpen, memberId, setShowStart
+   eventId, setEventId, open, setOpen, churchId, memberId, setShowStart
 }:NewMemberProps) => {
 
     const [pending, setPending] = useState<boolean>(false);
@@ -41,6 +42,7 @@ const RegisterForEventV2 = ({
                     memberId:memberId,
                     eventId,
                     badgeIssued:'No',
+                    churchId
                 } 
                 const res = await createRegistration(memberId, eventId, data);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});

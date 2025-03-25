@@ -26,7 +26,7 @@ export const SearchMerged = (merged:IMergedRegistrationData[], search:string, ch
     })
     .filter((item)=>{
         const event = item.eventId as IEvent
-        return eventId === '' ? item : event._id === eventId
+        return (eventId === '' || eventId === undefined) ? item : event._id === eventId
     })
     .filter((item)=>{
         const member = item.memberId as IMember
@@ -34,6 +34,28 @@ export const SearchMerged = (merged:IMergedRegistrationData[], search:string, ch
         .join(' ')
         .toLowerCase()
         .includes(search.toLowerCase())
+    })
+
+    return data;
+}
+
+
+export const SearchMergedV2 = (merged:IMergedRegistrationData[], churchId:string, zoneId:string, eventId:string):IMergedRegistrationData[]=>{
+    const data = merged
+    .filter((item)=>{
+        const member = item.memberId as IMember
+        const church = member.church as IChurch
+        const zone = church.zoneId as IZone
+        return zoneId === '' ? item : zone._id === zoneId
+    })
+    .filter((item)=>{
+        const member = item.memberId as IMember
+        const church = member.church as IChurch
+        return churchId === '' ? item : church._id === churchId
+    })
+    .filter((item)=>{
+        const event = item.eventId as IEvent
+        return eventId === '' ? item : event._id === eventId
     })
 
     return data;

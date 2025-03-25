@@ -9,10 +9,11 @@ export type ZoneInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentZone:IZone|null,
-    setCurrentZone:Dispatch<SetStateAction<IZone|null>>
+    setCurrentZone:Dispatch<SetStateAction<IZone|null>>;
+    reader:boolean;
 }
 
-const ZoneInfoModal = ({infoMode, setInfoMode, currentZone, setCurrentZone}:ZoneInfoModalProps) => {
+const ZoneInfoModal = ({infoMode, reader, setInfoMode, currentZone, setCurrentZone}:ZoneInfoModalProps) => {
     const handleClose = ()=>{
         setCurrentZone(null);
         setInfoMode(false);
@@ -44,7 +45,12 @@ const ZoneInfoModal = ({infoMode, setInfoMode, currentZone, setCurrentZone}:Zone
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Churches</span>
-                    <Link href={{pathname:'/dashboard/churches', query:{zoneId:currentZone?._id}}}  className='text-[0.9rem] table-link' >{currentZone?.churches}</Link>
+                    {
+                        reader ?
+                        <Link href={{pathname:'/dashboard/churches', query:{zoneId:currentZone?._id}}}  className='text-[0.9rem] table-link' >{currentZone?.churches}</Link>
+                        :
+                        <span  className='text-[0.9rem]' >{currentZone?.churches}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registrants</span>

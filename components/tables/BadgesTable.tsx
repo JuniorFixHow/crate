@@ -1,5 +1,5 @@
 'use client'
-import { BadgesColumns } from '@/components/Dummy/contants'
+import { BadgesColumns, checkIfAdmin } from '@/components/Dummy/contants'
 import BadgeInfoModal from '@/components/features/badges/BadgeInfoModal'
 // import SearchBar from '@/components/features/SearchBar'
 import { searchBadge } from '@/functions/search'
@@ -16,6 +16,8 @@ import DeleteDialog from '../DeleteDialog'
 import { IMember } from '@/lib/database/models/member.model'
 import { enqueueSnackbar } from 'notistack'
 import AddButton from '../features/AddButton'
+import { useAuth } from '@/hooks/useAuth'
+import {  campusRoles, canPerformAction, eventRegistrationRoles,  groupRoles,  memberRoles, roomRoles } from '../auth/permission/permission'
 
 type BadgesTableProps = {
     // noHeader?:boolean,
@@ -26,10 +28,6 @@ type BadgesTableProps = {
 
 const BadgesTable = ({eventId}:BadgesTableProps) => {
     const searchParams = useSearchParams();
-    // const [search, setSearch] = useState<string>('');
-    // const [room, setRoom] = useState<string>('');
-    // const [badge, setBadge] = useState<string>('');
-    // const [date, setDate] = useState<string>('');
 
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -38,17 +36,12 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
 
     const paginationModel = { page: 0, pageSize: 15 };
     const router = useRouter();
+    const {user} = useAuth();
 
     const {registrations, loading, refetch} = useFetchRegistrations();
     const member = currentEventReg?.memberId as unknown as IMember;
 
-    // const reset = ()=>{
-    //     setRoom('');
-    //     setDate('');
-    //     setEventId!('');
-    //     setSearch('');
-    //     setBadge('');
-    // }
+  
     const handleInfo = (data:IRegistration)=>{
         setInfoMode(true);
         setCurrentEventReg(data);
@@ -97,6 +90,17 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
     }
 
     const message = `You're about to remove this member from the event registrations. This will delete their attendance records as well. Are you sure of what you're doing?`
+    // if(!user) return;
+    const isAdmin = checkIfAdmin(user);
+
+    const showView = canPerformAction(user!, 'reader', {eventRegistrationRoles})
+    const showDelete = canPerformAction(user!, 'deleter', {eventRegistrationRoles})
+    const showCampus = canPerformAction(user!, 'reader', {campusRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles});
+    const showPrint = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+
 
 
   return (
@@ -108,30 +112,26 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
                     setBadge={setBadge} setDate={setDate}
                     setRoom={setRoom} reset={reset}
                 /> */}
-                <AddButton smallText text='Print Badges' onClick={()=>router.push('/dashboard/events/badges/new')} className='py-2 rounded' noIcon  />
+                {
+                    showPrint &&
+                    <AddButton smallText text='Print Badges' onClick={()=>router.push('/dashboard/events/badges/new')} className='py-2 rounded' noIcon  />
+                }
             </div>
         }
 
 
         <DeleteDialog onTap={handleDeleteReg} title={`Delete ${member?.name}`}  value={deleteMode} setValue={setDeleteMode} message={message} />
-        <BadgeInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentEventReg={currentEventReg} setCurrentEventReg={setCurrentEventReg} />
+        <BadgeInfoModal user={user!} infoMode={infoMode} setInfoMode={setInfoMode} currentEventReg={currentEventReg} setCurrentEventReg={setCurrentEventReg} />
         {/* table */}
 
         <div className="flex flex-col gap-2">
-            {/* <div className="flex items-center flex-row justify-end w-full">
-                <SearchBar className='py-1' setSearch={setSearch} reversed={false} />
-            </div> */}
-
-        {/* {
-            deleteError?.message &&
-            <Alert onClose={()=>setDeleteError(null)} severity={deleteError.error ? 'error':'success'} >{deleteError.message}</Alert>
-        } */}
+           
         <div className="">
             <Paper  className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     getRowId={(row:IRegistration)=>row._id}
                     rows={searchBadge(registrations, eventId)}
-                    columns={BadgesColumns(handleInfo, handleDelete)}
+                    columns={BadgesColumns(handleInfo, handleDelete, showView, showDelete, isAdmin, showCampus, showMember, showRoom, showGroup)}
                     initialState={{ 
                         pagination: { paginationModel },
                         columns:{

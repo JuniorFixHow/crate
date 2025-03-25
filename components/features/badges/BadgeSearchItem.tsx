@@ -18,6 +18,9 @@ import {  updateReg } from "@/lib/actions/registration.action";
 import { enqueueSnackbar } from "notistack";
 import QuestionStarter from "@/components/shared/QuestionStarter";
 import RegisterForEventV2 from "@/components/shared/RegisterForEventV2";
+import { IEvent } from "@/lib/database/models/event.model";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, memberRoles } from "@/components/auth/permission/permission";
 
 export type BadgeSearchItemProps = {
     member:IMember,
@@ -34,6 +37,8 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
     const church = member?.church as IChurch;
     const zone = church?.zoneId as IZone;
 
+    const {user} = useAuth();
+    const showMember = canPerformAction(user!, 'reader', {memberRoles})
 
     // Event Registrations
 
@@ -111,13 +116,13 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
         try {
             setLoading(true);
             if(currentGroup){
-                const eventId = typeof currentGroup?.eventId === 'object' && '_id' in currentGroup?.eventId && currentGroup?.eventId._id;
-                const res:ErrorProps =  await addMemberToGroup(currentGroup._id, member._id, eventId.toString());
-                setResponse!(res);
+                const event = currentGroup?.eventId as IEvent;
+                const res:ErrorProps =  await addMemberToGroup(currentGroup._id, member._id, event?._id);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             }
         } catch (error) {
             console.log(error);
-            setResponse!({message:'Error occured add member to group', error:true})
+            enqueueSnackbar('Error occured add member to group', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -150,9 +155,14 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
   return (
     <div {...props}  className="flex w-full flex-col gap-4 md:flex-row dark:bg-[#0F1214] justify-between items-start md:items-center bg-[#d6d6d6] p-2 rounded border-slate-400 border" >
         <div className="flex flex-col gap-2">
-            <Link className="table-link" href={`/dashboard/members/${member?._id}`} >
-                <Subtitle isLink text={member?.name} />
-            </Link>
+            {
+                showMember ?
+                <Link className="table-link" href={`/dashboard/members/${member?._id}`} >
+                    <Subtitle isLink text={member?.name} />
+                </Link>
+                :
+                <Subtitle text={member?.name} />
+            }
             {
                 member?.email &&
                 <div className="flex flex-row gap-1 items-center">
@@ -188,7 +198,7 @@ const BadgeSearchItem = ({member, isRegisterItem, setResponse, currentRegistrati
             loading={regLoading}
             error={regError}
         /> */}
-        <RegisterForEventV2 eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={member?._id} setShowStart={setStart}  />
+        <RegisterForEventV2 eventId={eventId} churchId={church?._id} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={member?._id} setShowStart={setStart}  />
 
         {
             isRegisterItem?

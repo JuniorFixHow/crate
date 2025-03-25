@@ -15,15 +15,10 @@ export async function createEvent(event:Partial<IEvent>){
     try {
         await connectDB();
         const newEvent = await Event.create(event);
-        return JSON.parse(JSON.stringify(newEvent));
+        return handleResponse('Event created successfully', false, newEvent, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error creating event:', error.message);
-            throw new Error(`Error occurred during event creation: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during event creation');
-        }
+        console.error('Unknown error:', error);
+        return handleResponse('Error occurred during event creation', true, {}, 500);
     }
 }
 
@@ -31,15 +26,10 @@ export async function updateEvent (id:string, event:Partial<IEvent>){
     try {
         await connectDB();
         const evt = await Event.findByIdAndUpdate(id, event, {new:true});
-        return JSON.parse(JSON.stringify(evt));
+        return handleResponse('Event updated successfully', false, evt, 201);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error('Error updating event:', error.message);
-            throw new Error(`Error occurred during event update: ${error.message}`);
-        } else {
-            console.error('Unknown error:', error);
-            throw new Error('Error occurred during event update');
-        }
+        console.error('Error updating event:', error);
+        return handleResponse('Error occurred during event update', true, {}, 500)
     }
 }
 

@@ -8,10 +8,11 @@ import React, { ChangeEvent,  FormEvent,  useState } from 'react'
 
 type SingleGroupDownProps = {
     currentGroup:IGroup,
+    groupUpdater:boolean;
     // setCurrentGroup:Dispatch<SetStateAction<IGroup|null>>
 }
 
-const SingleGroupDown = ({currentGroup}:SingleGroupDownProps) => {
+const SingleGroupDown = ({currentGroup, groupUpdater}:SingleGroupDownProps) => {
     const [data, setData] = useState<Partial<IGroup>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -83,8 +84,10 @@ const SingleGroupDown = ({currentGroup}:SingleGroupDownProps) => {
             response?.message &&
             <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
         }
-
-        <AddButton type='submit' disabled={loading} text={loading ?'loading...' :'Update Group'} noIcon smallText className='rounded py-1 w-fit self-end' />
+        {
+            groupUpdater &&
+            <AddButton type='submit' disabled={loading} text={loading ?'loading...' :'Update Group'} noIcon smallText className='rounded py-1 w-fit self-end' />
+        }
     </form>
   )
 }

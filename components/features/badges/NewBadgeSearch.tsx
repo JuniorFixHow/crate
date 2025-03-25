@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import LongSearchbar from './LongSearchbar'
 import BadgeSearchItem from './BadgeSearchItem'
 
@@ -8,6 +8,9 @@ import {  searchMemberInversed } from '@/functions/search'
 import Link from 'next/link'
 import TipUser from '@/components/misc/TipUser'
 import { LinearProgress } from '@mui/material'
+import { useAuth } from '@/hooks/useAuth'
+import { eventRegistrationRoles,  isChurchAdmin, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission'
+import { useRouter } from 'next/navigation'
 
 type NewBadgeSearchProps = {
   isRegisterItem?:boolean;
@@ -17,7 +20,20 @@ const NewBadgeSearch = ({isRegisterItem}:NewBadgeSearchProps) => {
     const [search, setSearch] = useState<string>('');
     const {members, loading} = useFetchMembers();
     const searched = searchMemberInversed(search, members);
+    const {user} = useAuth();
+    const router = useRouter();
     // console.log(members.length)
+    
+    const creator  = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || eventRegistrationRoles.assign(user!) || eventRegistrationRoles.creator(user!)
+    
+    useEffect(()=>{
+      if(user && !creator){
+        router.replace('/dashboard/forbidden?p=Event Registration Creator')
+      }
+    },[user, creator, router])
+    
+    if(!creator) return;
+
   return (
     <div className="flex flex-col">
         <div className='p-4 shadow-xl flex-col flex bg-white dark:bg-[#0F1214] border gap-4' >

@@ -1,7 +1,7 @@
 'use client'
 import {  searchMemberInversedV2  } from "@/functions/search";
 import {  useFetchMembersInAChurchV2 } from "@/hooks/fetch/useMember";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LongSearchbar from "./LongSearchbar";
 import Link from "next/link";
 import BadgeSearchItemV2 from "./BadgeSearchItemV2";
@@ -9,24 +9,31 @@ import AddButton from "../AddButton";
 import { LiaTimesSolid } from "react-icons/lia";
 import { IMember } from "@/lib/database/models/member.model";
 import { useRouter } from "next/navigation";
-import SearchSelectChurchesV2 from "../SearchSelectChurchesV2";
 import { MdChecklist } from "react-icons/md";
 import { LuCopyX } from "react-icons/lu";
 import TipUser from "@/components/misc/TipUser";
+import SearchSelectChurchesV3 from "../SearchSelectChurchesV3";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, eventRegistrationRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 const NewBadgeSearchV2 = () => {
     const [search, setSearch] = useState<string>('');
     const [selection, setSelection] = useState<IMember[]>([]);
     const {members} = useFetchMembersInAChurchV2();
-    // const [title, setTitle] = useState<string>('Members');
     const [churchId, setChurchId] = useState<string>('');
     const searched = searchMemberInversedV2(search, churchId, members as IMember[]);
     const router = useRouter();
+    const {user} = useAuth();
     
     
-    // const titles = ['Members', 'Churches'];
-    // console.log('Church: ', churchId);
+    const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
 
+    useEffect(()=>{
+        if(user && !updater){
+            router.replace('/dashboard/forbidden?p=Event Registration Updater')
+        }
+    },[user, updater, router])
     const handleSelect = (member:IMember)=>{
         setSelection((pre)=>{
             const isSelected = pre.find((item)=> item._id === member?._id);
@@ -49,11 +56,16 @@ const NewBadgeSearchV2 = () => {
     }
     // console.log(selection)
 
+    if(!updater) return;
+
   return (
     <div className="flex flex-col">
         <div className='p-4 shadow-xl flex-col flex bg-white dark:bg-[#0F1214] border gap-4' >
             <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
-                <SearchSelectChurchesV2 setSelect={setChurchId} />
+                {
+                    isAdmin &&
+                    <SearchSelectChurchesV3 setSelect={setChurchId} />
+                }
                 {
                     searched?.length > 0 &&
                     <div className="flex gap-4 items-center">

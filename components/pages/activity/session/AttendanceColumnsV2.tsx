@@ -7,7 +7,10 @@ import { IMember } from "@/lib/database/models/member.model"
 import { IClasssession } from "@/lib/database/models/classsession.model"
 
 export const AttendanceColumnsV2 = (
-    handleDelete:(data:ICAttendance)=>void
+    handleDelete:(data:ICAttendance)=>void,
+    deleter:boolean,
+    showMember:boolean,
+    showSession:boolean,
 ):GridColDef[]=> [
     {
         field:'member',
@@ -23,9 +26,14 @@ export const AttendanceColumnsV2 = (
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={params?.row?.member?._id}  className='table-link' >{params?.row?.member?.name}</Link>
-              </div>
+                <>
+                {
+                    showMember ?
+                    <Link href={params?.row?.member?._id}  className='table-link' >{params?.row?.member?.name}</Link>
+                    :
+                    <span>{params?.row?.member?.name}</span>
+                }
+                </>
             )  
         },
     },
@@ -33,8 +41,8 @@ export const AttendanceColumnsV2 = (
         field:'createdAt',
         headerName:'Time',
         width:120,
-        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
-        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
+        valueFormatter: (_, value:ICAttendance) => new Date(value.createdAt)?.toLocaleDateString(),
+        valueGetter: (_, value:ICAttendance) => new Date(value.createdAt)?.toLocaleDateString(),
         renderCell:(params:GridRenderCellParams) => {
             return(
                 <span className='' >{getJustTime(params?.row?.createdAt)}</span>
@@ -61,9 +69,14 @@ export const AttendanceColumnsV2 = (
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={{pathname:`/dashboard/ministries/sessions/${params.row?.sessionId?._id}`, }} className='table-link' >{params?.row?.sessionId?.name}</Link>
-              </div>
+                <>
+                {
+                    showSession ?
+                    <Link href={{pathname:`/dashboard/ministries/sessions/${params.row?.sessionId?._id}`, }} className='table-link' >{params?.row?.sessionId?.name}</Link>
+                    :
+                    <span>{params?.row?.sessionId?.name}</span>
+                }
+                </>
             )  
         },
     },
@@ -80,7 +93,12 @@ export const AttendanceColumnsV2 = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        deleter ?
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         },

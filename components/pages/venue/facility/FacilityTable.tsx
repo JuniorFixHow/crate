@@ -16,11 +16,12 @@ import {  SearchFacilityWithChurchV2 } from "./fxn";
 import { FacilityColumns } from "./FacilityColumns";
 import NewSingleFacility from "./NewFacility";
 import FacilityInfoModal from "./FacilityModal";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
-import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
 import { useAuth } from "@/hooks/useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
+import SearchSelectChurchesV3 from "@/components/features/SearchSelectChurchesV3";
+import { canPerformAction, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
 
 
 
@@ -33,6 +34,7 @@ const FacilityTable = () => {
     const [churchId, setChurchId] = useState<string>('');
     // const [zoneId, setZoneId] = useState<string>('');
     // const [response, setReponse] = useState<ErrorProps>(null);
+    const router = useRouter();
 
     const {facilities, loading, refetch} = useFetchFacilities();
 
@@ -40,7 +42,19 @@ const FacilityTable = () => {
 
    const {user} = useAuth();
    const isAdmin = checkIfAdmin(user);
-  
+   const creator = canPerformAction(user!, 'creator', {facilityRoles});
+   const deleter = canPerformAction(user!, 'deleter', {facilityRoles});
+   const reader = canPerformAction(user!, 'reader', {facilityRoles});
+   const admin = canPerformAction(user!, 'admin', {facilityRoles});
+   const updater = canPerformAction(user!, 'updater', {facilityRoles});
+   const venueReader = canPerformAction(user!, 'reader', {venueRoles});
+   const roomReader = canPerformAction(user!, 'reader', {roomRoles});
+
+   useEffect(()=>{
+    if(user && (!admin)){
+        router.replace('/dashboard/forbidden?p=Facility Admin')
+    }
+   },[admin, user, router])
 
     const paginationModel = { page: 0, pageSize: 10 };
 
@@ -96,7 +110,7 @@ const FacilityTable = () => {
     }
 
     const message = `You're about to delete a facility. This will delete rooms and keys depending on it`;
-    if(!user) return null;
+    if(!admin) return;
     return (
       <div className='table-main2' >
            
@@ -104,16 +118,18 @@ const FacilityTable = () => {
                 <div className="flex flex-col md:flex-row items-end gap-4">
                     {
                         isAdmin &&
-                        <SearchSelectChurchesV2 setSelect={setChurchId} />
+                        <SearchSelectChurchesV3 setSelect={setChurchId} />
                     }
                 </div>
-                <div className="flex flex-row gap-4 justify-end items-center px-0 lg:px-4">
-                    {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-                    <AddButton onClick={handleOpenNew} smallText text='Add Facility' noIcon className='rounded py-2' />
-                </div>
+                {
+                    creator &&
+                    <div className="flex flex-row gap-4 md:justify-end items-center px-0 lg:px-4">
+                        <AddButton onClick={handleOpenNew} smallText text='Add Facility' noIcon className='rounded py-2' />
+                    </div>
+                }
            </div>
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete room ${currentFacility?.name}`} message={message} onTap={handleDeleteFacility} />
-          <FacilityInfoModal currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={infoMode} setInfoMode={setInfoMode} />
+          <FacilityInfoModal venueReader={venueReader} roomReader={roomReader} currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={infoMode} setInfoMode={setInfoMode} />
           <NewSingleFacility currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={newMode} setInfoMode={setNewMode} />
   
             {/* {
@@ -124,7 +140,7 @@ const FacilityTable = () => {
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
                     rows={SearchFacilityWithChurchV2(facilities,  churchId)}
-                    columns={FacilityColumns(hadndleInfo, handleNewFacility, handleDelete)}
+                    columns={FacilityColumns(hadndleInfo, handleNewFacility, handleDelete, reader, updater, deleter, venueReader)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                     getRowId={(row:IFacility):string=>row._id}

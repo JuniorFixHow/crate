@@ -2,14 +2,20 @@ import { Modal } from '@mui/material'
 import { IoIosArrowRoundBack } from "react-icons/io";
 import '../../../../../components/features/customscroll.css';
 import Link from 'next/link';
-import { NewServiceProps } from './NewService';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { IContract } from '@/lib/database/models/contract.model';
 import { getContractsByService } from '@/lib/actions/service.action';
+import { IService } from '@/lib/database/models/service.model';
 
+type ServiceInfoModalProps = {
+    currentService:IService | null;
+    setCurrentService:Dispatch<SetStateAction<IService|null>>;
+    infoMode:boolean;
+    setInfoMode:Dispatch<SetStateAction<boolean>>;
+    showContracts:boolean;
+}
 
-
-const ServiceInfoModal = ({infoMode, setInfoMode, currentService, setCurrentService}:NewServiceProps) => {
+const ServiceInfoModal = ({infoMode, setInfoMode, showContracts, currentService, setCurrentService}:ServiceInfoModalProps) => {
 
     const [contracts, setContracts] = useState<IContract[]>([]);
 
@@ -60,8 +66,14 @@ const ServiceInfoModal = ({infoMode, setInfoMode, currentService, setCurrentServ
                         {
                             contracts?.length > 0 ?
                             contracts.map((contract)=>(
-                                <Link key={contract._id} className='table-link' href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
-                                
+                                <>
+                                {
+                                    showContracts ?
+                                    <Link key={contract?._id} className='table-link' href={`/dashboard/churches/contracts/${contract?._id}`} >{contract?.title}</Link>
+                                    :
+                                    <span key={contract?._id} className='text-[0.9rem]' >{contract?.title}</span>
+                                }
+                                </>
                             ))
                             :
                             <span className='text-[0.9rem]' >None</span>

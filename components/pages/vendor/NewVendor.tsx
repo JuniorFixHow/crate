@@ -18,6 +18,9 @@ import SearchSelectChurchesWithZone from '@/components/features/SearchSelectChur
 import { enqueueSnackbar } from 'notistack'
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
 import { db } from '@/lib/firebase/firebase'
+import { useAuth } from '@/hooks/useAuth'
+import { checkIfAdmin } from '@/components/Dummy/contants'
+import { canPerformAction, userRoles } from '@/components/auth/permission/permission'
 
 type NewVendorProps = {
     openVendor:boolean,
@@ -38,12 +41,19 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
     const [loading, setLoading] = useState<boolean>(false);
     const [zoneId, setZoneId] = useState<string>('');
     const [error, setError] = useState<ErrorProps>({message:'', error:false});
+
+    const {user} = useAuth();
+
+    const isAdmin = checkIfAdmin(user);
+
+    const churchId = isAdmin ? church : user?.churchId;
+    const updater = canPerformAction(user!, 'updater', {userRoles});
+
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement>)=>{
         const {name, value} = e.target;
         setData((pre)=>({
             ...pre,
             [name]:value,
-            church,
         }))
     }
     const router = useRouter();
@@ -57,7 +67,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
         try {
             setLoading(true);
             const body:Partial<IVendor> = {
-                ...data, password
+                ...data, password, church:churchId as string
             }
             const res = await createVendor(body);
             if(res?.code === 201){
@@ -65,7 +75,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                 const fbData:IUser = {
                     email:data.email!,
                     name:data.name!,
-                    churchId:church,
+                    churchId:churchId as string,
                     country:'USA',
                     photo:'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
                     id:response._id,
@@ -124,6 +134,8 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
         }
     }
 
+    if(!user) return
+
   return (
     <Modal
         open={openVendor}
@@ -175,20 +187,25 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                         <span className='text-slate-500 text-[0.8rem]' >Phone</span>
                         <input required={!currentVendor} onChange={handleChange} defaultValue={currentVendor?currentVendor.phone : ''} name='phone' type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
-
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Zone</span>
-                        <SearchSelectZoneV2 require={!currentVendor} setSelect={setZoneId} />
-                    </div>
+                    {
+                        isAdmin &&
+                        <div className="flex flex-col">
+                            <span className='text-slate-500 text-[0.8rem]' >Zone</span>
+                            <SearchSelectZoneV2 require={!currentVendor} setSelect={setZoneId} />
+                        </div>
+                    }
 
                    
 
                     <div className="flex flex-col md:flex-row gap-4 md:gap-12">
-                        <div className="flex flex-col gap-2">
-                            <span className='text-slate-500 text-[0.8rem]' >Church</span>
-                            <SearchSelectChurchesWithZone require={!currentVendor} zoneId={zoneId} setSelect={setChurch} />
-                            {/* <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric /> */}
-                        </div>
+                        {
+                            isAdmin &&
+                            <div className="flex flex-col gap-2">
+                                <span className='text-slate-500 text-[0.8rem]' >Church</span>
+                                <SearchSelectChurchesWithZone require={!currentVendor} zoneId={zoneId} setSelect={setChurch} />
+                                {/* <SearchSelectChurch className='dark:text-white' require={!currentVendor} setSelect={setChurch} isGeneric /> */}
+                            </div>
+                        }
 
                         <div className="flex flex-col gap-2">
                             <span className='text-slate-500 text-[0.8rem]' >User Type</span>
@@ -209,7 +226,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                 }
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading}  className='rounded w-[45%] justify-center' text={ loading? 'loading...': currentVendor? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading}  className={`${currentVendor && !updater && 'hidden' } rounded w-[45%] justify-center`} text={ loading? 'loading...': currentVendor? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading}  className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

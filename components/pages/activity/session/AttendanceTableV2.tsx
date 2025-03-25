@@ -13,12 +13,15 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { AttendanceColumnsV2 } from "./AttendanceColumnsV2";
 // import { searchAttenanceV2 } from "./fxn";
 import { useFetchCAttendances } from "@/hooks/fetch/useCAttendance";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, classAttendanceRoles, classSessionRoles } from "@/components/auth/permission/permission";
 
 type AttendanceTableV2Props = {
     currentSession:IClasssession
 }
 
 const AttendanceTableV2 = ({currentSession}:AttendanceTableV2Props) => {
+    const {user} = useAuth();
     // const [search, setSearch] = useState<string>('');
     const [currentAttendance, setCurrentAttendance] = useState<ICAttendance|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -26,7 +29,11 @@ const AttendanceTableV2 = ({currentSession}:AttendanceTableV2Props) => {
 
     const paginationModel = { page: 0, pageSize: 10 };
     // const router = useRouter();
-    const {attendances, isPending} = useFetchCAttendances(currentSession?._id);
+    const {attendances, isPending, refetch} = useFetchCAttendances(currentSession?._id);
+    const reader = canPerformAction(user!, 'reader', {classAttendanceRoles});
+    const deleter = canPerformAction(user!, 'deleter', {classAttendanceRoles});
+    const showMember = canPerformAction(user!, 'reader', {classAttendanceRoles});
+    const showSession = canPerformAction(user!, 'reader', {classSessionRoles});
 
     if(!currentSession) return null
     const handleDelete = (data:ICAttendance)=>{
@@ -37,9 +44,10 @@ const AttendanceTableV2 = ({currentSession}:AttendanceTableV2Props) => {
     const handleDeleteAttendance = async()=>{
         try {
             if(currentAttendance){
-                await deleteCAttendance(currentAttendance?._id);
-                enqueueSnackbar('Record deleted successfully', {variant:'success'});
+                const res = await deleteCAttendance(currentAttendance?._id);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 setDeleteMode(false);
+                refetch();
             }
         } catch (error) {
             console.log(error);
@@ -63,27 +71,32 @@ const AttendanceTableV2 = ({currentSession}:AttendanceTableV2Props) => {
         <div className="">
             
             <Paper className='' sx={{ height: 'auto', }}>
-                <DataGrid
-                    rows={attendances}
-                    columns={AttendanceColumnsV2(handleDelete)}
-                    initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10, 15, 20, 30, 50]}
-                    getRowId={(row:ICAttendance)=>row._id}
-                    // checkboxSelection
-                    className='dark:bg-[#0F1214] dark:text-blue-800'
-                    sx={{ border: 0 }}
-                    loading={isPending}
-                    slots={{toolbar:GridToolbar}}
-                    slotProps={{
-                        toolbar:{
-                            showQuickFilter:true,
-                            printOptions:{
-                                hideFooter:true,
-                                hideToolbar:true
+                {
+                    reader ?
+                    <DataGrid
+                        rows={attendances}
+                        columns={AttendanceColumnsV2(handleDelete, deleter, showMember, showSession)}
+                        initialState={{ pagination: { paginationModel } }}
+                        pageSizeOptions={[5, 10, 15, 20, 30, 50]}
+                        getRowId={(row:ICAttendance)=>row._id}
+                        // checkboxSelection
+                        className='dark:bg-[#0F1214] dark:text-blue-800'
+                        sx={{ border: 0 }}
+                        loading={isPending}
+                        slots={{toolbar:GridToolbar}}
+                        slotProps={{
+                            toolbar:{
+                                showQuickFilter:true,
+                                printOptions:{
+                                    hideFooter:true,
+                                    hideToolbar:true
+                                }
                             }
-                        }
-                    }}
-                />
+                        }}
+                    />
+                    :
+                    <span className="text-2xl text-red-700 font-semibold text-center" >Limited access</span>
+                }
             </Paper>
         </div>
     </div>

@@ -788,6 +788,64 @@ export async function getMergedRegistrationData() {
     }
 }
 
+
+export async function getMergedRegistrationDataForChurch(church:string) {
+    try {
+        await connectDB();
+
+        const members = await Member.find({church}).select('_id');
+        const memberIds = members.map((item)=>item?._id);
+        // Step 1: Fetch all registrations and populate memberId and roomIds
+        const registrations = await Registration.find({memberId: {$in: memberIds}})
+            .populate({
+                path: 'memberId',
+                populate: {
+                    path: 'church',
+                    model: 'Church',
+                    populate: {
+                        path: 'zoneId',
+                        model: 'Zone',
+                    },
+                },
+            })
+            .populate('eventId')
+            .populate('groupId')
+            .populate({
+                path:'roomIds',
+                populate:{
+                    path:'venueId',
+                    model:'Venue'
+                }
+            }) 
+            .lean<IRegistration[]>(); // Explicitly cast the result to IRegistration[]
+
+        // Step 2: Fetch all keys associated with the registration holders
+        const registrationIds = registrations.map((reg) => reg._id);
+        const keys = await Key.find({ holder: { $in: registrationIds } }).lean();
+
+        // Step 3: Merge the keys into their respective registrations
+        const result = registrations.map((registration) => {
+            // Cast registration to IRegistration to access `_id` properly
+            const regId = registration._id.toString();
+
+            // Attach keys related to this registration
+            const associatedKeys = keys.filter(
+                (key) => key.holder.toString() === regId
+            );
+
+            return {
+                ...registration,
+                keys: associatedKeys,
+            };
+        });
+
+        return JSON.parse(JSON.stringify(result));
+    } catch (error) {
+        console.error('Error fetching registration details:', error);
+        throw new Error('Error occurred while fetching registration details');
+    }
+}
+
 // export async function getRegistrationDetails() {
 //     try {
 //         await connectDB();

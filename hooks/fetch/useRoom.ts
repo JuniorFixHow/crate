@@ -1,4 +1,4 @@
-import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getRooms, getRoomsForChurch, getRoomsInaVenue } from "@/lib/actions/room.action";
+import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getMergedRegistrationDataForChurch,  getRooms, getRoomsForChurch, getRoomsInaVenue } from "@/lib/actions/room.action";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import {  IMergedRegistrationData } from "@/types/Types";
@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 
 export const useFetchRooms = () => {
@@ -16,7 +17,7 @@ export const useFetchRooms = () => {
         try {
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
-            const fetchedRooms:IRoom[] = isAdmin ? await getRooms(): getRoomsForChurch(user?.churchId) ;
+            const fetchedRooms:IRoom[] = isAdmin ? await getRooms(): await getRoomsForChurch(user?.churchId) ;
             const sorted = fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
         } catch (err) {
@@ -89,28 +90,29 @@ export const useFetchMembersInRoom = (roomId:string)=>{
 
 
 export const useFetchRoomsRegistrationWithKeys = () => {
-    const [data, setData] = useState<IMergedRegistrationData[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                const fetchedRooms: IMergedRegistrationData[] = await getMergedRegistrationData();
-                setData(fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching rooms');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {user} = useAuth();
 
-        fetchRooms();
-    }, []);
+    const fetchRooms = async ():Promise<IMergedRegistrationData[]> => {
+        try {
+            if(!user) return [];
+            const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
+            const fetchedRooms: IMergedRegistrationData[] = isAdmin ? await getMergedRegistrationData() : await getMergedRegistrationDataForChurch(user?.churchId);
+            const sorted = fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (err) {
+            console.log(err);
+            return [];
+        }
+    };
 
-    return { data, loading, error };
+    const {data=[], isPending:loading, refetch} = useQuery({
+        queryKey:['roomregistrationswithkey'],
+        queryFn:fetchRooms,
+        enabled: !!user
+    })
+
+    return { data, loading, refetch };
 };
 
 

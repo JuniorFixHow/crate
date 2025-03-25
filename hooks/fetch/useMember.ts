@@ -27,7 +27,7 @@ export const useFetchMembers = () => {
                     fetchedMembers = await getMembersInaCampuse(campuseId);
                 }
                 else{
-                    fetchedMembers = isAdmin ? await getMembers() : getMembersInaChurch(user?.churchId);
+                    fetchedMembers = isAdmin ? await getMembers() : await getMembersInaChurch(user?.churchId);
                 }
 
                 // console.log(fetchedMembers)
@@ -111,7 +111,7 @@ export const useFetchMembersInAChurchV2 = ()=>{
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
             const response:IMember[] = isAdmin ?
-            await getMembers() : getMembersInaChurch(user?.churchId)
+            await getMembers() : await getMembersInaChurch(user?.churchId)
 
             return response;
         } catch (error) {

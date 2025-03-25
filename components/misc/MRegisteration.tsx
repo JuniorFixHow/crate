@@ -5,7 +5,7 @@ import AddButton from '@/components/features/AddButton';
 // import SearchSelectChurch from '../shared/SearchSelectChurch';
 import { IMember } from '@/lib/database/models/member.model';
 // import { ErrorProps } from '@/types/Types';
-import { getPassword } from '@/functions/misc';
+import { getAgeCategory, getPassword } from '@/functions/misc';
 import { createMember, updateMember } from '@/lib/actions/member.action';
 // import { Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,8 @@ import { enqueueSnackbar } from 'notistack';
 import SearchSelectCampusesV2 from '../features/SearchSelectCampusesV2';
 import QuestionStarter from '../shared/QuestionStarter';
 import RegisterForEventV2 from '../shared/RegisterForEventV2';
+import { isChurchAdmin, eventRegistrationRoles, canPerformAction, memberRoles } from '../auth/permission/permission';
+import { IChurch } from '@/lib/database/models/church.model';
 
 export type MRegisterationProps = {
     setHasOpen?:Dispatch<SetStateAction<boolean>>,
@@ -37,7 +39,8 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     // const [regLoading, setRegLoading] = useState<boolean>(false);
     // const [regError, setRegError] = useState<ErrorProps>(null);
     // const [groupId, setGroupId] = useState<string>('');
-    
+    const router = useRouter();
+
     const [loading, setLoading] = useState<boolean>(false);
     const [newMember, setNewMember] = useState<IMember|null>(null);
     const [campuseId, setCampuseId] = useState<string>('');
@@ -54,12 +57,24 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         employ:'Employed', status:'Active',
     });
     // const [error, setError] = useState<ErrorProps>({message:'', error:false});
-
-
+    
+    
+    const {events} = useFetchEvents();
     const {user} = useAuth();
     const isAdmin = checkIfAdmin(user);
+    const creator = canPerformAction(user!, 'creator', {memberRoles})
+    const updater = canPerformAction(user!, 'updater', {memberRoles})
+    const showRegister = isAdmin || isChurchAdmin.creator(user!) || eventRegistrationRoles.assign(user!);
 
-    const {events} = useFetchEvents();
+    useEffect(()=>{
+        if(user && (currentMemeber && !updater)){
+            router.replace('/dashboard/forbidden?p=Member Updater');
+        }
+        else if(user && (!currentMemeber && !creator)){
+            router.replace('/dashboard/forbidden?p=Member Creator')
+        }
+    },[creator, currentMemeber, updater, user, router])
+
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
         const {name, value} = e.target;
         setData((pre)=>({
@@ -69,7 +84,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         }))
     }
 
-    const router = useRouter();
+    const chc = currentMemeber?.church as IChurch;
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -86,7 +101,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         }
     },[currentMemeber, isAdmin, user])
     
-    if(!user) return null;
+    // if(!user) return null;
 
     // const openEventReg = ()=>{
     //     setOpen(true);
@@ -210,7 +225,9 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
     
     // console.log('GID: ', groupId);
     
-    const cId = (currentMemeber || isAdmin) ? church : user?.churchId;
+    const cId = isAdmin ? church : user?.churchId;
+    
+    if(!currentMemeber && !creator) return;
 
   return (
     <form ref={formRef} onSubmit={currentMemeber ? handleUpdateMember : handleNewMember}   className='px-8 py-4 flex-col dark:bg-black dark:border flex md:flex-row gap-6 md:gap-12 items-start bg-white' >
@@ -248,7 +265,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 (newMember) &&
                 <>
                 <QuestionStarter memberId={currentMemeber? currentMemeber?._id : newMember?._id} eventId={eventId} start={start} setStart={setStart} />
-                <RegisterForEventV2 eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMemeber? currentMemeber?._id : newMember?._id} setShowStart={setStart}  />
+                <RegisterForEventV2 churchId={chc?._id} eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMemeber? currentMemeber?._id : newMember?._id} setShowStart={setStart}  />
                 </>
             }
             <div className="flex flex-row gap-12 items-start">
@@ -322,7 +339,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
 
         <div className="flex flex-col gap-5">
             {
-                (currentMemeber || isAdmin) &&
+                (isAdmin) &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
                     <SearchSelectChurchesV3 require={!currentMemeber} setSelect={setChurch} />
@@ -332,7 +349,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 user &&
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Campus</span>
-                    <SearchSelectCampusesV2  require={!currentMemeber} churchId={cId} setSelect={setCampuseId} />
+                    <SearchSelectCampusesV2  require={!currentMemeber} churchId={cId as string} setSelect={setCampuseId} />
                 </div>
             }
 
@@ -356,18 +373,21 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     </select>
                 </ div> */}
 
-                <div className="flex flex-col gap-1">
-                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Marital Status</span>
-                    <select required={!currentMemeber} onChange={handleChange} name='marital'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.marital} >
-                        <option className='dark:bg-black' value="Single">Single</option>
-                        <option className='dark:bg-black' value="Married">Married</option>
-                        <option className='dark:bg-black' value="Separated">Separated</option>
-                        <option className='dark:bg-black' value="Widow">Widow</option>
-                    </select>
-                </div>
+                {
+                    getAgeCategory(data.ageRange!) === 'Adult' &&
+                    <div className="flex flex-col gap-1">
+                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Marital Status</span>
+                        <select required={!currentMemeber} onChange={handleChange} name='marital'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.marital} >
+                            <option className='dark:bg-black' value="Single">Single</option>
+                            <option className='dark:bg-black' value="Married">Married</option>
+                            <option className='dark:bg-black' value="Separated">Separated</option>
+                            <option className='dark:bg-black' value="Widow">Widow</option>
+                        </select>
+                    </div>
+                }
             </div>
 
-            <div className="flex flex-col gap-1 w-fit">
+            {/* <div className="flex flex-col gap-1 w-fit">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Voice</span>
                 <select required={!currentMemeber} onChange={handleChange} name='voice'  className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.voice} >
                     <option className='dark:bg-black' value="">None</option>
@@ -376,7 +396,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     <option className='dark:bg-black' value="Tenor">Tenor</option>
                     <option className='dark:bg-black' value="Bass">Bass</option>
                 </select>
-            </div>
+            </div> */}
 
             {/* <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Dietary Preference</span>
@@ -405,11 +425,14 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                 <Alert onClose={()=>setError({message:'', error:false})} severity={error.error ? 'error':'success'} >{error.message}</Alert>
             } */}
             <div className="flex flex-row items-center gap-2 mt-4 md:mt-12">
-                <AddButton disabled={loading} type='submit' text={loading ? 'loading...' : currentMemeber?'Save Changes':'Add Member'} noIcon smallText className='rounded w-full flex-center' />
+                <AddButton disabled={loading} type='submit' text={loading ? 'loading...' : currentMemeber?'Save Changes':'Add Member'} noIcon smallText className={`rounded w-full justify-center ${currentMemeber && !updater && 'hidden'} ${!currentMemeber && !creator && 'hidden'}`} />
                 {
                     currentMemeber &&
                     <>
-                    <AddButton disabled={loading} onClick={()=>setOpenReg(true)} text='Register Event' isCancel noIcon smallText className='rounded w-full flex-center' />
+                    {
+                        showRegister &&
+                        <AddButton disabled={loading} onClick={()=>setOpenReg(true)} text='Register Event' isCancel noIcon smallText className='rounded w-full flex-center' />
+                    }
                     <AddButton disabled={loading} onClick={()=>setHasOpen!(false)} text='Cancel' isDanger noIcon smallText className='rounded w-full flex-center' />
                     </>
                 }

@@ -1,30 +1,31 @@
 'use client'
-import { getCYPSets, getCYPSetsForEvent } from "@/lib/actions/cypset.action";
+import { getCYPSets, getCYPSetsForChurch, getCYPSetsForEvent } from "@/lib/actions/cypset.action";
 import { ICYPSet } from "@/lib/database/models/cypset.model"
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchCYPSet = ()=>{
-    const [cypsets, setCypsets] = useState<ICYPSet[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
-
-    useEffect(()=>{
-        const fetchCYPSets =async()=>{
-            try {
-                const cyps = await getCYPSets();
-                setCypsets(cyps);
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching sets');
-            }finally{
-                setLoading(false);
-            }
+    const {user} = useAuth();
+    const fetchCYPSets =async():Promise<ICYPSet[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = isSystemAdmin.reader(user) || isSuperUser(user);
+            const cyps:ICYPSet[] = isAdmin ? await getCYPSets(): await getCYPSetsForChurch(user?.churchId);
+            const sorted = cyps.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
-        fetchCYPSets();
-    },[])
+    }
+    const {data:cypsets=[], isPending:loading, refetch} = useQuery({
+        queryKey:['cyprforchurch'],
+        queryFn:fetchCYPSets,
+        enabled:!!user
+    })
 
-    return {cypsets, loading, error}
+    return {cypsets, loading, refetch}
 }
 
 

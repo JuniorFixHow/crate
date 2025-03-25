@@ -19,10 +19,14 @@ import { calcTotalRevenue,  } from "./fxn";
 import { useEffect, useState } from "react";
 // import SearchSelectGlobal from "@/components/features/SearchSelectGlobal";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, churchRoles, eventRoles, memberRoles, paymentRoles, userRoles } from "@/components/auth/permission/permission";
 
 const RevenueTable = () => {
+    const {user} = useAuth();
+    const router = useRouter();
     const [currentRevenue, setCurrentRevenue] = useState<IPayment|null>(null);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
@@ -35,7 +39,25 @@ const RevenueTable = () => {
 
     const {revenues, loading, refetch} = useFetchRevenues();
     const apiRef = useGridApiRef();
-    console.log(revenues)
+    // console.log(revenues)
+    const creator = canPerformAction(user!, 'creator', {paymentRoles});
+    const reader = canPerformAction(user!, 'reader', {paymentRoles});
+    const updater = canPerformAction(user!, 'updater', {paymentRoles});
+    const deleter = canPerformAction(user!, 'deleter', {paymentRoles});
+    const admin = canPerformAction(user!, 'admin', {paymentRoles});
+
+    // const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
+
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showUser = canPerformAction(user!, 'reader', {userRoles});
+    const showEvent = canPerformAction(user!, 'reader', {eventRoles});
+    const showChurch = canPerformAction(user!, 'reader', {churchRoles});
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Payment Admin');
+        }
+    },[admin, user, router])
    
     useEffect(() => {
         const fetchChurch = async () => {
@@ -103,7 +125,7 @@ const RevenueTable = () => {
         return data;
     };
 
-    
+    if(!admin) return;
 
     return (
       <div className='table-main2' >
@@ -122,26 +144,28 @@ const RevenueTable = () => {
          </div>
 
           <div className="flex flex-col items-center gap-5 md:flex-row md:justify-end w-full">
-            
-            <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                <AddButton onClick={handleOpenNew} smallText text='Record Payment' noIcon className='rounded' />
-                <Link href={link!} target='_blank' >
-                    <AddButton smallText text='Pay Online' noIcon className='rounded' />
-                </Link>
-            </div>
+            {
+                creator &&
+                <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
+                    <AddButton onClick={handleOpenNew} smallText text='Record Payment' noIcon className='rounded' />
+                    <Link href={link!} target='_blank' >
+                        <AddButton smallText text='Pay Online' noIcon className='rounded' />
+                    </Link>
+                </div>
+            }
           </div> 
           <RevenueInfoModal currentRevenue={currentRevenue} setCurrentRevenue={setCurrentRevenue} infoMode={infoMode} setInfoMode={setInfoMode} />
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete Payment`} message={message} onTap={handleDeleteRevenue} />
-          <NewRevenue currentRevenue={currentRevenue} setCurrentRevenue={setCurrentRevenue} infoMode={newMode} setInfoMode={setNewMode} />
+          <NewRevenue updater={updater} currentRevenue={currentRevenue} setCurrentRevenue={setCurrentRevenue} infoMode={newMode} setInfoMode={setNewMode} />
   
            
           <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 480, }}>
+            <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     rows={revenues}
                     apiRef={apiRef}
                     
-                    columns={RevenueColumns(hadndleInfo,  hadndleDelete, handleNewRevenue)}
+                    columns={RevenueColumns(hadndleInfo,  hadndleDelete, handleNewRevenue, reader, updater, deleter, showChurch, showMember, showUser, showEvent)}
                     initialState={{ 
                         pagination: { paginationModel },
                         columns:{

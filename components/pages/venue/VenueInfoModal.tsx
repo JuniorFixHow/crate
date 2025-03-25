@@ -9,10 +9,12 @@ export type VenueInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentVenue:IVenue|null,
-    setCurrentVenue:Dispatch<SetStateAction<IVenue|null>>
+    setCurrentVenue:Dispatch<SetStateAction<IVenue|null>>;
+    facReader:boolean;
+    reader:boolean;
 }
 
-const VenueInfoModal = ({infoMode, setInfoMode, currentVenue, setCurrentVenue}:VenueInfoModalProps) => {
+const VenueInfoModal = ({infoMode, facReader, reader, setInfoMode, currentVenue, setCurrentVenue}:VenueInfoModalProps) => {
     const handleClose = ()=>{
         setCurrentVenue(null);
         setInfoMode(false);
@@ -34,7 +36,12 @@ const VenueInfoModal = ({infoMode, setInfoMode, currentVenue, setCurrentVenue}:V
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col dark:text-slate-200">
                 <div className="flex flex-col dark:text-slate-200">
-                    <Link href={`/dashboard/venues/${currentVenue?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentVenue?.name}</Link>
+                    {
+                        reader ?
+                        <Link href={`/dashboard/venues/${currentVenue?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentVenue?.name}</Link>
+                        :
+                        <span  className='text-[1.3rem] font-bold' >{currentVenue?.name}</span>
+                    }
                 </div>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
@@ -51,7 +58,14 @@ const VenueInfoModal = ({infoMode, setInfoMode, currentVenue, setCurrentVenue}:V
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Facilities</span>
                     {
                         currentVenue?.facilities?.length ?
-                        <Link href={{pathname:'/dashboard/venues/facilities', query:{venueId:currentVenue?._id}}}  className='table-link' >{currentVenue?.facilities.length}</Link>
+                        <>
+                        {
+                            facReader ?
+                            <Link href={{pathname:'/dashboard/venues/facilities', query:{venueId:currentVenue?._id}}}  className='table-link' >{currentVenue?.facilities.length}</Link>
+                            :
+                            <span className='text-[0.9rem]'  >{currentVenue?.facilities.length}</span>
+                        }
+                        </>
                         :
                         <span className='text-[0.9rem]' >0</span>
                     }

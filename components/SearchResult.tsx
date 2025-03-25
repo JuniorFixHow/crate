@@ -5,6 +5,8 @@ import Link from "next/link"
 import './features/customscroll.css'
 import { Dispatch, SetStateAction } from "react"
 import { IoCloseCircle } from "react-icons/io5"
+import { useAuth } from "@/hooks/useAuth"
+import { canAccessNavItem } from "@/functions/misc"
 
 type SearchResultProps = {
     search:string,
@@ -13,7 +15,9 @@ type SearchResultProps = {
 
 const SearchResult = ({ search, setSearch }: SearchResultProps) => {
     const searchResults = SearchNavbar(NavItems, search);
+    const {user} = useAuth();
   
+    if(!user) return;
     return (
       <div className="min-w-[18rem] z-10 scrollbar-custom overflow-y-scroll right-4 h-[14rem] bg-white dark:bg-[#0F1214] dark:border rounded shadow p-4 absolute -bottom-52">
         <IoCloseCircle
@@ -22,7 +26,9 @@ const SearchResult = ({ search, setSearch }: SearchResultProps) => {
         />
         {searchResults.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {searchResults.map((item) => (
+            {searchResults
+            .filter((item) => canAccessNavItem(item, user))
+            .map((item) => (
               <div key={item.title} className="flex flex-col gap-2">
                 {/* Parent Item */}
                 <div className="flex gap-2 items-center">

@@ -3,10 +3,10 @@ import DeleteDialog from '@/components/DeleteDialog';
 import { IMember } from '@/lib/database/models/member.model';
 import { Alert,  Paper } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import  {  useState } from 'react'
+import  {  useEffect, useState } from 'react'
 import { ErrorProps } from '@/types/Types';
 
-import Link from 'next/link';
+// import Link from 'next/link';
 // import { ExcelButton } from '@/components/features/Buttons';
 import AddButton from '@/components/features/AddButton';
 import { ICard } from '@/lib/database/models/card.model';
@@ -16,10 +16,14 @@ import { useFetchCards } from '@/hooks/fetch/useCard';
 import { CardColumns } from './CardColumns';
 // import CardInfoModal from './CardInfoModal';
 import NewCard from './NewCard';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, cardRoles, memberRoles } from '@/components/auth/permission/permission';
+import { useRouter } from 'next/navigation';
 
 
 
 const MembersTable = () => {
+    const {user} = useAuth();
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     // const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
@@ -27,12 +31,27 @@ const MembersTable = () => {
     const [currentCard, setCurrentCard] = useState<ICard|null>(null);
     const [deleteState, setDeleteState]= useState<ErrorProps>(null);
     // const [excelMode, setExcelMode] = useState<boolean>(false);
+    const {cards, loading, refetch} = useFetchCards();
+    const member = currentCard?.member as IMember;
+
+    const router = useRouter();
+
+    const creator = canPerformAction(user!, 'creator', {cardRoles});
+    const updater = canPerformAction(user!, 'updater', {cardRoles});
+    const deleter = canPerformAction(user!, 'deleter', {cardRoles});
+    const reader = canPerformAction(user!, 'reader', {cardRoles});
+    const admin = canPerformAction(user!, 'admin', {cardRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+
+    useEffect(()=>{
+      if(user && !admin){
+        router.replace('/dashboard/forbidden?p=Card Admin')
+      }
+    },[user, admin, router])
     
     const paginationModel = { page: 0, pageSize: 15 };
     // console.log(searchMember(search, members))
 
-    const {cards, loading, refetch} = useFetchCards();
-    const member = currentCard?.member as IMember;
     
 
     const handleSelect = (card:ICard)=>{
@@ -75,7 +94,7 @@ const MembersTable = () => {
             refetch();
           } catch (error) {
             console.log(error)
-            enqueueSnackbar('Error occured deleting member', {variant:'error'});
+            enqueueSnackbar('Error occured deleting card', {variant:'error'});
           }
         }
       }
@@ -91,11 +110,12 @@ const MembersTable = () => {
             <div className="flex gap-3 items-center">
               {
                 selection?.length > 0 &&
-                <AddButton noIcon isCancel onClick={handleNew} text='Preview' smallText className="w-fit rounded"  />
+                <AddButton noIcon isCancel onClick={()=>{}} text='Preview' smallText className="w-fit rounded"  />
               }
-              <AddButton onClick={handleNew} text='Add Card' smallText className="w-fit rounded"  />
-              <Link href={`/dashboard/members/new`} >
-              </Link>
+              {
+                creator &&
+                <AddButton onClick={handleNew} text='Add Card' smallText className="w-fit rounded"  />
+              }
             </div>
         </div>
 
@@ -105,7 +125,7 @@ const MembersTable = () => {
         }
         <DeleteDialog title={`Delete ${member?.name}'s card`} value={deleteMode} setValue={setDeleteMode} message={message} onTap={handleDeleteMember} />
         {/* <CardInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentCard={currentCard} setCurrentCard={setCurrentCard} /> */}
-        <NewCard editMode={newMode} setEditMode={setNewMode} currentCard={currentCard} setCurrentCard={setCurrentCard} />
+        <NewCard refetch={refetch} updater={updater} editMode={newMode} setEditMode={setNewMode} currentCard={currentCard} setCurrentCard={setCurrentCard} />
         {/* <MemberImportModal infoMode={excelMode} setInfoMode={setExcelMode} /> */}
         <div className="flex flex-col ">
         
@@ -113,7 +133,7 @@ const MembersTable = () => {
               <DataGrid
                   rows={cards}
                   getRowId={(row:ICard):string=>row._id}
-                  columns={CardColumns( handleEdit ,handleDelete, handleSelect, selection )}
+                  columns={CardColumns( handleEdit ,handleDelete, handleSelect, selection, reader, updater, deleter, showMember )}
                   initialState={{ pagination: { paginationModel },  
                   // scroll: { top: 1000, left: 1000 },
                 }}

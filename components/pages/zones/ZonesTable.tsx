@@ -13,10 +13,14 @@ import { IZone } from '@/lib/database/models/zone.model';
 import { useFetchZones } from '@/hooks/fetch/useZone';
 import { deleteZone, getZone } from '@/lib/actions/zone.action';
 // import { ErrorProps } from '@/types/Types';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, churchRoles, isSuperUser, isSystemAdmin, zoneRoles } from '@/components/auth/permission/permission';
 
 const ZonesTable = () => {
+  const {user} = useAuth();
+  const router = useRouter();
   // const [search, setSearch] = useState<string>('');
   const [currentZone, setCurrentZone] = useState<IZone|null>(null);
   const [openNew, setOpenNew] = useState<boolean>(false);
@@ -25,6 +29,19 @@ const ZonesTable = () => {
   const paginationModel = { page: 0, pageSize: 10 };
   // const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
   
+  const creator = canPerformAction(user!, 'creator', {zoneRoles});
+  const updater = canPerformAction(user!, 'updater', {zoneRoles});
+  const reader = canPerformAction(user!, 'reader', {zoneRoles});
+  const admin = canPerformAction(user!, 'admin', {zoneRoles});
+  const deleter = isSuperUser(user!) || isSystemAdmin.deleter(user!);
+  const churchReader = canPerformAction(user!, 'reader', {churchRoles});
+
+  useEffect(()=>{
+    if(user && !admin){
+      router.replace('/dashboard/forbidden?p=Zone Admin');
+    }
+  },[admin, router, user])
+
   const {zones, loading, refetch} =  useFetchZones();
   const searchParams = useSearchParams();
   // console.log(zones)
@@ -79,18 +96,23 @@ const ZonesTable = () => {
     }
   }
 
+  if(!admin) return
+
   return (
     <div className='table-main2' >
       <div className="flex flex-row w-full gap-4 justify-end items-center px-4 pb-4">
         {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-        <AddButton onClick={handleOpenNew} smallText text='Add Zone' noIcon className='rounded' />
+        {
+          creator &&
+          <AddButton onClick={handleOpenNew} smallText text='Add Zone' noIcon className='rounded' />
+        }
       </div>
       {/* {
         deleteState?.message &&
         <Alert onClose={()=>setDeleteState({message:'', error:false})}  className='text-center' severity={deleteState.error ? 'error':'success'} >{deleteState.message}</Alert>
       } */}
-      <NewZone refetch={refetch} openZone={openNew} setOpenZone={setOpenNew} currentZone={currentZone} setCurrentZone={setCurrentZone} />
-      <ZoneInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentZone={currentZone} setCurrentZone={setCurrentZone} />
+      <NewZone updater={updater} refetch={refetch} openZone={openNew} setOpenZone={setOpenNew} currentZone={currentZone} setCurrentZone={setCurrentZone} />
+      <ZoneInfoModal reader={churchReader} infoMode={infoMode} setInfoMode={setInfoMode} currentZone={currentZone} setCurrentZone={setCurrentZone} />
       <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentZone?.name}`} message={message} onTap={handleDeleteZone} />
       
       <div className="flex w-full">
@@ -99,7 +121,7 @@ const ZonesTable = () => {
                 getRowId={(row:IZone):string=>row?._id as string}
                 rows={zones}
                 loading={loading}
-                columns={ZoneColumns(handleZoneClick, handleDeleteModal, handleInfoClick)}
+                columns={ZoneColumns(handleZoneClick, handleDeleteModal, handleInfoClick, reader, updater, deleter)}
                 initialState={{ pagination: { paginationModel } }}
                 pageSizeOptions={[5, 10, 15, 20]}
                 // checkboxSelection

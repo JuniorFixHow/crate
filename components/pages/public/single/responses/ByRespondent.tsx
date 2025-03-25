@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ComponentProps } from "react"
 import { SearchResponseWithJustSection } from "./fxn"
 import { LinearProgress } from "@mui/material"
+import { useAuth } from "@/hooks/useAuth"
+import { canPerformAction, memberRoles } from "@/components/auth/permission/permission"
 
 type ByRespondentProps = {
     member:IMember,
@@ -12,12 +14,19 @@ type ByRespondentProps = {
 } & ComponentProps<'div'>
 
 const ByRespondent = ({member, sectionId, ...props}:ByRespondentProps) => {
+    const {user} = useAuth();
     const {responses, loading} = useFetchResponseForMember(member?._id);
-    // console.log('Responses: ',responses[0]?.sectionId)
-    // console.log('SectionId: ', SearchResponseWithJustSection(responses, sectionId));
+    const reader = canPerformAction(user!, 'reader', {memberRoles})
+
+    if(!user) return;
   return (
     <div {...props} className="bg-slate-100 flex flex-col gap-5 dark:bg-transparent border rounded-md shadow-md p-4" >
-        <Link href={`/dashboard/members/${member?._id}`} className="text-[1.2rem] hover:underline w-fit font-semibold text-blue-500" >{member?.name}</Link>
+        {
+            reader ?
+            <Link href={`/dashboard/members/${member?._id}`} className="text-[1.2rem] hover:underline w-fit font-semibold text-blue-500" >{member?.name}</Link>
+            :
+            <span className="text-[1.2rem] w-fit font-semibold" >{member?.name}</span>
+        }
         <div className="flex flex-col">
             {
                 loading ?

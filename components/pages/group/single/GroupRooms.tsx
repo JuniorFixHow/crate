@@ -11,16 +11,24 @@ import { ErrorProps } from "@/types/Types"
 import { removeGroupFromAllRooms, removeGroupFromRoom } from "@/lib/actions/room.action"
 import { IVenue } from "@/lib/database/models/venue.model"
 import { enqueueSnackbar } from "notistack"
+import { SessionPayload } from "@/lib/session"
+import { canPerformAction, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission"
 
 type GroupRoomsProps = {
-    currentGroup:IGroup
+    currentGroup:IGroup;
+    roomAssign:boolean;
+    user:SessionPayload;
 }
 
-const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
+const GroupRooms = ({currentGroup, user, roomAssign}:GroupRoomsProps) => {
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [removeMode, setRemoveMode] = useState<boolean>(false);
     const [currentRoom, setCurrentRoom] = useState<IRoom|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
+
+    const venueReader = canPerformAction(user!, 'reader', {venueRoles});
+    const roomReader = canPerformAction(user!, 'reader', {roomRoles});
+    const facReader = canPerformAction(user!, 'reader', {facilityRoles});
 
     const [deleteLoading, setDeleteLoading] = useState<boolean>()
     const [removeLoading, setRemoveLoading] = useState<boolean>()
@@ -81,9 +89,12 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
 
   return (
     <div className="flex flex-col p-5 rounded gap-4 bg-white dark:bg-transparent dark:border" >
-        <div className="flex w-full justify-end gap-4">
-            <AddButton onClick={handleShowDelete} disabled={deleteLoading} text={deleteLoading ? 'loading...' : (currentGroup?.roomIds && currentGroup?.roomIds?.length > 1) ? "Remove Rooms":'Remove Room'} noIcon isCancel smallText className="rounded" type="button" />
-        </div>
+        {
+            roomAssign &&
+            <div className="flex w-full justify-end gap-4">
+                <AddButton onClick={handleShowDelete} disabled={deleteLoading} text={deleteLoading ? 'loading...' : (currentGroup?.roomIds && currentGroup?.roomIds?.length > 1) ? "Remove Rooms":'Remove Room'} noIcon isCancel smallText className="rounded" type="button" />
+            </div>
+        }
 
         <DeleteDialog loading={removeLoading} message={removeMessae} onTap={removeRoom} title={`Remove ${venue?.name} ${currentRoom?.number}`} value={removeMode} setValue={setRemoveMode} />
         <DeleteDialog loading={deleteLoading} message={deleteMessae} onTap={deleteRoom} title={`Remove all groups`} value={deleteMode} setValue={setDeleteMode} />
@@ -99,7 +110,7 @@ const GroupRooms = ({currentGroup}:GroupRoomsProps) => {
                     rows={groupRooms}
                     getRowId={(row:IRoom)=>row._id}
                     loading={loading}
-                    columns={SingleGrpRoomColumns(handleRemove)}
+                    columns={SingleGrpRoomColumns(handleRemove, venueReader, facReader, roomReader, roomAssign)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 20, 30, 50, 100]}
                     slots={{toolbar:GridToolbar}}

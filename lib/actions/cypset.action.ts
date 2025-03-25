@@ -71,6 +71,20 @@ export async function getCYPSets(){
         return handleResponse('Error occured fetching the sets', true, {}, 500)
     }
 }
+export async function getCYPSetsForChurch(churchId:string){
+    try {
+        await connectDB();
+        const cyps = await CYPSet.find({churchId})
+        .populate('sections')
+        .populate('eventId')
+        .lean();
+
+        return JSON.parse(JSON.stringify(cyps));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching the sets', true, {}, 500)
+    }
+}
 
 export async function getCYPSetsForEvent(eventId:string){
     try {

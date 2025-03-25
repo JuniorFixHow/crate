@@ -1,6 +1,7 @@
 'use server'
 import Key, { IKey } from "../database/models/key.model";
 import Registration from "../database/models/registration.model";
+import Room from "../database/models/room.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 
@@ -61,6 +62,41 @@ export async function getKeys(){
     try {
         await connectDB();
         const keys = await Key.find()
+        .populate({
+            path:'holder',
+            populate:{
+                path:'memberId',
+                model:'Member'
+            }
+        })
+        .populate({
+            path:'roomId',
+            populate:[
+                {
+                    path:'eventId',
+                    model:'Event'
+                },
+                {
+                    path:'venueId',
+                    model:'Venue'
+                },
+            ]
+        })
+        .lean();
+        // console.log('Keys: ', keys)
+        return JSON.parse(JSON.stringify(keys))
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching keys', true, {}, 500)
+    }
+}
+
+export async function getKeysForChurch(churchId:string){
+    try {
+        await connectDB();
+        const rooms = await Room.find({churchId}).select('_id');
+        const roomIds = rooms.map((item)=>item?._id);
+        const keys = await Key.find({roomId: {$in:roomIds}})
         .populate({
             path:'holder',
             populate:{

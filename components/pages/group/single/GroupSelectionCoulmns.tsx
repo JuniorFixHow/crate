@@ -7,7 +7,8 @@ import { IVenue } from "@/lib/database/models/venue.model";
 export const GroupSelectionCoulmns =(
     selectedRooms:IRoom[],
     handleSelect:(data:IRoom)=>void,
-
+    venueReader:boolean,
+    roomReader:boolean,
 ):GridColDef[] => [
     {
         field:'id',
@@ -36,7 +37,14 @@ export const GroupSelectionCoulmns =(
         },
         width:140,
         renderCell:({row}:GridRenderCellParams)=>(
-            <Link href={`/dashboard/venues/${row?.venueId?._id}`}  className="table-link" >{row?.venueId?.name}</Link>
+            <>
+            {
+                venueReader ?
+                <Link href={`/dashboard/venues/${row?.venueId?._id}`}  className="table-link" >{row?.venueId?.name}</Link>
+                :
+                <span>{row?.venueId?.name}</span>
+            }
+            </>
         )
         
     },
@@ -46,7 +54,14 @@ export const GroupSelectionCoulmns =(
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.number}</Link>
+                <>
+                {
+                    roomReader ?
+                    <Link className="table-link" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.number}</Link>
+                    :
+                    <span>{params?.row?.number}</span>
+                }
+                </>
             )
         }
     },

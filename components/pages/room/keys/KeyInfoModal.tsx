@@ -1,3 +1,5 @@
+import { canPerformAction, eventRegistrationRoles, eventRoles, roomRoles, venueRoles } from '@/components/auth/permission/permission'
+import { useAuth } from '@/hooks/useAuth'
 import { IEvent } from '@/lib/database/models/event.model'
 import { IKey } from '@/lib/database/models/key.model'
 import { IMember } from '@/lib/database/models/member.model'
@@ -17,11 +19,18 @@ export type KeyInfoModalProps = {
 }
 
 const KeyInfoModal = ({infoMode, setInfoMode, currentKey, setCurrentKey}:KeyInfoModalProps) => {
+    const {user} = useAuth();
     const room = currentKey?.roomId as IRoom;
     const venue = room?.venueId as IVenue;
     const event = room?.eventId as IEvent;
     const holder = currentKey?.holder as IRegistration;
     const member = holder?.memberId as IMember;
+
+    const showMember = canPerformAction(user!, 'reader', {eventRegistrationRoles});
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
+    const showVenue = canPerformAction(user!, 'reader', {venueRoles});
+    const showEvent = canPerformAction(user!, 'reader', {eventRoles});
+
     const handleClose = ()=>{
         setCurrentKey(null);
         setInfoMode(false);
@@ -46,13 +55,25 @@ const KeyInfoModal = ({infoMode, setInfoMode, currentKey, setCurrentKey}:KeyInfo
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Room</span>
-                    <Link href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} className='table-link' >{venue?.name} - {room?.number}</Link>
+                    {
+                        showRoom ?
+                        <Link href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} className='table-link' >{venue?.name} - {room?.number}</Link>
+                        :
+                        <span className='text-[0.9rem]'>{venue?.name} - {room?.number}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Holder</span>
                     {
                         holder?
-                        <Link href={{pathname:'/dashboard/events/badges', query:{regId:holder?._id}}}  className='text-[0.9rem]' >{member?.name}</Link>
+                        <>
+                        {
+                            showMember?
+                            <Link href={{pathname:'/dashboard/events/badges', query:{regId:holder?._id}}}  className='text-[0.9rem]' >{member?.name}</Link>
+                            :
+                            <span  className='text-[0.9rem]' >{member?.name}</span>
+                        }
+                        </>
                         :
                         <span className='text-[0.9rem]' >None</span>
                     }
@@ -82,11 +103,22 @@ const KeyInfoModal = ({infoMode, setInfoMode, currentKey, setCurrentKey}:KeyInfo
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Venue</span>
-                    <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                    {
+                        showVenue ?
+                        <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]'>{venue?.name}</span>
+                    }
+                    <span className='text-[0.9rem]' >N/A</span>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                    {
+                        showEvent ?
+                        <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{event?.name}</span>
+                    }
                 </div>
                 
             </div>

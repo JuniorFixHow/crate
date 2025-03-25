@@ -3,7 +3,7 @@ import AddButton from '@/components/features/AddButton'
 // import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import { ErrorProps } from '@/types/Types'
 import Link from 'next/link'
-import { ChangeEvent, FormEvent, useRef, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 // import { createSession } from '@/lib/actions/session.action'
 import { Alert, Tooltip } from '@mui/material'
 import { useAuth } from '@/hooks/useAuth'
@@ -20,6 +20,7 @@ import { IActivity } from '@/lib/database/models/activity.model'
 import { getActivity } from '@/lib/actions/activity.action'
 import { IoMdInformationCircleOutline } from 'react-icons/io'
 import { useRouter } from 'next/navigation'
+import { canPerformAction, classSessionRoles } from '@/components/auth/permission/permission'
 
 const NewSessionsV2 = () => {
   const [data, setData] = useState<Partial<IClasssession>>({});
@@ -35,6 +36,14 @@ const NewSessionsV2 = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const {user} = useAuth();
   const router = useRouter();
+
+  const creator = canPerformAction(user!, 'creator', {classSessionRoles});
+
+  useEffect(()=>{
+    if(user && (!creator)){
+      router.replace('/dashboard/forbidden?p=Session Creator')
+    }
+  },[creator, user, router])
 
   const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
@@ -85,6 +94,7 @@ const NewSessionsV2 = () => {
     }
   }
   // console.log(data)
+  if(!creator) return;
 
   return (
     <div className="flex flex-col gap-6">
@@ -98,35 +108,35 @@ const NewSessionsV2 = () => {
             <form onSubmit={handleNewSession} ref={formRef}  className="flex flex-1 flex-col gap-5">
                   <div className="flex flex-col">
                       <span className='text-slate-400 font-semibold text-[0.8rem]' >Select Ministry</span>
-                      <SearchSelectClassministries width={300} require setSelect={setClassMinistryId} />
+                      <SearchSelectClassministries width={250} require setSelect={setClassMinistryId} />
                   </div>
                   {
                       classMinistryId && 
                       <div className="flex flex-col">
                           <span className='text-slate-400 font-semibold text-[0.8rem]' >Select Activity</span>
-                          <SearchSelectActivity width={300} require minId={classMinistryId} setSelect={setActivityId} />
+                          <SearchSelectActivity width={250} require minId={classMinistryId} setSelect={setActivityId} />
                       </div>
                   }
                   {
                       activityId && 
                       <div className="flex flex-col">
                           <span className='text-slate-400 font-semibold text-[0.8rem]' >Select Class</span>
-                          <SearchSelectClassV2 width={300} require activityId={activityId} setSelect={setMinistryId} />
+                          <SearchSelectClassV2 width={250} require activityId={activityId} setSelect={setMinistryId} />
                       </div>
                   }
                 <div className="flex flex-col gap-1">
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Session Name</span>
-                    <input required onChange={handleChange}  placeholder='eg. morning prayers...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+                    <input required onChange={handleChange}  placeholder='eg. morning prayers...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
                 </div>
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-4">
                       <span className='text-slate-400 font-semibold text-[0.8rem]' >Venue</span>
                       <Tooltip title='The venue of the session other the local church of the ministry. This is optional' ><IoMdInformationCircleOutline /></Tooltip>
                     </div>
-                    <input onChange={handleChange}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="venue"  />
+                    <input onChange={handleChange}  placeholder='type here...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="venue"  />
                 </div>
 
-                <div className="flex flex-row gap-12 items-center">
+                <div className="flex flex-col gap-5 md:flex-row md:gap-12 md:items-center">
                   <div className="flex flex-col gap-1">
                       <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (From)</span>
                       <input  required onChange={(e)=>setFrom(new Date(e.target.value))} min={minTime(new Date())} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='datetime-local' name="from"  />

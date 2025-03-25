@@ -9,6 +9,9 @@ import { IZone } from '@/lib/database/models/zone.model';
 import { IVendor } from '@/lib/database/models/vendor.model';
 import Image from 'next/image';
 import '../../features/customscroll.css';
+import { useAuth } from '@/hooks/useAuth';
+import { checkIfAdmin } from '@/components/Dummy/contants';
+import { campusRoles, isChurchAdmin, memberRoles, userRoles } from '@/components/auth/permission/permission';
 
 export type MemberInfoModalProps = {
     infoMode:boolean,
@@ -22,10 +25,19 @@ const MemberInfoModal = ({infoMode, setInfoMode, currentMember, setCurrentMember
     const campus = currentMember?.campuseId as ICampuse;
     const zone = church?.zoneId as IZone;
     const registerer = currentMember?.registeredBy as IVendor;
+    const {user} = useAuth();
     const handleClose = ()=>{
         setCurrentMember(null);
         setInfoMode(false);
     }
+
+    if(!user) return
+          const isAdmin = checkIfAdmin(user);
+      
+          const showCampus = isAdmin || campusRoles.admin(user) || isChurchAdmin.admin(user);
+          const showMember = isAdmin || isChurchAdmin.admin(user) || memberRoles.admin(user);
+          const showUser = isAdmin || isChurchAdmin.reader(user) || userRoles.admin(user);
+
   return (
     <Modal
         open={infoMode}
@@ -53,7 +65,12 @@ const MemberInfoModal = ({infoMode, setInfoMode, currentMember, setCurrentMember
                 }
 
                 <div className="flex flex-col dark:text-slate-200">
-                    <Link href={`/dashboard/members/${currentMember?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentMember?.name}</Link>
+                    {
+                        showMember ?
+                        <Link href={`/dashboard/members/${currentMember?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentMember?.name}</Link>
+                        :
+                        <span className='text-[1.3rem]' >{currentMember?.name}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Gender</span>
@@ -91,19 +108,32 @@ const MemberInfoModal = ({infoMode, setInfoMode, currentMember, setCurrentMember
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Allergies</span>
                     <span className='text-[0.9rem]' >{currentMember?.allergy? currentMember?.allergy : 'None'}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
-                    <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link' >{zone?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
-                </div>
+                {
+                    isAdmin &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
+                        <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link' >{zone?.name}</Link>
+                    </div>
+                }
+                {
+                    isAdmin &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
+                        <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
+                    </div>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Campus</span>
                     {
                         campus ? 
-                        <Link href={{pathname:`/dashboard/churches/campuses`, query:{id:campus?._id}}}  className='table-link' >{campus?.name}</Link>
+                        <>
+                        {
+                            showCampus ? 
+                            <Link href={{pathname:`/dashboard/churches/campuses`, query:{id:campus?._id}}}  className='table-link' >{campus?.name}</Link>
+                            :
+                            <span className='text-[0.9rem]' >{campus?.name}</span>
+                        }
+                        </>
                         :
                         <span className='text-[0.9rem]' >None</span>
                     }
@@ -113,10 +143,14 @@ const MemberInfoModal = ({infoMode, setInfoMode, currentMember, setCurrentMember
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Notes</span>
                     <span className='text-[0.9rem]' >{currentMember?.note? currentMember?.note : 'None'}</span>
                 </div>
-
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registered By</span>
-                    <Link href={{pathname:`/dashboard/users`, query:{id:registerer?._id}}}  className='table-link' >{registerer?.name}</Link>
+                    {
+                        showUser ?
+                        <Link href={{pathname:`/dashboard/users`, query:{id:registerer?._id}}}  className='table-link' >{registerer?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{registerer?.name}</span>
+                    }
                 </div>
                 
                 

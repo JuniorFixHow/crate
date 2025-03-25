@@ -8,7 +8,9 @@ import Link from "next/link";
 
 export const AssignmentColumns =(
     handleUnassign:(data:IRegistration)=>void,
-    loading:boolean
+    loading:boolean,
+    regReader:boolean,
+    roomAssign:boolean,
 ):GridColDef[] => [
     {
         field:'memberId',
@@ -25,7 +27,14 @@ export const AssignmentColumns =(
        
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?._id}}} >{params?.row?.memberId?.name}</Link>
+                <>
+                {
+                    regReader ?
+                    <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params?.row?._id}}} >{params?.row?.memberId?.name}</Link>
+                    :
+                    <span>{params?.row?.memberId?.name}</span>
+                }
+                </>
             )
         }
 
@@ -78,17 +87,24 @@ export const AssignmentColumns =(
         disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="h-full flex items-center">
-                    {
-                        (!params?.row?.roomIds || params?.row?.roomIds?.length === 0) ?
+                <>
+                {
+                    roomAssign ?
+                    <div className="h-full flex items-center">
+                        {
+                            (!params?.row?.roomIds || params?.row?.roomIds?.length === 0) ?
 
-                        <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Member'}}} >
-                            <AddButton text="Assign room" smallText noIcon className="h-[2rem] px-2 rounded" />
-                        </Link>
-                        :
-                        <AddButton onClick={()=>handleUnassign(params?.row)} disabled={loading} text={loading ? "loading":"Unassign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
-                    }
-                </div>
+                            <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Member'}}} >
+                                <AddButton text="Assign room" smallText noIcon className="h-[2rem] px-2 rounded" />
+                            </Link>
+                            :
+                            <AddButton onClick={()=>handleUnassign(params?.row)} disabled={loading} text={loading ? "loading":"Unassign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
+                        }
+                    </div>
+                    :
+                    <span>None</span>
+                }
+                </>
             )
         }
 

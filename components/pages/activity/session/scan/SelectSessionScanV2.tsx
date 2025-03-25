@@ -35,12 +35,12 @@ const SelectSessionScanV2 = ({currentSession, setCurrentSession, setStage}:Selec
             :
             <div className="flex flex-col md:flex-row items-start gap-6 md:justify-between">
                 <div className="flex flex-col gap-4">
-                <SearchSelectClassministries width={300} setSelect={setClassMinistryId} />
+                <SearchSelectClassministries width={250} setSelect={setClassMinistryId} />
                 {
-                    classMinistryId && <SearchSelectActivity width={300} minId={classMinistryId} setSelect={setActivityId} />
+                    classMinistryId && <SearchSelectActivity width={250} minId={classMinistryId} setSelect={setActivityId} />
                 }
                 {
-                    activityId && <SearchSelectClassV2 width={300} activityId={activityId} setSelect={setMinistryId} />
+                    activityId && <SearchSelectClassV2 width={250} activityId={activityId} setSelect={setMinistryId} />
                 }
                 </div>
                 <div className="flex flex-col gap-8">

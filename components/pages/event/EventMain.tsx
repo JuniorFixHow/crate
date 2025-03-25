@@ -1,13 +1,17 @@
 'use client'
+import { canPerformAction, eventRoles } from '@/components/auth/permission/permission'
 import BottomActionItems from '@/components/features/BottomActionItems'
 import Title from '@/components/features/Title'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { today } from '@/functions/dates'
+import { useAuth } from '@/hooks/useAuth'
 import {  updateEvent } from '@/lib/actions/event.action'
 import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
-import React, { ChangeEvent, FormEvent,   useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { enqueueSnackbar } from 'notistack'
+import React, { ChangeEvent, FormEvent,   useEffect,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 
 type EventMainProps = {
@@ -22,6 +26,8 @@ const EventMain = ({event}:EventMainProps) => {
     // const [loadingError, setLoadingError] = useState<string|null>(null);
     const [error, setError] = useState<ErrorProps>(null);
 
+    const router = useRouter();
+
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
         const {value, name} = e.target;
         setData((pre)=>({
@@ -29,9 +35,17 @@ const EventMain = ({event}:EventMainProps) => {
             [name]:value
         }))
     }
+    const {user} = useAuth();
 
+    const reader = canPerformAction(user!, 'reader', {eventRoles});
+    const updater = canPerformAction(user!, 'updater', {eventRoles});
+    const deleter = canPerformAction(user!, 'deleter', {eventRoles});
 
-
+    useEffect(()=>{
+        if(user && (!reader && !updater)){
+            router.replace('/dashboard/forbidden?p=Event Reader')
+        }
+    },[reader, user, updater, router])
     
 
 
@@ -52,13 +66,13 @@ const EventMain = ({event}:EventMainProps) => {
               childPrice:data.childPrice||event.childPrice,
               adultPrice:data.adultPrice||event.adultPrice,
             }
-            await updateEvent(event._id, body);
-            setError({message:'Event updated successfully', error:false});
+            const res = await updateEvent(event._id, body);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
   
           }
         } catch (error) {
           console.log(error);
-          setError({message:'Error occured updating the event', error:true});
+          enqueueSnackbar('Error occured updating the event', {variant:'error'});
         }finally{
           setUpdateLoading(false);
         }
@@ -67,6 +81,7 @@ const EventMain = ({event}:EventMainProps) => {
 
     // if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={loadingError} />
     // if(!event) return null;
+    if(!reader && !updater) return;
 
   return (
     <div className='page' >
@@ -168,7 +183,7 @@ const EventMain = ({event}:EventMainProps) => {
                             error?.message &&
                             <Alert onClose={()=>setError(null)} severity={error.error ? 'error':'success'} >{error.message}</Alert>
                         }
-                        <BottomActionItems updateLoading={updateLoading} setError={setError} event={event!} />
+                        <BottomActionItems deleter={deleter} updater={updater} updateLoading={updateLoading} setError={setError} event={event!} />
                 </div>
                </div>
 

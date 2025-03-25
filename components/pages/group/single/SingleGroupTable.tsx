@@ -20,12 +20,15 @@ import SelectRoomsForGroups from './SelectRoomsForGroups';
 import { useQuery } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { IEvent } from '@/lib/database/models/event.model';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, eventRegistrationRoles, groupRoles, groupRolesExtended, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
 
 type SingleGroupTableProps = {
   currentGroup:IGroup
 }
 
 const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
+    const {user} = useAuth();
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     // const [currentGroup, setCurrentGroup]= useState<IGroup|null>(null);
@@ -41,7 +44,19 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
 
     const searchParams = useSearchParams();
 
+    const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
+    const deleter = canPerformAction(user!, 'deleter', {groupRoles});
+    const groupUpdater = canPerformAction(user!, 'updater', {groupRoles});
+    const groupReader = canPerformAction(user!, 'reader', {groupRoles});
+    const groupAssign = groupRolesExtended.assign(user!) || isChurchAdmin.creator(user!) || isSystemAdmin.creator(user!) || isSuperUser(user!);
+    const roomAssign = roomRolesExtended.assign(user!) || isChurchAdmin.creator(user!) || isSystemAdmin.creator(user!) || isSuperUser(user!);
     
+    useEffect(()=>{
+      if(user && (!deleter && !groupUpdater && !groupReader && !groupAssign)){
+        router.replace('/dashboard/forbidden?p=Group Reader')
+      }
+    },[deleter, groupAssign, groupReader, groupUpdater, user, router])
+
     const fetchRegistrations = async ():Promise<IRegistration[]> => {
       try {
         if(!currentGroup) return [];
@@ -105,6 +120,9 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
     // console.log('Group: ', currentGroup)
     const warn = `You're about to remove this member from the group. Are you aware?`
     const message = `Deleting will remove all members in the group as well. You're rather advised to remove the unwanted members. Do you still want to delete the group?`
+
+    if(!deleter && !groupUpdater && !groupReader && !groupAssign) return;
+
   return (
     <div className='table-main2' >
       <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
@@ -123,13 +141,19 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
 
             <div className="flex items-center gap-4">
               {
-                !(currentGroup?.type === 'Couple' && currentGroup?.eligible >= 2) &&
+                !(currentGroup?.type === 'Couple' && currentGroup?.eligible >= 2) && groupAssign &&
                 <AddButton onClick={()=>setNewMode(true)} text='Add a member' smallText className='rounded' />
               }
-              <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />
+              {
+                roomAssign &&
+                <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />
+              }
             </div>
         </div>
-        <AddButton onClick={()=>setDeleteMode(true)} text='Delete Group' className='rounded w-fit' noIcon smallText isDanger />
+        {
+          deleter &&
+          <AddButton onClick={()=>setDeleteMode(true)} text='Delete Group' className='rounded w-fit' noIcon smallText isDanger />
+        }
       </div>
       <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-[#0F1214] p-4">
         <DeleteDialog onTap={handleDeleteGroup} message={message} setValue={setDeleteMode} value={deleteMode} title={`Delete ${currentGroup?.name}`} />
@@ -137,7 +161,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
         <NewGroupMember infoMode={newMode} setInfoMode={setNewMode} currentGroup={currentGroup} />
 
        
-        <SelectRoomsForGroups currentGroup={currentGroup} setShowRooms={setShowRooms} showRooms={showRooms} />
+        <SelectRoomsForGroups user={user!} currentGroup={currentGroup} setShowRooms={setShowRooms} showRooms={showRooms} />
 
         <div className="flex flex-col gap-2">
           {/* {
@@ -154,7 +178,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
                     rows={registrations}
                     loading={loading}
                     getRowId={(row:IRegistration)=>row._id}
-                    columns={SingleGroupColumns(handleRemove)}
+                    columns={SingleGroupColumns(handleRemove, reader, groupAssign)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 20, 30, 50, 100]}
                     slots={{toolbar:GridToolbar}}
@@ -175,11 +199,11 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
             </div>
 
             :
-            <GroupRooms currentGroup={currentGroup} />
+            <GroupRooms user={user!} roomAssign={roomAssign} currentGroup={currentGroup} />
 
           }
 
-            <SingleGroupDown currentGroup={currentGroup!} />
+            <SingleGroupDown groupUpdater={groupUpdater} currentGroup={currentGroup!} />
           
         </div>
       </div>

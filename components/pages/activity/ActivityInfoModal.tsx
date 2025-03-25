@@ -9,6 +9,8 @@ import { IChurch } from '@/lib/database/models/church.model';
 import { useFetchMinistries } from '@/hooks/fetch/useMinistry';
 import { IMinistry } from '@/lib/database/models/ministry.model';
 import { IClassministry } from '@/lib/database/models/classministry.model';
+import { useAuth } from '@/hooks/useAuth';
+import { activityRoles, canPerformAction, classRoles, isSuperUser, isSystemAdmin, ministryRoles } from '@/components/auth/permission/permission';
 
 export type ActivityInfoModalProps = {
     infoMode:boolean,
@@ -23,6 +25,13 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
     const activityId =  currentActivity?._id as string;
     const ministries = useFetchMinistries(activityId)?.data as IMinistry[];
     const classministry = currentActivity?.minId as unknown as IClassministry;
+    const {user} = useAuth();
+
+    const reader = canPerformAction(user!, 'reader', {activityRoles});
+    const updater = canPerformAction(user!, 'updater', {activityRoles});
+    const showMinistry = canPerformAction(user!, 'reader', {ministryRoles});
+    const showClass = canPerformAction(user!, 'reader', {classRoles});
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
 
     const handleClose = ()=>{
         setCurrentActivity(null);
@@ -48,14 +57,26 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
 
             <div className="flex flex-col gap-4">
                 
-                <div className="flex flex-col dark:text-slate-200">                    
-                    <Link href={`/dashboard/activities/${currentActivity?._id}`}   className='text-xl table-link' >{
-                    currentActivity?.name
-                    }</Link>
+                <div className="flex flex-col dark:text-slate-200">
+                    {
+                        (reader || updater) ?
+                        <Link href={`/dashboard/activities/${currentActivity?._id}`}   className='text-xl table-link w-fit' >{
+                        currentActivity?.name
+                        }</Link>
+                        :
+                        <span  className='text-xl w-fit' >{
+                        currentActivity?.name
+                        }</span>
+                    }                    
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Program</span>
-                    <Link className='table-link' href={`/dashboard/ministries/${classministry?._id}`} >{classministry?.title}</Link>
+                    {
+                        showMinistry ?
+                        <Link className='table-link' href={`/dashboard/ministries/${classministry?._id}`} >{classministry?.title}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{classministry?.title}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Happening</span>
@@ -81,9 +102,16 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
                         <div className="flex flex-col gap-2">
                             {
                                 ministries?.map((item)=>(
-                                    <Link key={item?._id} href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{classId:item?._id}}}   className='text-[0.9rem] table-link' >{
-                                        item?.name
-                                    }</Link>
+                                    <>
+                                    {
+                                        showClass?
+                                        <Link key={item?._id} href={{pathname:`/dashboard/activities/${currentActivity?._id}`, query:{classId:item?._id}}}   className='text-[0.9rem] table-link' >{
+                                            item?.name
+                                        }</Link>
+                                        :
+                                        <span key={item?._id}  className="text-[0.9rem]">{item?.name}</span>
+                                    }
+                                    </>
 
                                 ))
                             }
@@ -95,13 +123,15 @@ const ActivityInfoModal = ({infoMode, setInfoMode, setCurrentActivity, currentAc
 
                 
 
-                
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
-                        church?.name
-                    }</Link>
-                </div>
+                {
+                   isAdmin && church &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
+                        <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
+                            church?.name
+                        }</Link>
+                    </div>
+                }
                 
             </div>
         </div>

@@ -11,10 +11,12 @@ const EditSessionsMain = ({currentSession}:EditSessionsMainProps) => {
   return (
     <div className="page" >
       <div className="flex flex-row gap-2 items-baseline">
+        <div className="hidden md:flex flex-row gap-2 items-baseline">
           <Title clickable link="/dashboard/ministries" text="Ministries" />
           <IoIosArrowForward/>
           <Title link="/dashboard/ministries/sessions" clickable text='Sessions' />
           <IoIosArrowForward/>
+        </div>
           <Title  text={currentSession?.name ?? 'Edit'} />
       </div>
       <EditSessionsV2 currentSession={currentSession} />

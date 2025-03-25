@@ -8,9 +8,12 @@ import { getRoomsForFacility } from '@/lib/actions/room.action';
 import { IRoom } from '@/lib/database/models/room.model';
 import { IVenue } from '@/lib/database/models/venue.model';
 
+type FacilityInfoModalProps = NewSingleFacilityProps & {
+    venueReader:boolean;
+    roomReader:boolean;
+}
 
-
-const FacilityInfoModal = ({infoMode, setInfoMode, currentFacility, setCurrentFacility}:NewSingleFacilityProps) => {
+const FacilityInfoModal = ({infoMode, setInfoMode, currentFacility, setCurrentFacility, venueReader, roomReader}:FacilityInfoModalProps) => {
 
     const [rooms, setRooms] = useState<IRoom[]>([]);
     const venue = currentFacility?.venueId as IVenue;
@@ -58,7 +61,12 @@ const FacilityInfoModal = ({infoMode, setInfoMode, currentFacility, setCurrentFa
                 </div>
                 <div className="flex flex-col dark:text-slate-200 max-w-80">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Venue</span>
-                    <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                    {
+                        venueReader ?
+                        <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{venue?.name}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Rooms</span>
@@ -66,7 +74,14 @@ const FacilityInfoModal = ({infoMode, setInfoMode, currentFacility, setCurrentFa
                         {
                             rooms?.length > 0 ?
                             rooms.map((room)=>(
-                                <Link key={room._id} className='table-link' href={{pathname:`/dashboard/rooms`, query:{id:room?._id}}} >{room?.number} - {room?.roomType}</Link>
+                                <>
+                                {
+                                    roomReader ?
+                                    <Link key={room._id} className='table-link' href={{pathname:`/dashboard/rooms`, query:{id:room?._id}}} >{room?.number} - {room?.roomType}</Link>
+                                    :
+                                    <span key={room._id} className='text-[0.9rem]' >{room?.number} - {room?.roomType}</span>
+                                }
+                                </>
                             ))
                             :
                             <span className='text-[0.9rem]' >None</span>

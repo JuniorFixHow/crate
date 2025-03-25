@@ -10,10 +10,12 @@ export type CampusInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentCampus:ICampuse|null,
-    setCurrentCampus:Dispatch<SetStateAction<ICampuse|null>>
+    setCurrentCampus:Dispatch<SetStateAction<ICampuse|null>>;
+    showMember:boolean,
+    isAdmin:boolean
 }
 
-const CampusInfoModal = ({infoMode, setInfoMode, currentCampus, setCurrentCampus}:CampusInfoModalProps) => {
+const CampusInfoModal = ({infoMode, showMember, isAdmin, setInfoMode, currentCampus, setCurrentCampus}:CampusInfoModalProps) => {
     const church = currentCampus?.churchId as IChurch;
     const handleClose = ()=>{
         setCurrentCampus(null);
@@ -43,7 +45,12 @@ const CampusInfoModal = ({infoMode, setInfoMode, currentCampus, setCurrentCampus
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <Link href={{pathname:`/dashbord/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
+                    {
+                        isAdmin ?
+                        <Link href={{pathname:`/dashbord/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{church?.name}</span>
+                    }
                 </div>
                 
                 
@@ -51,7 +58,14 @@ const CampusInfoModal = ({infoMode, setInfoMode, currentCampus, setCurrentCampus
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Members</span>
                     {
                         currentCampus?.members?.length ?
-                        <Link href={{pathname:'/dashboard/members', query:{campuseId:currentCampus?._id}}}  className='table-link' >{currentCampus?.members.length}</Link>
+                        <>
+                        {
+                            showMember?
+                            <Link href={{pathname:'/dashboard/members', query:{campuseId:currentCampus?._id}}}  className='table-link' >{currentCampus?.members.length}</Link>
+                            :
+                            <span  className='text-[0.9rem]' >{currentCampus?.members.length}</span>
+                        }
+                        </>
                         :
                         <span className='text-[0.9rem]' >0</span>
                     }

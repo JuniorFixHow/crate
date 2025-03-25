@@ -13,6 +13,9 @@ import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getEvent } from '@/lib/actions/event.action';
 import BadgePreviewV3 from './BadgePreviewV3';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, eventRegistrationRoles } from '@/components/auth/permission/permission';
+import { useRouter } from 'next/navigation';
 
 const PrintBage = () => {
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -22,10 +25,17 @@ const PrintBage = () => {
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [eventId, setEventId] = useState<string>('');
     const [registeredMembers, setRegisteredMembers] = useState<IMember[]>([]);
-
-    
-
     const {isPending, members} = useFetchUnregisteredMembers(eventId, memberData.map((item)=>item?._id));
+    const {user} = useAuth();
+    const router = useRouter();
+    
+    const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+
+    useEffect(()=>{
+        if(user && !updater){
+            router.replace('/dashboard/forbidden?p=Event Registration Updater')
+        }
+    },[user, updater, router])
 
     useEffect(()=>{
         const localData = sessionStorage.getItem('printData'); 
@@ -109,6 +119,8 @@ const PrintBage = () => {
         queryFn:()=>getEvent(eventId),
         enabled:!!eventId
     })
+
+    if(!updater) return;
 
   return (
     <div className="flex flex-col gap-8 md:flex-row md:items-stretch bg-white p-6 w-full shadow-lg border-t-0 dark:bg-[#0F1214] border">

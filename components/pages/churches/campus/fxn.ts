@@ -32,7 +32,7 @@ export const SearchCampuseWithoutZone = (
     const data = campuses
     .filter((item)=>{
         const church = item.churchId as IChurch;
-        return churchId === '' || churchId === undefined ? item : church._id === churchId
+        return (churchId === '' || churchId === undefined) ? item : church._id === churchId
     })
     
 

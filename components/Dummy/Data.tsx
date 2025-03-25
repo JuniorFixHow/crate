@@ -2,7 +2,9 @@
 import React from "react"
 
 import { RxDashboard } from 'react-icons/rx'
-import { MdOutlineInbox, MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney, MdOutlineOtherHouses } from "react-icons/md"
+import { 
+  // MdOutlineInbox, 
+  MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney, MdOutlineOtherHouses } from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
@@ -12,7 +14,9 @@ import { TbBuildingChurch, TbCash, TbCirclesRelation, TbDoorExit, TbProgressChec
 import { CiGlobe } from "react-icons/ci";
 import { RiCalendarEventLine, RiMoneyDollarBoxLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
 import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
-import { HiOutlineBuildingLibrary, HiOutlineMegaphone } from "react-icons/hi2";
+import { HiOutlineBuildingLibrary, 
+  // HiOutlineMegaphone
+ } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
 import { FiActivity } from "react-icons/fi";
 import { FaRegAddressCard } from "react-icons/fa";
@@ -30,15 +34,15 @@ export const NavItems:NavigationProps[] = [
         icon: <RxDashboard />,
         link:'/dashboard'
     },
-    {
-        title: 'Inbox',
-        isAdmin:false,
-        icon: <MdOutlineInbox/>,
-        link:'/dashboard/inbox'
-    },
+    // {
+    //     title: 'Inbox',
+    //     isAdmin:false,
+    //     icon: <MdOutlineInbox/>,
+    //     link:'/dashboard/inbox'
+    // },
     {
         title: 'Members',
-        isAdmin:false,
+        isAdmin:true,
         icon: <LuUserPlus/>,
         // link:'/dashboard/members/register',
         children:[
@@ -62,7 +66,7 @@ export const NavItems:NavigationProps[] = [
     
     {
         title: 'Event Management',
-        isAdmin:false,
+        isAdmin:true,
         children:[
             {
                 text:'Event',
@@ -99,7 +103,7 @@ export const NavItems:NavigationProps[] = [
     },
     {
         title: 'User Management',
-        isAdmin:false,
+        isAdmin:true,
         icon: <PiUsersThreeThin />,
         children:[
           {
@@ -117,13 +121,13 @@ export const NavItems:NavigationProps[] = [
     },
     {
         title: 'Groups/Family',
-        isAdmin:false,
+        isAdmin:true,
         icon: <GrGroup/>,
         link:'/dashboard/groups'
     },
     {
       title: 'Venues/Rooms',
-      isAdmin: false,
+      isAdmin: true,
       icon: <MdOutlineMeetingRoom />,
       children: [
         {
@@ -157,7 +161,7 @@ export const NavItems:NavigationProps[] = [
     },
       {
         title: 'Communities',
-        isAdmin:false,
+        isAdmin:true,
         icon: <IoMdGlobe/>,
         children:[
           {
@@ -180,7 +184,7 @@ export const NavItems:NavigationProps[] = [
       },
       {
         title:'Ministries',
-        isAdmin:false,
+        isAdmin:true,
         icon:<PiCross />,
         children:[
           {
@@ -241,12 +245,12 @@ export const NavItems:NavigationProps[] = [
         ]
       },
       
-      {
-          title: 'Announcements',
-          isAdmin:false,
-          icon: <HiOutlineMegaphone />,
-          link:'/dashboard/announcements'
-      },
+      // {
+      //     title: 'Announcements',
+      //     isAdmin:false,
+      //     icon: <HiOutlineMegaphone />,
+      //     link:'/dashboard/announcements'
+      // },
 ]
 
 
@@ -255,9 +259,15 @@ export const NavItems:NavigationProps[] = [
 export const CBarFilters = [
     'Age', 'Country', 'Church', 'Gender', 'Registered By',
 ]
+export const CBarFiltersAdmin = [
+    'Age', 'Country', 'Gender', 'Registered By',
+]
 
 export const CBarFiltersEvent = [
   'Age Range', 'Church', 'Gender'
+]
+export const CBarFiltersEventAdmin = [
+  'Age Range',  'Gender'
 ]
 
 

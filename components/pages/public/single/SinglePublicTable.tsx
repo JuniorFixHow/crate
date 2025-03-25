@@ -7,7 +7,7 @@ import { ISection } from '@/lib/database/models/section.model';
 import { ErrorProps } from '@/types/Types';
 import { Alert,  Paper } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {  useFetchSectionsForSet } from '@/hooks/fetch/useSection';
 // import { SearchSection } from '../section/fxn';
 import SectionSelector from '../section/SectionSelector';
@@ -15,18 +15,23 @@ import { SinglePublicColumns } from './SinglePublicColumns';
 import { enqueueSnackbar } from 'notistack';
 import ResponseMain from './responses/ResponseMain';
 import { ICYPSet } from '@/lib/database/models/cypset.model';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, questionSectionRoles } from '@/components/auth/permission/permission';
+import { useRouter } from 'next/navigation';
 
 type SinglePublicTableProps = {
     cypset:ICYPSet
 }
 
 const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
-    // const [search, setSearch] = useState<string>('');
+    const {user} = useAuth();
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentSection, setCurrentSection] = useState<ISection|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
     const [title, setStitle]= useState<string>('Sections');
+
+    const router = useRouter();
 
     const {sections, loading, refetch} = useFetchSectionsForSet(cypset?._id)
 
@@ -34,7 +39,20 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
 
     const hasQuestions = sections?.some((item)=>item?.questions?.length > 0);
 
-    const titles = hasQuestions ? ['Sections', 'Responses'] : ['Sections']
+    const titles = hasQuestions ? ['Sections', 'Responses'] : ['Sections'];
+
+    const mine = cypset.createdBy.toString() === user?.userId
+    const creator = canPerformAction(user!, 'creator', {questionSectionRoles}) || mine;
+    const reader = canPerformAction(user!, 'reader', {questionSectionRoles}) || mine;
+    const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || mine;
+    const deleter = canPerformAction(user!, 'deleter', {questionSectionRoles}) || mine;
+    const admin = canPerformAction(user!, 'admin', {questionSectionRoles}) || mine;
+
+    useEffect(()=>{
+        if(user && (!admin)){
+            router.replace('/dashboard/forbidden?p=Set Admin');
+        }
+    },[user, admin, router])
 
     const handleDeleteSection = async()=>{
         try {
@@ -62,6 +80,8 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
 
     const paginationModel = { page: 0, pageSize: 10 };
 
+    if(!admin) return;
+
   return (
     <div className='table-main2' >
         <div className="flex flex-col gap-5 md:flex-row justify-between">
@@ -77,9 +97,12 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
                     })
                 }
             </div>
-            <div className="flex gap-4 items-center">
-                <AddButton onClick={handleNew} text='Add New Section' noIcon className='rounded' smallText />
-            </div>
+            {
+                creator &&
+                <div className="flex gap-4 items-center">
+                    <AddButton onClick={handleNew} text='Add New Section' noIcon className='rounded' smallText />
+                </div>
+            }
         </div>
 
         <DeleteDialog title={`Delete ${currentSection?.title}`} message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleDeleteSection} />
@@ -96,7 +119,7 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     rows={sections}
-                    columns={SinglePublicColumns( handleDelete)}
+                    columns={SinglePublicColumns( handleDelete, reader, updater, deleter)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 20, 30, 50, 100]}
                     getRowId={(row:ISection):string=>row?._id}

@@ -5,15 +5,17 @@ import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } fr
 import { ErrorProps } from "@/types/Types";
 import { IService } from "@/lib/database/models/service.model";
 import { createService, updateService } from "@/lib/actions/service.action";
+import { enqueueSnackbar } from "notistack";
 
 export type NewServiceProps = {
     currentService:IService | null;
     setCurrentService:Dispatch<SetStateAction<IService|null>>;
     infoMode:boolean;
     setInfoMode:Dispatch<SetStateAction<boolean>>;
+    updater:boolean;
 }
 
-const NewService = ({currentService, setCurrentService, infoMode, setInfoMode}:NewServiceProps) => {
+const NewService = ({currentService, updater, setCurrentService, infoMode, setInfoMode}:NewServiceProps) => {
     const handleClose = ()=>{
         setCurrentService(null);
         setInfoMode(false);
@@ -33,7 +35,8 @@ const NewService = ({currentService, setCurrentService, infoMode, setInfoMode}:N
         try {
             setLoading(true);
             const res = await createService(data);
-            setError(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            setInfoMode(false);
             formRef.current?.reset();
         } catch (error) {
             console.log(error);
@@ -63,11 +66,12 @@ const NewService = ({currentService, setCurrentService, infoMode, setInfoMode}:N
                 cost:data?.cost||currentService?.cost, 
             };
             const res = await updateService(body);
-            setError(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             formRef.current?.reset();
+            setInfoMode(false);
         } catch (error) {
             console.log(error);
-            setError({message:'Error occured updating service', error:true})
+            enqueueSnackbar('Error occured updating service', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -107,7 +111,7 @@ const NewService = ({currentService, setCurrentService, infoMode, setInfoMode}:N
                 }
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading} type="submit"  className='rounded w-[45%] justify-center' text={loading? 'loading...' : currentService? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type="submit"  className={`rounded w-[45%] justify-center ${currentService && !updater && 'hidden'}`} text={loading? 'loading...' : currentService? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading}  className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

@@ -2,35 +2,39 @@
 import { getContractServices, getServices } from "@/lib/actions/service.action";
 import { IService } from "@/lib/database/models/service.model";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react"
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { useQuery } from "@tanstack/react-query";
+// import { useEffect, useState } from "react"
 
 export const useFetchServices = () =>{
-    const [services, setServices] = useState<IService[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string|null>(null);
     const searchParams = useSearchParams();
-
-    useEffect(()=>{
-        const contractId = searchParams.get('contractId');
-        const fetchServices = async()=>{
-            try {
-                let res:IService[];
-                if(contractId){
-                    res = await getContractServices(contractId);
-                }else{
-                    res = await getServices();
-                }
-                setServices(res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-            } catch (error) {
-                setError('Error occured fetching services');
-                console.log(error);
-            }finally{
-                setLoading(false);
+    const contractId = searchParams.get('contractId');
+    const {user} = useAuth();
+    const isAdmin = checkIfAdmin(user);
+    
+    const fetchServices = async():Promise<IService[]>=>{
+        try {
+            if(!isAdmin) return [];
+            let res:IService[];
+            if(contractId){
+                res = await getContractServices(contractId);
+            }else{
+                res = await getServices();
             }
+            const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
-        fetchServices();
+    }
 
-    },[])
+    const {data:services=[], isPending:loading, refetch} = useQuery({
+        queryKey:['services', searchParams],
+        queryFn: fetchServices,
+        enabled:isAdmin
+    })
 
-    return {services, loading, error}
+    return {services, loading, refetch}
 }

@@ -10,10 +10,11 @@ export type SingleVenueRoomInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentRoom:IRoom|null,
-    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>
+    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>;
+    eventReader:boolean;
 }
 
-const SingleVenueRoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:SingleVenueRoomInfoModalProps) => {
+const SingleVenueRoomInfoModal = ({infoMode, setInfoMode, eventReader, currentRoom, setCurrentRoom}:SingleVenueRoomInfoModalProps) => {
     const facility = currentRoom?.facId as IFacility;
     const event = currentRoom?.eventId as IEvent;
 
@@ -66,7 +67,12 @@ const SingleVenueRoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurren
 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                    {
+                        eventReader ?
+                        <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{currentRoom?.nob}</span>
+                    }
                 </div>
                 
             </div>

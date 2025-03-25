@@ -9,7 +9,10 @@ import { IZone } from "@/lib/database/models/zone.model";
 export const ChurchColumns = (
     handleInfo:(data:IChurch)=>void, 
     // handleNewChurch:(data:IChurch)=>void,
-    handleDeleteChurch:(data:IChurch)=>void
+    handleDeleteChurch:(data:IChurch)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
 ):GridColDef[]=> [
     {
         field:'name',
@@ -17,10 +20,15 @@ export const ChurchColumns = (
         width:170,
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={`/dashboard/churches/${params.row?._id}`}   className='hover:underline text-left dark:underline w-full text-blue-800 cursor-pointer' >{params?.row?.name}</Link>
-              </div>
-            )  
+                <>
+                {
+                    (reader || updater) ?
+                    <Link href={`/dashboard/churches/${params.row?._id}`}   className='table-link' >{params?.row?.name}</Link>
+                    :
+                    <span>{params?.row?.name}</span>
+                }
+                </>
+            )
         },
     },
     {
@@ -58,7 +66,14 @@ export const ChurchColumns = (
                 <>
                 {
                     params.row?.contractId ?
-                    <Link className="table-link" href={{pathname:`/dashboard/churches/contracts/${params.row.contractId._id}`}} >{params.row?.contractId?.title}</Link>
+                    <>
+                    {
+                        (reader||updater) ?
+                        <Link className="table-link" href={{pathname:`/dashboard/churches/contracts/${params.row.contractId._id}`}} >{params.row?.contractId?.title}</Link>
+                        :
+                        <span>{params.row?.contractId?.title}</span>
+                    }
+                    </>
                     :
                     <span>None</span>
                 }
@@ -81,8 +96,14 @@ export const ChurchColumns = (
         }, 
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:'/dashboard/zones', query:{id:params.row.zoneId._id}}} >{params.row.zoneId.name}</Link>
-                
+                <>
+                {
+                    (reader || updater) ?
+                    <Link className="table-link" href={{pathname:'/dashboard/zones', query:{id:params.row.zoneId._id}}} >{params.row.zoneId.name}</Link>
+                    :
+                    <span>{params.row.zoneId.name}</span>
+                }
+                </>
             )
         }
     },
@@ -107,8 +128,18 @@ export const ChurchColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDeleteChurch(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        reader &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDeleteChurch(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !reader && !deleter &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },

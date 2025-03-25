@@ -3,7 +3,9 @@ import { IExpectedRevenue } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
-export const IncomeColumns:GridColDef[]=[
+export const IncomeColumns=(
+    showChurch:boolean
+):GridColDef[]=>[
     {
         field:'church',
         headerName:'Church',
@@ -18,7 +20,14 @@ export const IncomeColumns:GridColDef[]=[
         },
         width:180,
         renderCell:({row}:GridRenderCellParams)=>(
-            <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:row?.church?._id}}} >{row?.church?.name}</Link>
+            <>
+            {
+                showChurch?
+                <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:row?.church?._id}}} >{row?.church?.name}</Link>
+                :
+                <span>{row?.church?.name}</span>
+            }
+            </>
         ),
     },
 

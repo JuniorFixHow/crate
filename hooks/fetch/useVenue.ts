@@ -13,7 +13,7 @@ export const useFetchVenues = () => {
         try {
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
-            const fetchedVenues: IVenue[] = isAdmin ? await getVenues() : getVenuesForChurch(user?.churchId);
+            const fetchedVenues: IVenue[] = isAdmin ? await getVenues() : await getVenuesForChurch(user?.churchId);
             const sorted = fetchedVenues.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted
         } catch (err) {

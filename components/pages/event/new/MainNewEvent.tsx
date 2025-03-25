@@ -1,4 +1,5 @@
 'use client'
+import { canPerformAction, eventRoles } from '@/components/auth/permission/permission'
 import AddButton from '@/components/features/AddButton'
 import Address from '@/components/shared/Address'
 import { today } from '@/functions/dates'
@@ -8,7 +9,8 @@ import { IEvent } from '@/lib/database/models/event.model'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, FormEvent, useRef, useState } from 'react'
+import { enqueueSnackbar } from 'notistack'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 
 
 const MainNewEvent = () => {
@@ -20,6 +22,14 @@ const MainNewEvent = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const { user } = useAuth();
   const router = useRouter();
+
+   const creator = canPerformAction(user!, 'creator', {eventRoles});
+  
+    useEffect(()=>{
+        if(user && !creator){
+            router.replace('/dashboard/forbidden?p=Activity Creator')
+        }
+    },[creator, user, router])
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,19 +50,19 @@ const MainNewEvent = () => {
         createdBy:user?.userId,
         churchId:user?.churchId,
       }
-      await createEvent(body);
-      setError({ message: "Event created successfully", error: false });
+      const res = await createEvent(body);
+      enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
       formRef.current?.reset();
     } catch (error) {
       console.log(error);
-      setError({ message: "Error occurred creating the event. Please, retry.", error: true });
+      enqueueSnackbar("Error occurred creating the event. Please, retry.", {variant:'error'});
     } finally {
       setLoading(false);
     }
   };
 
   // Handle custom questions
-  
+  if(!user) return;
 
   return (
     <div className="page">

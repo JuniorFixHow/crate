@@ -2,7 +2,8 @@ import { getSections, getSectionsForChurch, getSectionsForSet, getSectionsWithQu
 import { ISection } from "@/lib/database/models/section.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { checkIfAdmin } from "@/components/Dummy/contants";
+// import { checkIfAdmin } from "@/components/Dummy/contants";
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchSections = ()=>{
    const {user} = useAuth();
@@ -10,7 +11,7 @@ export const useFetchSections = ()=>{
     const fetchSections = async():Promise<ISection[]>=>{
         try {
             if(!user) return [];
-            const isAdmin = checkIfAdmin(user);
+            const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
             const res:ISection[] = isAdmin ? await getSections() : await getSectionsForChurch(user?.churchId);
             const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
@@ -59,7 +60,7 @@ export const useFetchSectionsWithQuestions = ()=>{
     const fetchSections = async():Promise<ISection[]>=>{
         try {
             if(!user) return [];
-            const isAdmin = checkIfAdmin(user);
+            const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
             const res:ISection[] = isAdmin ? await getSectionsWithQuestions() : await getSectionsWithQuestionsForChurch(user?.churchId);
             const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;

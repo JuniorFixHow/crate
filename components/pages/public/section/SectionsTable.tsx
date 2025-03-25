@@ -1,41 +1,63 @@
 'use client'
 import DeleteDialog from '@/components/DeleteDialog';
 import AddButton from '@/components/features/AddButton';
-import SearchBar from '@/components/features/SearchBar';
-import SearchSelectSet from '@/components/features/SearchSelectSet';
+// import SearchBar from '@/components/features/SearchBar';
 import { deleteSection } from '@/lib/actions/section.action';
 import { ISection } from '@/lib/database/models/section.model';
 import { ErrorProps } from '@/types/Types';
-import { Alert, LinearProgress, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import React, { useState } from 'react'
-import { SearchSectionWithSet } from './fxn';
+import { Alert,  Paper } from '@mui/material';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import React, { useEffect, useState } from 'react'
+import {  SearchSectionWithSetV2 } from './fxn';
 import { useFetchSections } from '@/hooks/fetch/useSection';
 import SectionSelector from './SectionSelector';
 import { SectionColumns } from './SectionColumns';
+import { enqueueSnackbar } from 'notistack';
+import SearchSelectCYPSetV2 from '@/components/features/SearchSelectSetV2';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, questionSectionRoles, questionSetRoles } from '@/components/auth/permission/permission';
+import { useRouter } from 'next/navigation';
 
 const SectionsTable = () => {
-    const [search, setSearch] = useState<string>('');
+    const {user} = useAuth();
+    // const [search, setSearch] = useState<string>('');
     const [cypsetId, setCypsetId] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentSection, setCurrentSection] = useState<ISection|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
 
+    const router = useRouter();
+
     const {sections, loading} = useFetchSections()
 
     const message = `Deleting a section will delete its questions and responses received for it. Are you sure?`;
+
+    const creator = canPerformAction(user!, 'creator', {questionSectionRoles});
+    const reader = canPerformAction(user!, 'reader', {questionSectionRoles});
+    const updater = canPerformAction(user!, 'updater', {questionSectionRoles});
+    const deleter = canPerformAction(user!, 'deleter', {questionSectionRoles});
+    const admin = canPerformAction(user!, 'admin', {questionSectionRoles});
+    const sUpdater = canPerformAction(user!, 'updater', {questionSetRoles});
+    const sReader = canPerformAction(user!, 'reader', {questionSetRoles});
+    const canDelete = deleter || sUpdater;
+
+    useEffect(()=>{
+        if(user && (!admin && !sUpdater)){
+            router.replace('/dashboard/forbidden?p=Section Admin')
+        }
+    },[user, admin, sUpdater, router])
 
     const handleDeleteSection = async()=>{
         try {
             if(currentSection){
                 const res = await deleteSection(currentSection._id);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
                 setDeleteMode(false);
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured deleting section', error:true})
+            enqueueSnackbar('Error occured deleting section', {variant:'error'});
         }
     }
 
@@ -46,7 +68,7 @@ const SectionsTable = () => {
 
     const handleNew = ()=>{
         if(!cypsetId){
-            setResponse({message:'Please select a set ID', error:true});
+            enqueueSnackbar('Please select a set ID', {variant:'error'});
         }else{
             setInfoMode(true);
         }
@@ -54,13 +76,18 @@ const SectionsTable = () => {
 
     const paginationModel = { page: 0, pageSize: 10 };
 
+    if(!admin && !sUpdater) return;
+
   return (
-    <div className='table-w' >
+    <div className='table-main2' >
         <div className="flex justify-between items-end">
-            <SearchSelectSet isGeneric setSelect={setCypsetId} />
+            <SearchSelectCYPSetV2 setSelect={setCypsetId} />
             <div className="flex gap-4 items-center">
-                <SearchBar setSearch={setSearch} reversed={false} />
-                <AddButton onClick={handleNew} text='Add New Section' noIcon className='rounded' smallText />
+                {/* <SearchBar setSearch={setSearch} reversed={false} /> */}
+                {
+                    (sUpdater || creator) &&
+                    <AddButton onClick={handleNew} text='Add New Section' noIcon className='rounded' smallText />
+                }
             </div>
         </div>
 
@@ -73,23 +100,29 @@ const SectionsTable = () => {
 
 
         <div className="flex w-full">
-          {
-            loading ?
-            <LinearProgress className='w-full' />
-            :
-            <Paper className='w-full' sx={{ height: 480, }}>
+            <Paper className='w-full' sx={{ height: 'auto', }}>
               <DataGrid
-                  rows={SearchSectionWithSet(sections, search, cypsetId)}
-                  columns={SectionColumns( handleDelete)}
+                  rows={SearchSectionWithSetV2(sections, cypsetId)}
+                  columns={SectionColumns( handleDelete, reader, updater, canDelete, sReader)}
                   initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10]}
+                  pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                   getRowId={(row:ISection):string=>row._id}
+                  loading={loading}
+                  slots={{toolbar:GridToolbar}}
+                  slotProps={{
+                    toolbar:{
+                        showQuickFilter:true,
+                        printOptions:{
+                            hideFooter:true,
+                            hideToolbar:true
+                        }
+                    }
+                  }}
                   // checkboxSelection
                   className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                   sx={{ border: 0 }}
               />
             </Paper>
-          }
         </div>
     </div>
   )

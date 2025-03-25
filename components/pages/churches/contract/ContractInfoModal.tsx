@@ -12,10 +12,12 @@ export type ContractInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentContract:IContract|null,
-    setCurrentContract:Dispatch<SetStateAction<IContract|null>>
+    setCurrentContract:Dispatch<SetStateAction<IContract|null>>;
+    reader:boolean,
+    serviceReader:boolean,
 }
 
-const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentContract}:ContractInfoModalProps) => {
+const ContractInfoModal = ({infoMode, setInfoMode, reader, serviceReader, currentContract, setCurrentContract}:ContractInfoModalProps) => {
     const handleClose = ()=>{
         setCurrentContract(null);
         setInfoMode(false);
@@ -38,7 +40,12 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col dark:text-slate-200">
-                    <Link href={`/dashboard/churches/contracts/${currentContract?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentContract?.title}</Link>
+                    {
+                        reader ?
+                        <Link href={`/dashboard/churches/contracts/${currentContract?._id}`}  className='text-[1.3rem] font-bold text-blue-500 underline' >{currentContract?.title}</Link>
+                        :
+                        <span   className='text-[1.3rem] font-bold' >{currentContract?.title}</span>
+                    }
                 </div>
               
                 <div className="flex flex-col dark:text-slate-200">
@@ -79,7 +86,14 @@ const ContractInfoModal = ({infoMode, setInfoMode, currentContract, setCurrentCo
                         {
                             services?.length > 0 ?
                             services?.map((service)=>(
-                                <Link key={service._id} className='table-link' href={{pathname:`/dashboard/churches/contracts/services`, query:{id:service?._id}}} >{service?.name}</Link>
+                                <>
+                                {
+                                    serviceReader ?
+                                    <Link key={service?._id} className='table-link' href={{pathname:`/dashboard/churches/contracts/services`, query:{id:service?._id}}} >{service?.name}</Link>
+                                    :
+                                    <span key={service?._id}  className='text-[0.9rem] ' >{service?.name}</span>
+                                }
+                                </>
                                 
                             ))
                             :

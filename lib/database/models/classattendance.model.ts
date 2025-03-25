@@ -7,8 +7,8 @@ export interface ICAttendance extends Document {
     member:Types.ObjectId|string|IMember,
     late:'Yes'|'No',
     sessionId:Types.ObjectId|string|IClasssession,
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const AttendanceSchema = new Schema<ICAttendance>({

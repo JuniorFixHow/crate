@@ -6,7 +6,9 @@ import Link from "next/link";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 export const SingleGroupColumns =(
-    handleDelete:(data:IMember)=>void
+    handleDelete:(data:IMember)=>void,
+    reader:boolean,
+    groupAssign:boolean,
 ):GridColDef[] =>[
     {
         field:'memberId',
@@ -22,7 +24,14 @@ export const SingleGroupColumns =(
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link text-center" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row?._id}}} >{params?.row?.memberId.name}</Link>
+                <>
+                {
+                    reader ?
+                    <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:params.row?._id}}} >{params?.row?.memberId.name}</Link>
+                    :
+                    <span>{params?.row?.memberId.name}</span>
+                }
+                </>
             )
         }
     },
@@ -88,7 +97,12 @@ export const SingleGroupColumns =(
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex-center h-full">
-                    <RiDeleteBin6Line onClick={()=>handleDelete(params?.row.memberId)}  className="cursor-pointer" />
+                    {
+                        groupAssign ?
+                        <RiDeleteBin6Line onClick={()=>handleDelete(params?.row.memberId)}  className="cursor-pointer" />
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         }

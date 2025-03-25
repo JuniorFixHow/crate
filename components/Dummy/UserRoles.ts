@@ -19,8 +19,12 @@ export const UserRoles: RoleProps[] =[
         codes:['AC1', 'AC2', 'AC3', 'AC4',]
     },
     {
-        title:'Attendance',
+        title:'Attendance (Events)',
         codes:['AT1', 'AT2', 'AT3', 'AT4',]
+    },
+    {
+        title:'Attendance (Activities)',
+        codes:['ACT1', 'ACT2', 'ACT3', 'ACT4',]
     },
     {
         title:'Campus',
@@ -43,7 +47,7 @@ export const UserRoles: RoleProps[] =[
         codes:['CO1', 'CO2', 'CO3', 'CO4',]
     },
     {
-        title:'CYP Set',
+        title:'Question Set',
         codes:['CY1', 'CY2', 'CY3', 'CY4',]
     },
     {
@@ -79,11 +83,15 @@ export const UserRoles: RoleProps[] =[
         codes:['PA1', 'PA2', 'PA3', 'PA4',]
     },
     {
+        title:'Relationship',
+        codes:['RP1', 'RP2', 'RP3', 'RP4']
+    },
+    {
         title:'Room',
         codes:['RO1', 'RO2', 'RO3', 'RO4', 'RO5']
     },
     {
-        title:'Section',
+        title:'Question Section',
         codes:['SEC1', 'SEC2', 'SEC3', 'SEC4',]
     },
     {
@@ -91,8 +99,12 @@ export const UserRoles: RoleProps[] =[
         codes:['SER1', 'SER2', 'SER3', 'SER4',]
     },
     {
-        title:'Session',
+        title:'Session (Events)',
         codes:['SES1', 'SES2', 'SES3', 'SES4',]
+    },
+    {
+        title:'Session (Activities)',
+        codes:['CLS1', 'CLS2', 'CLS3', 'CLS4',]
     },
     {
         title:'User',

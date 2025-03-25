@@ -8,7 +8,12 @@ import { IoTrashBinOutline } from "react-icons/io5";
 export const CampusColumn = (
     handleInfo:(data:ICampuse)=>void, 
     handleNewCampus:(data:ICampuse)=>void,
-    handleDeleteCampus:(data:ICampuse)=>void
+    handleDeleteCampus:(data:ICampuse)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    isAdmin:boolean,
+    showMember:boolean,
 ):GridColDef[] =>[
     {
         field:'name',
@@ -16,7 +21,14 @@ export const CampusColumn = (
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <span onClick={()=>handleNewCampus(param.row)}  className="table-link" >{param.row?.name}</span>
+                <>
+                {
+                    (reader || updater) ?
+                    <span onClick={()=>handleNewCampus(param.row)}  className="table-link" >{param.row?.name}</span>
+                    :
+                    <span>{param.row?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -39,7 +51,14 @@ export const CampusColumn = (
         },
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <Link href={{pathname:'/dashboard/churches', query:{id:param.row?.churchId?._id}}}  className="table-link" >{param.row?.churchId?.name}</Link>
+                <>
+                {
+                    isAdmin ?
+                    <Link href={{pathname:'/dashboard/churches', query:{id:param.row?.churchId?._id}}}  className="table-link" >{param.row?.churchId?.name}</Link>
+                    :
+                    <span>{param.row?.churchId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -58,7 +77,14 @@ export const CampusColumn = (
                 <>
                 {
                     param?.row.members?.length ?
-                    <Link href={{pathname:'/dashboard/members', query:{campuseId:param.row?._id}}}  className="table-link" >{param.row?.members?.length}</Link>
+                    <>
+                    {
+                        showMember ?
+                        <Link href={{pathname:'/dashboard/members', query:{campuseId:param.row?._id}}}  className="table-link" >{param.row?.members?.length}</Link>
+                        :
+                        <span>{param.row?.members?.length}</span>
+                    }
+                    </>
                     :
                     <span>0</span>
                 }
@@ -77,8 +103,18 @@ export const CampusColumn = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDeleteCampus(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        reader &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDeleteCampus(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !reader && !deleter &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },

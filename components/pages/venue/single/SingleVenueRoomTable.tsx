@@ -1,7 +1,7 @@
 'use client'
 
 import {  useState } from "react";
-import { Alert,  Paper } from "@mui/material";
+import {   Paper } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 // import SearchBar from "@/components/features/SearchBar";
 import AddButton from "@/components/features/AddButton";
@@ -10,7 +10,7 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { deleteRoom } from "@/lib/actions/room.action";
 import { IRoom } from "@/lib/database/models/room.model";
 import {  useFetchRoomsForVenue } from "@/hooks/fetch/useRoom";
-import { ErrorProps } from "@/types/Types";
+// import { ErrorProps } from "@/types/Types";
 import { SingleVenueRoomsColumns } from "./SingleVenueRoomColumns";
 import SingleVenueRoomInfoModal from "./SingleVenueRoomModal";
 import { SearchRoomV2 } from "../../room/fxn";
@@ -22,6 +22,9 @@ import { LuCopyX } from "react-icons/lu";
 import CopyRoomModal from "./CopyRoomModal";
 import { ExcelButton } from "@/components/features/Buttons";
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, eventRoles, roomRoles } from "@/components/auth/permission/permission";
+import { enqueueSnackbar } from "notistack";
 
 
 type SingleVenueRoomTableProps = {
@@ -29,20 +32,26 @@ type SingleVenueRoomTableProps = {
 }
 
 const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
+    const {user} = useAuth();
     const [currentRoom, setCurrentRoom] = useState<IRoom|null>(null);
     const [newMode, setNewMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     // const [search, setSearch] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
-    const [response, setReponse] = useState<ErrorProps>(null);
+    // const [response, setReponse] = useState<ErrorProps>(null);
     const [excelMode, setExcelMode] = useState<boolean>(false);
     const [selection, setSelection] = useState<IRoom[]>([]);
     const [copyMode, setCopyMode] = useState<boolean>(false);
     
-    const {rooms, loading} = useFetchRoomsForVenue(venueId)
+    const {rooms, loading, refetch} = useFetchRoomsForVenue(venueId)
    
-  
+    const deleter = canPerformAction(user!, 'deleter', {roomRoles});
+    const reader = canPerformAction(user!, 'reader', {roomRoles});
+    const updater = canPerformAction(user!, 'updater', {roomRoles});
+    const creator = canPerformAction(user!, 'creator', {roomRoles});
+    const eventReader = canPerformAction(user!, 'reader', {eventRoles});
+
     const searched = SearchRoomV2(rooms, eventId)
 
     const paginationModel = { page: 0, pageSize: 10 };
@@ -73,13 +82,14 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
     const handleDeleteRoom = async()=>{
         try {
             if(currentRoom){
-                await deleteRoom(currentRoom._id);
-                setReponse({message:'Room removed sucsessfully', error:false});
-                setDeleteMode(false)
+                const res  = await deleteRoom(currentRoom._id);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                setDeleteMode(false);
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setReponse({message:'Error occured removing room', error:true})
+            enqueueSnackbar('Error occured removing room', {variant:'error'});
         }
     }
 
@@ -96,23 +106,24 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
       <div className='table-main2' >
           <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <SearchSelectEventsV2 setSelect={setEventId}  />
-            <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-               
-                <ExcelButton text="Import" onClick={()=>setExcelMode(true)} />
-                <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-[0.4rem]' />
-            </div>
+            {
+                creator &&
+                <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
+                    <ExcelButton text="Import" onClick={()=>setExcelMode(true)} />
+                    <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-[0.4rem]' />
+                </div>
+            }
           </div> 
           <ImportRoomModal venueId={venueId} setInfoMode={setExcelMode} infoMode={excelMode} />
-          <SingleVenueRoomInfoModal currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />
+          <SingleVenueRoomInfoModal eventReader={eventReader} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete room ${currentRoom?.number}`} message={message} onTap={handleDeleteRoom} />
-          <SingleVenueNewRoom venueId={venueId} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={newMode} setInfoMode={setNewMode} />
+          <SingleVenueNewRoom refetch={refetch} venueId={venueId} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={newMode} setInfoMode={setNewMode} />
           <CopyRoomModal infoMode={copyMode} setInfoMode={setCopyMode} rooms={selection} />
   
-            {
+            {/* {
                 response?.message &&
                 <Alert severity={response.error ? 'error':'success'} >{response.message}</Alert>
-            }
+            } */}
           <div className="flex w-full">
             {
                 // loading ?
@@ -146,7 +157,7 @@ const SingleVenueRoomTable = ({venueId}:SingleVenueRoomTableProps) => {
                         <DataGrid
                             loading={loading}
                             rows={SearchRoomV2(rooms, eventId)}
-                            columns={SingleVenueRoomsColumns(handleNewRoom, hadndleInfo, handleDelete, selection, hadndleSelection)}
+                            columns={SingleVenueRoomsColumns(handleNewRoom, hadndleInfo, handleDelete, selection, hadndleSelection, reader, updater, deleter)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRoom):string=>row._id}

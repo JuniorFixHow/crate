@@ -42,7 +42,7 @@ const OpenScannerV2 = ({setStage, currentSession, setResult, setLoading}:OpenSca
                     }
                     // console.log('Data: ',data)
                     const res:ErrorProps = await createCAttendance(classId?._id, data);
-                    console.log(res);
+                    // console.log(res);
                     setResult(res);
                     setHasScanned(true);
                     setStage(3);

@@ -1,8 +1,7 @@
 import {  Modal } from "@mui/material"
-import { CampusInfoModalProps } from "./CampusInfoModal"
 import AddButton from "@/components/features/AddButton";
 import '../../../../components/features/customscroll.css';
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
 import { createCampuse, updateCampuse } from "@/lib/actions/campuse.action";
 // import { ErrorProps } from "@/types/Types";
 import { ICampuse } from "@/lib/database/models/campuse.model";
@@ -12,22 +11,35 @@ import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import SearchSelectZoneV2 from "@/components/features/SearchSelectZonesV2";
 import SearchSelectChurchesWithZone from "@/components/features/SearchSelectChurchesWithZone";
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
+import { useAuth } from "@/hooks/useAuth";
 
 export type NewCampusProps = {
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ICampuse[], Error>>
-} & CampusInfoModalProps
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ICampuse[], Error>>;
+    updater:boolean
+} & {
+    infoMode:boolean,
+    setInfoMode:Dispatch<SetStateAction<boolean>>,
+    currentCampus:ICampuse|null,
+    setCurrentCampus:Dispatch<SetStateAction<ICampuse|null>>;
+}
 
-const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoMode}:NewCampusProps) => {
+const NewCampus = ({currentCampus, updater, setCurrentCampus, infoMode, refetch, setInfoMode}:NewCampusProps) => {
     const handleClose = ()=>{
         setCurrentCampus(null);
         setInfoMode(false);
     }
 
+    const {user} = useAuth();
     // const [error, setError] = useState<ErrorProps>({message:'', error:false});
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] =useState<Partial<ICampuse>>({});
     const [zoneId, setZoneId] = useState<string>('');
     const [churchId, setChurchId] = useState<string>('');
+
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.creator(user!);
+
+    const cId = isAdmin ? churchId : user?.churchId;
     
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -38,7 +50,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoM
             setLoading(true);
             const body:Partial<ICampuse> = {
                 ...data,
-                churchId
+                churchId:cId as string
             };
             const res = await createCampuse(body);
             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
@@ -103,7 +115,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoM
                         <span className='text-slate-500 text-[0.8rem]' >Name</span>
                         <input name="name" onChange={handleChange} required={!currentCampus} defaultValue={currentCampus?currentCampus.name : ''} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col w-fit">
                         <span className='text-slate-500 text-[0.8rem]' >Type</span>
                         <select onChange={handleChange} defaultValue={currentCampus?.type}  className="bg-transparent dark:text-white outline-none border rounded py-1" name='type' >
                             <option className="dark:bg-[#0F1214]" value="">Select</option>
@@ -114,15 +126,15 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoM
                     </div>
                     
                     {
-                        !currentCampus &&
+                        !currentCampus && isAdmin &&
                         <>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Set Zone</span>
-                            <SearchSelectZoneV2 require={true} width={290}  setSelect={setZoneId}  />
+                            <SearchSelectZoneV2 require={true} width={250}  setSelect={setZoneId}  />
                         </div>
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Set Church</span>
-                            <SearchSelectChurchesWithZone require={true} width={290} zoneId={zoneId} setSelect={setChurchId}  />
+                            <SearchSelectChurchesWithZone require={true} width={250} zoneId={zoneId} setSelect={setChurchId}  />
                         </div>
                         </>
                     }
@@ -134,7 +146,7 @@ const NewCampus = ({currentCampus, setCurrentCampus, infoMode, refetch, setInfoM
                 } */}
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading} type="submit"  className='rounded w-[45%] justify-center' text={loading? 'loading...' : currentCampus? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type="submit"  className={`rounded w-[45%] justify-center ${currentCampus && !updater && 'hidden'}`} text={loading? 'loading...' : currentCampus? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading}  className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

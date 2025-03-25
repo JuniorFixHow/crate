@@ -13,14 +13,17 @@ import { GroupSelectionCoulmns } from "./GroupSelectionCoulmns";
 import { addGroupToRoom } from "@/lib/actions/room.action";
 import { IEvent } from "@/lib/database/models/event.model";
 import { enqueueSnackbar } from "notistack";
+import { SessionPayload } from "@/lib/session";
+import { canPerformAction, roomRoles, venueRoles } from "@/components/auth/permission/permission";
 
 type SelectRoomsForGroupsProps = {
     showRooms:boolean,
     setShowRooms:Dispatch<SetStateAction<boolean>>,
-    currentGroup:IGroup
+    currentGroup:IGroup;
+    user:SessionPayload;
 }
 
-const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoomsForGroupsProps) => {
+const SelectRoomsForGroups = ({showRooms, user, currentGroup, setShowRooms}:SelectRoomsForGroupsProps) => {
     const [selectedRooms, setSelectedRooms] = useState<IRoom[]>([]);
     const [addLoading, setAddLoading] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
@@ -29,6 +32,8 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
     const event = currentGroup?.eventId as IEvent;
     const eventId = event?._id;
 
+    const venueReader = canPerformAction(user!, 'reader', {venueRoles});
+    const roomReader = canPerformAction(user!, 'reader', {roomRoles});
     
     const {rooms, loading, refetch} = useFetchAvailableRooms( eventId)
     
@@ -126,7 +131,7 @@ const SelectRoomsForGroups = ({showRooms, currentGroup, setShowRooms}:SelectRoom
                     <Paper className='w-full' sx={{ height: 480, }}>
                         <DataGrid
                             rows={SearchRoomsForSelections(rooms, search)}
-                            columns={GroupSelectionCoulmns(selectedRooms, handleSelect)}
+                            columns={GroupSelectionCoulmns(selectedRooms, handleSelect, venueReader, roomReader)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRoom)=>row._id}

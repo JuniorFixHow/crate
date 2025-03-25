@@ -1,9 +1,9 @@
 import { useFetchMinistryroleforMinistry } from "@/hooks/fetch/useMinistryrole";
 import { IClassministry } from "@/lib/database/models/classministry.model";
 import { IMinistryrole } from "@/lib/database/models/ministryrole.model";
-import { LinearProgress, Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { SearchMinistryrole } from "./fxn";
+import {  Paper } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+// import { SearchMinistryrole } from "./fxn";
 import { MinistryroleColumns } from "./MinistryroleColumns";
 import { Dispatch, SetStateAction, useState } from "react";
 import { enqueueSnackbar } from "notistack";
@@ -13,14 +13,15 @@ import NewMinistryrole from "./NewMinistryrole";
 
 type MinistryroleTableProps = {
     ministry:IClassministry,
-    search:string,
+    // search:string,
     currentMinister:IMinistryrole|null,
     setCurrentMinister:Dispatch<SetStateAction<IMinistryrole|null>>,
     setEditMode:Dispatch<SetStateAction<boolean>>,
     editMode:boolean,
+    showMember:boolean,
 }
 
-const MinistryroleTable = ({ministry, search, currentMinister, editMode, setEditMode, setCurrentMinister}
+const MinistryroleTable = ({ministry, showMember, currentMinister, editMode, setEditMode, setCurrentMinister}
     :MinistryroleTableProps) => {
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
@@ -67,16 +68,27 @@ const MinistryroleTable = ({ministry, search, currentMinister, editMode, setEdit
         />
         <div className="flex w-full">
         {
-            isPending ? 
-            <LinearProgress className="w-full" />
-            :
+            // isPending ? 
+            // <LinearProgress className="w-full" />
+            // :
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
-                    rows={SearchMinistryrole(ministryroles as IMinistryrole[], search)}
+                    rows={ministryroles}
                     getRowId={(row:IMinistryrole)=>row._id}
-                    columns={MinistryroleColumns(handleEdit, handleDelete)}
+                    columns={MinistryroleColumns(handleEdit, handleDelete, showMember)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50]}
+                    loading={isPending}
+                    slots={{toolbar:GridToolbar}}
+                    slotProps={{
+                        toolbar:{
+                            showQuickFilter:true,
+                            printOptions:{
+                                hideFooter:true,
+                                hideToolbar:true
+                            }
+                        }
+                    }}
                     // checkboxSelection
                     className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                     sx={{ border: 0 }}

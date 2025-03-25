@@ -10,6 +10,8 @@ import { IRoom } from '@/lib/database/models/room.model';
 import { IEvent } from '@/lib/database/models/event.model';
 import { IKey } from '@/lib/database/models/key.model';
 import { formatTimestamp } from '@/functions/dates';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, eventRoles, groupRoles, keyRoles, memberRoles, roomRoles } from '@/components/auth/permission/permission';
 
 export type ArrivalInfoModalProps = {
     infoMode:boolean,
@@ -23,6 +25,14 @@ const ArrivalInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEve
         setCurrentEventReg(null);
         setInfoMode(false);
     }
+
+    const {user} = useAuth();
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showEvent = canPerformAction(user!, 'reader', {eventRoles});
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles});
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
+    const showKey = canPerformAction(user!, 'reader', {keyRoles});
+
     
     const member = currentEventReg?.memberId as IMember | undefined;
     const group = currentEventReg?.groupId as IGroup | undefined;
@@ -49,10 +59,14 @@ const ArrivalInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEve
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Member</span>
-                    
-                    <Link href={{pathname:`/dashboard/events/badges`, query:{regId:currentEventReg?._id}}}   className='text-[0.9rem] table-link' >{
-                    member?.name
-                    }</Link>
+                    {
+                        showMember ?
+                        <Link href={{pathname:`/dashboard/events/badges`, query:{regId:currentEventReg?._id}}}   className='text-[0.9rem] table-link' >{
+                        member?.name
+                        }</Link>
+                        :
+                        <span className='text-[0.9rem]' >{member?.name}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Arrived On</span>
@@ -79,9 +93,16 @@ const ArrivalInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEve
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Group/Family</span>
                     {
                         currentEventReg?.groupId ?
-                        <Link href={`/dashboard/groups/${group?._id}`}   className='text-[0.9rem] table-link' >{
-                            group?.name
-                        }</Link>
+                        <>
+                        {
+                            showGroup ?
+                            <Link href={`/dashboard/groups/${group?._id}`}   className='text-[0.9rem] table-link' >{
+                                group?.name
+                            }</Link>
+                            :
+                            <span className='text-[0.9rem]' >{group?.name}</span> 
+                        }
+                        </>
                         :
                         <span className='text-[0.9rem]' >N/A</span> 
                     }
@@ -93,25 +114,44 @@ const ArrivalInfoModal = ({infoMode, setInfoMode, setCurrentEventReg, currentEve
                         rooms?.length  === 0 ?
                         <span className='text-[0.9rem]' >N/A</span>:
                         rooms?.map((item)=>(
-                            <Link key={item?._id} href={{pathname:`/dashboard/rooms`, query:{id:item?._id}}}   className='text-[0.9rem] table-link' >{
-                                item.number
-                            }</Link>   
+                            <>
+                            {
+                                showRoom ?
+                                <Link key={item?._id} href={{pathname:`/dashboard/rooms`, query:{id:item?._id}}}   className='text-[0.9rem] table-link' >{
+                                    item?.number
+                                }</Link>
+                                :   
+                                <span key={item?._id} className='text-[0.9rem]' >{item?.number}</span> 
+                            }
+                            </>
                         ))
                         
                     }
                 </div>
-
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Key</span>
-                    <Link href={{pathname:`/dashboard/rooms/keys`, query:{id:key?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
-                        key?.code
-                    }</Link>
-                </div>
+                {
+                    key &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Key</span>
+                        {
+                            showKey ?
+                            <Link href={{pathname:`/dashboard/rooms/keys`, query:{id:key?._id}}}   className='text-[0.9rem] dark:text-white table-link' >{
+                                key?.code
+                            }</Link>
+                            :
+                            <span  className='text-[0.9rem]' >{key?.code}</span> 
+                        }
+                    </div>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link href={`/dashboard/events/${event?._id}`}   className='text-[0.9rem] dark:text-white table-link' >{
-                        event?.name
-                    }</Link>
+                    {
+                        showEvent ?
+                        <Link href={`/dashboard/events/${event?._id}`}   className='text-[0.9rem] dark:text-white table-link' >{
+                            event?.name
+                        }</Link>
+                        :
+                        <span  className='text-[0.9rem]' >{event?.name}</span> 
+                    }
                 </div>
                 
             </div>

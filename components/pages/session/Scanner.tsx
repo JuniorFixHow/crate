@@ -1,16 +1,31 @@
 'use client'
+import { attendanceRoles, canPerformAction } from '@/components/auth/permission/permission';
 import OpenScanner from '@/components/features/sessions/OpenScanner';
 import ScanSuccess from '@/components/features/sessions/ScanSuccess';
 import SelectSessionScan from '@/components/features/sessions/SelectSessionScan'
+import { useAuth } from '@/hooks/useAuth';
 import { ISession } from '@/lib/database/models/session.model';
 import { ErrorProps } from '@/types/Types';
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react'
 
 const Scanner = () => {
     const [currentSession, setCurrentSession] = useState<ISession|null>(null);
     const [result, setResult] = useState<ErrorProps>(null);
     const [laoding, setLoading] = useState<boolean>(false);
     const [stage, setStage] = useState<number>(1);
+    const {user} = useAuth();
+    const router = useRouter();
+
+    const creator = canPerformAction(user!, 'creator', {attendanceRoles});
+
+    useEffect(()=>{
+        if(user && !creator){
+            router.replace('/dashboard/forbidden?p=Attendance Creator');
+        }
+    },[user, creator, router])
+
+    if(!creator) return;
   return (
     <div className='w-full' >
         {

@@ -15,11 +15,15 @@ import NewCampus from "./NewCampus";
 // import { ErrorProps } from "@/types/Types";
 import { deleteCampuse, getCampuse } from "@/lib/actions/campuse.action";
 import {  SearchCampuseWithoutZone } from "./fxn";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "@/hooks/useAuth";
+import { campusRoles, canPerformAction, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
 
 const CampusTable = () => {
+    const {user} = useAuth();
+    const router = useRouter(); 
     // const [zoneId, setZoneId] = useState<string>('');
     const [churchId, setChurchId] = useState<string>('');
     // const [search, setSearch] = useState<string>('');
@@ -31,6 +35,20 @@ const CampusTable = () => {
 
     const {campuses, loading, refetch} = useFetchCampuses();
     const searchParams = useSearchParams();
+
+    const creator = canPerformAction(user!, 'creator', {campusRoles});
+    const updater = canPerformAction(user!, 'updater', {campusRoles});
+    const reader = canPerformAction(user!, 'reader', {campusRoles});
+    const deleter = canPerformAction(user!, 'deleter', {campusRoles});
+    const admin = canPerformAction(user!, 'admin', {campusRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const isAdmin  = isSuperUser(user!) || isSystemAdmin.reader(user!);
+
+    useEffect(()=>{
+      if(user && !admin){
+        router.replace('/dashboard/forbidden?p=Campus Admin');
+      }
+    },[admin, user, router])
 
     useEffect(()=>{
       const id = searchParams.get('id');
@@ -86,22 +104,28 @@ const CampusTable = () => {
 
     const message = `You're about to delete a campus. The members will still be in the church but won't have any campus. Proceed?`;
     const paginationModel = { page: 0, pageSize: 10 };
+
+    if(!admin) return;
   return (
     <div className='table-main2' >
         <div className="flex flex-col gap-5 lg:flex-row items-start xl:items-end lg:justify-between w-full">
             <div className="flex flex-col gap-3 xl:flex-row items-start xl:items-end">
-                {/* <SearchSelectZones isGeneric setSelect={setZoneId} />
-                <SearchSelectChurchForRoomAss zoneId={zoneId} isGeneric setSelect={setChurchId} /> */}
-                <SearchSelectChurchesV2 setSelect={setChurchId} />
+                {
+                  isAdmin &&
+                  <SearchSelectChurchesV2 setSelect={setChurchId} />
+                }
             </div>
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-                <AddButton onClick={handleOpenNew} smallText text='Add Campus' noIcon className='rounded' />
+                {
+                  creator &&
+                  <AddButton onClick={handleOpenNew} smallText text='Add Campus' noIcon className='rounded' />
+                }
             </div>
         </div> 
 
-        <NewCampus refetch={refetch} infoMode={editmode} setInfoMode={setEditmode} setCurrentCampus={setCurrentCampus} currentCampus={currentCampus} />
-        <CampusInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentCampus={currentCampus} setCurrentCampus={setCurrentCampus} />
+        <NewCampus updater={updater} refetch={refetch} infoMode={editmode} setInfoMode={setEditmode} setCurrentCampus={setCurrentCampus} currentCampus={currentCampus} />
+        <CampusInfoModal isAdmin={isAdmin} showMember={showMember} infoMode={infoMode} setInfoMode={setInfoMode} currentCampus={currentCampus} setCurrentCampus={setCurrentCampus} />
         <DeleteDialog onTap={handledeleteCampus} message={message} title={`Delete ${currentCampus?.name}`} value={deleteMode} setValue={setDeleteMode} />
 
         {/* {
@@ -113,8 +137,11 @@ const CampusTable = () => {
               <DataGrid
                   getRowId={(row:ICampuse):string=> row?._id as string}
                   rows={SearchCampuseWithoutZone(campuses,  churchId)}
-                  columns={CampusColumn(handleInfoMode, handleEditMode, handleDeleteMode)}
-                  initialState={{ pagination: { paginationModel } }}
+                  columns={CampusColumn(handleInfoMode, handleEditMode, handleDeleteMode, reader, updater, deleter, isAdmin, showMember)}
+                  initialState={{ 
+                    pagination: { paginationModel },
+                    columns:{columnVisibilityModel:{churchId:isAdmin}}
+                  }}
                   pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                   loading={loading}
                   slots={{toolbar:GridToolbar}}

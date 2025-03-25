@@ -1,6 +1,6 @@
 import AddButton from '@/components/features/AddButton'
-import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
-import { RevenueInfoModalProps } from './RevenueInfoModal';
+import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react'
+// import { RevenueInfoModalProps } from './RevenueInfoModal';
 import { Alert, Modal } from '@mui/material';
 import { ErrorProps } from '@/types/Types';
 import { IPayment } from '@/lib/database/models/payment.model';
@@ -12,16 +12,25 @@ import { enqueueSnackbar } from 'notistack';
 import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
 import { IEvent } from '@/lib/database/models/event.model';
 // import SearchSelectMembers from '@/components/features/SearchSelectMembers';
-import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2';
+// import SearchSelectChurchesV3 from '@/components/features/SearchSelectChurchesV3';
 import { IChurch } from '@/lib/database/models/church.model';
 import { IRegistration } from '@/lib/database/models/registration.model';
 import { IMember } from '@/lib/database/models/member.model';
 import SearchSelectRegistrationByEventV2 from '@/components/features/SearchSelectRegistrationByEventV2';
 import { useQuery } from '@tanstack/react-query';
+import SearchSelectChurchesV4 from '@/components/features/SearchSelectChurchesV4';
 
-type PayType = 'Member'|'Church'
+type PayType = 'Member'|'Church';
 
-const NewRevenue = ({infoMode, setInfoMode, currentRevenue, setCurrentRevenue}:RevenueInfoModalProps) => {
+type NewRevenueProps = {
+    infoMode:boolean,
+    setInfoMode:Dispatch<SetStateAction<boolean>>,
+    currentRevenue:IPayment|null,
+    setCurrentRevenue:Dispatch<SetStateAction<IPayment|null>>;
+    updater:boolean;
+}
+
+const NewRevenue = ({infoMode, setInfoMode, updater, currentRevenue, setCurrentRevenue}:NewRevenueProps) => {
     const [data, setData] = useState<Partial<IPayment>>({});
     const [payer, setPayer] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
@@ -182,7 +191,7 @@ const NewRevenue = ({infoMode, setInfoMode, currentRevenue, setCurrentRevenue}:R
                             :
                             <div className="flex flex-col">
                                 <span className='text-slate-500 text-[0.8rem]' >Select Church</span>
-                                <SearchSelectChurchesV2 require={!currentRevenue} value={church?.name} setSelect={setChurchId}  />
+                                <SearchSelectChurchesV4 require={!currentRevenue} value={church?.name} setSelect={setChurchId}  />
                             </div>
                         }
                     </div>
@@ -235,7 +244,7 @@ const NewRevenue = ({infoMode, setInfoMode, currentRevenue, setCurrentRevenue}:R
                 }
 
                 <div className="flex flex-row items-center gap-6">
-                    <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentRevenue? 'Update':'Add'} smallText noIcon />
+                <AddButton disabled={loading} type='submit'  className={`rounded w-[45%] justify-center ${currentRevenue && !updater && 'hidden'}`} text={loading ? 'loading...' : currentRevenue? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

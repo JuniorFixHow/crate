@@ -1,5 +1,5 @@
 import { IVenue } from "@/lib/database/models/venue.model"
-import { ChangeEvent, FormEvent, useRef, useState } from "react"
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react"
 import { VenueDetailsProps } from "./VenueDetails";
 import Address from "@/components/shared/Address";
 import AddButton from "@/components/features/AddButton";
@@ -8,9 +8,11 @@ import { Alert } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { IFacility } from "@/lib/database/models/facility.model";
 import DynamicFacilitiesForm from "./CustomFacilities";
-import { createVenue } from "@/lib/actions/venue.action";
+import { createVenue, updateVenue } from "@/lib/actions/venue.action";
 import { createFacilities } from "@/lib/actions/facility.action";
 import { useRouter } from "next/navigation";
+import { canPerformAction, venueRoles } from "@/components/auth/permission/permission";
+import { enqueueSnackbar } from "notistack";
 
 export type CustomFacilitiesProps = {
     id: string;
@@ -29,6 +31,19 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
 
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
+
+    const reader = canPerformAction(user!, 'reader', {venueRoles});
+    const updater = canPerformAction(user!, 'updater', {venueRoles});
+    const creator = canPerformAction(user!, 'creator', {venueRoles});
+
+    useEffect(()=>{
+        if(user && (currentVenue && !reader)){
+            router.replace('/dashboard/forbidden?p=Venue Reader')
+        }
+        else if(user && (!currentVenue && !creator)){
+            router.replace('/dashboard/forbidden?p=Venue Creator')
+        }
+    },[creator, currentVenue, reader, router, updater, user])
 
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement>)=>{
         const {name, value} = e.target;
@@ -50,6 +65,7 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
                 // fac
             }
             const res = await createVenue(body);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             const newVenue = res?.payload as IVenue;
             if(res?.code === 201 && facilities.length > 0){
                 const facs:Partial<IFacility>[] = facilities.map((facility)=>({
@@ -61,19 +77,40 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
                 }))
 
                 const result = await createFacilities(facs);
-                setResponse(result);
+                enqueueSnackbar(result?.message, {variant:result?.error ? 'error':'success'});
                 formRef.current?.reset();
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured creating venue. Please retry', error:true})
+            enqueueSnackbar('Error occured creating venue. Please retry', {variant:'error'});
+        }finally{
+            setLoading(false);
+        }
+    }
+
+    const handleUpdateVenue = async(e:FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+        try {
+            setLoading(true);
+            if(currentVenue){
+                const body:Partial<IVenue> = {
+                    _id:currentVenue?._id,
+                    name:data.name || currentVenue?.name,
+                    location:location || currentVenue?.location,
+                    type:data.type || currentVenue?.location,
+                }
+                const res = await updateVenue(body);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            }
+        } catch (error) {
+            console.log(error);
         }finally{
             setLoading(false);
         }
     }
 
   return (
-    <form ref={formRef} onSubmit={handleNewVenue}  className="flex flex-col gap-5 h-full justify-between" >
+    <form ref={formRef} onSubmit={ currentVenue ? handleUpdateVenue : handleNewVenue}  className="flex flex-col gap-5 h-full justify-between" >
         <div className="flex flex-col gap-4">
             <div className="flex flex-col">
                 <span className='text-slate-500 text-[0.8rem] font-semibold' >Name</span>
@@ -112,7 +149,7 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
                 <Alert onClose={()=>setResponse(null)} severity={response.error?'error':'success'} >{response.message}</Alert>
             }
             <div className="flex gap-5 items-center">
-                <AddButton disabled={loading} noIcon smallText className="rounded" text={loading ? 'loading...':currentVenue ?'Save Changes':'Proceed'} />
+                <AddButton disabled={loading} noIcon smallText className={`rounded ${currentVenue && !updater && 'hidden'} ${!currentVenue && !creator && 'hidden'}`} text={loading ? 'loading...':currentVenue ?'Save Changes':'Proceed'} />
                 <AddButton disabled={loading} onClick={()=>router.back()} type="button" isDanger noIcon smallText className="rounded" text="Back" />
             </div>
         </div>

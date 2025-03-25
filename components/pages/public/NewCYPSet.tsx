@@ -3,7 +3,7 @@ import AddButton from "@/components/features/AddButton";
 // import SearchSelectCYPEvents from "@/components/features/SearchSelectCYPEvents";
 import Subtitle from "@/components/features/Subtitle";
 import { ErrorProps } from "@/types/Types";
-import {  FormEvent,  useRef, useState } from "react"
+import {  FormEvent,  useEffect,  useRef, useState } from "react"
 import SectionSelector from "./section/SectionSelector";
 import { Alert } from "@mui/material";
 import { ICYPSet } from "@/lib/database/models/cypset.model";
@@ -11,6 +11,8 @@ import { createCpySet } from "@/lib/actions/cypset.action";
 import { useAuth } from "@/hooks/useAuth";
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
 import { enqueueSnackbar } from "notistack";
+import { canPerformAction, questionSetRoles } from "@/components/auth/permission/permission";
+import { useRouter } from "next/navigation";
 
 
 
@@ -23,8 +25,17 @@ const NewCYPSet = () => {
     const [cypsetId, setCypsetId] = useState<string>('');
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const {user} = useAuth();
+    const router = useRouter();
 
     const formRef = useRef<HTMLFormElement>(null);
+    const creator = canPerformAction(user!, 'creator', {questionSetRoles});
+
+    useEffect(()=>{
+        if(user && !creator){
+            router.replace('/dashboard/forbidden?p=Set Creator')
+        }
+    },[creator, user, router])
+
     const handleNewSet = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setResponse(null);
@@ -57,6 +68,7 @@ const NewCYPSet = () => {
     }
     // console.log('CYP: ',cypsetId)
     // console.log(eventId)
+    if(!creator) return;
     
   return (
     <div className="flex flex-col gap-8 bg-white h-[60vh] dark:bg-[#0F1214] dark:border w-full rounded p-6">
@@ -82,7 +94,10 @@ const NewCYPSet = () => {
                     response?.message &&
                     <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
                 }
-                <AddButton type="submit" text={loading? "loading..." :"Proceed"} noIcon smallText className="rounded self-end" />
+                {
+                    creator &&
+                    <AddButton type="submit" text={loading? "loading..." :"Proceed"} noIcon smallText className="rounded self-end" />
+                }
             </div>
         </form>
     </div>

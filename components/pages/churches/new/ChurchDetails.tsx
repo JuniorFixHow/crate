@@ -24,6 +24,7 @@ import SearchSelectContractsV2 from "@/components/features/SearchSelectContracts
 import { enqueueSnackbar } from "notistack";
 import { IContract } from "@/lib/database/models/contract.model";
 import { IZone } from "@/lib/database/models/zone.model";
+import { canPerformAction, churchRoles } from "@/components/auth/permission/permission";
 
 export type SocialProps = {
     id:string,
@@ -54,10 +55,25 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const [nocontractMode, setnocontractMode] = useState<boolean>(false);
     const [socialLinks, setSocialLinks] = useState<SocialProps[]>([]);
     const [campuses, setCampuses] = useState<CampuseProps[]>([]);
+
     const {user} = useAuth();
     const router = useRouter();
 
     const buttonRef = useRef<HTMLButtonElement>(null);
+
+    // const creator = isSuperUser(user!) || isSystemAdmin.creator(user!);
+    const updater = canPerformAction(user!, 'updater', {churchRoles});
+    const creator = canPerformAction(user!, 'creator', {churchRoles});
+    const deleter = canPerformAction(user!, 'deleter', {churchRoles});
+    // const reader = isSuperUser(user!) || isSystemAdmin.reader(user!);
+    const admin = canPerformAction(user!, 'admin', {churchRoles});
+
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Church Admin (Internal)')
+        }
+    },[admin, user, router])
 
     const contract = currentChurch?.contractId as IContract;
     const zone = currentChurch?.zoneId as IZone;
@@ -199,6 +215,8 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const message = 'Deleting the church will delete all members that have been registered for it. Proceed?'
     const warning = 'You are about to create a church with no contract. This will render the new church unlicensed. Proceed?'
 
+    if(!admin) return;
+
   return (
    <form ref={formRef} onSubmit={ currentChurch ? handleUpdateChurch : handleNewChurch}  className='px-4 md:px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
     <div className="flex flex-col gap-5 flex-1">
@@ -272,12 +290,12 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
             <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
         }
         <div className="flex flex-row items-center gap-2 mt-4 md:mt-12">
-            <AddButton disabled={loading} type="button" onClick={showNoContract} text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-fit flex-center' />
+            <AddButton disabled={loading} type="button" onClick={showNoContract} text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className={`rounded justify-center w-fit ${!currentChurch && !creator && 'hidden'} ${currentChurch && !updater && 'hidden'}`} />
             <AddButton disabled={loading} ref={buttonRef} type='submit' name="send" text={loading ? 'loading...' : currentChurch?'Save Changes':'Add Church'} noIcon smallText className='rounded w-fit hidden flex-center' />
             <AddButton disabled={loading} onClick={()=>router.back()} text='Cancel' isCancel noIcon smallText className='rounded w-fit flex-center' />
                 {
                     currentChurch &&
-                    <AddButton disabled={delloading} onClick={()=>setDeleteMode(true)} text='Delete' isDanger noIcon smallText className='rounded w-fit flex-center' />
+                    <AddButton disabled={delloading} onClick={()=>setDeleteMode(true)} text='Delete' isDanger noIcon smallText className={`rounded w-fit ${deleter ? 'flex-center':'hidden'}`} />
                 }
         </div>
         

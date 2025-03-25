@@ -13,6 +13,10 @@ import ContractPreview from "../single/ContractPreview";
 import { IService } from "@/lib/database/models/service.model";
 import { useFetchServices } from "@/hooks/fetch/useService";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { canPerformAction, contractRoles } from "@/components/auth/permission/permission";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { enqueueSnackbar } from "notistack";
 
 type ContractDetailsProps = {
     currentContract?:IContract
@@ -21,13 +25,14 @@ type ContractDetailsProps = {
 type OfferProp = {name:string, sign:string}
 
 const ContractDetails = ({currentContract}:ContractDetailsProps) => {
+    const {user} = useAuth();
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [previewMode, setPreviewMode] = useState<boolean>(false);
     const [data, setData] = useState<Partial<IContract>>({});
     const [dat, setDat] = useState<{from:string, to:string}>({from:'', to:''});
     const [offer, setOffer] = useState<OfferProp>({name:'', sign:''});
     const [wit, setWit] = useState<OfferProp>({name:'', sign:''});
-    const [response, setResponse] = useState<ErrorProps>(null);
+    // const [response, setResponse] = useState<ErrorProps>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
     const [saveResponse, setSaveResponse] = useState<ErrorProps>(null);
@@ -36,9 +41,23 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     const formRef = useRef<HTMLFormElement>(null);
     const [amount, setAmount] = useState<number>(0);
 
+    const router = useRouter();
+
     const {services} = useFetchServices();
     const cservs = currentContract?.services as IService[];
     const quants = currentContract?.quantity;
+
+    const reader = canPerformAction(user!, 'reader', {contractRoles});
+    const updater = canPerformAction(user!, 'updater', {contractRoles});
+    const creator = canPerformAction(user!, 'creator', {contractRoles});
+    const deleter = canPerformAction(user!, 'deleter', {contractRoles});
+    const admin = canPerformAction(user!, 'admin', {contractRoles});
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Contract Admin')
+        }
+    },[user, admin, router])
 
     useEffect(()=>{
         if(cservs){
@@ -136,14 +155,15 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     }
 
     const handleDeleteContract = async()=>{
-        setResponse(null);
+        // setResponse(null);
         try {
             setDeleteLoading(true);
             const res = await deleteContract(currentContract!._id);
-            setResponse(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            router.back();
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured deleting the contract', error:true});
+            enqueueSnackbar('Error occured deleting the contract', {variant:'error'});
         }finally{
             setDeleteLoading(false);
         }
@@ -152,11 +172,11 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
 
     const handleSubmit =async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setResponse(null);
+        // setResponse(null);
         try {
             setLoading(true);
             if((offer.sign === '') || (wit.sign === '')){
-                setResponse({message:'Both offeree and withness have to sign.', error:true});
+                enqueueSnackbar('Both offeree and withness have to sign.', {variant:'error'});
             }else{
                 const sers = servs.map((item)=>item._id);
                 const body:Partial<IContract> = {
@@ -168,14 +188,14 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
                     quantity
                 }
                 const res = await createContract(body);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 handleClearOfferee();
                 handleClearWitness();
                 formRef.current?.reset();
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured submitting the contract.', error:true});
+            enqueueSnackbar('Error occured submitting the contract.', {variant:'error'})
         }finally{
             setLoading(false);
         }
@@ -183,7 +203,7 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
 
     const handleUpdateContract = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setResponse(null);
+        // setResponse(null);
         try {
             setLoading(true);
             const sers = servs?.map((item)=>item._id);
@@ -210,10 +230,10 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             };
 
             const res = await updateContract(body);
-            setResponse(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured updating the contract', error:true});
+            enqueueSnackbar('Error occured updating the contract', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -283,13 +303,14 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
 
     const message = `Deleting a contract will leave the associated church unlicensed. Proceed?`;
 
+    if(!admin) return;
 
   return (
     <form ref={formRef} onSubmit={ currentContract? handleUpdateContract : handleSubmit}  className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex md:flex-row md:items-stretch gap-6 md:gap-12 items-start bg-white' >
         <div className="flex flex-col gap-5 flex-1">
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Title</span>
-                <input required={!currentContract} onChange={handleChange} defaultValue={currentContract?.title} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="title"  />
+                <input required={!currentContract} onChange={handleChange} defaultValue={currentContract?.title} placeholder='type here...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="title"  />
             </div>
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-10">
                 <div className="flex flex-col gap-1">
@@ -304,12 +325,12 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Church</span>
-                <input required={!currentContract} onChange={handleChange} defaultValue={currentContract?.church} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="church"  />
+                <input required={!currentContract} onChange={handleChange} defaultValue={currentContract?.church} placeholder='type here...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="church"  />
             </div>
 
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
-                <textarea placeholder="say something about the contract"  defaultValue={currentContract?.description} onChange={handleChange} className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="description"  />
+                <textarea placeholder="say something about the contract"  defaultValue={currentContract?.description} onChange={handleChange} className='border rounded resize-none p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="description"  />
             </div>
 
             {
@@ -370,19 +391,19 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
         <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Offeree Name</span>
-                <input required={!currentContract} onChange={handleChangeOfferee} defaultValue={currentContract?.offeree?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+                <input required={!currentContract} onChange={handleChangeOfferee} defaultValue={currentContract?.offeree?.name} placeholder='type here...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Signature</span>
                 <SignaturePad onSaveToFile={()=>handleSaveToFile(offer, setOffer)} showSave={offer.sign !== ''} onClear={handleClearOfferee} onSave={handleSaveOffereeSignature} />
-                {/* <textarea required={!currentContract} defaultValue={currentContract?.witness?.sign} onChange={handleChangeOfferee} className='border rounded resize-none p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="sign"  /> */}
+                {/* <textarea required={!currentContract} defaultValue={currentContract?.witness?.sign} onChange={handleChangeOfferee} className='border rounded resize-none p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="sign"  /> */}
             </div>
         </div>
 
         <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Witness Name</span>
-                <input required={!currentContract} onChange={handleChangeWitness} defaultValue={currentContract?.witness?.name} placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+                <input required={!currentContract} onChange={handleChangeWitness} defaultValue={currentContract?.witness?.name} placeholder='type here...' className='border-b p-1 outline-none w-[85%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Signature</span>
@@ -390,18 +411,24 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
             </div>
         </div>
 
-        {
+        {/* {
             response?.message &&
             <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
-        }
+        } */}
         
         <div className="flex flex-col gap-3 md:flex-row">
-            <AddButton disabled={loading} text={loading ? "loading" : currentContract ? "Save Changes" :"Submit"} noIcon smallText className="rounded" />
+            <AddButton disabled={loading} text={loading ? "loading" : currentContract ? "Save Changes" :"Submit"} noIcon smallText className={`rounded justify-center ${currentContract && !updater && 'hidden'} ${!currentContract && !creator && 'hidden'}`} />
             {
                 currentContract &&
                 <>
-                <AddButton type="button" text="Preview" onClick={()=>setPreviewMode(true)} noIcon isCancel smallText className="rounded" />
-                <AddButton onClick={()=>setDeleteMode(true)} type="button" text={deleteLoading? "loading..." : "Delete"} noIcon isDanger smallText className="rounded" />
+                {
+                    reader &&
+                    <AddButton type="button" text="Preview" onClick={()=>setPreviewMode(true)} noIcon isCancel smallText className="rounded justify-center" />
+                }
+                {
+                    deleter &&
+                    <AddButton onClick={()=>setDeleteMode(true)} type="button" text={deleteLoading? "loading..." : "Delete"} noIcon isDanger smallText className="rounded justify-center" />
+                }
                 </>
             }
         </div>

@@ -21,7 +21,7 @@ export const useFetchCampuses = () =>{
             if(churchId){
                 res = await getChurchCampuses(churchId);
             }else{
-                res = isAdmin ? await getCampuses() : getChurchCampuses(user?.churchId) ;
+                res = isAdmin ? await getCampuses() : await getChurchCampuses(user?.churchId) ;
             }
             const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;

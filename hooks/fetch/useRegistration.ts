@@ -1,14 +1,12 @@
 import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId, getRegsWithEventIdAndChurchId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
-import { useEffect, useState } from "react"
+// import { useEffect, useState } from "react"
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
+// import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchRegistrations = ()=>{
-    // const [registrations, setRegistrations] = useState<IRegistration[]>([]);
-    // const [error, setError] = useState<string|null>(null);
-    // const [loading, setLoading] = useState<boolean>(true);
 
     const fetchRegistrations = async():Promise<IRegistration[]>=>{
         try {
@@ -30,30 +28,27 @@ export const useFetchRegistrations = ()=>{
 
 
 export const useFetchRegistrationsWithEvents = (id:string, churchId:string)=>{
-    const [eventRegistrations, setEventRegistrations] = useState<IRegistration[]>([]);
-    const [error, setError] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(()=>{
-        if(!id || !churchId) return;
-        const fetchRegistrations = async()=>{
-            const controller = new AbortController()
-            try {
-                const evts:IRegistration[] = await getRegistrationsWithoutGroups(id, churchId);
-                setEventRegistrations(evts);
-                setError(null); 
-            } catch (error) {
-                console.log(error);
-                setError('Error occured fetching registrations.')
-            }finally{
-                setLoading(false);
-            }
-            return ()=> controller.abort()
+    // const {user} = useAuth();
+    const fetchRegistrations = async():Promise<IRegistration[]>=>{
+        try {
+            if(!id || !churchId) return [];
+            // const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
+            // const cId = isAdmin ? churchId : user?.churchId;
+            const evts:IRegistration[] = await getRegistrationsWithoutGroups(id, churchId);
+            return evts;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
+    }
 
-        fetchRegistrations();
-    },[churchId, id])
-    return {eventRegistrations, error, loading}
+    const {data:eventRegistrations, isPending:loading, refetch} = useQuery({
+        queryKey:['registrationsforevents', id, churchId],
+        queryFn:fetchRegistrations,
+        enabled:!!id && !!churchId
+    }) 
+
+    return {eventRegistrations, refetch, loading}
 }
 
 export const useFetchRegistrationsWithoutChurch = (id:string)=>{

@@ -19,6 +19,7 @@ import { enqueueSnackbar } from "notistack";
 import { useFetchMembers } from "@/hooks/fetch/useMember";
 import SearchSelectChurchesV3 from "@/components/features/SearchSelectChurchesV3";
 import SearchSelectCampusesV2 from "@/components/features/SearchSelectCampusesV2";
+import { checkIfAdmin } from "@/components/Dummy/contants";
 
 type MemberImportModalProps = {
     infoMode:boolean;
@@ -104,6 +105,10 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
         fileRef.current?.click()
     }
 
+    if(!user) return;
+    const isAdmin = checkIfAdmin(user);
+    const cId = isAdmin ? churchId : user?.churchId;
+
   return (
     <Modal
         open={infoMode}
@@ -126,12 +131,15 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                     <Link href='/docs/Members Template.xlsx' download='Members Template.xlsx'   className="table-link w-fit text-center" >Download upload template</Link>
                 </div>
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-col">
-                        <span className='text-slate-500 text-[0.8rem]' >Choose Church</span>
-                        <SearchSelectChurchesV3 setSelect={setChurchId} require />
-                    </div>
                     {
-                        churchId &&
+                        isAdmin &&
+                        <div className="flex flex-col">
+                            <span className='text-slate-500 text-[0.8rem]' >Choose Church</span>
+                            <SearchSelectChurchesV3 setSelect={setChurchId} require />
+                        </div>
+                    }
+                    {
+                        cId &&
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Campus</span>
                             <SearchSelectCampusesV2 churchId={churchId} setSelect={setCampusId} require />

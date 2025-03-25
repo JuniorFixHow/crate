@@ -15,6 +15,8 @@ import { enqueueSnackbar } from "notistack"
 import { IoMdTrash } from "react-icons/io"
 import { RiPencilFill } from "react-icons/ri"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
+import { useAuth } from "@/hooks/useAuth"
+import { canPerformAction, sessionRoles } from "@/components/auth/permission/permission"
 
 
 export type SessionSideProps = ComponentProps<'div'> & {
@@ -29,8 +31,11 @@ export type SessionSideProps = ComponentProps<'div'> & {
 }
 const SessionSide = ({currentSession, refetch, sessions, selectedTime, eventId, setEventId, setSelectedTime,   setCurrentSession,className}:SessionSideProps) => {
      const [deleteMode, setDeleteMode] = useState<boolean>(false);
-     
-    const message = 'Deleting a session will delete its subsequent attendance records. Continue?'
+     const {user} = useAuth();
+     const updater = canPerformAction(user!, 'updater', {sessionRoles});
+     const deleter = canPerformAction(user!, 'deleter', {sessionRoles});
+
+    const message = 'Deleting a session will delete its subsequent attendance records. Continue?';
     // const tapEllipse = (event:MouseEvent<SVGElement>, item:ISession)=>{
     //     event.stopPropagation();
     //     setCurrentSession(item);
@@ -56,6 +61,8 @@ const SessionSide = ({currentSession, refetch, sessions, selectedTime, eventId, 
         }
     }
    
+
+    if(!user) return;
   return (
     <div className='flex flex-row max-w-[90vw] scrollbar-custom overflow-x-scroll lg:overflow-hidden lg:flex-col lg:w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
       <Subtitle className="hidden md:block" text="Sessions" />
@@ -86,10 +93,16 @@ const SessionSide = ({currentSession, refetch, sessions, selectedTime, eventId, 
                             <small className="text-[0.8rem]" > {new Date(session.from!).toLocaleDateString()}</small>
                         </div>
                         <div className="flex items-center">
-                            <Link className="w-full" href={`/dashboard/events/sessions/${session?._id}`} >
-                                <RiPencilFill size={20} className="text-blue-600" />
-                            </Link>
-                            <IoMdTrash onClick={()=>setDeleteMode(true)} size={20} className="text-red-600 cursor-pointer" />
+                            {
+                                updater &&
+                                <Link className="w-full" href={`/dashboard/events/sessions/${session?._id}`} >
+                                    <RiPencilFill size={20} className="text-blue-600" />
+                                </Link>
+                            }
+                            {
+                                deleter &&
+                                <IoMdTrash onClick={()=>setDeleteMode(true)} size={20} className="text-red-600 cursor-pointer" />
+                            }
 
                         </div>
                     </div>

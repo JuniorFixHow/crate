@@ -5,7 +5,12 @@ import { IVenue } from "@/lib/database/models/venue.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
-export const GroupColumns:GridColDef[]=[
+export const GroupColumns=(
+    reader:boolean,
+    updater:boolean,
+    showChurch:boolean,
+    showRoom:boolean,
+):GridColDef[]=>[
     {
         field:'groupNumber',
         headerName:'Number',
@@ -17,14 +22,21 @@ export const GroupColumns:GridColDef[]=[
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/groups/${params?.row?._id}`}  className="table-link" >{params?.row?.name}</Link>
+                <>
+                {
+                    (reader || updater)?
+                    <Link href={`/dashboard/groups/${params?.row?._id}`}  className="table-link w-fit" >{params?.row?.name}</Link>
+                    :
+                    <span>{params?.row?.name}</span>
+                }
+                </>
             )
         }
     },
     {
         field:'members',
         headerName:'Members',
-        width:120,
+        width:80,
         valueFormatter:(_, group:IGroup)=>{
             return group?.members?.length;
         },
@@ -48,10 +60,17 @@ export const GroupColumns:GridColDef[]=[
             const church = group?.churchId as IChurch;
             return Object.values(church);
         },
-        width:150,
+        width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+                <>
+                {
+                    showChurch ?
+                    <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+                    :
+                    <span>{params?.row?.churchId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -109,17 +128,31 @@ export const GroupColumns:GridColDef[]=[
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex-center">
+                <>
                     {
-                        params?.row?.roomIds?.length  ===1 ? 
-                        <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className="table-link text-center" >{`${params?.row?.roomIds[0]?.venueId?.name} - ${params?.row?.roomIds[0]?.number}`}</Link>
+                        params?.row?.roomIds?.length  ===1 ?
+                        <>
+                        {
+                            showRoom ?
+                            <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className="table-link" >{`${params?.row?.roomIds[0]?.venueId?.name} - ${params?.row?.roomIds[0]?.number}`}</Link>
+                            :
+                            <span>{`${params?.row?.roomIds[0]?.venueId?.name} - ${params?.row?.roomIds[0]?.number}`}</span>
+                        }
+                        </> 
                         :
-                        params?.row?.roomIds?.length  > 1 ? 
-                        <Link href={{pathname:`/dashboard/groups/${params.row._id}`, query:{tab:'Rooms'}}}  className="table-link text-center" >Multiple</Link>
+                        params?.row?.roomIds?.length  > 1 ?
+                        <>
+                        {
+                            reader ?
+                            <Link href={{pathname:`/dashboard/groups/${params.row._id}`, query:{tab:'Rooms'}}}  className="table-link" >Multiple</Link>
+                            :
+                            <span >Multiple</span>
+                        }
+                        </> 
                         :
                         <span className="text-center" >Not yet</span>
                     }
-                </div>
+                </>
             )
         }
     },

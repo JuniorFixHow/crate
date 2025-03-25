@@ -10,10 +10,12 @@ export type RoomInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentRoom:IRoom|null,
-    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>
+    setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>;
+    venueReader:boolean;
+    eventReader:boolean;
 }
 
-const RoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoModalProps) => {
+const RoomInfoModal = ({infoMode, venueReader, eventReader, setInfoMode, currentRoom, setCurrentRoom}:RoomInfoModalProps) => {
     const venue = currentRoom?.venueId as IVenue;
     const event = currentRoom?.eventId as IEvent;
     const handleClose = ()=>{
@@ -65,11 +67,21 @@ const RoomInfoModal = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:Room
                 
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Venue</span>
-                    <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                    {
+                        venueReader ?
+                        <Link className='table-link' href={`/dashboard/venues/${venue?._id}`} >{venue?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{venue?.name}</span>
+                    }
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Event</span>
-                    <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                    {
+                        eventReader ?
+                        <Link className='table-link' href={`/dashboard/events/${event?._id}`} >{event?.name}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{event?.name}</span>
+                    }
                 </div>
                 
             </div>

@@ -72,29 +72,26 @@ export const useFetchAvailableFacilities = (venueId:string) => {
 
 
 export const useFetchVenueFacilities = (venueId:string) => {
-    const [facilities, setFacilities] = useState<IFacility[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    
+    const fetchFacilities = async ():Promise<IFacility[]> => {
+        try {
+            if(!venueId) return [];
+            const fetchedFacilities: IFacility[] = await getFacilitiesForaVenue(venueId);
+            const sorted = fetchedFacilities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
+            return sorted;
+        } catch (err) {
+            console.log(err);
+            return [];
+        }
+    };
 
-    useEffect(() => {
-        if(!venueId) return;
-        const fetchFacilities = async () => {
-            try {
-                const fetchedFacilities: IFacility[] = await getFacilitiesForaVenue(venueId);
-                setFacilities(fetchedFacilities.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1));
-                setError(null);
-            } catch (err) {
-                setError('Error fetching facilities');
-                console.log(err)
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {data:facilities=[], isPending:loading, refetch} = useQuery({
+        queryKey:['facilitiesforvenue', venueId],
+        queryFn:fetchFacilities,
+        enabled:!!venueId
+    })
 
-        fetchFacilities();
-    }, [venueId]);
-
-    return { facilities, loading, error };
+    return { facilities, loading, refetch };
 };
 
 

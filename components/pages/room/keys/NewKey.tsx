@@ -19,9 +19,11 @@ type NewKeyProps = {
     setEditMode:Dispatch<SetStateAction<boolean>>,
     currentKey:IKey|null,
     setCurrentKey:Dispatch<SetStateAction<IKey|null>>,
+    assign:boolean;
+    updater:boolean;
 }
 
-const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) => {
+const NewKey = ({editMode, assign, updater, setEditMode, currentKey, setCurrentKey}:NewKeyProps) => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [roomId, setRoomId] = useState<string>('');
     const [memberId, setMemberId] = useState<string>('');
@@ -33,6 +35,8 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
     const {members} = useFetchMembersInRoom(roomId);
     const room = currentKey?.roomId as IRoom;
     const venue = room?.venueId as IVenue;
+
+    const editor = updater || assign;
 
     const handleClose = ()=>{
         setEditMode(false);
@@ -173,7 +177,7 @@ const NewKey = ({editMode, setEditMode, currentKey, setCurrentKey}:NewKeyProps) 
             }
 
             <div className="flex flex-row items-center gap-6">
-                <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentKey? 'Update':'Add'} smallText noIcon />
+                <AddButton disabled={loading} type='submit'  className={`${currentKey && !editor && 'hidden'} rounded w-[45%] justify-center`} text={loading ? 'loading...' : currentKey? 'Update':'Add'} smallText noIcon />
                 {
                     currentKey && currentKey?.holder &&
                     <AddButton disabled={returnLoading} isCancel onClick={handleReturn} type='button'  className='rounded w-[45%] justify-center' text={returnLoading ? 'loading...' : currentKey?.returned ? 'Deem Unreturned':'Deem Returned' } smallText noIcon />

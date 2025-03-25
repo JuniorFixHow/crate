@@ -18,13 +18,16 @@ import { useAuth } from '@/hooks/useAuth';
 
 export type VendorInfoModalProps = {
     infoMode:boolean,
+    showMember:boolean,
+    deleter:boolean,
+    isAdmin:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentVendor:IVendor|null,
     setCurrentVendor:Dispatch<SetStateAction<IVendor|null>>,
     refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IVendor[], Error>>
 }
 
-const VendorInfoModal = ({infoMode, setInfoMode, refetch, currentVendor, setCurrentVendor}:VendorInfoModalProps) => {
+const VendorInfoModal = ({infoMode, showMember, deleter, isAdmin, setInfoMode, refetch, currentVendor, setCurrentVendor}:VendorInfoModalProps) => {
 
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const church = currentVendor?.church as IChurch;
@@ -94,22 +97,32 @@ const VendorInfoModal = ({infoMode, setInfoMode, refetch, currentVendor, setCurr
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Country</span>
                     <span className='text-[0.9rem]' >{zone?.country}</span>
                 </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
-                    <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link' >{zone?.name}</Link>
-                </div>
-                <div className="flex flex-col dark:text-slate-200">
-                    <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
-                    <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
-                </div>
+                {
+                    isAdmin &&
+                    <>
+                        <div className="flex flex-col dark:text-slate-200">
+                            <span className='text-[1.1rem] font-semibold text-slate-700' >Zone</span>
+                            <Link href={{pathname:`/dashboard/zones`, query:{id:zone?._id}}}  className='table-link' >{zone?.name}</Link>
+                        </div>
+                        <div className="flex flex-col dark:text-slate-200">
+                            <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
+                            <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}}  className='table-link' >{church?.name}</Link>
+                        </div>
+                    </>
+                }
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Registered Members</span>
-                    <Link href={{pathname:'/dashboard/members', query:{registeredBy:currentVendor?._id}}}  className='text-blue-700 underline cursor-pointer' >{currentVendor?.registrants}</Link>
+                    {
+                        showMember ?
+                        <Link href={{pathname:'/dashboard/members', query:{registeredBy:currentVendor?._id}}}  className='text-blue-700 underline cursor-pointer' >{currentVendor?.registrants}</Link>
+                        :
+                        <span className='text-[0.9rem]' >{zone?.country}</span>
+                    }
                 </div>
                 
             </div>
             {
-                user?.userId !== currentVendor?._id &&
+                user?.userId !== currentVendor?._id && deleter &&
                 <AddButton onClick={()=>setDeleteMode(true)} text='Delete Account' className='rounded mt-8 justify-center' isDanger noIcon smallText />
             }
         </div>

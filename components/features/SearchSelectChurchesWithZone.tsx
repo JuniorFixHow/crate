@@ -1,4 +1,4 @@
-import { useFetchChurchesV2 } from "@/hooks/fetch/useChurch";
+import {  useFetchChurchesV4 } from "@/hooks/fetch/useChurch";
 import { IChurch } from "@/lib/database/models/church.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
@@ -13,7 +13,7 @@ type SearchSelectChurchesWithZoneProps = {
 }
 
 const SearchSelectChurchesWithZone = ({setSelect, zoneId, width, require, value}:SearchSelectChurchesWithZoneProps) => {
-    const {churches, isPending} = useFetchChurchesV2();
+    const {churches, isPending} = useFetchChurchesV4();
     const [search, setSearch] = useState<string>('')
   return (
     <Autocomplete

@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {  Paper } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -18,8 +18,12 @@ import { useFetchRooms } from "@/hooks/fetch/useRoom";
 // import { ErrorProps } from "@/types/Types";
 import { enqueueSnackbar } from "notistack";
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, eventRoles, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
 
 const RoomTable = () => {
+    const {user} = useAuth();
+    const router = useRouter();
     const [currentRoom, setCurrentRoom] = useState<IRoom|null>(null);
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
@@ -30,7 +34,22 @@ const RoomTable = () => {
 
     const searchParams = useSearchParams();
 
-    const {rooms, loading, refetch} = useFetchRooms()
+    const {rooms, loading, refetch} = useFetchRooms();
+
+    const reader = canPerformAction(user!, 'reader', {roomRoles});
+    const updater = canPerformAction(user!, 'updater', {roomRoles});
+    const deleter = canPerformAction(user!, 'deleter', {roomRoles});
+    const creator = canPerformAction(user!, 'creator', {roomRoles});
+    const admin = canPerformAction(user!, 'admin', {roomRoles});
+    const facReader = canPerformAction(user!, 'reader', {facilityRoles});
+    const venueReader = canPerformAction(user!, 'reader', {venueRoles});
+    const eventReader = canPerformAction(user!, 'reader', {eventRoles});
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Room Admin')
+        }
+    },[admin, user, router])
    
     useEffect(() => {
         const fetchChurch = async () => {
@@ -80,20 +99,26 @@ const RoomTable = () => {
         setCurrentRoom(null);
     }
 
-    const message = `Deleting a room will also unassign all members allocated to it. You're rather advised to edit the room or unassign the unwanted members. Do you want to continue?`
+    const message = `Deleting a room will also unassign all members allocated to it. You're rather advised to edit the room or unassign the unwanted members. Do you want to continue?`;
+
+    if(!admin) return
+
     return (
       <div className='table-main2' >
           <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <SearchSelectEventsV2 setSelect={setEventId} />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-                <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-2' />
+                {
+                    creator &&
+                    <AddButton onClick={handleOpenNew} smallText text='Add Room' noIcon className='rounded py-2' />
+                }
                 {/* <button className="px-4 py-1 border-2 rounded bg-transparent" >Import Excel</button> */}
             </div>
           </div> 
-          <RoomInfoModal currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />
+          <RoomInfoModal venueReader={venueReader} eventReader={eventReader} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={infoMode} setInfoMode={setInfoMode} />
           <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete room ${currentRoom?.number}`} message={message} onTap={handleDeleteRoom} />
-          <NewRoom currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={newMode} setInfoMode={setNewMode} />
+          <NewRoom updater={updater} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} infoMode={newMode} setInfoMode={setNewMode} />
   
             {/* {
                 response?.message &&
@@ -103,7 +128,7 @@ const RoomTable = () => {
             <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     rows={SearchRoomV2(rooms,  eventId)}
-                    columns={RoomsColumns(hadndleInfo,  hadndleDelete, handleNewRoom)}
+                    columns={RoomsColumns(hadndleInfo,  hadndleDelete, handleNewRoom, reader, updater, deleter, facReader)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                     getRowId={(row:IRoom):string=>row._id}

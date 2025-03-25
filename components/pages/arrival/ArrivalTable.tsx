@@ -15,8 +15,13 @@ import { ArrivalColumns } from "./ArrivalColumns";
 import Link from "next/link";
 import ArrivalInfoModal from "./ArrivalInfoModal";
 import { updateReg } from "@/lib/actions/registration.action";
+import { useAuth } from "@/hooks/useAuth";
+import { enqueueSnackbar } from "notistack";
+import { campusRoles, canPerformAction, eventRegistrationRoles, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
+import { useRouter } from "next/navigation";
 
 const ArrivalTable = () => {
+    const {user} = useAuth();
     const [eventId, setEventId] = useState<string>('');
 
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -24,9 +29,23 @@ const ArrivalTable = () => {
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
+    const router = useRouter();
+
     // console.log(date);
     const {events} = useFetchEvents();
-    const {checkRegistrations, loading} = useFetchCheckedInRegistrations(eventId);
+    const {checkRegistrations, refetch, loading} = useFetchCheckedInRegistrations(eventId);
+
+    const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
+    const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showChurch = isSuperUser(user!) || isSystemAdmin.reader(user!);
+    const showCampus = canPerformAction(user!, 'reader', {campusRoles});
+
+    useEffect(()=>{
+      if(user && (!reader && !updater)){
+        router.replace('/dashboard/forbidden?p=Event Registration Reader')
+      }
+    },[reader, updater, user, router])
 
     const handleInfo = (data:IRegistration)=>{
       setInfoMode(true);
@@ -52,27 +71,32 @@ const ArrivalTable = () => {
         }
         if(currentRegistration){
           const res = await updateReg(currentRegistration?._id, body);
-          setResponse(res);
+          refetch();
+          enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
           setDeleteMode(false);
         }
       } catch (error) {
         console.log(error);
-        setResponse({message:'Error occured deleting arrival record', error:true});
+        enqueueSnackbar('Error occured deleting arrival record', {variant:'error'});
       }
     }
 
     const message = `You're about to delete an arrival record. This will not affect the registration data of the member. Continue?`
 
     const paginationModel = { page: 0, pageSize: 15 };
+    if(!reader && !updater) return;
   return (
     <div className="table-main2" >
         <ArrivalTop eventId={eventId} setEventId={setEventId} />
 
         <div className="flex items-start gap-4 justify-end">
           {/* <ArrivalSearch setDate={setDate} setSearch={setSearch} /> */}
-          <Link href={'/dashboard/events/arrivals/new'} >
-            <AddButton text="New Arrival" noIcon smallText className="rounded" />
-          </Link>
+          {
+            updater &&
+            <Link href={'/dashboard/events/arrivals/new'} >
+              <AddButton text="New Arrival" noIcon smallText className="rounded" />
+            </Link>
+          }
         </div>
 
 
@@ -88,7 +112,7 @@ const ArrivalTable = () => {
               <DataGrid
                   getRowId={(row:IRegistration):string=> row?._id as string}
                   rows={checkRegistrations}
-                  columns={ArrivalColumns(handleInfo, handleDelete)}
+                  columns={ArrivalColumns(handleInfo, handleDelete, reader, updater, showMember, showChurch, showCampus)}
                   initialState={{ 
                     pagination: { paginationModel },
                     columns:{

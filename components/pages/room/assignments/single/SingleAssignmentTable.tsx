@@ -15,17 +15,20 @@ import { ErrorProps } from '@/types/Types';
 import { addGroupToRoom, addMemberToRoom } from '@/lib/actions/room.action';
 import { IMember } from '@/lib/database/models/member.model';
 import { enqueueSnackbar } from 'notistack';
+import { useAuth } from '@/hooks/useAuth';
+import { isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
 
 type SingleAssignmentTableProps = {
     type:string,
     currentRoom:IRoom,
     currentGroup:IGroup,
     currentRegistration:IRegistration,
-    eventId:string|false
+    eventId:string
     setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>
 } & ComponentProps<'div'>
 
 const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurrentRoom, eventId, currentRoom}:SingleAssignmentTableProps) => {
+    const {user} = useAuth();
     const paginationModel = { page: 0, pageSize: 10 };
     const [search, setSearch] = useState<string>('');
     const [roomIds, setRoomIds] = useState<string[]>([]);
@@ -33,7 +36,8 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
     const [response, setResponse] = useState<ErrorProps>(null);
     const [addLoading, setAddLoading] = useState<boolean>(false);
 
-    const {rooms, loading} = useFetchAvailableRooms(typeof eventId === 'string' ? eventId:'');
+    const {rooms, loading} = useFetchAvailableRooms(eventId);
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
 
     const handleSelect =(id:string)=>{
         setRoomIds((prev)=>(
@@ -83,7 +87,7 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
     }
 
   return (
-    <div className='flex w-1/2' >
+    <div className='flex w-full lg:w-1/2' >
         <div className="flex self-end flex-col gap-2 overflow-x-hidden">
             <Subtitle text={type === 'Member' ? 'Pick Room':'Pick Rooms'} />
             <div className="flex flex-col lg:w-fit lg:mt-4">
@@ -93,14 +97,14 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
                         setNobs(value === '' ? undefined : parseInt(value)); // Reset to undefined if empty
                     }} min={0} type="number" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
             </div>
-            <SearchBar className='w-fit lg:self-end' setSearch={setSearch} reversed={false} />
+            <SearchBar className='w-fit py-1 lg:self-end' setSearch={setSearch} reversed={false} />
 
             {
                 response?.message &&
                 <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
             }
 
-            <div className="flex w-full">
+            <div className="flex w-[60%] md:w-[70%] lg:w-full">
                 {
                     loading ? 
                     <div className="flex-center w-full">
@@ -121,16 +125,20 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
                 </Paper>
                 }
             </div>
-            <div className="flex">
-                {
-                    type === 'Member' && currentRoom &&
-                    <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-                }
-                {
-                    type === 'Group' && roomIds.length > 0 &&
-                    <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
-                }
-            </div>
+
+            {
+                roomAssign &&
+                <div className="flex">
+                    {
+                        type === 'Member' && currentRoom &&
+                        <AddButton onClick={handleAssignMember} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+                    }
+                    {
+                        type === 'Group' && roomIds.length > 0 &&
+                        <AddButton onClick={handleAssignGroup} disabled={addLoading} text={addLoading ? 'loading...':'Assign Room'} noIcon smallText className='py-2 px-4 self-end rounded w-fit' />
+                    }
+                </div>
+            }
         </div>
 
     </div>

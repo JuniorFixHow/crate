@@ -4,11 +4,13 @@ import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import { ISession } from '@/lib/database/models/session.model'
 import { ErrorProps } from '@/types/Types'
 import Link from 'next/link'
-import { ChangeEvent, FormEvent, useRef, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 import { minTime } from './fxn'
 import { createSession } from '@/lib/actions/session.action'
 import { Alert } from '@mui/material'
 import { useAuth } from '@/hooks/useAuth'
+import { canPerformAction, sessionRoles } from '@/components/auth/permission/permission'
+import { useRouter } from 'next/navigation'
 
 const NewSessions = () => {
   const [data, setData] = useState<Partial<ISession>>({});
@@ -18,7 +20,10 @@ const NewSessions = () => {
   const [from, setFrom] = useState<Date>(new Date());
   const [to, setTo] = useState<Date>(new Date());
   const formRef = useRef<HTMLFormElement>(null);
-  const {user} = useAuth()
+  const {user} = useAuth();
+
+  const router = useRouter();
+
   const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
     setData((prev)=>({
@@ -26,6 +31,14 @@ const NewSessions = () => {
       [name]:value,
     }))    
   }
+
+  const sessionCreator = canPerformAction(user!, 'creator', {sessionRoles});
+
+  useEffect(()=>{
+    if(user && !sessionCreator){
+      router.replace('/dashboard/forbidden?p=Session Creator')
+    }
+  },[user, sessionCreator, router])
 
   const handleNewSession = async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
@@ -51,6 +64,7 @@ const NewSessions = () => {
     }
   }
   // console.log(data)
+  if(!sessionCreator) return;
 
   return (
     <div   className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex gap-8 bg-white' >

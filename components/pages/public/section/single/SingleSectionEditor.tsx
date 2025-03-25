@@ -8,16 +8,37 @@ import { IQuestion } from "@/lib/database/models/question.model"
 import { ErrorProps } from "@/types/Types"
 import { ISection } from "@/lib/database/models/section.model"
 import { deleteAndSaveQuestionsForSection, getSection } from "@/lib/actions/section.action"
+import { canPerformAction, questionSectionRoles, questionSetRoles } from "@/components/auth/permission/permission"
+import { ICYPSet } from "@/lib/database/models/cypset.model"
+import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
 
 type SingleSectionEditorProps = {
     currentSection:ISection
 }
 
 const SingleSectionEditor = ({currentSection}:SingleSectionEditorProps) => {
+  const {user} = useAuth();
     const [questions, setQuestions] = useState<Partial<IQuestion>[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] =useState<ErrorProps>(null);
+  const router = useRouter();
+
+  const set = currentSection?.cypsetId as ICYPSet;
+  const mine = set?.createdBy.toString() === user?.userId;
+  // alert(mine)
+
+  const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || canPerformAction(user!, 'updater', {questionSetRoles}) || mine;
+  const reader = canPerformAction(user!, 'reader', {questionSectionRoles}) || canPerformAction(user!, 'reader', {questionSetRoles}) || mine;
+
+
+   useEffect(()=>{
+      if(user && (!updater && !reader)){
+        router.replace('/dashboard/forbidden?p=Section Reader');
+      }
+    },[user, reader, updater, router])
+  
 
   useEffect(()=>{
     const getQuestions = async () => {
@@ -53,6 +74,8 @@ const SingleSectionEditor = ({currentSection}:SingleSectionEditorProps) => {
     }
   }
 
+  if(!reader && !updater) return;
+
   return (
     <form onSubmit={handleUpdateSection}  className="bg-white dark:bg-black/50 dark:border py-6 rounded w-full min-h-[80vh] flex flex-col" >
         <div className="flex justify-between w-full border-b border-b-slate-300 pb-3 px-6">
@@ -66,7 +89,10 @@ const SingleSectionEditor = ({currentSection}:SingleSectionEditorProps) => {
                     <span>Questions:</span>
                     <span className="font-bold" >{questions.length}</span>
                 </div>
-                <AddButton disabled={loading} text={loading ? "loading..." : "Save"} noIcon smallText className="rounded" />
+                {
+                  updater &&
+                  <AddButton disabled={loading} text={loading ? "loading..." : "Save"} noIcon smallText className="rounded" />
+                }
                 <AddButton type="button" onClick={()=>setOpen(true)} text="Preview" isCancel noIcon smallText className="rounded" />
             </div>
         </div>

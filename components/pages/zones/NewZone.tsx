@@ -15,10 +15,11 @@ type NewZoneProps = {
     setOpenZone:Dispatch<SetStateAction<boolean>>,
     currentZone:IZone|null,
     setCurrentZone:Dispatch<SetStateAction<IZone|null>>,
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IZone[], Error>>
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IZone[], Error>>;
+    updater:boolean
 }
 
-const NewZone = ({openZone, setOpenZone, refetch, currentZone, setCurrentZone}:NewZoneProps) => {
+const NewZone = ({openZone, setOpenZone, updater, refetch, currentZone, setCurrentZone}:NewZoneProps) => {
     const handleClose=()=>{
         setOpenZone(false);
         setCurrentZone(null);
@@ -102,7 +103,7 @@ const NewZone = ({openZone, setOpenZone, refetch, currentZone, setCurrentZone}:N
                 } */}
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading}  type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentZone? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading}  type='submit'  className={`rounded w-[45%] justify-center ${currentZone && !updater && 'hidden'}`} text={loading ? 'loading...' : currentZone? 'Update':'Add'} smallText noIcon />
                     <AddButton className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

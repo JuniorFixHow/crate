@@ -12,6 +12,8 @@ import { SingleFacilityColumns } from "./SingleFacilityColumns";
 import NewSingleFacility from "./NewSingleFacility";
 // import { SearchFacility } from "./fxn";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, facilityRoles } from "@/components/auth/permission/permission";
 
 type SingleFacilityTableProps ={
     facilities:IFacility[],
@@ -19,12 +21,16 @@ type SingleFacilityTableProps ={
 }
 
 const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => {
-    // const [search, setSearch] = useState<string>('');
-    // const [response, setResponse] = useState<ErrorProps>(null);
+    const {user} = useAuth();
+
     const [currentFacility, setCurrentFacility] = useState<IFacility|null>(null);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    // const sorted = facilities && facilities?.sort((a, b)=> new Date(a.createdAt) < new Date(b.createdAt) ? 1:-1)
 
+    const creator = canPerformAction(user!, 'creator', {facilityRoles});
+    const updater = canPerformAction(user!, 'updater', {facilityRoles});
+    const deleter = canPerformAction(user!, 'deleter', {facilityRoles});
 
     const handleDeleteMode = (data:IFacility)=>{
         setDeleteMode(true);
@@ -60,11 +66,12 @@ const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => 
     <div className='table-main2' >
 
         <div className="flex flex-col gap-3">
-            <div className="flex flex-row gap-4  items-center px-0  w-full justify-end">
-                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-                
-                <AddButton onClick={handleNew} type="button" smallText text='Add Facility' noIcon className='rounded' />
-            </div>
+            {
+                creator &&
+                <div className="flex flex-row gap-4  items-center px-0  w-full md:justify-end">                
+                    <AddButton onClick={handleNew} type="button" smallText text='Add Facility' noIcon className='rounded' />
+                </div>
+            }
         </div>
 
         <NewSingleFacility venueId={venueId} currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={editMode} setInfoMode={setEditMode} />
@@ -78,10 +85,10 @@ const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => 
             <Paper className='w-full' sx={{ height: 480, }}>
                 <DataGrid
                     getRowId={(row:IFacility):string=> row?._id as string}
-                    rows={facilities?.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)}
-                    columns={SingleFacilityColumns(handleEditMode, handleDeleteMode)}
+                    rows={facilities}
+                    columns={SingleFacilityColumns(handleEditMode, handleDeleteMode, updater, deleter)}
                     initialState={{ pagination: { paginationModel } }}
-                    pageSizeOptions={[5, 10, 15,]}
+                    pageSizeOptions={[5, 10, 15,20]}
                     slots={{toolbar:GridToolbar}}
                     slotProps={{
                         toolbar:{

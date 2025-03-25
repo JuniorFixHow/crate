@@ -1,8 +1,13 @@
 import Title from "@/components/features/Title"
 import { IoIosArrowForward } from "react-icons/io"
 import VenueDetails from "./VenueDetails"
+import { IVenue } from "@/lib/database/models/venue.model"
 
-const NewVenueMain = () => {
+type NewVenueMainProps = {
+  currentVenue?:IVenue
+}
+
+const NewVenueMain = ({currentVenue}:NewVenueMainProps) => {
   return (
     <div className="page" >
         <div className="flex flex-row gap-2 items-baseline">
@@ -10,7 +15,7 @@ const NewVenueMain = () => {
             <IoIosArrowForward className="hidden md:block" />
             <Title text="New" />
         </div>
-        <VenueDetails/>
+        <VenueDetails currentVenue={currentVenue} />
     </div>
   )
 }

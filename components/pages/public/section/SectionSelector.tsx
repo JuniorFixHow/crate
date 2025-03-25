@@ -11,6 +11,7 @@ import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
 import SectionSelectCenter from "./SectionSelectCenter";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, questionSectionRoles } from "@/components/auth/permission/permission";
 
 type SectionSelectorProps = {
     infoMode:boolean,
@@ -19,6 +20,7 @@ type SectionSelectorProps = {
 }
 
 const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps) => {
+    const {user} = useAuth();
     const [loading, setLoading] = useState<boolean>(false);
     const [title, setTitle] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
@@ -28,11 +30,16 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
 
     const {sections} = useFetchSectionsWithQuestions();
     const router = useRouter();
-    const {user} = useAuth();
-
-    
 
     const formRef = useRef<HTMLFormElement>(null);
+    const creator = canPerformAction(user!, 'creator', {questionSectionRoles});
+
+    // useEffect(()=>{
+    //     if(user && !creator){
+    //         console.log('Out of bounds');
+    //     }
+    // },[user, creator])
+
     const handleClose = ()=>{
         setInfoMode(false);
     }
@@ -68,6 +75,7 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
         }
     }
 
+    if(!user) return;
   return (
     <Modal
         open={infoMode}
@@ -111,7 +119,7 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
 
                         <div className="flex flex-row items-center justify-end gap-6">
                             {
-                                choice !== '' &&
+                                choice !== '' && creator &&
                                 <AddButton disabled={loading} type='submit'  className='rounded' text={loading ? 'loading...' :'Proceed'} smallText noIcon />
                             }
                             <AddButton type="button" disabled={loading} className='rounded' text='Do This Later' isCancel onClick={handleClose} smallText noIcon />

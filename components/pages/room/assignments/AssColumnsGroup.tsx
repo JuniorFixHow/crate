@@ -9,7 +9,10 @@ import Link from "next/link";
 
 export const AssColumnsGroup =(
     handleUnassign:(data:IGroup)=>void,
-    loading:boolean
+    loading:boolean,
+    groupReader:boolean,
+    isAdmin:boolean,
+    roomAssign:boolean,
 ):GridColDef[] => [
     {
         field:'name',
@@ -17,7 +20,14 @@ export const AssColumnsGroup =(
         width:140,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/groups/${params?.row._id}`}} >{params?.row?.name}</Link>
+                <>
+                {
+                    groupReader ?
+                    <Link className="table-link" href={{pathname:`/dashboard/groups/${params?.row._id}`}} >{params?.row?.name}</Link>
+                    :
+                    <span>{params?.row?.name}</span>
+                }
+                </>
             )
         }
         
@@ -36,7 +46,14 @@ export const AssColumnsGroup =(
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+                <>
+                {
+                    isAdmin ?
+                    <Link href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} className="table-link" >{params?.row?.churchId?.name}</Link>
+                    :
+                    <span>{params?.row?.churchId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -98,17 +115,24 @@ export const AssColumnsGroup =(
         disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="h-full flex items-center">
-                    {
-                        (!params?.row?.roomIds || params?.row?.roomIds?.length === 0) ?
+                <>
+                {
+                    roomAssign ?
+                    <div className="h-full flex items-center">
+                        {
+                            (!params?.row?.roomIds || params?.row?.roomIds?.length === 0) ?
 
-                        <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Group'}}} >
-                            <AddButton disabled={loading} text={loading ? "loading":"Assign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
-                        </Link>
-                        :
-                        <AddButton onClick={()=>handleUnassign(params?.row)} text="Unassign room" smallText noIcon className="h-[2rem] px-2 rounded" />
-                    }
-                </div>
+                            <Link className="" href={{pathname:`/dashboard/rooms/assignments/${params?.row?._id}`, query:{type:'Group'}}} >
+                                <AddButton disabled={loading} text={loading ? "loading":"Assign room"} smallText noIcon className="h-[2rem] px-2 rounded" />
+                            </Link>
+                            :
+                            <AddButton onClick={()=>handleUnassign(params?.row)} text="Unassign room" smallText noIcon className="h-[2rem] px-2 rounded" />
+                        }
+                    </div>
+                    :
+                    <span>None</span>
+                }
+                </>
             )
         }
 

@@ -4,16 +4,19 @@ import { updateMinistry } from "@/lib/actions/ministry.action"
 import { IActivity } from "@/lib/database/models/activity.model"
 import { IMinistry } from "@/lib/database/models/ministry.model"
 import { ErrorProps } from "@/types/Types"
-import { Alert, Modal } from "@mui/material"
+import { Alert, Modal, Tooltip } from "@mui/material"
+import { enqueueSnackbar } from "notistack"
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
+import { LuInfo } from "react-icons/lu"
 
 type NewActivityDownV4Props = {
     ministry?:IMinistry|null;
     editMode:boolean;
-    setEditMode:Dispatch<SetStateAction<boolean>>
+    setEditMode:Dispatch<SetStateAction<boolean>>;
+    updater:boolean
 }
 
-const NewActivityDownV4 = ({editMode, setEditMode, ministry}:NewActivityDownV4Props) => {
+const NewActivityDownV4 = ({editMode, updater, setEditMode, ministry}:NewActivityDownV4Props) => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] = useState<Partial<IActivity>>({});
@@ -37,7 +40,7 @@ const NewActivityDownV4 = ({editMode, setEditMode, ministry}:NewActivityDownV4Pr
 
     const handleUpdateMinistry = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        setResponse(null)
+        // setResponse(null)
         try {
             setLoading(true);
             const body:Partial<IMinistry> = {
@@ -48,10 +51,12 @@ const NewActivityDownV4 = ({editMode, setEditMode, ministry}:NewActivityDownV4Pr
                 description: data?.description || ministry?.description,
             }
             const res = await updateMinistry(body);
-            setResponse(res);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            setEditMode(false);
+            // setResponse(res);
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured updating class', error:true});
+            enqueueSnackbar('Error occured updating class', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -80,11 +85,17 @@ const NewActivityDownV4 = ({editMode, setEditMode, ministry}:NewActivityDownV4Pr
                             
                             <div className="flex gap-12">
                                 <div className="flex flex-col">
-                                    <span className='text-slate-500 text-[0.8rem] font-semibold' >Start Time <small className="text-[0.6rem]" >(The time this program often starts)</small> </span>
+                                    <div className="flex gap-1 items-center">
+                                        <span className='text-slate-500 text-[0.8rem] font-semibold' >Start Time</span>
+                                        <Tooltip title='The time this program often starts' ><LuInfo size={13} /></Tooltip>
+                                    </div>
                                     <input onChange={handleChange} defaultValue={ministry?.startTime} name='startTime' required ={!ministry} type='time' className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className='text-slate-500 text-[0.8rem] font-semibold' >End Time <small className="text-[0.6rem]" >(The time this program often ends)</small> </span>
+                                    <div className="flex gap-1 items-center">
+                                        <span className='text-slate-500 text-[0.8rem] font-semibold' >End Time</span>
+                                        <Tooltip title='The time this program often ends' ><LuInfo size={13} /></Tooltip>
+                                    </div>
                                     <input onChange={handleChange} defaultValue={ministry?.endTime} name='endTime' required ={!ministry} type='time' className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                                 </div>
                             </div>
@@ -105,7 +116,7 @@ const NewActivityDownV4 = ({editMode, setEditMode, ministry}:NewActivityDownV4Pr
                             }
                             <div className="flex items-center gap-4">
                                 <AddButton onClick={handleClose} text="Cancel" smallText noIcon className="rounded py-1" isCancel type="button" />
-                                <AddButton disabled={loading} type='submit' text={loading ? 'loading...' : 'Update Class'} noIcon smallText className='rounded py-1 w-fit self-end' />
+                                <AddButton disabled={loading} type='submit' text={loading ? 'loading...' : 'Update Class'} noIcon smallText className={`${ministry && !updater && 'hidden'} rounded py-1 w-fit self-end`} />
                             </div>
                         </div>
                     </div>

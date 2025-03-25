@@ -1,7 +1,7 @@
 'use client'
 import AddButton from "@/components/features/AddButton"
 import Image from "next/image"
-import {  useState } from "react"
+import {  useEffect, useState } from "react"
 import MRegisteration from "./MRegisteration"
 // import RegisterForEvent from "@/components/shared/RegisterForEvent"
 import { IMember } from "@/lib/database/models/member.model"
@@ -23,23 +23,16 @@ import { IVendor } from "@/lib/database/models/vendor.model"
 import { enqueueSnackbar } from "notistack"
 import QuestionStarter from "../shared/QuestionStarter"
 import RegisterForEventV2 from "../shared/RegisterForEventV2"
+import { isChurchAdmin, eventRegistrationRoles,  memberRoles, canPerformAction, churchRoles } from "../auth/permission/permission"
+import { useAuth } from "@/hooks/useAuth"
+import { checkIfAdmin } from "../Dummy/contants"
 
 export type MDetailsProps = {
   currentMember:IMember
 }
 const MDetails = ({currentMember}:MDetailsProps) => {
   const [hasOpen, setHasOpen] = useState<boolean>(false)
-  // const [open, setOpen] = useState<boolean>(false);
-  // const [eventId, setEventId] = useState<string>('');
-  // const [fetchLoading, setFetchLoading] = useState<boolean>(true);
-  // const [error, setError] = useState<string|null>(null);
-  // const [currentMember, setCurrentMember] = useState<IMember|null>(null);
-
-  // const [openG, setOpenG] = useState<boolean>(false);
-  // const [openV, setOpenV] = useState<boolean>(false);
-  // const [regLoading, setRegLoading] = useState<boolean>(false);
-  // const [regError, setRegError] = useState<ErrorProps>(null);
-  // const [groupId, setGroupId] = useState<string>('');
+  
 
   const [start, setStart] = useState<boolean>(false);
     const [openReg, setOpenReg] = useState<boolean>(false);
@@ -50,6 +43,7 @@ const MDetails = ({currentMember}:MDetailsProps) => {
 
   const router = useRouter();
   const {events} = useFetchEvents();
+  const {user} = useAuth();
 
 
       const handleDeleteMember = async()=>{
@@ -64,61 +58,21 @@ const MDetails = ({currentMember}:MDetailsProps) => {
         }
       }
 
-    //   const openEventReg = ()=>{
-    //     setOpen(true);
-    //     setOpenV(true);
-    //     setOpenG(false);
-    // }
+    
+    // if(!user) return;
+ 
+    const isAdmin = checkIfAdmin(user);
+    const showRegister = isAdmin || isChurchAdmin.creator(user!) || eventRegistrationRoles.assign(user!);
+    const showCreate = canPerformAction(user!, 'updater', {memberRoles});
+    const showDelete = canPerformAction(user!, 'deleter', {memberRoles});
+    const churchReader = canPerformAction(user!, 'reader', {churchRoles});
+    const admin = canPerformAction(user!, 'admin', {memberRoles});
 
-    // const openGroupReg = ()=>{
-    //     setOpenV(false);
-    //     setOpenG(true);
-    // }
-
-    //   const handleEventReg = async()=>{
-    //     setRegError(null);
-    //     try {
-    //         if(currentMember){
-    //             setRegLoading(true);
-    //             const data:Partial<IRegistration> = {
-    //                 memberId:currentMember._id,
-    //                 eventId,
-    //                 badgeIssued:'No',
-    //             } 
-    //             const res:ErrorProps = await createRegistration(currentMember._id, eventId, data);
-    //             setRegError(res);
-    //             if(res?.code === 201){
-    //               const groups:IGroup[] = await getEventGroups(eventId);
-    //               if(groups.length){
-    //                   openGroupReg();
-    //               }
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //         setRegError({message:'Error occured registering the member for the event', error:true});
-    //     }finally{
-    //         setRegLoading(false);
-    //     }
-    // }
-
-    // const handleGroupReg = async()=>{
-    //     setRegError(null);
-    //     try {
-    //         if(currentMember){
-    //             setRegLoading(true);
-    //             const res:ErrorProps = await addMemberToGroup(groupId, currentMember._id, eventId)
-    //             setRegError(res);
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //         setRegError({message:'Error occured registering the member for the group', error:true});
-    //     }finally{
-    //         setRegLoading(false);
-    //     }
-    // }
-
-      // if(fetchLoading) return <CircularIndeterminate className={`${fetchLoading ? 'flex-center':'hidden'}`}  error={error} />
+    useEffect(()=>{
+      if(user && !admin){
+        router.replace('/dashboard/forbidden?p=Member Admin')
+      }
+    },[admin, user, router])
 
   return (
     <>
@@ -134,28 +88,13 @@ const MDetails = ({currentMember}:MDetailsProps) => {
           </div>
         }
         
-        {/* <RegisterForEvent  
-            eventId={eventId} 
-            setSelect={setEventId} 
-            open={open} 
-            setOpen={setOpen} 
-            showEvent={openV}
-            handleGroup={handleGroupReg}
-            setShowEvent={setOpenV}
-            showGroup={openG}
-            handleEvent={handleEventReg}
-            setSelectGroupId={setGroupId}
-            groupId={groupId}
-            setShowGroup={setOpenG}
-            loading={regLoading}
-            error={regError}
-        /> */}
+       
 
-{
+            {
                 (currentMember) &&
                 <>
                 <QuestionStarter memberId={currentMember?._id} eventId={eventId} start={start} setStart={setStart} />
-                <RegisterForEventV2 eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMember?._id} setShowStart={setStart}  />
+                <RegisterForEventV2 churchId={church?._id} eventId={eventId} setEventId={setEventId} open={openReg} setOpen={setOpenReg} memberId={currentMember?._id} setShowStart={setStart}  />
                 </>
             }
 
@@ -189,7 +128,7 @@ const MDetails = ({currentMember}:MDetailsProps) => {
                 <span className="text-[0.8rem] text-slate-400" >{currentMember?.status}</span>
               </div>
               {
-                church &&
+                church && churchReader &&
                 <div className="flex flex-row items-start gap-4">
                   <span className="text-[0.8rem] font-semibold" >Church:</span>
                   <Link  href={{pathname:'/dashboard/churches', query:{id:church._id}}}  className="table-link" >{church?.name}</Link>
@@ -240,12 +179,18 @@ const MDetails = ({currentMember}:MDetailsProps) => {
               }
 
               <div className="flex flex-row items-center gap-8 mt-4">
-                <AddButton onClick={()=>setHasOpen(true)} noIcon className="rounded" smallText text="Edit" />
+                {
+                  showCreate &&
+                  <AddButton onClick={()=>setHasOpen(true)} noIcon className="rounded" smallText text="Edit" />
+                }
                   {
-                    events.length>0 &&
+                    events.length>0 && showRegister &&
                     <AddButton isCancel onClick={()=>setOpenReg(true)} noIcon className="rounded" smallText text="Register Event" />
                   }
-                <AddButton onClick={handleDeleteMember}  isDanger noIcon className="rounded" smallText text="Delete" />
+                  {
+                    showDelete &&
+                    <AddButton onClick={handleDeleteMember}  isDanger noIcon className="rounded" smallText text="Delete" />
+                  }
               </div>
           </div>
           

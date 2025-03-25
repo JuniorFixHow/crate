@@ -1,25 +1,31 @@
 import AddButton from '@/components/features/AddButton'
 import  { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import { Alert, Modal } from '@mui/material';
-import SearchSelectEvents from '@/components/features/SearchSelectEvents';
+// import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import { IRoom } from '@/lib/database/models/room.model';
 import { ErrorProps } from '@/types/Types';
 import { createRoom, updateRoom } from '@/lib/actions/room.action';
-import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
+// import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
 import { useAuth } from '@/hooks/useAuth';
-import SearchSelectVenues from '@/components/features/SearchSelectVenue';
+// import SearchSelectVenues from '@/components/features/SearchSelectVenue';
 import { generateNumberArray } from '@/functions/misc';
 import { IFacility } from '@/lib/database/models/facility.model';
 import { enqueueSnackbar } from 'notistack';
+import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
+import SearchSelectVenuesV2 from '@/components/features/SearchSelectVenuesV2';
+import SearchSelectVenueFacilities from '@/components/features/SearchSelectVenueFacilities';
+import { IEvent } from '@/lib/database/models/event.model';
+import { IVenue } from '@/lib/database/models/venue.model';
 
 export type NewRoomProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     currentRoom:IRoom|null,
     setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>,
+    updater?:boolean
 }
 
-const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomProps) => {
+const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:NewRoomProps) => {
     const [data, setData] = useState<Partial<IRoom>>({});
     const [eventId, setEventId] = useState<string>('');
     const [venueId, setVenueId] = useState<string>('');
@@ -28,6 +34,9 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
     const [response, setResponse] = useState<ErrorProps>(null);
     const [currentFacility, setCurrentFacility] = useState<IFacility|null>(null);
     const {user} = useAuth();
+
+    const event = currentRoom?.eventId as IEvent;
+    const venue = currentRoom?.venueId as IVenue;
 
     const formRef = useRef<HTMLFormElement>(null)
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -116,12 +125,12 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                     <div className="flex gap-12 items-end">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                            <SearchSelectEvents  setSelect={setEventId} require={!currentRoom} isGeneric />
+                            <SearchSelectEventsV2 value={event?.name} setSelect={setEventId} require={!currentRoom} />
                         </div>
 
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Venue</span>
-                            <SearchSelectVenues setSelect={setVenueId} require={!currentRoom} isGeneric />
+                            <SearchSelectVenuesV2 value={venue?.name} setSelect={setVenueId} require={!currentRoom} />
                         </div>
                     </div>
                     <div className="flex gap-12 items-end">
@@ -129,7 +138,7 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                             venueId &&
                             <div className="flex flex-col">
                                 <span className='text-slate-500 text-[0.8rem]' >Select Facility</span>
-                                <SearchSelectFacilities setCurrentFacility={setCurrentFacility} venueId={venueId}  setSelect={setFacId} require={!currentRoom} isGeneric />
+                                <SearchSelectVenueFacilities setCurrentFacility={setCurrentFacility} venueId={venueId}  setSelect={setFacId} require={!currentRoom} />
                             </div>                        
                         }
 
@@ -195,7 +204,7 @@ const NewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom}:NewRoomPro
                 }
 
                 <div className="flex flex-row items-center gap-6">
-                    <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type='submit'  className={`${currentRoom && !updater && 'hidden'} rounded w-[45%] justify-center`} text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

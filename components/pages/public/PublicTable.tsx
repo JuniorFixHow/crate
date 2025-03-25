@@ -4,7 +4,7 @@ import AddButton from '@/components/features/AddButton';
 // import SearchSelectCYPEvents from '@/components/features/SearchSelectCYPEvents';
 import {   Paper } from '@mui/material'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {  SearchCYPSetV2 } from './fxn';
 import {  useFetchCYPSetForEvent } from '@/hooks/fetch/useCYPSet';
 import { ICYPSet } from '@/lib/database/models/cypset.model';
@@ -16,16 +16,35 @@ import Link from 'next/link';
 import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
 import PublicEditModal from './PublicEditModal';
 import { enqueueSnackbar } from 'notistack';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, eventRoles, questionSetRoles } from '@/components/auth/permission/permission';
+import { useRouter } from 'next/navigation';
 
 const PublicTable = () => {
     // const [search, setSearch] =useState<string>('');
+    const {user} = useAuth();
     const [eventId, setEventId] = useState<string>('');
     const [currentSet, setCurrentSet] = useState<ICYPSet|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+
+    const router = useRouter();
     // const [response, setResponse] = useState<ErrorProps>(null);
 
-    const {cypsets, loading, refetch} = useFetchCYPSetForEvent(eventId)
+    const {cypsets, loading, refetch} = useFetchCYPSetForEvent(eventId);
+
+    const creator = canPerformAction(user!, 'creator', {questionSetRoles});
+    const updater = canPerformAction(user!, 'updater', {questionSetRoles});
+    const deleter = canPerformAction(user!, 'deleter', {questionSetRoles});
+    const reader = canPerformAction(user!, 'reader', {questionSetRoles});
+    const eReader = canPerformAction(user!, 'reader', {eventRoles});
+    const admin = canPerformAction(user!, 'admin', {questionSetRoles});
+
+    useEffect(()=>{
+      if(user && !admin){
+        router.replace('/dashboard/forbidden?p=Set Admin')
+      }
+    },[admin, user, router])
 
     const hadndleDelete =(data:ICYPSet)=>{
       setDeleteMode(true);
@@ -37,7 +56,7 @@ const PublicTable = () => {
       setCurrentSet(data);
     }
 
-    console.log(eventId)
+    // console.log(eventId)
 
     const message = `Deleting an entire set will delete its sections, questions and responses. Are you sure you want to do this?`;
 
@@ -55,19 +74,21 @@ const PublicTable = () => {
         enqueueSnackbar('Error occured deleting set', {variant:'error'});
       }
     }
-
-  
-
     const paginationModel = { page: 0, pageSize: 10 };
+
+    if(!admin) return;
+
   return (
     <div className='table-main2' >
         <div className="flex flex-col md:flex-row justify-between gap-4">
             <SearchSelectEventsV2 setSelect={setEventId} />
             <div className="flex gap-4 items-center">
-                {/* <SearchBar setSearch={setSearch} reversed={false} /> */}
-                <Link href='/dashboard/events/public/new' >
-                  <AddButton text='Add New Set' noIcon className='rounded' smallText />
-                </Link>
+                {
+                  creator &&
+                  <Link href='/dashboard/events/public/new' >
+                    <AddButton text='Add New Set' noIcon className='rounded' smallText />
+                  </Link>
+                }
             </div>
         </div>
         <PublicEditModal infoMode={editMode} setInfoMode={setEditMode} currentSet={currentSet} refetch={refetch} />
@@ -83,7 +104,7 @@ const PublicTable = () => {
               <DataGrid
                   loading={loading && !!eventId}
                   rows={SearchCYPSetV2(cypsets,  eventId)}
-                  columns={PublicColumns( hadndleDelete, hadndleEdit)}
+                  columns={PublicColumns( hadndleDelete, hadndleEdit, reader, updater, deleter, eReader)}
                   initialState={{ pagination: { paginationModel } }}
                   pageSizeOptions={[5, 10, 15, 20, 30, 15, 100]}
                   getRowId={(row:ICYPSet):string=>row._id}

@@ -1,4 +1,6 @@
 'use client'
+import { canPerformAction, questionSetRoles } from "@/components/auth/permission/permission"
+import { useAuth } from "@/hooks/useAuth"
 import { updateCYPSet } from "@/lib/actions/cypset.action"
 import { ICYPSet } from "@/lib/database/models/cypset.model"
 // import { ErrorProps } from "@/types/Types"
@@ -11,10 +13,13 @@ type PublicTitleChangerProps = {
 } & ComponentProps<'form'>
 
 const PublicTitleChanger = ({cyp, className, ...props}:PublicTitleChangerProps) => {
+    const {user} = useAuth();
     const [editMode, setEditMode] =useState<boolean>(false);
     const [loading, setLoading] =useState<boolean>(false);
     // const [response, setResponse] = useState<ErrorProps>(null);
     const [title, setTitle] = useState<string>('');
+
+    const updater = canPerformAction(user!, 'updater', {questionSetRoles}) || cyp.createdBy.toString() === user?.userId;
 
     const handleNewTitle = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -32,6 +37,7 @@ const PublicTitleChanger = ({cyp, className, ...props}:PublicTitleChangerProps) 
         }
     }
 
+    if(user && !updater) return;
   return (
     <form {...props} onSubmit={handleNewTitle} className={`md:flex flex-col gap-1 hidden ${className}`} >
         {

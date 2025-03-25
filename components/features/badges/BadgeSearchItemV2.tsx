@@ -8,6 +8,8 @@ import { IoMdGlobe } from "react-icons/io"
 import AddButton from "../AddButton"
 import { IChurch } from "@/lib/database/models/church.model"
 import { IZone } from "@/lib/database/models/zone.model"
+import { canPerformAction, memberRoles } from "@/components/auth/permission/permission"
+import { useAuth } from "@/hooks/useAuth"
 
 type BadgeSearchItemV2Props = {
     member:IMember,
@@ -16,6 +18,9 @@ type BadgeSearchItemV2Props = {
     // setSelection:Dispatch<SetStateAction<string[]>>
 } & ComponentProps<'div'>
 const BadgeSearchItemV2 = ({member, selection,  handleSelect, className, ...props}:BadgeSearchItemV2Props) => {
+
+    const {user} = useAuth();
+    const showMember = canPerformAction(user!, 'reader', {memberRoles})
     
     const church = member?.church as IChurch;
     const zone = church?.zoneId as IZone;
@@ -24,13 +29,21 @@ const BadgeSearchItemV2 = ({member, selection,  handleSelect, className, ...prop
   return (
     <div {...props} className={`${className} flex w-full flex-col gap-4 md:flex-row dark:bg-[#0F1214] justify-between items-start md:items-center bg-[#d6d6d6] p-2 rounded ${isSelected ? 'border-blue-500':'border-slate-400'} border`} >
         <div className="flex flex-col gap-2">
-            <Link className="table-link" href={`/dashboard/members/${member?._id}`} >
-                <Subtitle isLink text={member?.name} />
-            </Link>
-            <div className="flex flex-row gap-1 items-center">
-                <MdOutlineEmail className="text-slate-500" />
-                <span className="text-[0.7rem] text-slate-500" >{member?.email}</span>
-            </div>
+            {
+                showMember ?
+                <Link className="table-link" href={`/dashboard/members/${member?._id}`} >
+                    <Subtitle isLink text={member?.name} />
+                </Link>
+                :
+                <Subtitle text={member?.name} />
+            }
+            {
+                member?.email &&
+                <div className="flex flex-row gap-1 items-center">
+                    <MdOutlineEmail className="text-slate-500" />
+                    <span className="text-[0.7rem] text-slate-500" >{member?.email}</span>
+                </div>
+            }
             <div className="flex flex-row gap-1 items-center">
                 <FaPhone size={14}  className="text-slate-500" />
                 <span className="text-[0.7rem] text-slate-500" > {member?.phone}</span>

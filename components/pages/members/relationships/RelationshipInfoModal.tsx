@@ -1,3 +1,6 @@
+import { isChurchAdmin, memberRoles } from '@/components/auth/permission/permission'
+import { checkIfAdmin } from '@/components/Dummy/contants'
+import { useAuth } from '@/hooks/useAuth'
 import { IChurch } from '@/lib/database/models/church.model'
 import { IMember } from '@/lib/database/models/member.model'
 import { IRelationship } from '@/lib/database/models/relationship.model'
@@ -18,11 +21,16 @@ const RelationshipInfoModal = ({infoMode, noChurch, setInfoMode, currentRelation
     const church = currentRelationship?.churchId as IChurch;
     const members = currentRelationship?.members as IMember[];
 
+    // const currentMember = members?.filter((member)=>member?._id ===)
+    const {user} = useAuth();
+
     const handleClose = ()=>{
         setCurrentRelationship(null);
         setInfoMode(false);
     }
-    if(!currentRelationship) return null;
+    if(!currentRelationship || !user) return;
+    const isAdmin = checkIfAdmin(user);
+    const showMember = isAdmin || isChurchAdmin.reader(user) || memberRoles.reader(user);
   return (
     <Modal
         open={infoMode}
@@ -47,19 +55,26 @@ const RelationshipInfoModal = ({infoMode, noChurch, setInfoMode, currentRelation
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Member</span>
-                    <Link href={`${members[0]?._id}`} className='table-link' >{members[0]?.name}</Link>
+                    <Link href={`/dashboard/members/${members[0]?._id}`} className='table-link' >{members[0]?.name}</Link>
                 </div>
                 <div className="flex flex-col dark:text-slate-200">
                     <span className='text-[1.1rem] font-semibold text-slate-700' >Relations</span>
                     {
                         members?.slice(1).map((member)=>(
-                            <Link key={member?._id} href={`${member?._id}`} className='table-link' >{member?.name}</Link>
+                            <>
+                            {
+                                showMember ?
+                                <Link key={member?._id} href={`/dashboard/members/${member?._id}`} className='table-link' >{member?.name}</Link>
+                                :
+                                <span key={member?._id} className='text-[0.9rem]' >{member?.name}</span>
+                            }
+                            </>
                         ))
                     }
                     {/* <span className='text-[0.9rem]' >{currentRelationship?.relationshipType}</span> */}
                 </div>
                 {
-                    !noChurch &&
+                    !noChurch && isAdmin &&
                     <div className="flex flex-col dark:text-slate-200">
                         <span className='text-[1.1rem] font-semibold text-slate-700' >Church</span>
                         <Link href={{pathname:`/dashboard/churches`, query:{id:church?._id}}} className='table-link' >{church?.name}</Link>

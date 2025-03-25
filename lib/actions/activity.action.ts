@@ -177,12 +177,27 @@ export async function getActivitiesForChurchMinistry(minId:string){
 export async function getChurchMembersForMinistry(id:string){
     try {
         await connectDB();
-        const act = await Ministry.findById(id)
-        const churchId:string = act.churchId;
+        const act = await Ministry.findById(id);
+        const churchId:string = act.churchId.toString();
+        // console.log( "Church Id: ",churchId);
         const actMembers:string[] = act.members;
         const members = await Member.find({church:churchId});
-        const notMembers = members.filter((item:IMember)=> !actMembers.includes(item._id))
+        // console.log('Members: ',members)
+        const notMembers = members.filter((item:IMember)=> !actMembers.includes(item._id));
         return JSON.parse(JSON.stringify(notMembers));
+    } catch (error) {
+        console.log(error);
+        return handleResponse("Error occured fetching members for class", true, {}, 500);
+    }
+}
+
+export async function getChurchMembersAvailableForNewMinistry(activityId:string){
+    try {
+        await connectDB();
+        const act = await Activity.findById(activityId);
+        const churchId:string = act.churchId.toString();
+        const members = await Member.find({church:churchId});
+        return JSON.parse(JSON.stringify(members));
     } catch (error) {
         console.log(error);
         return handleResponse("Error occured fetching members for class", true, {}, 500);

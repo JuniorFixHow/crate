@@ -1,10 +1,11 @@
 import AddButton from "@/components/features/AddButton";
-import SearchSelectEvents from "@/components/features/SearchSelectEvents";
+// import SearchSelectEvents from "@/components/features/SearchSelectEvents";
 import { ErrorProps } from "@/types/Types";
 import { Alert, Modal } from "@mui/material";
 import { Dispatch, FormEvent, SetStateAction,  useState } from "react";
 import { IRoom } from "@/lib/database/models/room.model";
 import { createRooms } from "@/lib/actions/room.action";
+import SearchSelectEventsV3 from "@/components/features/SearchSelectEventsV3";
 
 type CopyRoomModalProps = {
     infoMode:boolean;
@@ -62,14 +63,14 @@ const CopyRoomModal = ({infoMode, setInfoMode, rooms}:CopyRoomModalProps) => {
         >
         <div className='flex size-full items-center justify-center'>
             <form onSubmit={handleLoadRooms}  className="new-modal scrollbar-custom overflow-y-scroll">
-                <span className='text-[1.5rem] font-bold dark:text-slate-200 text-center md:text-left' >Copy Rooms to an event</span>
+                <span className='text-[1.5rem] font-bold dark:text-slate-200 text-center md:text-left' >Copy rooms to an event</span>
                 <div className="flex flex-col w-full items-center">
                     <span className="dark:text-white text-sm italic font-bold" >{rooms?.length > 0 ? `${rooms.length} rooms selected`:`${rooms?.length} selected`}</span>
                 </div>
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Choose Event</span>
-                        <SearchSelectEvents setSelect={setEventId} isGeneric require />
+                        <SearchSelectEventsV3 setSelect={setEventId} require />
                     </div>
                     
                                       

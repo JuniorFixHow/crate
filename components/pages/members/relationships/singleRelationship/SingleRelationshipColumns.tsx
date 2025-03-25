@@ -11,14 +11,25 @@ export const SingleRelationshipColumns = (
     handleEdit:(data:IRelationship)=>void,
     handleInfo:(data:IRelationship)=>void,
     handleDelete:(data:IRelationship)=>void,
-    member:IMember
+    member:IMember,
+    showRelRead:boolean,
+    showRelDelete:boolean,
+    showRelEdit:boolean,
+    showMember:boolean,
 ):GridColDef[]=>[
     {
         field:'title',
         headerName:'Title',
         width:200,
         renderCell:({row}:GridRenderCellParams)=>(
-            <span onClick={()=>handleEdit(row)} className="table-link" >{row?.title || 'No title'}</span>
+            <>
+            {
+                showRelEdit ?
+                <span onClick={()=>handleEdit(row)} className="table-link" >{row?.title || 'No title'}</span>
+                :
+                <span >{row?.title || 'No title'}</span>
+            }
+            </>
         )
     },
     
@@ -40,7 +51,14 @@ export const SingleRelationshipColumns = (
         },
         renderCell:({row}:GridRenderCellParams)=>(
             <div className="flex gap-1">
-                <Link href={`/dashboard/members/${getOtherUserFirst(row?.members, member)?._id}`} className="table-link" >{getOtherUserFirst(row?.members, member)?.name}</Link>
+                <>
+                {
+                    showMember?
+                    <Link href={`/dashboard/members/${getOtherUserFirst(row?.members, member)?._id}`} className="table-link" >{getOtherUserFirst(row?.members, member)?.name}</Link>
+                    :
+                    <span >{getOtherUserFirst(row?.members, member)?.name}</span>
+                }
+                </>
                 {
                     row?.members?.length > 2 &&
                     <span>{`+${row?.members?.length - 2} ${row?.members?.length === 3 ? 'other':'others'}`}</span>
@@ -75,10 +93,20 @@ export const SingleRelationshipColumns = (
             renderCell:(params:GridRenderCellParams)=>{
                 return(
                     <div className="flex h-full flex-row items-center gap-4">
-                        <Tooltip title='View more of this entity' >
-                            <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                        </Tooltip>
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        {
+                            showRelRead &&
+                            <Tooltip title='View more of this entity' >
+                                <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                            </Tooltip>
+                        }
+                        {
+                            showRelDelete &&
+                            <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        }
+                        {
+                            !showRelDelete && !showRelRead &&
+                            <span>None</span>
+                        }
                     </div>
                 )
             }

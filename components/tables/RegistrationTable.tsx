@@ -1,11 +1,13 @@
 'use client'
-import { RegColumns } from '@/components/Dummy/contants';
+import { checkIfAdmin, RegColumns } from '@/components/Dummy/contants';
 // import SearchBar from '@/components/features/SearchBar';
 // import { searchMember } from '@/functions/search';
 import { useFetchMembers } from '@/hooks/fetch/useMember';
+import { useAuth } from '@/hooks/useAuth';
 import { IMember } from '@/lib/database/models/member.model';
 import {  Paper } from '@mui/material';
 import { DataGrid, GridToolbar, } from '@mui/x-data-grid';
+import { campusRoles, isChurchAdmin, memberRoles } from '../auth/permission/permission';
 
 
 
@@ -17,6 +19,13 @@ const RegistrationTable = () => {
     const {members, loading} = useFetchMembers();
 
 
+    const {user} = useAuth();
+    if(!user) return
+
+    const isAdmin = checkIfAdmin(user);
+
+    const showInfo = checkIfAdmin(user) || memberRoles.reader(user) || isChurchAdmin.admin(user);
+    const showCampus = isAdmin || campusRoles.admin(user) || isChurchAdmin.admin(user);
 
   return (
     <div className='table-main2' >
@@ -28,14 +37,14 @@ const RegistrationTable = () => {
         <div className="flex w-full">
             {
                 // loading ? 
-                // <LinearProgress className='w-full' />
+                // <LinearProgrewss className='w-full' />
                 // :
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={loading}
                         getRowId={(row:IMember)=>row._id}
                         rows={members}
-                        columns={RegColumns}
+                        columns={RegColumns(showInfo, isAdmin, showCampus)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

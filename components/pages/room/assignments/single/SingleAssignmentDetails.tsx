@@ -1,11 +1,15 @@
+import { canPerformAction, isSystemAdmin, isChurchAdmin, isSuperUser, roomRolesExtended, groupRoles, memberRoles, roomRoles } from '@/components/auth/permission/permission'
+import { useAuth } from '@/hooks/useAuth'
 import { IFacility } from '@/lib/database/models/facility.model'
 import { IGroup } from '@/lib/database/models/group.model'
+import { IMember } from '@/lib/database/models/member.model'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { IRoom } from '@/lib/database/models/room.model'
 import { IVenue } from '@/lib/database/models/venue.model'
 import { LinearProgress } from '@mui/material'
 import Link from 'next/link'
-import React, { ComponentProps } from 'react'
+import { useRouter } from 'next/navigation'
+import { ComponentProps, useEffect } from 'react'
 
 type SingleAssignmentDetailsProps = {
     type:string|null,
@@ -18,6 +22,25 @@ type SingleAssignmentDetailsProps = {
 const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRoom, MemberData, ...props}:SingleAssignmentDetailsProps) => {
     const venue = currentRoom?.venueId as IVenue;
     const facility = currentRoom?.facId as IFacility;
+
+    const member = MemberData?.memberId as IMember;
+    const members  = GroupData?.members as IMember[];
+
+    const router = useRouter();
+
+    const {user} = useAuth();
+    const groupReader = canPerformAction(user!, 'reader', {groupRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
+
+    useEffect(()=>{
+        if(user && !roomAssign){
+            router.replace('/dashboard/forbidden?p=Room Assigner');
+        }
+    },[roomAssign, user, router])
+
+    if(!roomAssign) return;
 
   return (
     <div {...props}  className={`flex w-1/2 flex-col gap-6 ${className}`} >
@@ -33,19 +56,30 @@ const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRo
                         <div className="flex flex-col gap-2 ml-2 lg:ml-8">
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Name:</span>
-                                <Link href={`/dashboard/members/${typeof MemberData.memberId === 'object' && '_id' in MemberData.memberId && MemberData.memberId?._id}`} className='table-link flex flex-1' >{typeof MemberData.memberId === 'object' && 'name' in MemberData.memberId && MemberData.memberId?.name}</Link>
+                                {
+                                    showMember ?
+                                    <Link href={`/dashboard/members/${member?._id}`} className='table-link flex flex-1' >{member?.name}</Link>
+                                    :
+                                    <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{member?.name}</span>
+                                }
                             </div>
-                            <div className="flex">
-                                <span className='text-[0.85rem] font-semibold flex flex-1' >Email:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{typeof MemberData.memberId === 'object' && 'email' in MemberData.memberId && MemberData.memberId?.email}</span>
-                            </div>
-                            <div className="flex">
-                                <span className='text-[0.85rem] font-semibold flex flex-1' >Phone number:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{typeof MemberData.memberId === 'object' && 'phone' in MemberData.memberId && MemberData?.memberId?.phone}</span>
-                            </div>
+                            {
+                                member?.email &&
+                                <div className="flex">
+                                    <span className='text-[0.85rem] font-semibold flex flex-1' >Email:</span>
+                                    <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{member?.email}</span>
+                                </div>
+                            }
+                            {
+                                member?.phone &&
+                                <div className="flex">
+                                    <span className='text-[0.85rem] font-semibold flex flex-1' >Phone number:</span>
+                                    <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{member?.phone}</span>
+                                </div>
+                            }
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Status:</span>
-                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{typeof MemberData?.memberId === 'object' && 'status' in MemberData.memberId && MemberData?.memberId?.status}</span>
+                                <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{member?.status}</span>
                             </div>
                         </div>
                     </div>
@@ -55,7 +89,12 @@ const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRo
                         <div className="flex flex-col gap-2 ml-2 lg:ml-8">
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Group Name:</span>
-                                <Link href={`/dashboard/groups/${GroupData?._id}`} className='table-link flex flex-1' >{GroupData?.name}</Link>
+                                {
+                                    groupReader ?
+                                    <Link href={`/dashboard/groups/${GroupData?._id}`} className='table-link flex flex-1' >{GroupData?.name}</Link>
+                                    :
+                                    <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{GroupData?.name}</span>
+                                }
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Group Number:</span>
@@ -84,7 +123,12 @@ const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRo
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Room Number:</span>
-                                <Link href={{pathname:`/dashboard/rooms`, query:{id:currentRoom?._id}}} className='table-link flex flex-1' >{currentRoom?.number}</Link>
+                                {
+                                    showRoom ?
+                                    <Link href={{pathname:`/dashboard/rooms`, query:{id:currentRoom?._id}}} className='table-link flex flex-1' >{currentRoom?.number}</Link>
+                                    :
+                                    <span className='text-[0.85rem] font-semibold text-slate-400 flex flex-1' >{currentRoom?.number}</span>
+                                }
                             </div>
                             <div className="flex">
                                 <span className='text-[0.85rem] font-semibold flex flex-1' >Room Type:</span>
@@ -108,11 +152,13 @@ const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRo
                         <span className='font-bold' >Group/Family Members</span>
                         <div className="flex flex-col gap-2 ml-2 lg:ml-8">
                             {
-                                GroupData.members.map((item)=>(
-                                    <div key={typeof item === 'object' && '_id' in item ? item._id.toString() : ''} className="flex-center w-fit py-2 px-4 cursor-default bg-[#E5E9F3] dark:bg-black dark:border dark:text-white rounded text-[0.8rem]">
-                                        {typeof item === 'object' && 'name' in item && item?.name}
-                                    </div>
-                                ))
+                                members.map((item)=>{
+                                    return(
+                                        <div key={item?._id} className="flex-center w-fit py-2 px-4 cursor-default bg-[#E5E9F3] dark:bg-black dark:border dark:text-white rounded text-[0.8rem]">
+                                            {item?.name}
+                                        </div>
+                                    )
+                                })
                             }
                         </div>
                     </div>

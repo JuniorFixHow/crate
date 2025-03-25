@@ -12,6 +12,11 @@ export const KeyColumns = (
     handleDelete:(data:IKey)=>void,
     handleEdit:(data:IKey)=>void,
     handleInfo:(data:IKey)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    roomReader:boolean,
+    showMember:boolean,
 ):GridColDef[]=>[
     {
         field:'code',
@@ -19,7 +24,14 @@ export const KeyColumns = (
         width:120,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <span onClick={()=>handleEdit(params.row)}  className="table-link" >{params.row?.code}</span>
+                <>
+                {
+                    updater ?
+                    <span onClick={()=>handleEdit(params.row)}  className="table-link" >{params.row?.code}</span>
+                    :
+                    <span>{params.row?.code}</span>
+                }
+                </>
             )
         }
     },
@@ -38,7 +50,14 @@ export const KeyColumns = (
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:'/dashboard/rooms', query:{id:params.row?.roomId?._id}}} >{params.row?.roomId?.venueId?.name} {params.row?.roomId?.number}</Link>
+                <>
+                {
+                    roomReader ?
+                    <Link className="table-link" href={{pathname:'/dashboard/rooms', query:{id:params.row?.roomId?._id}}} >{params.row?.roomId?.venueId?.name} {params.row?.roomId?.number}</Link>
+                    :
+                    <span>{params.row?.roomId?.venueId?.name} {params.row?.roomId?.number}</span>
+                }
+                </>
             )
         }
     },
@@ -62,7 +81,14 @@ export const KeyColumns = (
                 <>
                 {
                     params.row?.holder ?
-                    <Link className="table-link" href={`/dashboard/members/${params.row?.holder?.memberId?._id}`} >{params.row?.holder?.memberId?.name}</Link>
+                    <>
+                    {
+                        showMember ?
+                        <Link className="table-link" href={`/dashboard/members/${params.row?.holder?.memberId?._id}`} >{params.row?.holder?.memberId?.name}</Link>
+                        :
+                        <span>{params.row?.holder?.memberId?.name}</span>
+                    }
+                    </>
                     :
                     <span>Not Yet</span>
                 }
@@ -125,8 +151,18 @@ export const KeyColumns = (
         renderCell:(params:GridRenderCellParams)=>{
             return(
                <div className="flex h-full flex-row items-center gap-4">
+                {
+                    reader &&
                     <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                }
+                {
+                    deleter &&
                     <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                }
+                {
+                    !reader && !deleter &&
+                    <span>None</span>
+                }
                 </div>
             )
         }

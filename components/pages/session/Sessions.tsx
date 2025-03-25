@@ -10,6 +10,8 @@ import { searchSession } from '@/functions/search'
 import { useRouter } from 'next/navigation'
 import {  useFetchSessionsWithEvent } from '@/hooks/fetch/useSession'
 import { ISession } from '@/lib/database/models/session.model'
+import { useAuth } from '@/hooks/useAuth'
+import { attendanceRoles, canPerformAction, sessionRoles } from '@/components/auth/permission/permission'
 // import { LinearProgress } from '@mui/material'
 
 const Sessions = () => {
@@ -18,29 +20,47 @@ const Sessions = () => {
   const [eventId, setEventId] = useState<string>('');
   // const [hasClickedEllipses, setHasClickedEllipses] = useState<boolean>(false);
   const {sessions, loading, refetch} = useFetchSessionsWithEvent(eventId);
+  const {user} = useAuth();
   
-  // const ses = searchSession(selectedTime, SessionsData)[0]
+  const router = useRouter();
   const [currentSession, setCuurentSession] = useState<ISession|null>(null);
   // const [search, setSearch] = useState<string>('');
+
+  const attCreator = canPerformAction(user!, 'creator', {attendanceRoles});
+  const sessionCreator = canPerformAction(user!, 'creator', {sessionRoles});
+  const sessionReader = canPerformAction(user!, 'reader', {sessionRoles});
+  const attReader = canPerformAction(user!, 'reader', {attendanceRoles});
+
+  useEffect(()=>{
+    if(user && (!attReader && !sessionReader)){
+      router.replace('/dashboard/forbidden?p=Attendance Reader');
+    }
+  },[user, sessionReader, attReader, router])
+
   useEffect(()=>{
     if(sessions.length){
       setCuurentSession(searchSession(selectedTime, eventId, sessions)[0])
     }
   },[eventId, selectedTime, sessions])
-  const router = useRouter();
 
-  // if(loading) return <div className='w-full' ><LinearProgress   className={`${loading ? 'flex-center':'hidden'}`}   /></div> 
-
+  
+  if(!attReader && !sessionReader) return;
 
 
   return (
     <div className=' flex flex-col gap-5' >
       <div className="flex flex-row items-center gap-4 justify-end">
-        <div onClick={()=>router.push('/dashboard/events/sessions/scan')}  className="flex flex-row gap-3 bg-white items-center px-8 py-[0.2rem] hover:bg-slate-100 cursor-pointer rounded border dark:bg-[#0F1214] dark:hover:border-blue-700">
-            <LuScanLine/>
-            <span className='text-[0.9rem] font-semibold' >Scan</span>
-        </div>
-        <AddButton onClick={()=>router.push('/dashboard/events/sessions/new')} text='Create Session' noIcon smallText className='rounded' />
+        {
+          attCreator &&
+          <div onClick={()=>router.push('/dashboard/events/sessions/scan')}  className="flex flex-row gap-3 bg-white items-center px-8 py-[0.2rem] hover:bg-slate-100 cursor-pointer rounded border dark:bg-[#0F1214] dark:hover:border-blue-700">
+              <LuScanLine/>
+              <span className='text-[0.9rem] font-semibold' >Scan</span>
+          </div>
+        }
+        {
+          sessionCreator &&
+          <AddButton onClick={()=>router.push('/dashboard/events/sessions/new')} text='Create Session' noIcon smallText className='rounded' />
+        }
       </div>
       <div className="flex flex-col lg:flex-row gap-4">
         <SessionSide refetch={refetch} eventId={eventId} setEventId={setEventId} sessions={sessions} selectedTime={selectedTime} setSelectedTime={setSelectedTime}   setCurrentSession={setCuurentSession} currentSession={currentSession!} />

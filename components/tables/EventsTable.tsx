@@ -7,6 +7,9 @@ import { IEvent } from '@/lib/database/models/event.model'
 import {  Paper } from '@mui/material'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
 import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
+import { canPerformAction, eventRoles } from '../auth/permission/permission'
+import { useAuth } from '@/hooks/useAuth'
 
 const EventsTable = () => {
     // const [search, setSearch] = useState<string>('')
@@ -14,12 +17,27 @@ const EventsTable = () => {
     const router = useRouter();
     const {events, loading} = useFetchEvents();
 
+    const {user} = useAuth();
 
+    const reader = canPerformAction(user!, 'reader', {eventRoles});
+    const creator = canPerformAction(user!, 'creator', {eventRoles});
+    const updater = canPerformAction(user!, 'updater', {eventRoles});
+
+
+    useEffect(()=>{
+        if(user && !reader){
+           router.replace('/dashboard/forbidden?p=Event Reader')
+        }
+    },[reader, user, router])
+
+    if(!reader) return
   return (
     <div className="table-main2">
         <div className="flex items-center flex-row justify-end w-full">
-            {/* <SearchBar className='py-1' setSearch={setSearch} reversed={false} /> */}
-            <AddButton onClick={()=>router.push('events/new')} smallText noIcon  className='rounded-md' text='Create Event' />
+            {
+                creator && 
+                <AddButton onClick={()=>router.push('events/new')} smallText noIcon  className='rounded-md' text='Create Event' />
+            }
         </div>
 
         <div className="flex w-full bg-white dark:bg-transparent dark:border p-4 rounded">
@@ -28,7 +46,7 @@ const EventsTable = () => {
                 <DataGrid
                     getRowId={(row:IEvent)=>row._id}
                     rows={events}
-                    columns={EventColumns}
+                    columns={EventColumns(updater)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                     // checkboxSelection

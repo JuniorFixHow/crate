@@ -4,7 +4,9 @@ import { IoTrashBinOutline } from "react-icons/io5"
 
 export const SingleFacilityColumns = (
     handleEdit:(data:IFacility)=>void, 
-    handleDelete:(data:IFacility)=>void
+    handleDelete:(data:IFacility)=>void,
+    updater:boolean,
+    deleter:boolean,
 ):GridColDef[] =>[
     {
         field:'name',
@@ -12,7 +14,14 @@ export const SingleFacilityColumns = (
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <span onClick={()=>handleEdit(param.row)}  className="table-link" >{param.row?.name}</span>
+                <>
+                {
+                    updater ?
+                    <span onClick={()=>handleEdit(param.row)}  className="table-link" >{param.row?.name}</span>
+                    :
+                    <span>{param.row?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -40,7 +49,12 @@ export const SingleFacilityColumns = (
             return(
                 <div className="flex h-full flex-row items-center gap-4">
                     {/* <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" /> */}
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        deleter ?
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         },

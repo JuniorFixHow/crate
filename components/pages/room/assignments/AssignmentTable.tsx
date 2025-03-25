@@ -24,10 +24,13 @@ import { IMember } from '@/lib/database/models/member.model'
 import { enqueueSnackbar } from 'notistack'
 import { useAuth } from '@/hooks/useAuth'
 import { checkIfAdmin } from '@/components/Dummy/contants'
+import { canPerformAction, eventRegistrationRoles, groupRoles, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission'
+import { useRouter } from 'next/navigation'
 
 const AssignmentTable = () => {
     // const [status, setStatus] = useState<string>('');
     // const [search, setSearch] = useState<string>('');
+    const router = useRouter();
     const [isGroup, setIsGroup] = useState<boolean>(false);
     const [eventId, setEventId] = useState<string>('');
     // const [zoneId, setZoneId] = useState<string>('');
@@ -42,8 +45,18 @@ const AssignmentTable = () => {
     const {eventRegistrations, loading:fetching, refetch:reload} = useFetchRegistrationsWithoutChurch(eventId)
     const {groups, loading:rendering, refetch:regroup} = useFetchGroupsForEvent(eventId)
 
+
     const {user} = useAuth();
     const isAdmin = checkIfAdmin(user);
+    const regReader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
+    const groupReader = canPerformAction(user!, 'reader', {groupRoles});
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
+
+    useEffect(()=>{
+        if(user && !roomAssign){
+            router.replace('/dashboard/forbidden?p=Room Assigner');
+        }
+    },[roomAssign, user, router])
 
     const handleUnassign = (data:IRegistration)=>{
         setCurrentAssignment(data);
@@ -103,7 +116,7 @@ const AssignmentTable = () => {
 
     const cId =  isAdmin ? churchId : user?.churchId;
 
-    if(!user) return null;
+    if(!roomAssign) return;
     
   return (
     <div className='flex flex-col gap-4' >
@@ -151,7 +164,7 @@ const AssignmentTable = () => {
                     isGroup ?
                     <DataGrid
                         rows={SearchGroupWithChurch(groups, cId!)}
-                        columns={AssColumnsGroup(handleUnassignGroup, deleteGroupLoading)}
+                        columns={AssColumnsGroup(handleUnassignGroup, deleteGroupLoading, groupReader, isAdmin, roomAssign)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                         getRowId={(row:IGroup)=>row._id}
@@ -173,7 +186,7 @@ const AssignmentTable = () => {
                     :
                   <DataGrid
                       rows={SearchEventRegWithChurch(eventRegistrations, cId!)}
-                      columns={AssignmentColumns(handleUnassign, deleteMemberLoading)}
+                      columns={AssignmentColumns(handleUnassign, deleteMemberLoading, regReader, roomAssign)}
                       initialState={{ pagination: { paginationModel } }}
                       pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                       getRowId={(row:IRegistration)=>row._id}

@@ -1,5 +1,8 @@
 'use client'
+import { canPerformAction, questionSectionRoles, questionSetRoles } from "@/components/auth/permission/permission"
+import { useAuth } from "@/hooks/useAuth"
 import { updateSection } from "@/lib/actions/section.action"
+import { ICYPSet } from "@/lib/database/models/cypset.model"
 import { ISection } from "@/lib/database/models/section.model"
 import { ErrorProps } from "@/types/Types"
 import { FormEvent, useState } from "react"
@@ -10,10 +13,16 @@ type SectionTitleChangerProps = {
 }
 
 const SectionTitleChanger = ({section}:SectionTitleChangerProps) => {
+    const {user} = useAuth();
     const [editMode, setEditMode] =useState<boolean>(false);
     const [loading, setLoading] =useState<boolean>(false);
     const [response, setResponse] = useState<ErrorProps>(null);
     const [title, setTitle] = useState<string>('');
+
+    const set = section?.cypsetId as ICYPSet;
+    const mine = set?.createdBy.toString() === user?.userId;
+
+    const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || canPerformAction(user!, 'updater', {questionSetRoles}) || mine;
 
     const handleNewTitle = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -30,6 +39,8 @@ const SectionTitleChanger = ({section}:SectionTitleChangerProps) => {
             setLoading(false);
         }
     }
+
+    if(!updater) return;
 
   return (
     <form onSubmit={handleNewTitle} className="flex flex-col gap-1" >

@@ -10,8 +10,8 @@ export interface IKey extends Document{
     returnedDate:Date,
     roomId:Types.ObjectId | string | IRoom,
     holder:Types.ObjectId | string | IRegistration,
-    createdAt?:Date,
-    updatedAt?:Date,
+    createdAt:Date,
+    updatedAt:Date,
 }
 
 const KeySchema = new Schema<IKey>({

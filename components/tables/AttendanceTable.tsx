@@ -10,6 +10,8 @@ import { IAttendance } from "@/lib/database/models/attendance.model";
 import DeleteDialog from "../DeleteDialog";
 import { deleteAttendance } from "@/lib/actions/attendance.action";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "@/hooks/useAuth";
+import { attendanceRoles, canPerformAction, memberRoles, sessionRoles } from "../auth/permission/permission";
 
 type AttendanceTableProps = {
     currentSession:ISession
@@ -22,6 +24,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
     const paginationModel = { page: 0, pageSize: 10 };
     // const router = useRouter();
     const {attendances, loading, refetch} = useFetchAttendances(currentSession?._id);
+    const {user} = useAuth();
 
     if(!currentSession) return null
     const handleDelete = (data:IAttendance)=>{
@@ -43,7 +46,13 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
         }
     }
 
-    const message = `You're about to delete this attendance record. Have you thought this through?`
+    const message = `You're about to delete this attendance record. Have you thought this through?`;
+
+    if(!user) return;
+
+    const showMember = canPerformAction(user, 'reader', {memberRoles});
+    const showSession = canPerformAction(user, 'reader', {sessionRoles});
+    const showDelete = canPerformAction(user, 'deleter', {attendanceRoles});
 
   return (
     <div className="table-main2">
@@ -59,7 +68,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
                     <DataGrid
                         loading={loading}
                         rows={attendances}
-                        columns={AttendanceColumns(handleDelete)}
+                        columns={AttendanceColumns(handleDelete, showMember, showSession, showDelete)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                         getRowId={(row:IAttendance)=>row._id}

@@ -1,12 +1,14 @@
 // 'use client'
-import { CBarFilters, CBarFiltersEvent } from '@/components/Dummy/Data'
+import { CBarFilters, CBarFiltersAdmin, CBarFiltersEvent, CBarFiltersEventAdmin } from '@/components/Dummy/Data'
 import { countMembers,  getCountsForEvent, getUniqueValues, getUniqueValuesForEvent } from '@/functions/filter'
+import { useAuth } from '@/hooks/useAuth'
 import { IChurch } from '@/lib/database/models/church.model'
 import { IMember } from '@/lib/database/models/member.model'
 import { IRegistration } from '@/lib/database/models/registration.model'
 import { IZone } from '@/lib/database/models/zone.model'
 
 import React, { ChangeEvent, Dispatch, SetStateAction, useEffect } from 'react'
+import { checkIfAdmin } from '../Dummy/contants'
 
 export type xAxisProps = {
     isEvent:boolean,
@@ -49,13 +51,15 @@ const CDropDown = ({
         setEventYaxis(getCountsForEvent(eventId, registrations, members, 'Age Range'))
 
     }, [churches, eventId, members, registrations, setEventXaxis, setEventYaxis, setXaxis, setYaxis, zones]);
+    const {user} = useAuth();
+    const isAdmin = checkIfAdmin(user);
   return (
     <>
     {
         isEvent ?
         <select onChange={handleSelectEventChange} className='bg-transparent outline-none border rounded py-1 font-bold' defaultValue='Age Range' >
             {
-                CBarFiltersEvent.map((item:string)=>(
+                (isAdmin ? CBarFiltersEvent : CBarFiltersEventAdmin).map((item:string)=>(
                     <option className='dark:bg-[#0F1214]' value={item} key={item} >{item}</option>
                 ))
             }
@@ -63,7 +67,7 @@ const CDropDown = ({
         :
     <select onChange={handleSelectChange} className='bg-transparent outline-none font-bold border rounded py-1' defaultValue='Age' >
         {
-            CBarFilters.map((item:string)=>(
+            (isAdmin ? CBarFilters : CBarFiltersAdmin ).map((item:string)=>(
                 <option className='dark:bg-[#0F1214]' value={item} key={item} >{item}</option>
             ))
         }

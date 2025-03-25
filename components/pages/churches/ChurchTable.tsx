@@ -8,7 +8,7 @@ import { ChurchColumns } from './ChurchColumns';
 import DeleteDialog from '@/components/DeleteDialog';
 import ChurchInfoModal from './ChurchInfoModal';
 import NewChurch from './NewChurch';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 // import { useFetchZones } from '@/hooks/fetch/useZone';
 import {  useFetchChurchesV2 } from '@/hooks/fetch/useChurch';
 import { IChurch } from '@/lib/database/models/church.model';
@@ -17,9 +17,13 @@ import { deleteChurch, getChurch } from '@/lib/actions/church.action';
 import Link from 'next/link';
 import SearchSelectZoneV2 from '@/components/features/SearchSelectZonesV2';
 import { enqueueSnackbar } from 'notistack';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, churchRoles, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission';
 
 const ChurchTable = () => {
     // const [search, setSearch] = useState<string>('');
+    const {user} = useAuth();
+    const router = useRouter();
     const [zone, setZone] = useState<string>('');
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [newMode, setNewMode] = useState<boolean>(false);
@@ -28,10 +32,24 @@ const ChurchTable = () => {
     const [currentChurch, setCurrentChurch] = useState<IChurch|null>(null);
     // const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
     // console.log('zone: ', zone)
-
     // const {zones} = useFetchZones();
     const {churches, isPending, refetch} = useFetchChurchesV2();
     const searchParams = useSearchParams();
+
+    const creator = canPerformAction(user!, 'creator', {churchRoles})
+    const updater = canPerformAction(user!, 'updater', {churchRoles})
+    const reader = canPerformAction(user!, 'reader', {churchRoles})
+    const admin = canPerformAction(user!, 'admin', {churchRoles})
+    const deleter = isSuperUser(user!) || isSystemAdmin.deleter(user!);
+
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
+
+
+    useEffect(()=>{
+      if(user && !admin){
+        router.replace('/dashboard/forbidden?p=Church Admin (Internal)');
+      }
+    },[admin, user, router])
 
     useEffect(() => {
         const fetchChurch = async () => {
@@ -89,24 +107,30 @@ const ChurchTable = () => {
       }
 
 
-    const message = 'Deleting the church will delete all members and campuses that have been registered for it. Proceed?'
+    const message = 'Deleting the church will delete all members and campuses that have been registered for it. Proceed?';
+
+    if(!admin) return;
   return (
     <div className='table-main2' >
         <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
             <div className="flex">
-
+              {
+                isAdmin &&
                 <SearchSelectZoneV2  setSelect={setZone} />
+              }
             </div>
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
-                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
+              {
+                creator &&
                 <Link href={'/dashboard/churches/new'} >
                   <AddButton  smallText text='Add Church' noIcon className='rounded' />
                 </Link>
+              }
             </div>
         </div> 
         
         
-        <ChurchInfoModal currentChurch={currentChurch} setCurrentChurch={setCurrentChurch} infoMode={infoMode} setInfoMode={setInfoMode} />
+        <ChurchInfoModal refetch={refetch} creator={creator} reader={reader} currentChurch={currentChurch} setCurrentChurch={setCurrentChurch} infoMode={infoMode} setInfoMode={setInfoMode} />
         <DeleteDialog value={deleteMode} setValue={setDeleteMode} title={`Delete ${currentChurch?.name}`} message={message} onTap={handleDeleteChurch} />
         <NewChurch currentChurch={currentChurch} setCurrentChurch={setCurrentChurch} infoMode={newMode} setInfoMode={setNewMode} />
         {/* {
@@ -123,7 +147,7 @@ const ChurchTable = () => {
                 <DataGrid
                     getRowId={(row:IChurch):string=> row?._id as string}
                     rows={SearchChurchV2(churches,  zone)}
-                    columns={ChurchColumns(hadndleInfo,  hadndleDelete)}
+                    columns={ChurchColumns(hadndleInfo,  hadndleDelete, reader, updater, deleter)}
                     initialState={{ 
                       pagination: { paginationModel },
                       columns:{

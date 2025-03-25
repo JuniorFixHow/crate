@@ -1,14 +1,20 @@
 import { Alert, Modal } from "@mui/material"
-import { ChurchInfoModalProps } from "./ChurchInfoModal"
 import AddButton from "@/components/features/AddButton";
 import '../../../components/features/customscroll.css';
-import { FormEvent, useRef, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
 import { createChurch } from "@/lib/actions/church.action";
 import { ErrorProps } from "@/types/Types";
 import { IChurch } from "@/lib/database/models/church.model";
 import SearchSelectZones from "@/components/features/SearchSelectZones";
 
-const NewChurch = ({currentChurch, setCurrentChurch, infoMode, setInfoMode}:ChurchInfoModalProps) => {
+type NewChurchProp = {
+    infoMode:boolean,
+    setInfoMode:Dispatch<SetStateAction<boolean>>,
+    currentChurch:IChurch|null,
+    setCurrentChurch:Dispatch<SetStateAction<IChurch|null>>;
+}
+
+const NewChurch = ({currentChurch, setCurrentChurch, infoMode, setInfoMode}:NewChurchProp) => {
     const handleClose = ()=>{
         setCurrentChurch(null);
         setInfoMode(false);

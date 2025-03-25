@@ -27,13 +27,16 @@ export type SessionSideV2Props = ComponentProps<'div'> & {
     setMinistryId:Dispatch<SetStateAction<string>>,
     sessions:IClasssession[]
     setSelectedTime:Dispatch<SetStateAction<string>>,
-    refetch:(options?: RefetchOptions)=>Promise<QueryObserverResult<IClasssession[], Error>>
+    refetch:(options?: RefetchOptions)=>Promise<QueryObserverResult<IClasssession[], Error>>;
+    sessionDeleter:boolean;
+    sessionUpdater:boolean;
 }
 const SessionSideV2 = ({
     currentSession, sessions, 
     selectedTime, minstryId, 
     setMinistryId, setSelectedTime, 
     setCurrentSession,
+    sessionDeleter, sessionUpdater,
     className}:SessionSideV2Props) => {
 
      const [deleteMode, setDeleteMode] = useState<boolean>(false);
@@ -102,10 +105,16 @@ const SessionSideV2 = ({
                             <small className="text-[0.8rem]" > {new Date(session.from!).toLocaleDateString()}</small>
                         </div>
                         <div className="flex items-center">
-                            <Link className="w-full" href={`/dashboard/ministries/sessions/${session?._id}`} >
-                                <RiPencilFill size={20} className="text-blue-600" />
-                            </Link>
-                            <IoMdTrash onClick={()=>setDeleteMode(true)} size={20} className="text-red-600 cursor-pointer" />
+                            {
+                                sessionUpdater &&
+                                <Link className="w-full" href={`/dashboard/ministries/sessions/${session?._id}`} >
+                                    <RiPencilFill size={20} className="text-blue-600" />
+                                </Link>
+                            }
+                            {
+                                sessionDeleter &&
+                                <IoMdTrash onClick={()=>setDeleteMode(true)} size={20} className="text-red-600 cursor-pointer" />
+                            }
 
                         </div>
                     </div>

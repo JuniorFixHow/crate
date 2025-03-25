@@ -1,11 +1,15 @@
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import CustomCheck from "../../group/new/CustomCheck";
 import Link from "next/link";
+import { CgUnavailable } from "react-icons/cg";
 
 export const NewActivityColumns = (
     members:string[],
-    handleCheckClick:(id:string)=>void
-) =>[
+    handleCheckClick:(id:string)=>void,
+    showMember:boolean,
+    updater:boolean,
+    creator:boolean
+):GridColDef[] =>[
     {
         field:'_id',
         headerName:'Selection',
@@ -13,8 +17,12 @@ export const NewActivityColumns = (
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex-center h-full">
-
-                <CustomCheck onClick={()=>handleCheckClick(params?.row?._id)} checked ={members.includes(params.row?._id)} />
+                {
+                    (updater || creator) ?
+                    <CustomCheck onClick={()=>handleCheckClick(params?.row?._id)} checked ={members.includes(params.row?._id)} />
+                    :
+                    <CgUnavailable />
+                }
                 </div>
             )
         }
@@ -25,7 +33,14 @@ export const NewActivityColumns = (
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/members/${params.row?._id}`} >{params.row?.name}</Link>
+                <>
+                {
+                    showMember ?
+                    <Link className="table-link" href={`/dashboard/members/${params.row?._id}`} >{params.row?.name}</Link>
+                    :
+                    <span>{params.row?.name}</span>
+                }
+                </>
             )
         }
     },

@@ -40,3 +40,12 @@ export const SearchSectionWithSet = (sets:ISection[], search:string, cypsetId:st
     return data
 }
 
+export const SearchSectionWithSetV2 = (sets:ISection[], cypsetId:string):ISection[]=>{
+    const data = sets
+    .filter((set)=>{
+        const cyp = set?.cypsetId as ICYPSet;
+        return cypsetId === '' ? set : cyp?._id === cypsetId;
+    })
+    return data
+}
+

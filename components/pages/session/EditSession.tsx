@@ -4,18 +4,23 @@ import AddButton from '@/components/features/AddButton'
 import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import Link from 'next/link'
 import { minTime, timeToString } from './fxn'
-import { ChangeEvent, FormEvent,  useState } from 'react'
+import { ChangeEvent, FormEvent,  useEffect,  useState } from 'react'
 import { ISession } from '@/lib/database/models/session.model'
 import {  updateSession } from '@/lib/actions/session.action'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
+import { canPerformAction, sessionRoles } from '@/components/auth/permission/permission'
+import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 type EditSessionProps = {
   currentSession:ISession,
 }
 
 const EditSession = ({currentSession}:EditSessionProps) => {
+  const {user} = useAuth();
+  const router = useRouter();
   const [data, setData] = useState<Partial<ISession>>({});
   const [eventId, setEventId] = useState<string>('');
   // const [currentSession, setCurrentSession] = useState<ISession|null>(null);
@@ -26,6 +31,13 @@ const EditSession = ({currentSession}:EditSessionProps) => {
   const [from, setFrom] =useState<Date|null>(null);
   const [to, setTo] =useState<Date|null>(null);
 
+  const updater = canPerformAction(user!, 'updater', {sessionRoles});
+
+  useEffect(()=>{
+    if(user && !updater){
+      router.replace('/dashboard/forbidden?p=Session Updater');
+    }
+  },[user, updater, router])
 
   const handleChange=(e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
@@ -87,6 +99,8 @@ const EditSession = ({currentSession}:EditSessionProps) => {
   // console.log('Date: ',new Date('2024-11-29T06:17'))
   // console.log('Session: ',currentSession)
   // if(loading) return <CircularIndeterminate className={`${loading ? 'flex-center':'hidden'}`}  error={error} />
+
+  if(!updater) return
 
   return (
     <div   className='px-8 py-4 flex-col dark:bg-[#0F1214] dark:border flex gap-8 bg-white' >

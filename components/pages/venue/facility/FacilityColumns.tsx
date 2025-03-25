@@ -8,7 +8,11 @@ import { IoTrashBinOutline } from "react-icons/io5"
 export const FacilityColumns = (
     handleInfo:(data:IFacility)=>void, 
     handleEdit:(data:IFacility)=>void, 
-    handleDelete:(data:IFacility)=>void
+    handleDelete:(data:IFacility)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    venueReader:boolean,
 ):GridColDef[] =>[
     {
         field:'name',
@@ -16,7 +20,14 @@ export const FacilityColumns = (
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <span onClick={()=>handleEdit(param.row)}  className="table-link" >{param.row?.name}</span>
+                <>
+                {
+                    updater ?
+                    <span onClick={()=>handleEdit(param.row)}  className="table-link" >{param.row?.name}</span>
+                    :
+                    <span>{param.row?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -46,7 +57,14 @@ export const FacilityColumns = (
         },
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/venues/${param.row?.venueId?._id}`}  className="table-link" >{param.row?.venueId?.name}</Link>
+                <>
+                {
+                    venueReader ? 
+                    <Link href={`/dashboard/venues/${param.row?.venueId?._id}`}  className="table-link" >{param.row?.venueId?.name}</Link>
+                    :
+                    <span>{param.row?.venueId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -62,8 +80,18 @@ export const FacilityColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        reader &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !reader && !deleter &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },

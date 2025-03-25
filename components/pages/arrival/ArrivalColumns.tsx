@@ -11,6 +11,11 @@ import { IoTrashBinOutline } from "react-icons/io5";
 export const ArrivalColumns = (
     handleInfo:(data:IRegistration)=>void,
     handleDelete:(data:IRegistration)=>void,
+    reader:boolean,
+    updater:boolean,
+    showMember:boolean,
+    showChurch:boolean,
+    showCampus:boolean,
 ):GridColDef[]=>[
     {
         field:'memberId',
@@ -27,7 +32,14 @@ export const ArrivalColumns = (
         renderCell:(param:GridRenderCellParams)=>{
             const member = param.row?.memberId;
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:param.row?._id}}} >{member?.name}</Link>
+                <>
+                {
+                    showMember ?
+                    <Link className="table-link" href={{pathname:`/dashboard/events/badges`, query:{regId:param.row?._id}}} >{member?.name}</Link>
+                    :
+                    <span >{member?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -241,7 +253,14 @@ export const ArrivalColumns = (
             return church?.name;
         },
         renderCell:({row:reg}:GridRenderCellParams)=>(
-            <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:reg?.memberId?.church?._id}}} >{reg?.memberId?.church?.name}</Link>
+            <>
+            {
+                showChurch ?
+                <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:reg?.memberId?.church?._id}}} >{reg?.memberId?.church?.name}</Link>
+                :
+                <span >{reg?.memberId?.church?.name}</span>
+            }
+            </>
         )
     },
     {
@@ -259,7 +278,14 @@ export const ArrivalColumns = (
             return campus?.name;
         },
         renderCell:({row:reg}:GridRenderCellParams)=>(
-            <Link className="table-link" href={{pathname:'/dashboard/churches/campuses', query:{id:reg?.memberId?.campuseId?._id}}} >{reg?.memberId?.campuseId?.name}</Link>
+            <>
+            {
+                showCampus ?
+                <Link className="table-link" href={{pathname:'/dashboard/churches/campuses', query:{id:reg?.memberId?.campuseId?._id}}} >{reg?.memberId?.campuseId?.name}</Link>
+                :
+                <span>{reg?.memberId?.campuseId?.name}</span>
+            }
+            </>
         )
     },
     {
@@ -286,8 +312,18 @@ export const ArrivalColumns = (
             renderCell:(params:GridRenderCellParams)=> {
                 return(
                     <div className="flex h-full flex-row items-center gap-4">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        {
+                            reader &&
+                            <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                        }
+                        {
+                            updater &&
+                            <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        }
+                        {
+                            !reader && !updater &&
+                            <span>None</span>
+                        }
                     </div>
                 )
             },

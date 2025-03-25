@@ -1,14 +1,20 @@
 import AddButton from '@/components/features/AddButton'
 import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from 'react'
 import { Alert, Modal } from '@mui/material';
-import SearchSelectEvents from '@/components/features/SearchSelectEvents';
+// import SearchSelectEvents from '@/components/features/SearchSelectEvents';
 import { IRoom } from '@/lib/database/models/room.model';
 import { ErrorProps } from '@/types/Types';
 import { createRoom, updateRoom } from '@/lib/actions/room.action';
-import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
+// import SearchSelectFacilities from '@/components/features/SearchSelectFacilities';
 import { useAuth } from '@/hooks/useAuth';
 import { IFacility } from '@/lib/database/models/facility.model';
 import { generateNumberArray } from '@/functions/misc';
+import { IEvent } from '@/lib/database/models/event.model';
+import SearchSelectEventsV3 from '@/components/features/SearchSelectEventsV3';
+import SearchSelectVenueFacilities from '@/components/features/SearchSelectVenueFacilities';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { enqueueSnackbar } from 'notistack';
+import { canPerformAction, roomRoles } from '@/components/auth/permission/permission';
 
 export type SingleVenueNewRoomProps = {
     infoMode:boolean,
@@ -16,9 +22,10 @@ export type SingleVenueNewRoomProps = {
     currentRoom:IRoom|null,
     setCurrentRoom:Dispatch<SetStateAction<IRoom|null>>,
     venueId:string,
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IRoom[], Error>>
 }
 
-const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom, venueId}:SingleVenueNewRoomProps) => {
+const SingleVenueNewRoom = ({infoMode, setInfoMode, refetch, currentRoom, setCurrentRoom, venueId}:SingleVenueNewRoomProps) => {
     const [data, setData] = useState<Partial<IRoom>>({});
     const [eventId, setEventId] = useState<string>('');
     const [facId, setFacId] = useState<string>('');
@@ -27,6 +34,9 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
     const [currentFacility, setCurrentFacility] = useState<IFacility|null>(null);
 
     const {user} = useAuth();
+    const updater = canPerformAction(user!, 'updater', {roomRoles});
+    const event = currentRoom?.eventId as IEvent;
+    const facility = currentRoom?.facId as IFacility;
 
     const formRef = useRef<HTMLFormElement>(null)
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -37,7 +47,7 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
         }))
     }
 
-    console.log('Facility: ',currentFacility);
+    // console.log('Facility: ',currentFacility);
 
     const handleClose = ()=>{
         setCurrentRoom(null);
@@ -57,12 +67,13 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                 venueId,
                 churchId:user?.churchId
             }
-            await createRoom(body);
-            setResponse({message:'Room created successfully', error:false});
+            const res = await createRoom(body);
+            enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             formRef.current?.reset();
+            refetch();
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured creating room', error:true})
+            enqueueSnackbar('Error occured creating room', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -88,11 +99,12 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                 }
                 const res=  await updateRoom(currentRoom._id, body);
                 setCurrentRoom(res?.payload as IRoom);
-                setResponse({message:'Room updated successfully', error:false});
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                refetch();
             }
         } catch (error) {
             console.log(error);
-            setResponse({message:'Error occured updating room', error:true})
+            enqueueSnackbar('Error occured updating room', {variant:'error'});
         }finally{
             setLoading(false);
         }
@@ -112,13 +124,13 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col">
                         <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                        <SearchSelectEvents className='w-fit' setSelect={setEventId} require={!currentRoom} isGeneric />
+                        <SearchSelectEventsV3 setSelect={setEventId} require={!currentRoom} value={event?.name} />
                     </div>
 
                     <div className="flex flex-col md:flex-row items-start gap-4 md:gap-12 md:items-end">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Facility</span>
-                            <SearchSelectFacilities setCurrentFacility={setCurrentFacility} venueId={venueId}  setSelect={setFacId} require={!currentRoom} isGeneric />
+                            <SearchSelectVenueFacilities setCurrentFacility={setCurrentFacility} venueId={venueId} value={facility?.name} setSelect={setFacId} require={!currentRoom} />
                         </div>                        
                         {
                             currentFacility &&
@@ -135,13 +147,13 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                             </div>
                         }
                     </div>
-
+                    
                     <div className="flex gap-12">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Room type</span>
                             <select onChange={handleChange} required={!currentRoom}  className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' defaultValue={currentRoom?.roomType} name="roomType">
                                 <option className='dark:bg-black dark:text-white' value="">select</option>
-                                <option className='dark:bg-black dark:text-white' value="Standard">Standard</option>
+                                <option className='dark:bg-black dark:text-white' selected value="Standard">Standard</option>
                                 <option className='dark:bg-black dark:text-white' value="Deluxe">Deluxe</option>
                                 <option className='dark:bg-black dark:text-white' value="Junior Suite">Junior Suite</option>
                             </select>
@@ -181,7 +193,7 @@ const SingleVenueNewRoom = ({infoMode, setInfoMode, currentRoom, setCurrentRoom,
                 }
 
                 <div className="flex flex-row items-center gap-6">
-                    <AddButton disabled={loading} type='submit'  className='rounded w-[45%] justify-center' text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type='submit'  className={`${currentRoom && !updater && 'hidden'} rounded w-[45%] justify-center`} text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

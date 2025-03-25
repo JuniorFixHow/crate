@@ -19,8 +19,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2'
 import { deleteUserCompletely } from '@/lib/firebase/auth.admin'
+import { useAuth } from '@/hooks/useAuth'
+import { canPerformAction, isSuperUser, isSystemAdmin, memberRoles, userRoles } from '@/components/auth/permission/permission'
 
 const VendorsTable = () => {
+    const {user} = useAuth();
     const [church, setChurch] = useState<string>('');
     // const [search, setSearch] = useState<string>('');
     const [currentVendor, setCurrentVendor] = useState<IVendor|null>(null);
@@ -32,7 +35,23 @@ const VendorsTable = () => {
     const {vendors,  loading, refetch} = useFetchVendors();
     const {churches} = useFetchChurches();
 
+    const router = useRouter();
     const searchParams = useSearchParams();
+
+    const reader = canPerformAction(user!, 'reader', {userRoles});
+    const deleter = canPerformAction(user!, 'deleter', {userRoles});
+    const creator = canPerformAction(user!, 'creator', {userRoles});
+    const updater = canPerformAction(user!, 'updater', {userRoles});
+    const showMember = canPerformAction(user!, 'updater', {memberRoles});
+    const admin = canPerformAction(user!, 'admin', {userRoles});
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.admin(user!);
+    const showChurch = isSuperUser(user!) || isSystemAdmin.reader(user!);
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=User Admin')
+        }
+    },[user, admin, router])
 
     const hadndleInfo = (data:IVendor)=>{
         setCurrentVendor(data);
@@ -51,7 +70,6 @@ const VendorsTable = () => {
 
     const message = `Are you sure you want to delete this user?`
 
-    const router = useRouter();
     const handleOpenNew = ()=>{
         if(churches.length <= 0){
          setNoChurch(true);
@@ -95,14 +113,21 @@ const VendorsTable = () => {
 
       },[searchParams])
 
+    if(!admin) return;
 
   return (
     <div className='table-main2' >
         <div className="flex flex-col gap-3 md:flex-row md:justify-between items-center">
-            <SearchSelectChurchesV2 setSelect={setChurch} />
+            {
+                isAdmin &&
+                <SearchSelectChurchesV2 setSelect={setChurch} />
+            }
             <div className="flex flex-col items-center gap-2 w-full md:w-fit">
                 {/* <SearchBar reversed={false} setSearch={setSearch} /> */}
-                <AddButton onClick={handleOpenNew} noIcon text='Add User' smallText className='rounded w-[16rem] py-2 flex-center md:w-fit md:py-1' />
+                {
+                    creator &&
+                    <AddButton onClick={handleOpenNew} noIcon text='Add User' smallText className='rounded w-[16rem] py-2 flex-center md:w-fit md:py-1' />
+                }
             </div>
         </div>
         {
@@ -114,7 +139,7 @@ const VendorsTable = () => {
             <Alert severity='error' >There is no church to select for a vendor. Please, create a church first.</Alert>
         }
         <DeleteDialog onTap={handleDeleteVendor} message={message} title={`Delete ${currentVendor?.name}`} value={deleteMode} setValue={setDeleteMode} />
-        <VendorInfoModal refetch={refetch} infoMode={infoMode} setInfoMode={setInfoMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
+        <VendorInfoModal isAdmin={isAdmin} deleter={deleter} showMember={showMember} refetch={refetch} infoMode={infoMode} setInfoMode={setInfoMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
         <NewVendor refetch={refetch} openVendor={newMode} setOpenVendor={setNewMode} currentVendor={currentVendor} setCurrentVendor={setCurrentVendor} />
 
@@ -123,8 +148,15 @@ const VendorsTable = () => {
                 <DataGrid
                     getRowId={(row:IVendor):string=>row?._id}
                     rows={SearchVendorV2(vendors,  church)}
-                    columns={VendorsColumns(hadndleInfo, hadndleDelete, hadndleNew)}
-                    initialState={{ pagination: { paginationModel } }}
+                    columns={VendorsColumns(hadndleInfo, hadndleDelete, hadndleNew, reader, updater, deleter, showMember, showChurch)}
+                    initialState={{ 
+                        pagination: { paginationModel },
+                        columns:{
+                            columnVisibilityModel:{
+                                church:isAdmin
+                            }
+                        } 
+                    }}
                     pageSizeOptions={[5, 10, 15, 20, 30]}
                     // checkboxSelection
                     className='dark:bg-[#0F1214] dark:border dark:text-blue-800 scrollbar-custom'

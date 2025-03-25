@@ -5,6 +5,7 @@ import Link from "next/link"
 export const SingleActivityAddMemberColumns = (
     members:string[],
     handleCheckClick:(id:string)=>void,
+    showMember:boolean
 )=>[
     {
         field:'_id',
@@ -25,7 +26,14 @@ export const SingleActivityAddMemberColumns = (
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashbaord/members/${params.row?._id}`} >{params.row?.name}</Link>
+                <>
+                {
+                    showMember ?
+                    <Link className="table-link" href={`/dashbaord/members/${params.row?._id}`} >{params.row?.name}</Link>
+                    :
+                    <span>{params.row?.name}</span>
+                }
+                </>
             )
         }
     },

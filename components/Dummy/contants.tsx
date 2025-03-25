@@ -42,7 +42,11 @@ export const checkUserRole = (user:SessionPayload|null, title:string, code:strin
     return false;
 }
 
-export const RegColumns:GridColDef[] = [
+export const RegColumns=(
+    showInfo:boolean,
+    showChurch:boolean,
+    showCampus:boolean,
+):GridColDef[]=> [
     {
         field:'photo',
         headerName:'Photo',
@@ -118,7 +122,14 @@ export const RegColumns:GridColDef[] = [
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params?.row?.church._id}}} >{params?.row?.church.name}</Link>
+                <>
+                {
+                    showChurch ?
+                    <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params?.row?.church._id}}} >{params?.row?.church.name}</Link>
+                    :
+                    <span >{params?.row?.church.name}</span>
+                }
+                </>
             )
         }
     },
@@ -142,7 +153,14 @@ export const RegColumns:GridColDef[] = [
                 <>
                 {
                     params.row.campuseId ? 
-                    <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                    <>
+                    {
+                        showCampus ?
+                        <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                        :
+                        <span >{params.row?.campuseId?.name}</span>
+                    }
+                    </>
                     :
                     <span>None</span>
                 }
@@ -173,11 +191,15 @@ export const RegColumns:GridColDef[] = [
         field:'createdAt',
         headerName:'Registered On',
         width:120,
-        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
-        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
-        renderCell:({value}:GridRenderCellParams)=>{
+        valueFormatter: (_, value:IMember) => {
+            return value?.createdAt && new Date(value?.createdAt)?.toLocaleDateString();
+        },
+        valueGetter: (_, value:IMember) => {
+            return value?.createdAt && new Date(value?.createdAt)?.toLocaleDateString();
+        },
+        renderCell:({row}:GridRenderCellParams)=>{
             return(
-                <span>{new Date(value)?.toLocaleDateString()}</span>
+                <span>{new Date(row?.createdAt)?.toLocaleDateString()}</span>
             )
         }
     },
@@ -192,23 +214,37 @@ export const RegColumns:GridColDef[] = [
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <Link href={`/dashboard/members/${params?.row?._id}`} >
-                        <MdOpenInNew className="cursor-pointer" color={Blue} />
-                    </Link>
+                    {
+                        showInfo ?
+                        <Link href={`/dashboard/members/${params?.row?._id}`} >
+                            <MdOpenInNew className="cursor-pointer" color={Blue} />
+                        </Link>
+                        :
+                        <span className="text-red-600" >Denied</span>
+                    }
                 </div>
             )
         },
     }
 ]
 
-export const EventColumns:GridColDef[] = [
+export const EventColumns=(
+    updater:boolean,
+):GridColDef[] => [
     {
         field:'name',
         headerName:'Name',
         width:170,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/events/${params?.row._id}`} >{params?.row.name}</Link>
+                <>
+                {
+                    updater ?
+                    <Link className="table-link" href={`/dashboard/events/${params?.row._id}`} >{params?.row.name}</Link>
+                    :
+                    <span >{params?.row.name}</span>
+                }
+                </>
             )
         }
     },
@@ -249,9 +285,14 @@ export const EventColumns:GridColDef[] = [
             // console.log(params.row?.id)
             return(
                 <div className="flex-center h-full">
-                    <Link href={`/dashboard/events/${params?.row?._id}`} >
-                        <MdOpenInNew className="cursor-pointer" color={Blue} />
-                    </Link>
+                    {
+                        updater ?
+                        <Link href={`/dashboard/events/${params?.row?._id}`} >
+                            <MdOpenInNew className="cursor-pointer" color={Blue} />
+                        </Link>
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         },
@@ -261,6 +302,12 @@ export const EventColumns:GridColDef[] = [
 export const MemberColumns = (
     handleDelete:(data:IMember)=>void,
     handleInfo:(data:IMember)=>void,
+    showChurch:boolean,
+    showCampus:boolean,
+    showInfo:boolean,
+    showDelete:boolean,
+    showMember:boolean,
+    showUsers:boolean,
 ):GridColDef[]=> [
     {
         field:'photo',
@@ -282,8 +329,13 @@ export const MemberColumns = (
         width:170,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex-center h-full">
-                    <Link className="table-link" href={`/dashboard/members/${params?.row?._id}`} >{params?.row?.name}</Link>
+                <div className="h-full">
+                    {
+                        showMember ?
+                        <Link className="table-link" href={`/dashboard/members/${params?.row?._id}`} >{params?.row?.name}</Link>
+                        :
+                        <span >{params?.row?.name}</span>
+                    }
                 </div>
             )
         }
@@ -308,11 +360,11 @@ export const MemberColumns = (
         headerName:'Marital Status',
         width:120
     },
-    {
-        field:'voice',
-        headerName:'Voice',
-        width:120
-    },
+    // {
+    //     field:'voice',
+    //     headerName:'Voice',
+    //     width:120
+    // },
     {
         field:'employ',
         headerName:'Employment Status',
@@ -339,8 +391,14 @@ export const MemberColumns = (
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params.row?.church?._id}}} >{params.row?.church?.name}</Link>
-               
+                <>
+                {
+                    showChurch ?
+                    <Link className="table-link" href={{pathname:`/dashboard/churches`, query:{id:params.row?.church?._id}}} >{params.row?.church?.name}</Link>
+                    :
+                    <span >{params.row?.church?.name}</span>
+                }    
+                </>
             )
         }
     },
@@ -362,7 +420,14 @@ export const MemberColumns = (
                 <>
                 {
                     params.row.campuseId ? 
-                    <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                    <>
+                     {
+                        showCampus ?
+                        <Link className="table-link" href={{pathname:`/dashboard/churches/campuses`, query:{id:params.row?.campuseId?._id}}} >{params.row?.campuseId?.name}</Link>
+                        :
+                        <span >{params.row?.campuseId?.name}</span>
+                     }  
+                    </>
                     :
                     <span>None</span>
                 }
@@ -384,7 +449,14 @@ export const MemberColumns = (
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
+                <>
+                {
+                    showUsers?
+                    <Link className="table-link" href={{pathname:`/dashboard/users/`, query:{id:params.row?.registeredBy?._id}}} >{params.row?.registeredBy?.name}</Link>
+                    :
+                    <span >{params.row?.registeredBy?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -393,11 +465,11 @@ export const MemberColumns = (
         field:'createdAt',
         headerName:'Registered On',
         width:120,
-        valueFormatter: (value:string) => new Date(value)?.toLocaleDateString(),
-        valueGetter: (value:string) => new Date(value)?.toLocaleDateString(),
-        renderCell:({value}:GridRenderCellParams)=>{
+        valueFormatter: (_, member:IMember) => member?.createdAt && new Date(member?.createdAt)?.toLocaleDateString(),
+        valueGetter: (_, member:IMember) =>  member?.createdAt && new Date(member?.createdAt)?.toLocaleDateString(),
+        renderCell:({row}:GridRenderCellParams)=>{
             return(
-                <span>{new Date(value)?.toLocaleDateString()}</span>
+                <span>{new Date(row?.createdAt)?.toLocaleDateString()}</span>
             )
         }
     },
@@ -414,8 +486,18 @@ export const MemberColumns = (
             return(
                 <div className="h-full flex-center gap-3">
                     {/* <MdOpenInNew className="cursor-pointer" color={Blue} /> */}
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        showInfo &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        showDelete &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !showInfo && !showDelete &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },
@@ -426,6 +508,13 @@ export const MemberColumns = (
 export const BadgesColumns =(
     handleInfo:(data:IRegistration)=>void,
     handleDelete:(data:IRegistration)=>void,
+    showDelete:boolean,
+    showView:boolean,
+    showChurch:boolean,
+    showCampus:boolean,
+    showMember:boolean,
+    showRoom:boolean,
+    showGroup:boolean,
 ):GridColDef[] => [
     {
         field:'memberId',
@@ -441,9 +530,14 @@ export const BadgesColumns =(
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={`/dashboard/members/${params?.row?.memberId?._id}`}  className='table-link' >{params?.row?.memberId?.name}</Link>
-              </div>
+              <>
+                {
+                    showMember ?
+                    <Link href={`/dashboard/members/${params?.row?.memberId?._id}`}  className='table-link' >{params?.row?.memberId?.name}</Link>
+                    :
+                    <span >{params?.row?.memberId?.name}</span>
+                }
+              </>
             )  
           },
     },
@@ -638,7 +732,14 @@ export const BadgesColumns =(
             return church?.name;
         },
         renderCell:({row:reg}:GridRenderCellParams)=>(
-            <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:reg?.memberId?.church?._id}}} >{reg?.memberId?.church?.name}</Link>
+            <>
+            {
+                showChurch ?
+                <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:reg?.memberId?.church?._id}}} >{reg?.memberId?.church?.name}</Link>
+                :
+                <span >{reg?.memberId?.church?.name}</span>
+            }
+            </>
         )
     },
     {
@@ -656,7 +757,14 @@ export const BadgesColumns =(
             return campus?.name;
         },
         renderCell:({row:reg}:GridRenderCellParams)=>(
-            <Link className="table-link" href={{pathname:'/dashboard/churches/campuses', query:{id:reg?.memberId?.campuseId?._id}}} >{reg?.memberId?.campuseId?.name}</Link>
+            <>
+            {
+                showCampus ?
+                <Link className="table-link" href={{pathname:'/dashboard/churches/campuses', query:{id:reg?.memberId?.campuseId?._id}}} >{reg?.memberId?.campuseId?.name}</Link>
+                :
+                <span >{reg?.memberId?.campuseId?.name}</span>
+            }
+            </>
         )
     },
     {
@@ -712,14 +820,21 @@ export const BadgesColumns =(
        
         renderCell:(params:GridRenderCellParams) => {
           return(
-            <div className="flex">
+            <>
                 {
                     params?.row?.groupId?
-                    <Link href={`/dashboard/groups/${params?.row?.groupId?._id}`}  className='table-link' >{params?.row?.groupId?.name}</Link>
+                    <>
+                    {
+                        showGroup ?
+                        <Link href={`/dashboard/groups/${params?.row?.groupId?._id}`}  className='table-link' >{params?.row?.groupId?.name}</Link>
+                        :
+                        <span>{params?.row?.groupId?.name}</span>
+                    }
+                    </>
                     :
                     <span >N/A</span>
                 }
-            </div>
+            </>
           )  
         },
     },
@@ -737,14 +852,21 @@ export const BadgesColumns =(
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex">
+              <>
                   {
                       params?.row?.roomIds?.length > 0?
-                      <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className='table-link' >{params?.row?.roomIds[0]?.number}</Link>
+                      <>
+                      {
+                        showRoom ?
+                        <Link href={{pathname:`/dashboard/rooms`, query:{id:params?.row?.roomIds[0]?._id}}}  className='table-link' >{params?.row?.roomIds[0]?.number}</Link>
+                        :
+                        <span >{params?.row?.roomIds[0]?.number}</span>
+                      }
+                      </>
                       :
                       <span >Unallocated</span>
                   }
-              </div>
+              </>
             )  
           },
     },
@@ -753,8 +875,8 @@ export const BadgesColumns =(
         field:'createdAt',
         headerName:'Registered On',
         width:110,
-        valueFormatter:(value:string)=>new Date(value).toLocaleDateString(),
-        valueGetter:(value:string)=>new Date(value).toLocaleDateString(),
+        valueFormatter:(_, value:IRegistration)=> value?.createdAt && new Date(value.createdAt).toLocaleDateString(),
+        valueGetter:(_, value:IRegistration)=> value?.createdAt && new Date(value.createdAt).toLocaleDateString(),
         renderCell:({row}:GridRenderCellParams)=>(
             <span>{new Date(row?.createdAt).toLocaleDateString()}</span>
         )
@@ -771,8 +893,18 @@ export const BadgesColumns =(
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <MdOpenInNew onClick={()=>handleInfo(params?.row)}  className="cursor-pointer" color={Blue} />
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        showView &&
+                        <MdOpenInNew onClick={()=>handleInfo(params?.row)}  className="cursor-pointer" color={Blue} />
+                    }
+                    {
+                        showDelete &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !showView && !showDelete &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },
@@ -780,7 +912,10 @@ export const BadgesColumns =(
 ]
 
 export const AttendanceColumns = (
-    handleDelete:(data:IAttendance)=>void
+    handleDelete:(data:IAttendance)=>void,
+    showMember:boolean,
+    showSession:boolean,
+    showDelete:boolean,
 ):GridColDef[]=> [
     {
         field:'member',
@@ -796,9 +931,16 @@ export const AttendanceColumns = (
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={params?.row?.member?._id}  className='table-link' >{params?.row?.member?.name}</Link>
-              </div>
+                <>
+                {
+                    showMember ?
+                    <div className="flex items-center justify-center">
+                        <Link href={params?.row?.member?._id}  className='table-link' >{params?.row?.member?.name}</Link>
+                    </div>
+                    :
+                    <span >{params?.row?.member?.name}</span>
+                }
+                </>
             )  
         },
     },
@@ -834,9 +976,16 @@ export const AttendanceColumns = (
         },
         renderCell:(params:GridRenderCellParams) => {
             return(
-              <div className="flex items-center justify-center">
-                <Link href={`/dashboard/events/sessions/${params?.row?.sessionId._id}`} className='table-link' >{params?.row?.sessionId.name}</Link>
-              </div>
+                <>
+                {
+                    showSession ?
+                    <div className="flex items-center justify-center">
+                        <Link href={`/dashboard/events/sessions/${params?.row?.sessionId._id}`} className='table-link' >{params?.row?.sessionId.name}</Link>
+                    </div>
+                    :
+                    <span >{params?.row?.sessionId.name}</span>
+                }
+                </>
             )  
         },
     },
@@ -853,7 +1002,12 @@ export const AttendanceColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        showDelete ?
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         },

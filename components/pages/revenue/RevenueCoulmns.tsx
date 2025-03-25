@@ -14,19 +14,31 @@ export const RevenueColumns = (
     handleInfo:(data:IPayment)=>void,
     handleDelete:(data:IPayment)=>void,
     handleNew:(data:IPayment)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    isAdmin:boolean,
+    showMember:boolean,
+    showUser:boolean,
+    showEvent:boolean
 ):GridColDef[] => [
     
     {
         field:'createdAt',
         headerName:'Paid on',
         width:140,
-        valueFormatter:(value:string)=> new Date(value).toLocaleDateString(),
-        valueGetter:(value:string)=> new Date(value).toLocaleDateString(),
+        valueFormatter:(_, value:IPayment)=> new Date(value?.createdAt).toLocaleDateString(),
+        valueGetter:(_, value:IPayment)=> new Date(value?.createdAt).toLocaleDateString(),
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex h-full flex-row items-center gap-4">
+                <>
+                {
+                    (reader || updater) ?
                     <span onClick={()=>handleNew(params?.row)}  className="table-link" >{new Date(params.row?.createdAt).toLocaleDateString()}</span>
-                </div>
+                    :
+                    <span>{new Date(params.row?.createdAt).toLocaleDateString()}</span>
+                }
+                </>
             )
         }
     },
@@ -45,7 +57,14 @@ export const RevenueColumns = (
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:`/dashboard/events/${params.row?.eventId?._id}`, }} >{params.row?.eventId?.name}</Link>
+                <>
+                {
+                    showEvent ?
+                    <Link className="table-link" href={{pathname:`/dashboard/events/${params.row?.eventId?._id}`, }} >{params.row?.eventId?.name}</Link>
+                    :
+                    <span>{params.row?.eventId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -85,7 +104,14 @@ export const RevenueColumns = (
                 <>
                 {
                     params.row?.payer ?
-                    <Link className="table-link" href={{pathname:'/dashboard/events/badges', query:{id:params.row?.payer?._id}}} >{params.row?.payer?.memberId?.name}</Link>
+                    <>
+                    {
+                        showMember ?
+                        <Link className="table-link" href={{pathname:'/dashboard/events/badges', query:{id:params.row?.payer?._id}}} >{params.row?.payer?.memberId?.name}</Link>
+                        :
+                        <span>{params.row?.payer?.memberId?.name}</span>
+                    }
+                    </>
                     :
                     <span>N/A</span>
                     // <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} >{params.row?.churchId?.name}</Link>
@@ -99,11 +125,11 @@ export const RevenueColumns = (
         headerName:'Paid By Church',
         valueFormatter:(_, value:IPayment)=>{
             const church = value?.churchId as IChurch;
-            return !value?.payer ? church?.name : 'N/A'
+            return (!value?.payer && church) ? church?.name : 'N/A'
         },
         valueGetter:(_, value:IPayment)=>{
             const church = value?.churchId as IChurch;
-            return !value?.payer ? Object.values(church) : 'N/A'
+            return (!value?.payer && church) ? Object.values(church) : 'N/A'
         },
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
@@ -112,7 +138,14 @@ export const RevenueColumns = (
                 <>
                 {
                     !params.row?.payer ?
-                    <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} >{params.row?.churchId?.name}</Link>
+                    <>
+                    {
+                        isAdmin ?
+                        <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} >{params.row?.churchId?.name}</Link>
+                        :
+                        <span>{params.row?.churchId?.name}</span>
+                    }
+                    </>
                     :
                     <span>N/A</span>
                 }
@@ -125,17 +158,24 @@ export const RevenueColumns = (
         headerName:'Church Involved',
         valueFormatter:(_, value:IPayment)=>{
             const church = value?.churchId as IChurch;
-            return church?.name
+            return church ? church?.name :''
         },
         valueGetter:(_, value:IPayment)=>{
             const church = value?.churchId as IChurch;
-            return Object.values(church)
+            return church ? Object.values(church) :''
         },
         // valueSetter:(value:IChurch)=>value?.name,
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} >{params.row?.churchId?.name}</Link>
+                <>
+                {
+                    isAdmin ?
+                    <Link className="table-link" href={{pathname:'/dashboard/churches', query:{id:params.row?.churchId?._id}}} >{params.row?.churchId?.name}</Link>
+                    :
+                    <span>{params.row?.churchId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -144,16 +184,23 @@ export const RevenueColumns = (
         headerName:'Received By',
         valueFormatter:(_, value:IPayment)=>{
             const user = value.payee as IVendor;
-            return user?.name;
+            return user? user?.name : '';
         },
         valueGetter:(_, value:IPayment)=>{
             const user = value.payee as IVendor;
-            return Object.values(user);
+            return user? Object.values(user) : '';
         },
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={{pathname:'/dashboard/users', query:{id:params.row?.payee?._id}}} >{params.row?.payee?.name}</Link>
+                <>
+                {
+                    showUser ?
+                    <Link className="table-link" href={{pathname:'/dashboard/users', query:{id:params.row?.payee?._id}}} >{params.row?.payee?.name}</Link>
+                    :
+                    <span>{params.row?.payee?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -168,8 +215,18 @@ export const RevenueColumns = (
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        reader &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !reader && !deleter && 
+                        <span>None</span>
+                    }
                 </div>
             )
         }

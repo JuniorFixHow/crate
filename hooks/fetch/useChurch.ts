@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchChurches = () => {
     const [churches, setChurches] = useState<IChurch[]>([]);
@@ -90,6 +91,33 @@ export const useFetchChurchesV4 = ()=>{
 
     const {data:churches=[], isPending, refetch} = useQuery({
         queryKey:['churcheswithzonev2',],
+        queryFn: fetchChurches,
+        enabled:!!user
+    })
+
+    return {churches, isPending, refetch}
+}
+
+
+export const useFetchChurchesV5 = ()=>{
+    const {user} = useAuth();
+    
+    const fetchChurches = async():Promise<IChurch[]>=>{
+        if(!user) return [];
+
+        const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
+        const data:IChurch[] =await getChurches();
+
+        const sorted = data
+        .filter((item)=>{
+            return isAdmin ? item : item?._id.toString() === user?.churchId
+        })
+        .sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1)
+        return sorted;
+    }
+
+    const {data:churches=[], isPending, refetch} = useQuery({
+        queryKey:['churcheswithzonev3',],
         queryFn: fetchChurches,
         enabled:!!user
     })

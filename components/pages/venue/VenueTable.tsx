@@ -7,7 +7,7 @@ import { deleteVenue } from "@/lib/actions/venue.action";
 import { IVenue } from "@/lib/database/models/venue.model";
 import {  Paper } from "@mui/material"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VenueColumns } from "./VenueColumns";
 import Link from "next/link";
 import {  SearchVenueWithchurchV2 } from "./fxn";
@@ -16,6 +16,8 @@ import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2
 import { useAuth } from "@/hooks/useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { enqueueSnackbar } from "notistack";
+import { canPerformAction, facilityRoles, venueRoles } from "@/components/auth/permission/permission";
+import { useRouter } from "next/navigation";
 
 const VenueTable = () => {
     // const [search, setSearch] = useState<string>('');
@@ -27,10 +29,23 @@ const VenueTable = () => {
     const [churchId, setChurchId] = useState<string>('');
 
     const {venues, loading, refetch} = useFetchVenues();
+    const router = useRouter();
 
     const {user} = useAuth();
 
     const isAdmin = checkIfAdmin(user);
+    const creator = canPerformAction(user!, 'creator', {venueRoles});
+    const reader = canPerformAction(user!, 'reader', {venueRoles});
+    const updater = canPerformAction(user!, 'updater', {venueRoles});
+    const deleter = canPerformAction(user!, 'deleter', {venueRoles});
+    const admin = canPerformAction(user!, 'admin', {venueRoles});
+    const facReader = canPerformAction(user!, 'reader', {facilityRoles});
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Venue Admin');
+        }
+    },[admin, user, router])
 
 
     const handleDeleteMode = (data:IVenue)=>{
@@ -59,7 +74,7 @@ const VenueTable = () => {
     const message = `You're about to delete a venue. This will delete facilties, rooms and keys depending on it`;
     const paginationModel = { page: 0, pageSize: 10 };
 
-    if(!user) return null;
+    if(!admin) return;
   return (
     <div className='table-main2' >
 
@@ -70,17 +85,20 @@ const VenueTable = () => {
                     <SearchSelectChurchesV2 setSelect={setChurchId}/>
                 }
             </div>
-            <div className="flex flex-row gap-4  items-center px-0  w-full justify-end">
-                {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
-                <Link href={`/dashboard/venues/new`} >
-                    <AddButton smallText text='Add Venue' noIcon className='rounded' />
-                </Link>
-            </div>
+            {
+                creator &&
+                <div className="flex flex-row gap-4  items-center px-0  w-full md:justify-end">
+                    {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
+                    <Link href={`/dashboard/venues/new`} >
+                        <AddButton smallText text='Add Venue' noIcon className='rounded' />
+                    </Link>
+                </div>
+            }
         </div>
 
 
         {/* <NewService infoMode={editmode} setInfoMode={setEditmode} setCurrentService={setCurrentService} currentService={currentService} /> */}
-        <VenueInfoModal infoMode={infoMode} setInfoMode={setInfoMode} currentVenue={currentVenue} setCurrentVenue={setCurrentVenue} />
+        <VenueInfoModal facReader={facReader} reader={reader||updater} infoMode={infoMode} setInfoMode={setInfoMode} currentVenue={currentVenue} setCurrentVenue={setCurrentVenue} />
         <DeleteDialog onTap={handledeleteVenue} message={message} title={`Delete ${currentVenue?.name}`} value={deleteMode} setValue={setDeleteMode} />
 
         {/* {
@@ -93,7 +111,7 @@ const VenueTable = () => {
                     loading={loading}
                     getRowId={(row:IVenue):string=> row?._id as string}
                     rows={SearchVenueWithchurchV2(venues,  churchId)}
-                    columns={VenueColumns(handleInfoMode, handleDeleteMode)}
+                    columns={VenueColumns(handleInfoMode, handleDeleteMode, reader, updater, deleter, facReader)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                     slots={{toolbar:GridToolbar}}

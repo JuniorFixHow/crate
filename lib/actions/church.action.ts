@@ -9,6 +9,7 @@ import Registration from "../database/models/registration.model";
 import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
 import './contract.action';
+import Campuse from "../database/models/campuse.model";
 
 export async function createChurch(church: Partial<IChurch>) {
     try {
@@ -165,6 +166,7 @@ export async function deleteChurch(id: string) {
         // Delete members and vendors related to this church
         await Member.deleteMany({ church: church._id });
         await Vendor.deleteMany({ church: church._id });
+        await Campuse.deleteMany({churchId:church._id});
 
         // Decrement the 'churches' count in the zone
         await Zone.findByIdAndUpdate(church.zoneId, { $inc: { churches: -1 } }, { new: true });

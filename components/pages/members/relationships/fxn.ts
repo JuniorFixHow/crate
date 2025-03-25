@@ -20,6 +20,16 @@ export const SearchRelationship = (rels:IRelationship[], churchId:string, search
     return data;
 }
 
+export const SearchRelationshipV2 = (rels:IRelationship[], churchId:string):IRelationship[]=>{
+    const data = rels?.filter((item)=>{
+        const church = item?.churchId as IChurch;
+        return churchId === '' ? item : church?._id === churchId
+    })
+    
+
+    return data;
+}
+
 export const SearchSingleRelationship = (rels:IRelationship[],  search:string):IRelationship[]=>{
     const data = rels
     ?.filter((item)=>{

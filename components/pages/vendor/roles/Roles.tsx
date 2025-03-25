@@ -11,15 +11,21 @@ import { updateVendorRoles } from "@/lib/actions/vendor.action"
 import { doc, updateDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase/firebase"
 import { enqueueSnackbar } from "notistack"
+import { SessionPayload } from "@/lib/session"
+import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission"
 
 type RolesProps = {
-    selection:IVendor[]
+    selection:IVendor[];
+    user:SessionPayload
 }
 
-const Roles = ({selection}:RolesProps) => {
+const Roles = ({selection, user}:RolesProps) => {
     const [roles, setRoles] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     // const [response, setResponse] = useState<ErrorProps>(null);
+    const superUser = isSuperUser(user);
+    const sa = isSystemAdmin.controller(user);
+    const protectedRoles = ['Church Admin', 'Church', 'Contracts', 'Service', 'Zone'];
 
     useEffect(()=>{
         if(selection.length === 1){
@@ -86,7 +92,12 @@ const Roles = ({selection}:RolesProps) => {
         </div>
         <div className="flex flex-col gap-10 p-4 md:w-3/4">
             {
-                UserRoles?.slice(1).map((role)=>{
+                UserRoles?.slice(1)
+                .filter((item)=> superUser ? item : item.title !== 'System Admin')
+                .filter((item)=>{
+                    return sa ? item :  !protectedRoles.includes(item.title)
+                })
+                .map((role)=>{
                     // const checked = roles.includes(code);
                     const codes = role.codes;
                     return(

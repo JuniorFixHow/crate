@@ -10,11 +10,13 @@ import Link from 'next/link';
 import NavSwitch from '@/components/features/NavSwitch';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { usePathname, useRouter } from 'next/navigation';
-import { deleteSession } from '@/lib/session';
+import { deleteSession, } from '@/lib/session';
 import { IVendor } from '@/lib/database/models/vendor.model';
 import { useAuth } from '@/hooks/useAuth';
 import { getVendor } from '@/lib/actions/vendor.action';
 import '@/components/features/customscroll.css';
+import { canAccessNavItem } from '@/functions/misc';
+
 
 type TitleProps = {
   parent: string;
@@ -94,11 +96,18 @@ const Navbar = () => {
     });
   }, [path]);
 
+
+  
+  
+
+
   const handleProfile = () => {
     setCurrentTitle({ parent: 'Account & Settings' });
     router.push('/dashboard/profile');
   };
   // alert(path)
+
+  if(!user) return;
 
   const renderChildren = (children: NavigationProps['children']) => {
     return children?.map((child) => (
@@ -146,34 +155,32 @@ const Navbar = () => {
           className={`flex ${toggle ? 'hidden' : 'flex'} xl:flex flex-col grow justify-between gap-6`}
         >
           <div className={`${toggle ? 'hidden' : 'flex'} xl:flex flex-col gap-6`}>
-            <div className="flex flex-col gap-3 w-max">
-              <span className="text-[1rem] text-[#949191] font-medium">Menu</span>
-              {NavItems.map((item: NavigationProps) => (
-                <div key={item.title} className="flex flex-col gap-2">
-                  <div
-                    onClick={() => handleParentClick(item)}
-                    className={`flex items-center flex-row dark:hover:text-[#3C60CA] hover:text-[#3C60CA] cursor-pointer gap-2 ${
-                      currentTtitle.parent === item.title
-                        ? 'text-[#3C60CA]'
-                        : 'text-black dark:text-white'
-                    }`}
-                  >
-                    {item.icon}
-                    <span className="text-[0.8rem] font-medium">{item.title}</span>
-                    {item?.children?.length ? (
-                      collapse && currentTtitle.parent === item.title ? (
-                        <IoIosArrowUp className="ml-4" />
-                      ) : (
-                        <IoIosArrowDown className="ml-4" />
-                      )
-                    ) : null}
+            {
+              // (user?.roles?.length as number) > 0  &&
+              <div className="flex flex-col gap-3 w-max">
+                <span className="text-[1rem] text-[#949191] font-medium">Menu</span>
+                {NavItems
+                .filter((item) => canAccessNavItem(item, user))
+                .map((item: NavigationProps) => (
+                  <div key={item.title} className="flex flex-col gap-2">
+                    <div
+                      onClick={() => handleParentClick(item)}
+                      className={`flex items-center flex-row dark:hover:text-[#3C60CA] hover:text-[#3C60CA] cursor-pointer gap-2 ${
+                        currentTtitle.parent === item.title ? 'text-[#3C60CA]' : 'text-black dark:text-white'
+                      }`}
+                    >
+                      {item.icon}
+                      <span className="text-[0.8rem] font-medium">{item.title}</span>
+                      {item?.children?.length ? (
+                        collapse && currentTtitle.parent === item.title ? <IoIosArrowUp className="ml-4" /> : <IoIosArrowDown className="ml-4" />
+                      ) : null}
+                    </div>
+                    {collapse && currentTtitle.parent === item.title && renderChildren(item.children)}
                   </div>
-                  {collapse &&
-                    currentTtitle.parent === item.title &&
-                    renderChildren(item.children)}
-                </div>
-              ))}
-            </div>
+                ))
+              }
+              </div>
+            }
 
             <div className="flex flex-col gap-4">
               <span className="text-[1rem] text-[#949191] font-medium">Account</span>

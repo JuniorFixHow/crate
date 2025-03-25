@@ -5,12 +5,13 @@ import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectMembersProps = {
     setSelect?:Dispatch<SetStateAction<string>>,
+    setCurrentMember?:Dispatch<SetStateAction<IMember|null>>,
     require?:boolean;
     value?:string;
     width?:number
 }
 
-const SearchSelectMembers = ({setSelect, width, require, value}:SearchSelectMembersProps) => {
+const SearchSelectMembers = ({setSelect, width, require, setCurrentMember, value}:SearchSelectMembersProps) => {
     const {members, isPending} = useFetchMembersInAChurchV2();
     const [search, setSearch] = useState<string>('')
   return (
@@ -18,7 +19,8 @@ const SearchSelectMembers = ({setSelect, width, require, value}:SearchSelectMemb
       disablePortal
       options={members as IMember[]}
       onChange={(_, v:IMember|null)=>{
-        setSelect!(v?._id as string); 
+        setSelect!(v?._id as string);
+        setCurrentMember!(v); 
       }}
       inputValue={search}
       onInputChange={(_, v)=>{

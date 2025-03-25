@@ -1,7 +1,7 @@
 'use client'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import Subtitle from '../Subtitle'
-import SearchSelectEvents from '../SearchSelectEvents'
+// import SearchSelectEvents from '../SearchSelectEvents'
 import '../customscroll.css';
 import SelectSessionScanItem from './SelectSessionScanItem'
 import AddButton from '../AddButton'
@@ -9,6 +9,7 @@ import { useFetchSessions } from '@/hooks/fetch/useSession'
 import { searchSessionWithEvent } from '@/components/pages/session/fxn'
 import { ISession } from '@/lib/database/models/session.model'
 import { LinearProgress } from '@mui/material';
+import SearchSelectEventsV2 from '../SearchSelectEventsV2';
 
 type SelectSessionScanProps = {
     currentSession:ISession,
@@ -19,7 +20,6 @@ type SelectSessionScanProps = {
 const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectSessionScanProps) => {
     const [eventId, setEventId] = useState<string>('');
     const {sessions, loading} = useFetchSessions();
-    
   return (
     <div className='flex flex-col gap-6 bg-white border rounded dark:bg-[#0F1214] p-4' >
         <Subtitle text='Scan Badge' />
@@ -30,7 +30,7 @@ const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectS
             <div className="flex flex-col md:flex-row items-start gap-6 md:justify-between">
                 <div className="flex flex-col">
                     <span className='font-medium' >Select Event</span>
-                    <SearchSelectEvents setSelect={setEventId} isGeneric />
+                    <SearchSelectEventsV2 setSelect={setEventId} />
                 </div>
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-4">

@@ -13,15 +13,18 @@ import { KeyColumns } from "./KeyColumn"
 // import SearchSelectRooms from "@/components/features/SearchSelectRooms"
 import NewKey from "./NewKey"
 import { deleteKey, getKey } from "@/lib/actions/key.action"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 // import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 import KeyInfoModal from "./KeyInfoModal"
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2"
 import SearchSelectRoomsV2 from "@/components/features/SearchSelectRoomsV2"
 import { enqueueSnackbar } from "notistack"
+import { useAuth } from "@/hooks/useAuth"
+import { canPerformAction, isChurchAdmin, isSuperUser, isSystemAdmin, keyRoles, keyRolesExtended, memberRoles, roomRoles } from "@/components/auth/permission/permission"
 
 const KeysTable = () => {
-    // const [response, setResponse] = useState<ErrorProps>(null);
+    const {user} = useAuth();
+    const router = useRouter();
     const [roomId, setRoomId] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
     // const [search, setSearch] = useState<string>('');
@@ -31,10 +34,22 @@ const KeysTable = () => {
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const searchParams = useSearchParams();
 
-    const {keys, loading, refetch} = useFetchKeys()
-    // console.log(keys)
+    const {keys, loading, refetch} = useFetchKeys();
 
-    // console.log('Room Id: ', roomId)
+    const creator = canPerformAction(user!, 'creator', {keyRoles});
+    const updater = canPerformAction(user!, 'updater', {keyRoles});
+    const reader = canPerformAction(user!, 'reader', {keyRoles});
+    const deleter = canPerformAction(user!, 'deleter', {keyRoles});
+    const admin = canPerformAction(user!, 'admin', {keyRoles});
+    const roomReader = canPerformAction(user!, 'reader', {roomRoles});
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const assign = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || keyRolesExtended.assign(user!);
+
+    useEffect(()=>{
+        if(user && !admin){
+            router.replace('/dashboard/forbidden?p=Key Admin');
+        }
+    },[admin, user, router])
 
     useEffect(()=>{
         const id = searchParams.get('id');
@@ -93,6 +108,8 @@ const KeysTable = () => {
     const message = `You're about to delete this key. Are you sure?`
 
     const paginationModel = { page: 0, pageSize: 10 };
+
+    if(!admin) return;
   return (
     <div className="table-main2" >
         <div className="flex w-full flex-col items-center gap-4 md:flex-row md:justify-between">
@@ -101,11 +118,13 @@ const KeysTable = () => {
                 <SearchSelectRoomsV2 eventId={eventId} setSelect={setRoomId} />
             </div>
             <div className="flex items-end gap-4">
-                {/* <SearchBar setSearch={setSearch} reversed={false} /> */}
-                <AddButton onClick={handleNew} text="Add Key"  noIcon smallText className="rounded w-[16rem] py-2 flex-center md:w-fit md:py-1" type="button" />
+                {
+                    creator &&
+                    <AddButton onClick={handleNew} text="Add Key"  noIcon smallText className="rounded w-[16rem] py-2 flex-center md:w-fit md:py-1" type="button" />
+                }
             </div>
         </div>
-    <NewKey editMode={editMode} setEditMode={setEditMode} currentKey={currentKey} setCurrentKey={setCurrentKey} />
+    <NewKey assign={assign} updater={updater} editMode={editMode} setEditMode={setEditMode} currentKey={currentKey} setCurrentKey={setCurrentKey} />
     <DeleteDialog message={message} onTap={handleDeleteKey} title={`Remove ${currentKey?.code}`} value={deleteMode} setValue={setDeleteMode} />
     <KeyInfoModal setCurrentKey={setCurrentKey} infoMode={infoMode} currentKey={currentKey} setInfoMode={setInfoMode} />
     
@@ -118,7 +137,7 @@ const KeysTable = () => {
             <DataGrid
                 rows={SearchKey(keys,  roomId, eventId)}
                 getRowId={(row:IKey)=>row._id}
-                columns={KeyColumns(handleDelete, handleEdit, handleInfo)}
+                columns={KeyColumns(handleDelete, handleEdit, handleInfo, reader, updater, deleter, roomReader, showMember)}
                 initialState={{ pagination: { paginationModel } }}
                 loading={loading}
                 pageSizeOptions={[5, 10, 15, 20, 30, 50, 10]}

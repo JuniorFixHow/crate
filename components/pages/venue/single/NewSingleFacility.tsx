@@ -6,6 +6,7 @@ import { ErrorProps } from "@/types/Types";
 import { IFacility } from "@/lib/database/models/facility.model";
 import { createFacility, updateFacility } from "@/lib/actions/facility.action";
 import { useAuth } from "@/hooks/useAuth";
+import { canPerformAction, facilityRoles } from "@/components/auth/permission/permission";
 
 export type NewSingleFacilityProps = {
     currentFacility:IFacility | null;
@@ -26,7 +27,7 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility, venueId, infoMo
     const [data, setData] =useState<Partial<IFacility>>({});
     const {user} = useAuth();
   
-    
+    const updater = canPerformAction(user!, 'updater', {facilityRoles})
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -115,7 +116,7 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility, venueId, infoMo
                 }
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading} type="submit"  className='rounded w-[45%] justify-center' text={loading? 'loading...' : currentFacility? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type="submit"  className={`${currentFacility && !updater && 'hidden'} rounded w-[45%] justify-center`} text={loading? 'loading...' : currentFacility? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} type="button"  className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

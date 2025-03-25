@@ -1,5 +1,6 @@
 import { IActivity } from "@/lib/database/models/activity.model";
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { IClassministry } from "@/lib/database/models/classministry.model";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { GoInfo } from "react-icons/go";
 import { IoTrashBinOutline } from "react-icons/io5";
@@ -7,14 +8,24 @@ import { IoTrashBinOutline } from "react-icons/io5";
 export const ActivityColumns = (
     handleDelete:(data:IActivity)=>void,
     handleInfo:(data:IActivity)=>void,
-)=>[
+    reader:boolean,
+    deleter:boolean,
+    minReader:boolean,
+):GridColDef[]=>[
     {
         field:'name',
         headerName:'Name',
         width:200,
         renderCell:(param:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/activities/${param.row?._id}`} >{param.row?.name}</Link>
+                <>
+                {
+                    reader ?
+                    <Link className="table-link" href={`/dashboard/activities/${param.row?._id}`} >{param.row?.name}</Link>
+                    :
+                    <span>{param.row?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -22,8 +33,23 @@ export const ActivityColumns = (
         field:'minId',
         headerName:'Ministry',
         width:120,
+        valueFormatter:(_, act:IActivity)=>{
+            const min = act?.minId as IClassministry;
+            return min?.title ? min?.title : ''
+        },
+        valueGetter:(_, act:IActivity)=>{
+            const min = act?.minId as IClassministry;
+            return min?.title ? min?.title : ''
+        },
         renderCell:({row}:GridRenderCellParams)=>(
-            <Link className="table-link" href={`/dashboard/ministries/${row?.minId?._id}`} >{row?.minId?.title}</Link>
+            <>
+            {
+                minReader ?
+                <Link className="table-link" href={`/dashboard/ministries/${row?.minId?._id}`} >{row?.minId?.title}</Link>
+                :
+                <span >{row?.minId?.title}</span>
+            }
+            </>
         )
     },
     {
@@ -37,6 +63,12 @@ export const ActivityColumns = (
         field:'startDate',
         headerName:'Start Date',
         width:120,
+        valueFormatter:(_, act:IActivity)=>{
+            return new Date(act.startDate).toLocaleDateString();
+        },
+        valueGetter:(_, act:IActivity)=>{
+            return new Date(act.startDate).toLocaleDateString();
+        },
         renderCell:({row}:GridRenderCellParams)=>(
             <span>{new Date(row?.startDate)?.toLocaleDateString()}</span>
         )
@@ -45,6 +77,12 @@ export const ActivityColumns = (
         field:'endDate',
         headerName:'End Date',
         width:120,
+        valueFormatter:(_, act:IActivity)=>{
+            return new Date(act.endDate).toLocaleDateString();
+        },
+        valueGetter:(_, act:IActivity)=>{
+            return new Date(act.endDate).toLocaleDateString();
+        },
         renderCell:({row}:GridRenderCellParams)=>(
             <span>{new Date(row?.endDate)?.toLocaleDateString()}</span>
         )
@@ -54,11 +92,23 @@ export const ActivityColumns = (
             field:'id',
             headerName:'Actions',
             width:80,
+            filterable:false,
+            disableExport:true,
             renderCell:(params:GridRenderCellParams)=> {
                 return(
                     <div className="flex h-full flex-row items-center gap-4">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        {
+                            reader &&
+                            <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                        }
+                        {
+                            deleter &&
+                            <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                        }
+                        {
+                            !reader && !deleter &&
+                            <span>None</span>
+                        }
                     </div>
                 )
             },

@@ -10,6 +10,11 @@ export const VendorsColumns = (
     handleInfo:(data:IVendor)=>void,
     handleDelete:(data:IVendor)=>void,
     handleNew:(data:IVendor)=>void,
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    showMember:boolean,
+    showchurch:boolean,
 ):GridColDef[] => [
     {
         field:'name',
@@ -17,11 +22,16 @@ export const VendorsColumns = (
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex flex-row gap-1 items-center justify-center">
-                    <div className="flex justify-center items-center w-12 h-9 relative overflow-hidden">
-                        <Image  fill alt="vendor" style={{objectFit:'cover', height:'100%', width:'100%'}} src={params?.row?.image}  className="rounded-full object-cover" />
+                <div className="flex flex-row gap-1 items-center">
+                    <div className="flex justify-center items-center w-9 h-9 relative overflow-hidden">
+                        <Image  fill alt="vendor" src={params?.row?.image}  className="rounded-full object-cover" />
                     </div>
-                    <span onClick={()=>handleNew(params?.row)}  className="table-link" >{params?.row?.name}</span>
+                    {
+                        updater ?
+                        <span onClick={()=>handleNew(params?.row)}  className="table-link w-fit" >{params?.row?.name}</span>
+                        :
+                        <span>{params?.row?.name}</span>
+                    }
                 </div>
             )
         }
@@ -56,9 +66,14 @@ export const VendorsColumns = (
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex gap-1 items-center justify-center">
-                    <Link href={{pathname:'/dashboard/churches', query:{id:params?.row.church._id}}}    className="table-link" >{params?.row?.church.name}</Link>
-                </div>
+                <>
+                    {
+                       showchurch ? 
+                       <Link href={{pathname:'/dashboard/churches', query:{id:params?.row.church._id}}}    className="table-link" >{params?.row?.church.name}</Link>
+                       :
+                        <span>{params?.row?.church.name}</span>
+                    }
+                </>
             )
         }
     },
@@ -68,9 +83,14 @@ export const VendorsColumns = (
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <div className="flex gap-1 items-center justify-center">
-                    <Link href={{pathname:'/dashboard/members', query:{registeredBy:params?.row?._id}}}    className="table-link text-center" >{params?.row?.registrants}</Link>
-                </div>
+                <>
+                    {
+                        showMember ?
+                        <Link href={{pathname:'/dashboard/members', query:{registeredBy:params?.row?._id}}}    className="table-link text-center" >{params?.row?.registrants}</Link>
+                        :
+                        <span>{params?.row?.registrants}</span>
+                    }
+                </>
             )
         }
     },
@@ -85,8 +105,18 @@ export const VendorsColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    {
+                        reader &&
+                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
+                    }
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        !reader && !deleter &&
+                        <span>None</span>
+                    }
                 </div>
             )
         },

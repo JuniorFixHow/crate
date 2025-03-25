@@ -6,7 +6,11 @@ import Link from "next/link";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 export const SingleGrpRoomColumns =(
-    handleDelete:(data:IRoom)=>void
+    handleDelete:(data:IRoom)=>void,
+    venueReader:boolean,
+    facReader:boolean,
+    roomReader:boolean,
+    roomAssign:boolean,
 ):GridColDef[] =>[
     {
         field:'venueId',
@@ -22,7 +26,14 @@ export const SingleGrpRoomColumns =(
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={`/dashboard/venues/${params?.row?.venueId?._id}`} className="table-link"  >{params?.row?.venueId?.name}</Link>
+                <>
+                {
+                    venueReader?
+                    <Link href={`/dashboard/venues/${params?.row?.venueId?._id}`} className="table-link"  >{params?.row?.venueId?.name}</Link>
+                    :
+                    <span>{params?.row?.venueId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -40,7 +51,14 @@ export const SingleGrpRoomColumns =(
         width:200,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link href={{pathname:'/dashboard/venues/facilities', query:{id:params.row?.facId?._id}}}  className="table-link" >{params?.row?.facId?.name}</Link>
+                <>
+                {
+                    facReader ?
+                    <Link href={{pathname:'/dashboard/venues/facilities', query:{id:params.row?.facId?._id}}}  className="table-link" >{params?.row?.facId?.name}</Link>
+                    :
+                    <span>{params?.row?.facId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -51,7 +69,14 @@ export const SingleGrpRoomColumns =(
         width:100,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link text-center" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.number}</Link>
+                <>
+                {
+                    roomReader ?
+                    <Link className="table-link" href={{pathname:`/dashboard/rooms`, query:{id:params.row?._id}}} >{params?.row?.number}</Link>
+                    :
+                    <span>{params?.row?.number}</span>
+                }
+                </>
             )
         }
     },
@@ -72,7 +97,12 @@ export const SingleGrpRoomColumns =(
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex-center h-full">
-                    <RiDeleteBin6Line onClick={()=>handleDelete(params?.row)}  className="cursor-pointer" />
+                    {
+                        roomAssign ?
+                        <RiDeleteBin6Line onClick={()=>handleDelete(params?.row)}  className="cursor-pointer" />
+                        :
+                        <span>None</span>
+                    }
                 </div>
             )
         }

@@ -12,22 +12,36 @@ import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
 import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2'
 import TipUser from '@/components/misc/TipUser'
+import { useAuth } from '@/hooks/useAuth'
+import { canPerformAction, eventRegistrationRoles } from '@/components/auth/permission/permission'
+import { useRouter } from 'next/navigation'
 
 const NewArrivalSearch = () => {
+    const {user} = useAuth();
+    const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
     const [search, setSearch] = useState<string>('');
     const [eventId, setEventId] = useState<string>('');
     const [response, setResponse] = useState<ErrorProps>(null);
     const {events} = useFetchEvents();
 
+    const router = useRouter();
+
     const {readyRegistrations} = useFetchReadyRegistrations(eventId);
 
     const searched = SearchReadyReg(readyRegistrations, search);
+    useEffect(()=>{
+      if(user && !updater){
+        router.replace('/dashboard/forbidden?p=Event Registration Updater')
+      }
+    },[user, updater, router])
 
     useEffect(()=>{
         setEventId(events[0]?._id)
     },[events])
 
-    const message = "Only members registered for the selected event with badges printed and rooms allocated will appear in this search"
+    const message = "Only members registered for the selected event with badges printed and rooms allocated will appear in this search";
+
+    if(!updater) return;
 
   return (
     <div className="flex flex-col bg-white dark:bg-transparent dark:border p-4 rounded shadow gap-3">

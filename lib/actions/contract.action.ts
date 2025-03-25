@@ -4,6 +4,7 @@ import Contract, { IContract } from "../database/models/contract.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import '../database/models/service.model';
+import mongoose from "mongoose";
 
 export async function createContract(contract:Partial<IContract>){
     try {
@@ -71,13 +72,35 @@ export async function getContract(id:string){
 }
 
 
-export async function deleteContract(id:string){
+export async function deleteContract(id: string) {
     try {
         await connectDB();
-        await Contract.findByIdAndDelete(id);
-        return handleResponse('Contract deleted successfully', false, {}, 201);
+
+        // Check if contract exists before deletion
+        const contract = await Contract.findById(id);
+        if (!contract) {
+            return handleResponse("Contract not found", true, {}, 404);
+        }
+
+        // Start a transaction (optional but useful for consistency)
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+            await Contract.findByIdAndDelete(id, { session });
+            await Church.updateMany({ contractId: id }, { $unset: { contractId: "" } }, { session });
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return handleResponse("Contract deleted successfully", false, {}, 200);
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
     } catch (error) {
-        console.log(error);
-        return handleResponse('Error occured deleting contract', true, {}, 500)
+        console.error("Error deleting contract:", error);
+        return handleResponse("Error occurred while deleting contract", true, {}, 500);
     }
 }

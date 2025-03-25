@@ -5,15 +5,31 @@ import { useFetchExpectedIncome } from '@/hooks/fetch/useRevenue'
 import { IExpectedRevenue } from '@/types/Types'
 import { Paper } from '@mui/material'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IncomeColumns } from './IncomeCulumns'
+import { useAuth } from '@/hooks/useAuth'
+import { canPerformAction,  churchRoles,  isSuperUser,  isSystemAdmin,  paymentRoles } from '@/components/auth/permission/permission'
+import { useRouter } from 'next/navigation'
 
 const IncomeTable = () => {
+  const {user} = useAuth();
   const [eventId, setEventId] = useState<string>('');
   const {income, isPending} = useFetchExpectedIncome(eventId);
-  console.log(income[0])
+  // console.log(income[0])
+  const router = useRouter();
+
+  const reader = (canPerformAction(user!, 'reader', {paymentRoles}) && isSystemAdmin.reader(user!)) || isSuperUser(user!);
+  const showChurch = canPerformAction(user!, 'reader', {churchRoles});
+
+  useEffect(()=>{
+    if(user && !reader){
+      router.replace('/dashboard/forbidden?p=Global Reader')
+    }
+  },[reader, user, router])
 
   const paginationModel = { page: 0, pageSize: 15 };
+
+  if(!reader) return;
   return (
     <div className='table-main2' >
       <Subtitle text='Income' />
@@ -22,7 +38,7 @@ const IncomeTable = () => {
           <DataGrid
               rows={income}
               getRowId={(row:IExpectedRevenue):string=>row.church?._id}
-              columns={IncomeColumns}
+              columns={IncomeColumns(showChurch)}
               initialState={{ pagination: { paginationModel },  
               // scroll: { top: 1000, left: 1000 },
               columns:{

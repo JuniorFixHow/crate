@@ -27,7 +27,7 @@ export async function createFacilities(facilities:Partial<IFacility>[]){
         const createdFacs = await Facility.insertMany(facilities);
         const facIds = createdFacs.map((item:IFacility)=>item._id);
         await Venue.findByIdAndUpdate(venueId, {$push: {facilities: {$each:facIds}}})
-        return handleResponse('Venue and facilities created successfully', false, createdFacs, 201);
+        return handleResponse('Facilities created successfully', false, createdFacs, 201);
     } catch (error) {
         console.log(error);
         return handleResponse('Error occured creating facilities', true, {}, 500)
@@ -146,3 +146,5 @@ export async function getAvailableFacilities(venueId: string) {
         return handleResponse('Error fetching available facilities', true, {}, 500);
     }
 }
+
+

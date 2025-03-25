@@ -108,6 +108,51 @@ export async function getEverything(){
     }
 }
 
+export async function getEverythingByChurch(churchId:string){
+    try {
+        await connectDB();
+        // const developersChurch = await Church.findOne({ name: "CRATE Main" }).select("_id");
+        const m = await Member.find({church:churchId}).populate({
+            path: 'church',         
+            populate: {
+                path: 'zoneId',    
+                model: 'Zone'     
+            }
+        })
+        .populate('registeredBy').lean();
+        const memberIds = m.map((item)=>item._id);
+        const [z, c, r, v, e] = await Promise.all([
+            Zone.find().lean(),
+            Church.find({name: {$ne:'CRATE Main'}, _id:churchId}).populate('zoneId').lean(),
+            Registration.find({memberId: {$in:memberIds}})
+            .populate({
+                path:'memberId',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            })
+            .populate('eventId')
+            .populate('groupId')
+            .lean(),
+            Vendor.find({church:churchId})
+            .populate('church')
+            .lean(),
+            Event.find({churchId}).lean()
+        ])
+        const zones = JSON.parse(JSON.stringify(z));
+        const churches = JSON.parse(JSON.stringify(c));
+        const members = JSON.parse(JSON.stringify(m));
+        const registrations = JSON.parse(JSON.stringify(r));
+        const vendors = JSON.parse(JSON.stringify(v));
+        const events = JSON.parse(JSON.stringify(e));
+
+        return {zones, churches, members, registrations, vendors, events}
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 
 export async function getVendorStats(vendorId:string){
     try {

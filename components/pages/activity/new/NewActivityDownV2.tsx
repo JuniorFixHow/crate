@@ -1,17 +1,19 @@
 import AddButton from "@/components/features/AddButton";
 import { updateActivity } from "@/lib/actions/activity.action";
 import { IActivity } from "@/lib/database/models/activity.model";
-import { ErrorProps } from "@/types/Types";
-import { Alert } from "@mui/material";
+// import { ErrorProps } from "@/types/Types";
+// import { Alert } from "@mui/material";
+import { enqueueSnackbar } from "notistack";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 type NewActivityDownV2Props = {
-    activity:IActivity
+    activity:IActivity,
+    updater:boolean;
 }
 
-const NewActivityDownV2 = ({activity}:NewActivityDownV2Props) => {
+const NewActivityDownV2 = ({activity, updater}:NewActivityDownV2Props) => {
 
-    const [response, setResponse] = useState<ErrorProps>(null);
+    // const [response, setResponse] = useState<ErrorProps>(null);
         const [loading, setLoading] = useState<boolean>(false);
         const [data, setData] = useState<Partial<IActivity>>({});
         const formRef =  useRef<HTMLFormElement>(null);
@@ -27,7 +29,7 @@ const NewActivityDownV2 = ({activity}:NewActivityDownV2Props) => {
 
      const handleUpdateActivity = async(e:FormEvent<HTMLFormElement>)=>{
             e.preventDefault();
-            setResponse(null);
+            // setResponse(null);
     
             try {
                 setLoading(true);
@@ -43,11 +45,12 @@ const NewActivityDownV2 = ({activity}:NewActivityDownV2Props) => {
                     description: data?.description || activity?.description,
                 }
                 const res = await updateActivity(body);
-                setResponse(res);
+                enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                // setResponse(res);
                 
             } catch (error) {
                 console.log(error);
-                setResponse({message:'Error occured updating activity.', error:true});
+                enqueueSnackbar('Error occured updating activity.', {variant:'error'});
             }finally{
                 setLoading(false);
             }
@@ -118,12 +121,12 @@ const NewActivityDownV2 = ({activity}:NewActivityDownV2Props) => {
                     <textarea defaultValue={activity?.description} onChange={handleChange} name='description'  className='rounded border px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                 </div>
                 
-                {
+                {/* {
                     response?.message &&
                     <Alert onClose={()=>setResponse(null)} severity={response.error ? 'error':'success'} >{response.message}</Alert>
-                }
+                } */}
                 <div className="flex items-center gap-4">
-                    <AddButton disabled={loading} type='submit' text={loading ? 'loading...' :'Update Activity'} noIcon smallText className='rounded py-1 w-fit self-end' />
+                    <AddButton disabled={loading} type='submit' text={loading ? 'loading...' :'Update Activity'} noIcon smallText className={`${activity && !updater && 'hidden'} rounded py-1 w-fit self-end`} />
                 </div>
             </div>
         </div>

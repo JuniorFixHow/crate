@@ -10,10 +10,12 @@ import { useRouter } from 'next/navigation';
 type BottomActionItemsProps = {
   event: IEvent,
   updateLoading:boolean,
-  setError:Dispatch<SetStateAction<ErrorProps>>
+  setError:Dispatch<SetStateAction<ErrorProps>>;
+  deleter:boolean;
+  updater:boolean;
 }
 
-const BottomActionItems = ({event,  setError, updateLoading}:BottomActionItemsProps) => {
+const BottomActionItems = ({event, deleter, updater, setError, updateLoading}:BottomActionItemsProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -37,8 +39,14 @@ const BottomActionItems = ({event,  setError, updateLoading}:BottomActionItemsPr
     <div className="flex gap-6 flex-row items-center">
         
         <DeleteDialog onTap={handleDelete} message={message} title={`Delete event '${event.name}'?`} value={open} setValue={setOpen} />
-        <AddButton disabled={updateLoading} type='submit' text={updateLoading ? 'loading...' :'Save Changes'} noIcon smallText className='rounded px-4' />
-        <AddButton disabled={loading} type='button' onClick={()=>setOpen(true)} text='Delete' isDanger noIcon smallText className='rounded px-4' />
+        {
+          updater &&
+          <AddButton disabled={updateLoading} type='submit' text={updateLoading ? 'loading...' :'Save Changes'} noIcon smallText className='rounded px-4' />
+        }
+        {
+          deleter &&
+          <AddButton disabled={loading} type='button' onClick={()=>setOpen(true)} text='Delete' isDanger noIcon smallText className='rounded px-4' />
+        }
   </div>
   )
 }

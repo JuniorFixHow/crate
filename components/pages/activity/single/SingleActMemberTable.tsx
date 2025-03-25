@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react'
 import Subtitle from '@/components/features/Subtitle';
 import {  Alert, Paper } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { IMember } from '@/lib/database/models/member.model';
 import { searchMember } from '@/functions/search';
-import SearchBar from '@/components/features/SearchBar';
+// import SearchBar from '@/components/features/SearchBar';
 import { MdChecklist } from 'react-icons/md';
 import { LuCopyX,  } from 'react-icons/lu';
 import { SingleActivityColumns } from './SingleActivityColumns';
@@ -17,17 +17,22 @@ import AddButton from '@/components/features/AddButton';
 import SingleActAddMember from './SingleActAddMember';
 import { IMinistry } from '@/lib/database/models/ministry.model';
 import { makeLeaderMinistry, removeMemberMinistry, removeMembersMinistry } from '@/lib/actions/ministry.action';
-import { useFetchActivities } from '@/hooks/fetch/useActivity';
 import { enqueueSnackbar } from 'notistack';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import SearchBar from '@/components/features/SearchBar';
+import { useAuth } from '@/hooks/useAuth';
+import { canPerformAction, memberRoles } from '@/components/auth/permission/permission';
 
 
 type SingleActMemberTableProps = {
     members:IMember[],
-    ministry:IMinistry
+    ministry:IMinistry;
+    updater:boolean,
+    reload: (options?: RefetchOptions) => Promise<QueryObserverResult<IMinistry | ErrorProps, Error>>
 }
 
-const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => {
-
+const SingleActMemberTable = ({members, reload, updater, ministry}:SingleActMemberTableProps) => {
+    const {user} = useAuth();
     const [search, setSearch] = useState<string>('');
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
@@ -35,8 +40,9 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
 
     const [membersId, setMemberIds] =useState<string[]>([]); 
     const [showMember, setShowMember] = useState<boolean>(false);
-    const searched = searchMember(search, members)?.map((item)=>item?._id);
-    const {reload} = useFetchActivities(ministry?._id);
+    const searched = members?.map((item)=>item?._id);
+
+    const readMember = canPerformAction(user!, 'reader', {memberRoles});
 
     useEffect(()=>{
         if(deleteMode === false){
@@ -116,12 +122,15 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
 
     const paginationModel = { page: 0, pageSize: 10 };
     return (
-      <div className='w-full flex flex-col' >
+      <div className='table-main2' >
         <div className="w-full flex justify-between p-4 rounded-t border border-slate-300 bg-white dark:bg-[#0F1214]">
           <Subtitle text='Members' />
-          <div className="flex-center px-3 py-2 rounded border">
-            <span className='text-[0.9rem]' >Members selected: <span className='font-semibold' >{membersId.length}</span></span>
-          </div>
+          {
+            updater &&
+            <div className="flex-center px-3 py-2 rounded border">
+                <span className='text-[0.9rem]' >Members selected: <span className='font-semibold' >{membersId.length}</span></span>
+            </div>
+          }
         </div>
         <div className="flex flex-col border border-slate-300 gap-4 bg-white dark:bg-[#0F1214] p-4">
 
@@ -164,7 +173,7 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
                 value={deleteMode} setValue={setDeleteMode}
             />
 
-            <SingleActAddMember ministryId={ministry?._id} setShowMember={setShowMember} showMember={showMember} />
+            <SingleActAddMember readMember={readMember} reload={reload} ministryId={ministry?._id} setShowMember={setShowMember} showMember={showMember} />
 
             {
                 response?.message &&
@@ -172,20 +181,35 @@ const SingleActMemberTable = ({members, ministry}:SingleActMemberTableProps) => 
             }
 
           <div className="flex flex-col gap-2">
-            <div className="flex justify-end gap-4">
-                <SearchBar setSearch={setSearch} reversed={false} />
-                <AddButton onClick={()=>setShowMember(true)}  className='rounded' noIcon smallText text='Add Members' />
+            <div className="flex flex-col md:flex-row md:justify-end gap-4">
+                <SearchBar className='py-1' setSearch={setSearch} reversed={false} />
+                {
+                    updater &&
+                    <AddButton onClick={()=>setShowMember(true)}  className='rounded flex-center' noIcon smallText text='Add Members' />
+                }
             </div>
 
               <div className="flex w-full">
                 {
-                  <Paper className='w-full' sx={{ height: 480, }}>
+                  <Paper className='w-full' sx={{ height: 'auto', }}>
                       <DataGrid
                         getRowId={(row:IMember)=>row._id}
                         rows={searchMember(search, members)}
-                        columns={SingleActivityColumns(membersId, handleCheckClick, handleDelete)}
+                        columns={SingleActivityColumns(membersId, handleCheckClick, handleDelete, readMember, updater)}
                         initialState={{ pagination: { paginationModel } }}
-                        pageSizeOptions={[5, 10]}
+                        pageSizeOptions={[5, 10, 15, 20, 30, 50, 50, 100]}
+                        slots={{toolbar:GridToolbar}}
+                        slotProps={{
+                            toolbar:{
+                                showQuickFilter:false,
+                                printOptions:{
+                                    hideFooter:true,
+                                    hideToolbar:true
+                                }
+                            }
+                        }}
+                        disableColumnFilter
+                        
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}

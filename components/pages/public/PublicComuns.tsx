@@ -1,6 +1,7 @@
 import { ICYPSet } from "@/lib/database/models/cypset.model";
+import { IEvent } from "@/lib/database/models/event.model";
 import { Tooltip } from "@mui/material";
-import { GridRenderCellParams } from "@mui/x-data-grid";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { FaPen } from "react-icons/fa";
 import { IoTrashBinOutline } from "react-icons/io5";
@@ -8,7 +9,11 @@ import { IoTrashBinOutline } from "react-icons/io5";
 export const PublicColumns = (
     handleDelete:(data:ICYPSet)=>void,
     handleEdit:(data:ICYPSet)=>void,
-) => [
+    reader:boolean,
+    updater:boolean,
+    deleter:boolean,
+    eReader:boolean,
+):GridColDef[] => [
     {
         field:'createdAt',
         headerName:'Created At',
@@ -25,7 +30,14 @@ export const PublicColumns = (
         width:350,
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/events/public/${params.row?._id}`} >{params.row?.title}</Link>
+                <>
+                {
+                    (reader || updater) ?
+                    <Link className="table-link" href={`/dashboard/events/public/${params.row?._id}`} >{params.row?.title}</Link>
+                    :
+                    <span>{params.row?.title}</span>
+                }
+                </>
             )
         }
     },
@@ -57,9 +69,24 @@ export const PublicColumns = (
         field:'eventId',
         headerName:'Event',
         width:120,
+        valueFormatter:(_, set:ICYPSet)=>{
+            const event = set.eventId as IEvent;
+            return event?.name;
+        },
+        valueGetter:(_, set:ICYPSet)=>{
+            const event = set.eventId as IEvent;
+            return event?.name;
+        },
         renderCell:(params:GridRenderCellParams)=>{
             return(
-                <Link className="table-link" href={`/dashboard/events/${params.row?.eventId?._id}`} >{params.row?.eventId?.name}</Link>
+                <>
+                {
+                    eReader ?
+                    <Link className="table-link" href={`/dashboard/events/${params.row?.eventId?._id}`} >{params.row?.eventId?.name}</Link>
+                    :
+                    <span >{params.row?.eventId?.name}</span>
+                }
+                </>
             )
         }
     },
@@ -68,13 +95,25 @@ export const PublicColumns = (
         field:'_id',
         headerName:'Actions',
         width:120,
+        filterable:false,
+        disableExport:true,
         renderCell:(params:GridRenderCellParams)=>{
             return(
                 <div className="flex h-full flex-row items-center gap-4">
-                    <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    <Tooltip onClick={()=>handleEdit(params.row)} title='Edit' >
-                        <FaPen className="cursor-pointer text-blue-900" />
-                    </Tooltip>
+                    {
+                        deleter &&
+                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
+                    }
+                    {
+                        updater &&
+                        <Tooltip onClick={()=>handleEdit(params.row)} title='Edit' >
+                            <FaPen className="cursor-pointer text-blue-900" />
+                        </Tooltip>
+                    }
+                    {
+                        !deleter && !updater &&
+                        <span>None</span>
+                    }
                 </div>
             )
         }
