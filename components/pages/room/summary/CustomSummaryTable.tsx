@@ -9,7 +9,7 @@ import { IMember } from '@/lib/database/models/member.model';
 import { IRoom } from '@/lib/database/models/room.model';
 import { IVenue } from '@/lib/database/models/venue.model';
 import { IZone } from '@/lib/database/models/zone.model';
-import { SessionPayload } from '@/lib/session';
+// import { SessionPayload } from '@/lib/session';
 import { IMergedRegistrationData } from '@/types/Types';
 import { LinearProgress } from '@mui/material';
 import Link from 'next/link';
