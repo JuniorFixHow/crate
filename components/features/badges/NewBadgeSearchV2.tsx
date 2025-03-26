@@ -1,6 +1,6 @@
 'use client'
 import {  searchMemberInversedV2  } from "@/functions/search";
-import {  useFetchMembersInAChurchV2 } from "@/hooks/fetch/useMember";
+// import {  useFetchMembersInAChurchV2 } from "@/hooks/fetch/useMember";
 import { useEffect, useState } from "react";
 import LongSearchbar from "./LongSearchbar";
 import Link from "next/link";
@@ -14,19 +14,29 @@ import { LuCopyX } from "react-icons/lu";
 import TipUser from "@/components/misc/TipUser";
 import SearchSelectChurchesV3 from "../SearchSelectChurchesV3";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, eventRegistrationRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
+import { canPerformAction, eventRegistrationRoles, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
+import SearchSelectEventsV2 from "../SearchSelectEventsV2";
+import { useFetchRegistrationsWithEventAndChurch } from "@/hooks/fetch/useRegistration";
+import { CircularProgress } from "@mui/material";
+import BadgePreviewV2 from "./print/BadgePreviewV2";
 
 const NewBadgeSearchV2 = () => {
+    const {user} = useAuth();
     const [search, setSearch] = useState<string>('');
     const [selection, setSelection] = useState<IMember[]>([]);
-    const {members} = useFetchMembersInAChurchV2();
     const [churchId, setChurchId] = useState<string>('');
+    const [eventId, setEventId] = useState<string>('');
+
+    const [showPreview, setShowPreview] = useState<boolean>(false);
+
+
+    const {members, loading} = useFetchRegistrationsWithEventAndChurch(eventId);
     const searched = searchMemberInversedV2(search, churchId, members as IMember[]);
     const router = useRouter();
-    const {user} = useAuth();
     
     
     const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+    const creator = canPerformAction(user!, 'creator', {memberRoles});
     const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
 
     useEffect(()=>{
@@ -50,26 +60,36 @@ const NewBadgeSearchV2 = () => {
         ))
     }
 
-    const gotoPrint = ()=>{
-        sessionStorage.setItem( 'printData',JSON.stringify(selection));
-        router.push('/dashboard/events/badges/new/print');
-    }
+    // const gotoPrint = ()=>{
+    //     sessionStorage.setItem( 'printData',JSON.stringify(selection));
+    //     router.push('/dashboard/events/badges/new/print');
+    // }
     // console.log(selection)
 
     if(!updater) return;
 
   return (
     <div className="flex flex-col">
+        <BadgePreviewV2 infoMode={showPreview} setInfoMode={setShowPreview} eventId={eventId} data={selection} />
         <div className='p-4 shadow-xl flex-col flex bg-white dark:bg-[#0F1214] border gap-4' >
             <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
-                {
-                    isAdmin &&
-                    <SearchSelectChurchesV3 setSelect={setChurchId} />
-                }
+                <div className="flex flex-col gap-4 md:flex-row">
+                    {
+                        isAdmin &&
+                        <SearchSelectChurchesV3 setSelect={setChurchId} />
+                    }
+                    <div className="flex gap-2 items-center">
+                        <SearchSelectEventsV2 setSelect={setEventId} />
+                        {
+                            loading &&
+                            <CircularProgress size='2rem' />
+                        }
+                    </div>
+                </div>
                 {
                     searched?.length > 0 &&
-                    <div className="flex gap-4 items-center">
-                        <div onClick={()=>setSelection(searched)}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
+                    <div className="flex flex-col md:flex-row w-full md:w-fit gap-4 md:items-center ">
+                        <div onClick={()=>setSelection(searched)}  className="flex gap-2 w-fit items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
                             <div className="flex-center p-1 bg-slate-400 rounded-full">
                                 <MdChecklist />
                             </div>
@@ -77,7 +97,7 @@ const NewBadgeSearchV2 = () => {
                         </div>
                         {
                             selection?.length > 0 &&
-                            <div onClick={()=>setSelection([])}  className="flex gap-2 items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
+                            <div onClick={()=>setSelection([])}  className="flex gap-2 w-fit items-center dark:bg-white cursor-pointer bg-slate-200 rounded-lg px-4 py-2">
                                 <div className="flex-center p-1 bg-slate-400 rounded-full">
                                     <LuCopyX />
                                 </div>
@@ -99,7 +119,7 @@ const NewBadgeSearchV2 = () => {
                 </div>
                 {
                     selection?.length > 0 &&
-                    <AddButton onClick={gotoPrint} text="Proceed" smallText noIcon className='rounded-full py-2 px-4' />
+                    <AddButton onClick={()=>setShowPreview(true)} text="Preview" smallText noIcon className='rounded-full py-2 px-4' />
                 }
             </div>
         </div>
@@ -119,7 +139,7 @@ const NewBadgeSearchV2 = () => {
             </div>
 
             {
-            search !== '' && searched.length <= 0  ?
+            search !== '' && searched.length <= 0  && creator ?
             <Link className='table-link' href='/dashboard/members/new' > Create Member </Link>
             :
             <div className='p-4 shadow-xl flex-col gap-6 flex bg-white dark:bg-[#0F1214] border border-t-0' >

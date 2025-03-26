@@ -6,8 +6,8 @@ import { connectDB } from "../database/mongoose";
 import { decrypt, SessionPayload } from "../session";
 import Zone from "../database/models/zone.model";
 import Church from "../database/models/church.model";
-import Member from "../database/models/member.model";
-import Registration from "../database/models/registration.model";
+import Member, { IMember } from "../database/models/member.model";
+import Registration, { IRegistration } from "../database/models/registration.model";
 import Vendor from "../database/models/vendor.model";
 import Event from "../database/models/event.model";
 import Session from "../database/models/session.model";
@@ -218,6 +218,20 @@ export async function saveSignatureToFile(data:SignatureProps){
     }
 }
 
+
+export async function getAndUpdateRegsAtOnce(){
+    try {
+        await connectDB();
+        const regs = await Registration.find().populate('memberId');
+        regs.forEach(async(item:IRegistration)=>{
+            const member = item?.memberId as IMember;
+            await Registration.findById(item._id, {churchId:member.church})
+        })
+        return 'Updated successfully';
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 

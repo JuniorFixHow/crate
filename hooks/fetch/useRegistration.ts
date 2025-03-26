@@ -1,9 +1,10 @@
-import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId, getRegsWithEventIdAndChurchId } from "@/lib/actions/registration.action";
+import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId, getRegsWithEventIdAndChurchId, getRegsWithEventIdAndChurchIdV2, getRegsWithEventIdAndNoChurchId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
 // import { useEffect, useState } from "react"
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
+import { IMember } from "@/lib/database/models/member.model";
 // import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchRegistrations = ()=>{
@@ -149,4 +150,29 @@ export const useFetchCheckedInRegistrations = (eventId:string)=>{
     })
 
     return {loading, checkRegistrations, refetch}
+}
+
+
+export const useFetchRegistrationsWithEventAndChurch = (eventId:string)=>{
+    const {user} = useAuth();
+
+    const fetchMembers = async():Promise<IMember[]>=>{
+        try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const members:IMember[] =isAdmin ? await getRegsWithEventIdAndNoChurchId(eventId) : await getRegsWithEventIdAndChurchIdV2(eventId, user?.churchId);
+            return members;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:members=[], isPending:loading, refetch} = useQuery({
+        queryKey:['membersinachurchatevent',  eventId],
+        queryFn:fetchMembers,
+        enabled:!!user && !!eventId
+    });
+
+    return {members, loading, refetch}
 }
