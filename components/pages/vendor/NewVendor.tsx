@@ -49,7 +49,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
     const churchId = isAdmin ? church : user?.churchId;
     const updater = canPerformAction(user!, 'updater', {userRoles});
 
-    const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement>)=>{
+    const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
         const {name, value} = e.target;
         setData((pre)=>({
             ...pre,
@@ -115,6 +115,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                     country:data.country || currentVendor?.country,
                     role:data.role || currentVendor?.role,
                     gender:data.gender || currentVendor?.gender,
+                    note:data.note || currentVendor?.note,
                     church: church || currentVendor?.church
                 }
                 const res:ErrorProps = await updateVendor(currentVendor?._id, body);
@@ -216,6 +217,11 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                                 <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Admin">Admin</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <span className='text-slate-500 text-[0.8rem]' >User Note</span>
+                        <textarea required={!currentVendor} onChange={handleChange} defaultValue={currentVendor?currentVendor.phone : ''} name='note'  className='border rounded px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
                     </div>
                     
                 </div>

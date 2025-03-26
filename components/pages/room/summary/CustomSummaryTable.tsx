@@ -1,6 +1,8 @@
+import { canPerformAction, churchRoles, groupRoles, keyRoles, memberRoles, roomRoles, zoneRoles } from '@/components/auth/permission/permission';
 import Subtitle from '@/components/features/Subtitle';
 import Title from '@/components/features/Title';
 import { isEligible } from '@/functions/misc';
+import { useAuth } from '@/hooks/useAuth';
 import { IChurch } from '@/lib/database/models/church.model';
 import { IEvent } from '@/lib/database/models/event.model';
 import { IGroup } from '@/lib/database/models/group.model';
@@ -31,6 +33,16 @@ type CustomSummaryTableProps = {
 const CustomSummaryTable = ({ data, event,  printRef, loading }:CustomSummaryTableProps) => {
     const [page, setPage] = useState<number>(10);
     const [range, setRange] = useState<rangeTpes>({min:0, max:10});
+    const {user} = useAuth();
+
+    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles});
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
+    const showKey = canPerformAction(user!, 'reader', {keyRoles});
+    const showChurch = canPerformAction(user!, 'reader', {churchRoles});
+    const showZone = canPerformAction(user!, 'reader', {zoneRoles});
+
+    const isAdmin = showChurch || showZone;
     // const [range, setMax] = useState<number>(10);
     useEffect(() => {
         // Adjust the range when `page` changes
@@ -89,8 +101,14 @@ const CustomSummaryTable = ({ data, event,  printRef, loading }:CustomSummaryTab
                     <thead className="bg-gray-100 dark:bg-[#0F1214]">
                     <tr className='dark:text-white' >
                         <th className="border border-gray-300 px-4 py-2">Member</th>
-                        <th className="border border-gray-300 px-4 py-2">Zone</th>
-                        <th className="border border-gray-300 px-4 py-2">Church</th>
+                        {
+                            isAdmin &&
+                            <>
+                            <th className="border border-gray-300 px-4 py-2">Zone</th>
+                            <th className="border border-gray-300 px-4 py-2">Church</th>
+                            </>
+                        }
+                        
                         <th className="border border-gray-300 px-4 py-2">Group</th>
                         <th className="border border-gray-300 px-4 py-2">Group Type</th>
                         <th className="border border-gray-300 px-4 py-2">Rooms</th>
@@ -108,26 +126,53 @@ const CustomSummaryTable = ({ data, event,  printRef, loading }:CustomSummaryTab
                         return(
                             <tr key={registration._id} className="hover:bg-gray-50 dark:hover:bg-slate-500 text-[0.8rem] font-semibold">
                             <td className="border border-gray-300 px-4 py-2">
-                                <Link className='table-link' href={`/dashboard/members/${member._id}`} >
-                                {member?.name}
-                                </Link>
+                                {
+                                    showMember ?
+                                    <Link className='table-link' href={`/dashboard/members/${member._id}`} >
+                                    {member?.name}
+                                    </Link>
+                                    :
+                                    <span>{member?.name}</span>
+                                }
                             </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                                <Link className='table-link' href={{pathname:'/dashboard/zones', query:{id:zone?._id}}} >
-                                    {zone?.name}
-                                </Link>
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                                <Link href={{pathname:'/dashboard/churches', query:{id:church?._id}}} className='table-link' >
-                                    {church?.name}
-                                </Link>
-                            </td>
+                            {
+                                isAdmin &&
+                                <>
+                                <td className="border border-gray-300 px-4 py-2">
+                                    {
+                                        showZone ?
+                                        <Link className='table-link' href={{pathname:'/dashboard/zones', query:{id:zone?._id}}} >
+                                            {zone?.name}
+                                        </Link>
+                                        :
+                                        <span>{zone?.name}</span>
+                                    }
+                                </td>
+                                <td className="border border-gray-300 px-4 py-2">
+                                    {
+                                        showChurch ?
+                                        <Link href={{pathname:'/dashboard/churches', query:{id:church?._id}}} className='table-link' >
+                                            {church?.name}
+                                        </Link>
+                                        :
+                                        <span>{church?.name}</span>
+                                    }
+                                </td>
+                                </>
+                            }
                             <td className="border border-gray-300 px-4 py-2">
                                 {
                                 group ? 
-                                <Link className='table-link' href={`/dashboard/groups/${group?._id}`} >
-                                    {group?.name}
-                                </Link>
+                                <>
+                                {
+                                    showGroup ?
+                                    <Link className='table-link' href={`/dashboard/groups/${group?._id}`} >
+                                        {group?.name}
+                                    </Link>
+                                    :
+                                    <span>{group?.name}</span>
+                                }
+                                </>
                                 :
                                 <span>None</span>
                             }
@@ -151,7 +196,14 @@ const CustomSummaryTable = ({ data, event,  printRef, loading }:CustomSummaryTab
                                         rooms.map((room, index:number)=>{
                                             const venue = room.venueId as IVenue;
                                             return(
-                                                <Link className='table-link w-fit' key={room?._id} href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{venue?.name} {room?.number}{rooms?.length - index > 1 && ',  '}</Link>
+                                                <>
+                                                {
+                                                    showRoom ?
+                                                    <Link className='table-link w-fit' key={room?._id} href={{pathname:'/dashboard/rooms', query:{id:room?._id}}} >{venue?.name} {room?.number}{rooms?.length - index > 1 && ',  '}</Link>
+                                                    :
+                                                    <span key={room?._id}>{venue?.name} {room?.number}{rooms?.length - index > 1 && ',  '}</span>
+                                                }
+                                                </>
                                             )
                                         })
                                         :
@@ -163,7 +215,14 @@ const CustomSummaryTable = ({ data, event,  printRef, loading }:CustomSummaryTab
                             <td className="border border-gray-300 px-4 py-2">
                                 {keys?.length>0 ? 
                                     keys.map((key)=>(
-                                        <Link href={{pathname:'/dashboard/rooms/keys', query:{id:key?._id}}} key={key._id} className='table-link' >{key?.code}</Link>
+                                        <>
+                                        {
+                                            showKey ?
+                                            <Link href={{pathname:'/dashboard/rooms/keys', query:{id:key?._id}}} key={key._id} className='table-link' >{key?.code}</Link>
+                                            :
+                                            <span key={key._id}>{key?.code}</span>
+                                        }
+                                        </>
                                     ))
                                     :
                                     <span>None</span>

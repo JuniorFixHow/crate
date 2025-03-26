@@ -163,9 +163,10 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
         e.preventDefault();
         setLoading(true);
         // setError({message:'', error:false});
+        const year = new Date().getFullYear().toString();
         try {
             const body:Partial<IMember> = {
-                ...data, password:getPassword(data.name!, data.phone!),
+                ...data, password:getPassword(data.name!.replace(' ',''), year),
                 registeredBy:user?.userId, 
                 church, 
                 campuseId,
@@ -242,7 +243,7 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
             </div>
             <div className="flex flex-col gap-1">
                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Phone Number</span>
-                <input required={!currentMemeber} defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
+                <input /*required={!currentMemeber}*/ defaultValue={currentMemeber?.phone} onChange={handleChange} placeholder='eg. +1xxxxxxx' className='border-b p-1 outline-none w-full md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='tel' name="phone"  />
             </div>
             {/* <RegisterForEvent  
                 eventId={eventId} 

@@ -120,6 +120,14 @@ const VendorInfoModal = ({infoMode, showMember, deleter, isAdmin, setInfoMode, r
                     }
                 </div>
                 
+                {
+                    currentVendor?.note &&
+                    <div className="flex flex-col dark:text-slate-200">
+                        <span className='text-[1.1rem] font-semibold text-slate-700' >Note</span>
+                        <span className='text-[0.9rem]' >{currentVendor?.note}</span>
+                    </div>
+                }
+
             </div>
             {
                 user?.userId !== currentVendor?._id && deleter &&

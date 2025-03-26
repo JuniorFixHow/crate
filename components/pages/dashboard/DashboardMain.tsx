@@ -18,35 +18,35 @@ const DashboardMain = () => {
   const {user} = useAuth();
   const isAdmin = checkIfAdmin(user);
   // console.log(user)
-  if(!user) return;
+  // if(!user) return;
   return (
     <div className='page' >
         <div className="flex flex-wrap flex-row items-center justify-between">
           <span className="text-xl font-bold">Dashboard</span>
           <div className="flex flex-row items-center gap-4">
             {
-              (isAdmin  || eventRegistrationRoles.admin(user) || isChurchAdmin.reader(user)) &&
+              (isAdmin  || eventRegistrationRoles.admin(user!) || isChurchAdmin.reader(user!)) &&
               <select className='border outline-none bg-transparent px-3 py-1 rounded' onChange={(e)=>setViewMode(e.target.value)} name="view" defaultValue='Global' >
                 <option className='dark:text-white dark:bg-black'  value="Global">Global</option>
                 <option className='dark:text-white dark:bg-black'  value="Event">By Event</option>
               </select>
             }
             {
-              (isAdmin || paymentRoles.creator(user) || isChurchAdmin.creator(user)) &&
+              (isAdmin || paymentRoles.creator(user!) || isChurchAdmin.creator(user!)) &&
               <Link href={'/dashboard/revenue'}  className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
                 <BsCashCoin />
                   <span className='font-semibold' >Make Payment</span>
               </Link>
             }
             {
-              (isAdmin || eventRegistrationRoles.updater(user) || isChurchAdmin.creator(user)) &&
+              (isAdmin || eventRegistrationRoles.updater(user!) || isChurchAdmin.creator(user!)) &&
             <Link href={`/dashboard/events/sessions/scan`}  className="flex bg-white dark:bg-transparent dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center">
                 <RiQrScan2Line/>
                 <span className='font-semibold' >Scan Badge</span>
             </Link>
             }
             {
-              (isAdmin || memberRoles.creator(user) || isChurchAdmin.creator(user) ) &&
+              (isAdmin || memberRoles.creator(user!) || isChurchAdmin.creator(user!) ) &&
               <Link href='/dashboard/members/new'  className={`flex bg-[#3C60CA] dark:bg-transparent text-white dark:border cursor-pointer text-[0.9rem] gap-2 p-1 rounded flex-row items-center`}>
                   <CiCirclePlus size={20} />
                   <span className='font-semibold' >Add Member</span>

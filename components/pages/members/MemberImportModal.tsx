@@ -79,7 +79,11 @@ const MemberImportModal = ({infoMode, setInfoMode}:MemberImportModalProps) => {
                     church: churchId || user?.churchId,
                     campuseId:campusId,
                     password: getPassword(member.name!, passPiece),
-                    registeredBy:user?.userId
+                    registeredBy:user?.userId,
+                    role:member?.role || 'Member',
+                    marital:member?.marital || 'Single',
+                    status: member?.status || 'Active',
+                    voice:member?.voice || 'None'
                 }));
     
                 const res = await createMembers(body);

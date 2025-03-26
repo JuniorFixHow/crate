@@ -220,7 +220,7 @@ export const RegColumns=(
                             <MdOpenInNew className="cursor-pointer" color={Blue} />
                         </Link>
                         :
-                        <span className="text-red-600" >Denied</span>
+                        <span >None</span>
                     }
                 </div>
             )

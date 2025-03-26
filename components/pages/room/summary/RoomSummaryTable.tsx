@@ -1,42 +1,40 @@
 'use client'
-// import AddButton from "@/components/features/AddButton"
-// import SearchBar from "@/components/features/SearchBar"
+import AddButton from "@/components/features/AddButton"
+import SearchBar from "@/components/features/SearchBar"
 import { useFetchRoomsRegistrationWithKeys } from "@/hooks/fetch/useRoom"
-import { useEffect,  useState } from "react"
+import { useEffect,  useRef,  useState } from "react"
 
-import {  SearchMergedV2 } from "./fxn"
-// import { IEvent } from "@/lib/database/models/event.model"
-// import { getEvent } from "@/lib/actions/event.action"
-// import CustomSummaryTable from "./CustomSummaryTable"
+import {  saveDataToExcel, SearchMerged,  } from "./fxn"
+import { IEvent } from "@/lib/database/models/event.model"
+import { getEvent } from "@/lib/actions/event.action"
+import CustomSummaryTable from "./CustomSummaryTable"
 import SearchSelectZoneV2 from "@/components/features/SearchSelectZonesV2"
 import SearchSelectChurchesWithZone from "@/components/features/SearchSelectChurchesWithZone"
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2"
 import { useAuth } from "@/hooks/useAuth"
-import { canPerformAction, eventRegistrationRoles, groupRoles, isSuperUser, isSystemAdmin, keyRoles, memberRoles, roomRoles } from "@/components/auth/permission/permission"
-import { Paper } from "@mui/material"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import { RoomSummaryColumn } from "./RoomSummaryColumns"
-import { IMergedRegistrationData } from "@/types/Types"
+import { canPerformAction, eventRegistrationRoles,  isSuperUser, isSystemAdmin, } from "@/components/auth/permission/permission"
+// import { Paper } from "@mui/material"
+// import { DataGrid, GridToolbar } from "@mui/x-data-grid"
+// import { RoomSummaryColumn } from "./RoomSummaryColumns"
+// import { IMergedRegistrationData } from "@/types/Types"
 import { useRouter } from "next/navigation"
+import '@/components/features/customscroll.css';
 
 const RoomSummaryTable = () => {
     const {user} = useAuth();
-    // const [search, setSearch] = useState<string>('');
+    const [search, setSearch] = useState<string>('');
     const {data, loading} = useFetchRoomsRegistrationWithKeys();
     const [eventId, setEventId] = useState<string>('');
     const [zoneId, setZoneId] = useState<string>('');
     const [churchId, setChurchId] = useState<string>('');
     const router  = useRouter();
-    // const [event, setEvent] = useState<IEvent|null>(null);
+    const [event, setEvent] = useState<IEvent|null>(null);
 
     const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
-    const showMember = canPerformAction(user!, 'reader', {memberRoles});
-    const showGroup = canPerformAction(user!, 'reader', {groupRoles});
-    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
-    const showKey = canPerformAction(user!, 'reader', {keyRoles});
+    
     const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
 
-    // const printRef = useRef<HTMLDivElement>(null);
+    const printRef = useRef<HTMLDivElement>(null);
 
     useEffect(()=>{
       if(user && !reader){
@@ -44,38 +42,38 @@ const RoomSummaryTable = () => {
       }
     },[user, reader, router])
 
-  // const handlePrint = () => {
-  //   if (printRef.current) {
-  //     const printContent = printRef.current.innerHTML;
-  //     const originalContent = document.body.innerHTML;
+  const handlePrint = () => {
+    if (printRef.current) {
+      const printContent = printRef.current.innerHTML;
+      const originalContent = document.body.innerHTML;
 
-  //     document.body.innerHTML = printContent;
-  //     window.print();
-  //     document.body.innerHTML = originalContent;
-  //     window.location.reload(); // Reload to restore original React state
-  //   }
-  // };
-
-
-    // useEffect(()=>{
-    //     const fetchEvent = async()=>{
-    //         if(eventId){
-    //             try {
-    //                 const evt = await getEvent(eventId)
-    //                 setEvent(evt);
-    //             } catch (error) {
-    //                 console.log(error);
-    //             }
-    //         }
-    //     }
-    //     fetchEvent();
-    // },[eventId])
+      document.body.innerHTML = printContent;
+      window.print();
+      document.body.innerHTML = originalContent;
+      window.location.reload(); // Reload to restore original React state
+    }
+  };
 
 
-    const paginationModel = { page: 0, pageSize: 10 };
+    useEffect(()=>{
+        const fetchEvent = async()=>{
+            if(eventId){
+                try {
+                    const evt = await getEvent(eventId)
+                    setEvent(evt);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }
+        fetchEvent();
+    },[eventId])
+
+
+    // const paginationModel = { page: 0, pageSize: 10 };
     // console.log(loading)
 
-    // const title = event?.name || 'Full Record';
+    const title = event?.name || 'Full Record';
     if(!reader) return;
   return (
     <div className="table-main2" >
@@ -86,17 +84,17 @@ const RoomSummaryTable = () => {
               <SearchSelectChurchesWithZone  zoneId={zoneId} setSelect={setChurchId} />
           </div>
         }
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between">
             <SearchSelectEventsV2 setSelect={setEventId} />
-            {/* <div className="flex items-center gap-4">
-                <SearchBar setSearch={setSearch} reversed={false} />
-                <AddButton onClick={handlePrint} text="Print" noIcon smallText className="rounded" />
-                <AddButton onClick={()=>saveDataToExcel(SearchMerged(data,search,churchId,zoneId,eventId), title)} text="Export" noIcon smallText className="rounded" />
-            </div> */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <SearchBar setSearch={setSearch} reversed={false} className="py-1" />
+                <AddButton onClick={handlePrint} text="Print" noIcon smallText className="rounded justify-center" />
+                <AddButton onClick={()=>saveDataToExcel(SearchMerged(data,search,churchId,zoneId,eventId), title)} text="Export" noIcon smallText className="rounded justify-center" />
+            </div>
         </div>
 
 
-        <div className="flex w-full">
+        {/* <div className="flex w-full">
           <Paper className='w-full' sx={{ height: 'auto', }}>
             <DataGrid
                 rows={SearchMergedV2(data,churchId,zoneId,eventId)}
@@ -127,8 +125,10 @@ const RoomSummaryTable = () => {
                 sx={{ border: 0 }}
             />
             </Paper>
+          </div> */}
+          <div className="flex flex-row max-w-[90vw] lg:max-w-[92vw] xl:max-w-[80vw] scrollbar-custom2 overflow-x-scroll lg:overflow-x-hidden">
+            <CustomSummaryTable loading={loading} data={SearchMerged(data,search,churchId,zoneId,eventId)} printRef={printRef} event={event} />
           </div>
-            {/* <CustomSummaryTable loading={loading} data={SearchMerged(data,search,churchId,zoneId,eventId)} printRef={printRef} event={event} /> */}
        
     </div>
   )

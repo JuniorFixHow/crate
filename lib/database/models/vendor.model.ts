@@ -11,6 +11,7 @@ export interface IVendor extends Document {
     country:string,
     uid:string;
     password:string;
+    note:string;
     roles:string[];
     church:mongoose.Types.ObjectId|string|IChurch;
     campusId:mongoose.Types.ObjectId|string|ICampuse;
@@ -28,6 +29,7 @@ const VendorSchema = new Schema<IVendor>({
     church:{type:Schema.Types.ObjectId, ref:'Church'},
     campusId:{type:Schema.Types.ObjectId, ref:'Campus'},
     role:String,
+    note:String,
     country:String,
     uid:String,
     gender:String,
