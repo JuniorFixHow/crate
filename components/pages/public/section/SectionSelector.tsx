@@ -18,7 +18,7 @@ type SectionSelectorProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
     cypsetId:string,
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ISection[], Error>>
+    refetch?: (options?: RefetchOptions) => Promise<QueryObserverResult<ISection[], Error>>
 }
 
 const SectionSelector = ({infoMode, refetch, setInfoMode, cypsetId}:SectionSelectorProps) => {
@@ -70,7 +70,7 @@ const SectionSelector = ({infoMode, refetch, setInfoMode, cypsetId}:SectionSelec
             }
             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
             setInfoMode(false);
-            refetch();
+            refetch!();
         } catch (error) {
             console.log(error);
             enqueueSnackbar('Error occured creating section', {variant:'error'});
