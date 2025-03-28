@@ -86,6 +86,81 @@ export async function getSessions(){
     }
 }
 
+export async function getPublicSessions(){
+    try {
+        await connectDB();
+        const events = await Event.find({forAll:true}).select('_id');
+        const eventIds = events.map((item)=>item?._id);
+        const sess = await Session.find({
+            eventId: {$in: eventIds}
+        }).populate('eventId').populate('createdBy').lean();
+        
+        return JSON.parse(JSON.stringify(sess));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching sessions:', error.message);
+            throw new Error(`Error occurred during sessions fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during sessions fetch');
+        }
+    }
+}
+
+
+export async function getChurchSessions(churchId:string){
+    try {
+        await connectDB();
+        const events = await Event.find({
+            forAll:false, churchId
+        }).select('_id');
+        const eventIds = events.map((item)=>item?._id);
+        const sess = await Session.find({
+            eventId: {$in: eventIds}
+        }).populate('eventId').populate('createdBy').lean();
+        
+        return JSON.parse(JSON.stringify(sess));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching sessions:', error.message);
+            throw new Error(`Error occurred during sessions fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during sessions fetch');
+        }
+    }
+}
+
+
+
+export async function getChurchSessionsV2(churchId:string){
+    try {
+        await connectDB();
+        const events = await Event.find({
+            $or:[
+                {forAll:true},
+                {churchId}
+            ]
+        }).select('_id');
+        const eventIds = events.map((item)=>item?._id);
+        const sess = await Session.find({
+            eventId: {$in: eventIds}
+        }).populate('eventId').populate('createdBy').lean();
+        
+        return JSON.parse(JSON.stringify(sess));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching sessions:', error.message);
+            throw new Error(`Error occurred during sessions fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during sessions fetch');
+        }
+    }
+}
+
+
+
 export async function getUserSessions(id: string, userId: string) {
     try {
         await connectDB();

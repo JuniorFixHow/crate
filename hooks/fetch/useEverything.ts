@@ -8,6 +8,7 @@ import { IZone } from "@/lib/database/models/zone.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
+import { canPerformEvent, eventOrganizerRoles } from "@/components/auth/permission/permission";
 // import { useEffect, useState } from "react"
 
 
@@ -37,7 +38,8 @@ export const useFetchEverything = ()=>{
         try {
             if(!user) return Empty;
             const isAdmin = checkIfAdmin(user);
-            const res = isAdmin ? await getEverything() as EveryTypeProps : await getEverythingByChurch(user?.churchId) as EveryTypeProps;
+            const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+            const res = (isAdmin || orgReader) ? await getEverything() as EveryTypeProps : await getEverythingByChurch(user?.churchId) as EveryTypeProps;
             return res;
         } catch (error) {
             console.log(error)

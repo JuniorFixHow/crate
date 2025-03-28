@@ -3,6 +3,7 @@ import { IVenue } from "@/lib/database/models/venue.model";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
+// import { canPerformEvent, eventOrganizerRoles } from "@/components/auth/permission/permission";
 
 
 export const useFetchVenues = () => {

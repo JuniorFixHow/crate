@@ -18,13 +18,13 @@ import { AssColumnsGroup } from './AssColumnsGroup'
 import { removeGroupFromAllRooms, removeMemberFromRoom } from '@/lib/actions/room.action'
 // import SearchSelectZones from '@/components/features/SearchSelectZones'
 // import SearchSelectChurchForRoomAss from '@/components/features/SearchSelectChurchForRoomAss'
-import SearchSelectChurchesV2 from '@/components/features/SearchSelectChurchesV2'
-import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2'
+import SearchSelectChurchesV3 from '@/components/features/SearchSelectChurchesV3'
+import SearchSelectEventsV4 from '@/components/features/SearchSelectEventsV4'
 import { IMember } from '@/lib/database/models/member.model'
 import { enqueueSnackbar } from 'notistack'
 import { useAuth } from '@/hooks/useAuth'
 import { checkIfAdmin } from '@/components/Dummy/contants'
-import { canPerformAction, eventRegistrationRoles, groupRoles, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission'
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles, groupRoles, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission'
 import { useRouter } from 'next/navigation'
 
 const AssignmentTable = () => {
@@ -48,9 +48,10 @@ const AssignmentTable = () => {
 
     const {user} = useAuth();
     const isAdmin = checkIfAdmin(user);
-    const regReader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
-    const groupReader = canPerformAction(user!, 'reader', {groupRoles});
-    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
+    const orgAdmin = canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+    const regReader = canPerformAction(user!, 'reader', {eventRegistrationRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const groupReader = canPerformAction(user!, 'reader', {groupRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
 
     useEffect(()=>{
         if(user && !roomAssign){
@@ -114,7 +115,7 @@ const AssignmentTable = () => {
     const message2 = `You're about to unassign rooms for this member. This will also affect the entire members in this group. Are you sure of what you're doing?`
     const paginationModel = { page: 0, pageSize: 10 };
 
-    const cId =  isAdmin ? churchId : user?.churchId;
+    const cId =  (isAdmin || orgAdmin) ? churchId : user?.churchId;
 
     if(!roomAssign) return;
     
@@ -135,9 +136,9 @@ const AssignmentTable = () => {
         <div className="table-main2">
             <div className="flex justify-between items-center">
                 {
-                    isAdmin &&
+                    (isAdmin || orgAdmin) &&
                     <div className="flex gap-4 items-end">
-                        <SearchSelectChurchesV2  setSelect={setChurchId} />
+                        <SearchSelectChurchesV3  setSelect={setChurchId} />
                     </div>
                 }
 
@@ -145,7 +146,7 @@ const AssignmentTable = () => {
                 
             <div className="flex justify-between items-center">
                 <div className="flex gap-4 items-end">
-                    <SearchSelectEventsV2 setSelect={setEventId} />
+                    <SearchSelectEventsV4 setSelect={setEventId} />
                     {/* <AssignmentFilter setSelect={setStatus} /> */}
                 </div>
                 {/* <div className="flex items-center gap-2">

@@ -1,17 +1,21 @@
-import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsWithEventId, getRegsWithEventIdAndChurchId, getRegsWithEventIdAndChurchIdV2, getRegsWithEventIdAndNoChurchId } from "@/lib/actions/registration.action";
+import { getCheckedInReg, getEligibleRegistrationsWithoutGroups, getReadyRegsWithEventId, getRegistrationsWithoutGroups, getRegs, getRegsForChurch, getRegsWithEventId, getRegsWithEventIdAndChurchId, getRegsWithEventIdAndChurchIdV2, getRegsWithEventIdAndNoChurchId } from "@/lib/actions/registration.action";
 import { IRegistration } from "@/lib/database/models/registration.model"
 // import { useEffect, useState } from "react"
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
 import { IMember } from "@/lib/database/models/member.model";
+import { eventOrganizerRoles } from "@/components/auth/permission/permission";
 // import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchRegistrations = ()=>{
-
+    const {user} = useAuth();
     const fetchRegistrations = async():Promise<IRegistration[]>=>{
         try {
-            const evts:IRegistration[] = await getRegs();
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const orgReader = eventOrganizerRoles.reader(user);
+            const evts:IRegistration[] = (isAdmin || orgReader) ? await getRegs() : await getRegsForChurch(user?.churchId);
             return evts;
         } catch (error) {
             console.log(error);

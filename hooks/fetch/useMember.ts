@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useQuery } from "@tanstack/react-query";
+import { eventOrganizerRoles } from "@/components/auth/permission/permission";
 
 export const useFetchMembers = () => {
 
@@ -16,7 +17,7 @@ export const useFetchMembers = () => {
         try {
             let fetchedMembers: IMember[];
             if(!user) return [];
-            const isAdmin = checkIfAdmin(user);
+            const isAdmin = checkIfAdmin(user) || eventOrganizerRoles.reader(user);
             // console.log(isAdmin)
             const id = searchParams.get('registeredBy');
             const campuseId = searchParams.get('campuseId');

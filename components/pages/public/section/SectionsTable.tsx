@@ -15,7 +15,7 @@ import { SectionColumns } from './SectionColumns';
 import { enqueueSnackbar } from 'notistack';
 import SearchSelectCYPSetV2 from '@/components/features/SearchSelectSetV2';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, questionSectionRoles, questionSetRoles } from '@/components/auth/permission/permission';
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, questionSectionRoles, questionSetRoles } from '@/components/auth/permission/permission';
 import { useRouter } from 'next/navigation';
 
 const SectionsTable = () => {
@@ -29,17 +29,17 @@ const SectionsTable = () => {
 
     const router = useRouter();
 
-    const {sections, loading} = useFetchSections()
+    const {sections, loading, refetch} = useFetchSections()
 
     const message = `Deleting a section will delete its questions and responses received for it. Are you sure?`;
 
-    const creator = canPerformAction(user!, 'creator', {questionSectionRoles});
-    const reader = canPerformAction(user!, 'reader', {questionSectionRoles});
-    const updater = canPerformAction(user!, 'updater', {questionSectionRoles});
-    const deleter = canPerformAction(user!, 'deleter', {questionSectionRoles});
-    const admin = canPerformAction(user!, 'admin', {questionSectionRoles});
-    const sUpdater = canPerformAction(user!, 'updater', {questionSetRoles});
-    const sReader = canPerformAction(user!, 'reader', {questionSetRoles});
+    const creator = canPerformAction(user!, 'creator', {questionSectionRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    const reader = canPerformAction(user!, 'reader', {questionSectionRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const deleter = canPerformAction(user!, 'deleter', {questionSectionRoles}) || canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const admin = canPerformAction(user!, 'admin', {questionSectionRoles}) || canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+    const sUpdater = canPerformAction(user!, 'updater', {questionSetRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const sReader = canPerformAction(user!, 'reader', {questionSetRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
     const canDelete = deleter || sUpdater;
 
     useEffect(()=>{
@@ -54,6 +54,7 @@ const SectionsTable = () => {
                 const res = await deleteSection(currentSection._id);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
                 setDeleteMode(false);
+                refetch();
             }
         } catch (error) {
             console.log(error);
@@ -68,7 +69,7 @@ const SectionsTable = () => {
 
     const handleNew = ()=>{
         if(!cypsetId){
-            enqueueSnackbar('Please select a set ID', {variant:'error'});
+            enqueueSnackbar('Please select a set', {variant:'error'});
         }else{
             setInfoMode(true);
         }
@@ -92,7 +93,7 @@ const SectionsTable = () => {
         </div>
 
         <DeleteDialog title={`Delete ${currentSection?.title}`} message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleDeleteSection} />
-        <SectionSelector setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypsetId} />
+        <SectionSelector refetch={refetch} setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypsetId} />
         {
             response?.message &&
             <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>

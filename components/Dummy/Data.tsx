@@ -69,7 +69,7 @@ export const NavItems:NavigationProps[] = [
         isAdmin:true,
         children:[
             {
-                text:'Event',
+                text:'Events',
                 image:<MdOutlineEvent/>,
                 path:'/dashboard/events'
             },

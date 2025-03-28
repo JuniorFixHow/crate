@@ -11,7 +11,7 @@ import DynamicFacilitiesForm from "./CustomFacilities";
 import { createVenue, updateVenue } from "@/lib/actions/venue.action";
 import { createFacilities } from "@/lib/actions/facility.action";
 import { useRouter } from "next/navigation";
-import { canPerformAction, venueRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, isSuperUser, isSystemAdmin, venueRoles } from "@/components/auth/permission/permission";
 import { enqueueSnackbar } from "notistack";
 
 export type CustomFacilitiesProps = {
@@ -32,18 +32,31 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
 
+    const mine = user?.churchId === currentVenue?.churchId.toString();
+
+    const isAdmin = isSystemAdmin.updater(user!) || isSuperUser(user!);
+
     const reader = canPerformAction(user!, 'reader', {venueRoles});
     const updater = canPerformAction(user!, 'updater', {venueRoles});
     const creator = canPerformAction(user!, 'creator', {venueRoles});
 
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+
+    const canRead = reader || orgReader;
+    const canUpdate = (updater && mine) || (orgUpdater && mine) || isAdmin;
+    const canCreate = creator || orgCreator;
+
+
     useEffect(()=>{
-        if(user && (currentVenue && !reader)){
+        if(user && (currentVenue && !canRead)){
             router.replace('/dashboard/forbidden?p=Venue Reader')
         }
-        else if(user && (!currentVenue && !creator)){
+        else if(user && (!currentVenue && !canCreate)){
             router.replace('/dashboard/forbidden?p=Venue Creator')
         }
-    },[creator, currentVenue, reader, router, updater, user])
+    },[canCreate, currentVenue, canRead, router, updater, user])
 
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement>)=>{
         const {name, value} = e.target;
@@ -87,6 +100,8 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
             setLoading(false);
         }
     }
+
+    if((!currentVenue && !canCreate) || (currentVenue && !canRead)) return
 
     const handleUpdateVenue = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -149,7 +164,7 @@ const NewVenue = ({currentVenue}:VenueDetailsProps) => {
                 <Alert onClose={()=>setResponse(null)} severity={response.error?'error':'success'} >{response.message}</Alert>
             }
             <div className="flex gap-5 items-center">
-                <AddButton disabled={loading} noIcon smallText className={`rounded ${currentVenue && !updater && 'hidden'} ${!currentVenue && !creator && 'hidden'}`} text={loading ? 'loading...':currentVenue ?'Save Changes':'Proceed'} />
+                <AddButton disabled={loading} noIcon smallText className={`rounded ${currentVenue && !canUpdate && 'hidden'} ${!currentVenue && !canCreate && 'hidden'}`} text={loading ? 'loading...':currentVenue ?'Save Changes':'Proceed'} />
                 <AddButton disabled={loading} onClick={()=>router.back()} type="button" isDanger noIcon smallText className="rounded" text="Back" />
             </div>
         </div>

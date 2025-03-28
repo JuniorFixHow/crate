@@ -8,7 +8,7 @@ import {  Paper } from '@mui/material'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid'
 import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { canPerformAction, eventRoles } from '../auth/permission/permission'
+import { canPerformAction, eventOrganizerRoles, eventRoles } from '../auth/permission/permission'
 import { useAuth } from '@/hooks/useAuth'
 
 const EventsTable = () => {
@@ -19,9 +19,9 @@ const EventsTable = () => {
 
     const {user} = useAuth();
 
-    const reader = canPerformAction(user!, 'reader', {eventRoles});
-    const creator = canPerformAction(user!, 'creator', {eventRoles});
-    const updater = canPerformAction(user!, 'updater', {eventRoles});
+    const reader = canPerformAction(user!, 'reader', {eventRoles}) || canPerformAction(user!, 'reader', {eventOrganizerRoles});
+    const creator = canPerformAction(user!, 'creator', {eventRoles}) || canPerformAction(user!, 'creator', {eventOrganizerRoles});
+    const updater = canPerformAction(user!, 'updater', {eventRoles}) || canPerformAction(user!, 'updater', {eventOrganizerRoles});
 
 
     useEffect(()=>{

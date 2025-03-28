@@ -1,9 +1,9 @@
-import { getSections, getSectionsForChurch, getSectionsForSet, getSectionsWithQuestions, getSectionsWithQuestionsForChurch } from "@/lib/actions/section.action";
+import { getPublicSections, getPublicSectionsWithQuestions, getSections, getSectionsForChurch, getSectionsForSet, getSectionsWithQuestions, getSectionsWithQuestionsForChurch } from "@/lib/actions/section.action";
 import { ISection } from "@/lib/database/models/section.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 // import { checkIfAdmin } from "@/components/Dummy/contants";
-import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
+import {  eventOrganizerRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchSections = ()=>{
    const {user} = useAuth();
@@ -12,7 +12,8 @@ export const useFetchSections = ()=>{
         try {
             if(!user) return [];
             const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
-            const res:ISection[] = isAdmin ? await getSections() : await getSectionsForChurch(user?.churchId);
+            const orgReader = eventOrganizerRoles.reader(user);
+            const res:ISection[] = isAdmin ? await getSections() : (orgReader && !isAdmin) ? await getPublicSections() : await getSectionsForChurch(user?.churchId);
             const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
         } catch (error) {
@@ -61,7 +62,8 @@ export const useFetchSectionsWithQuestions = ()=>{
         try {
             if(!user) return [];
             const isAdmin = isSuperUser(user) || isSystemAdmin.reader(user);
-            const res:ISection[] = isAdmin ? await getSectionsWithQuestions() : await getSectionsWithQuestionsForChurch(user?.churchId);
+            const orgReader = eventOrganizerRoles.reader(user);
+            const res:ISection[] = isAdmin ? await getSectionsWithQuestions() : (orgReader && !isAdmin) ? await getPublicSectionsWithQuestions() : await getSectionsWithQuestionsForChurch(user?.churchId);
             const sorted = res.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
         } catch (error) {

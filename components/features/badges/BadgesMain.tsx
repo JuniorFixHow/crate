@@ -4,7 +4,7 @@ import Title from '../Title'
 import BadgeTop from './BadgeTop'
 import BadgesTable from '@/components/tables/BadgesTable'
 import { useAuth } from '@/hooks/useAuth'
-import { canPerformAction, eventRegistrationRoles } from '@/components/auth/permission/permission'
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles } from '@/components/auth/permission/permission'
 import { useRouter } from 'next/navigation'
 
 const BadgesMain = () => {
@@ -12,7 +12,7 @@ const BadgesMain = () => {
     const {user} = useAuth();
     const router = useRouter();
 
-    const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
+    const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
     useEffect(()=>{
       if(user && !reader){
         router.replace('/dashboard/forbidden?p=Event Registation Reader')

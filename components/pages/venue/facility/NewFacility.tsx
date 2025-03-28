@@ -7,7 +7,7 @@ import { IFacility } from "@/lib/database/models/facility.model";
 import { createFacility, updateFacility } from "@/lib/actions/facility.action";
 import { useAuth } from "@/hooks/useAuth";
 import SearchSelectVenues from "@/components/features/SearchSelectVenue";
-import { canPerformAction, facilityRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles } from "@/components/auth/permission/permission";
 
 export type NewSingleFacilityProps = {
     currentFacility:IFacility | null;
@@ -28,7 +28,12 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility,  infoMode, setI
     const [data, setData] =useState<Partial<IFacility>>({});
     const {user} = useAuth();
   
-    const updater = canPerformAction(user!, 'updater', {facilityRoles})
+    const mine = user?.churchId === currentFacility?.churchId.toString();
+
+    const updater = canPerformAction(user!, 'updater', {facilityRoles});
+    const orgUpdater = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+
+    const canUpdate = (mine && updater) || (mine && orgUpdater);
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -121,7 +126,7 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility,  infoMode, setI
                 }
 
                 <div className="flex flex-row items-center justify-between">
-                    <AddButton disabled={loading} type="submit"  className={`${currentFacility && !updater && 'hidden'} rounded w-[45%] justify-center`} text={loading? 'loading...' : currentFacility? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type="submit"  className={`${currentFacility && !canUpdate && 'hidden'} rounded w-[45%] justify-center`} text={loading? 'loading...' : currentFacility? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} type="button"  className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

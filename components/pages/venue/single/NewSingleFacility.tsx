@@ -6,12 +6,13 @@ import { ErrorProps } from "@/types/Types";
 import { IFacility } from "@/lib/database/models/facility.model";
 import { createFacility, updateFacility } from "@/lib/actions/facility.action";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, facilityRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles, } from "@/components/auth/permission/permission";
 
 export type NewSingleFacilityProps = {
     currentFacility:IFacility | null;
     setCurrentFacility:Dispatch<SetStateAction<IFacility|null>>;
     infoMode:boolean;
+    mine?:boolean;
     setInfoMode:Dispatch<SetStateAction<boolean>>;
     venueId:string;
 }
@@ -26,8 +27,11 @@ const NewSingleFacility = ({currentFacility, setCurrentFacility, venueId, infoMo
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] =useState<Partial<IFacility>>({});
     const {user} = useAuth();
+    // const isAdmin = isSystemAdmin.updater(user!) || isSuperUser(user!);
   
-    const updater = canPerformAction(user!, 'updater', {facilityRoles})
+    const updater = canPerformAction(user!, 'updater', {facilityRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    
+
 
     const formRef = useRef<HTMLFormElement>(null);
 

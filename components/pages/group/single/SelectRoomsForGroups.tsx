@@ -35,7 +35,7 @@ const SelectRoomsForGroups = ({showRooms, user, currentGroup, setShowRooms}:Sele
     const venueReader = canPerformAction(user!, 'reader', {venueRoles});
     const roomReader = canPerformAction(user!, 'reader', {roomRoles});
     
-    const {rooms, loading, refetch} = useFetchAvailableRooms( eventId)
+    const {rooms, loading, refetch} = useFetchAvailableRooms(eventId)
     
     const paginationModel = { page: 0, pageSize: 10 };
     

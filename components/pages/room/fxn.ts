@@ -20,7 +20,7 @@ export const SearchRoom = (rooms:IRoom[], search:string, eventId:string):IRoom[]
 export const SearchRoomV2 = (rooms:IRoom[],  eventId:string):IRoom[]=>{
     const data = rooms.filter((item)=>{
         const event = item?.eventId as IEvent;
-        return eventId === ''? item : event._id === eventId
+        return (eventId === '' || eventId === undefined)? item : event._id === eventId
         
     });
     return data;

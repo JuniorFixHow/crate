@@ -9,7 +9,8 @@ import { useFetchSessions } from '@/hooks/fetch/useSession'
 import { searchSessionWithEvent } from '@/components/pages/session/fxn'
 import { ISession } from '@/lib/database/models/session.model'
 import { LinearProgress } from '@mui/material';
-import SearchSelectEventsV2 from '../SearchSelectEventsV2';
+// import SearchSelectEventsV2 from '../SearchSelectEventsV2';
+import SearchSelectEventsV4 from '../SearchSelectEventsV4';
 
 type SelectSessionScanProps = {
     currentSession:ISession,
@@ -30,7 +31,7 @@ const SelectSessionScan = ({currentSession, setCurrentSession, setStage}:SelectS
             <div className="flex flex-col md:flex-row items-start gap-6 md:justify-between">
                 <div className="flex flex-col">
                     <span className='font-medium' >Select Event</span>
-                    <SearchSelectEventsV2 setSelect={setEventId} />
+                    <SearchSelectEventsV4 setSelect={setEventId} />
                 </div>
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col gap-4">

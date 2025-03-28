@@ -1,6 +1,7 @@
 'use server'
 
 import CYPSet, { ICYPSet } from "../database/models/cypset.model";
+import Event from "../database/models/event.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 
@@ -45,8 +46,8 @@ export async function getCYPSet(id:string){
         const cyp = await CYPSet.findById(id)
         .populate({
             path:'sections',
-            
         })
+        .populate('eventId')
         .lean();
 
         return JSON.parse(JSON.stringify(cyp));
@@ -71,10 +72,33 @@ export async function getCYPSets(){
         return handleResponse('Error occured fetching the sets', true, {}, 500)
     }
 }
+
+export async function getPublicCYPSets(){
+    try {
+        await connectDB();
+        const events = await Event.find({forAll:true}).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const cyps = await CYPSet.find({eventId: {$in: eventIds}})
+        .populate('sections')
+        .populate('eventId')
+        .lean();
+
+        return JSON.parse(JSON.stringify(cyps));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching the sets', true, {}, 500)
+    }
+}
+
 export async function getCYPSetsForChurch(churchId:string){
     try {
         await connectDB();
-        const cyps = await CYPSet.find({churchId})
+        const events = await Event.find({
+            forAll:false,
+            churchId
+        }).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const cyps = await CYPSet.find({eventId: {$in: eventIds}})
         .populate('sections')
         .populate('eventId')
         .lean();

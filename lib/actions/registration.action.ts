@@ -111,6 +111,44 @@ export async function getRegs(){
     }
 }
 
+export async function getRegsForChurch(churchId:string){
+    try {
+        await connectDB();
+        const regs = await Registration.find({churchId})
+        .populate('groupId')
+        .populate({
+            path:'memberId',
+            populate:[
+                {
+                    path:'church',
+                    model:'Church',
+                    populate:{
+                        path:'zoneId',
+                        model:'Zone'
+                    }
+                },
+                {
+                    path:'campuseId',
+                    model:'Campus',
+                }
+            ]
+        })
+        .populate('eventId')
+        .populate('roomIds')
+        .populate('keyId')
+        .lean();
+        return JSON.parse(JSON.stringify(regs));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching registrations:', error.message);
+            throw new Error(`Error occurred during registrations fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during registrations fetch');
+        }
+    }
+}
+
 export async function getRegsWithEventId(eventId:string){
     try {
         await connectDB();

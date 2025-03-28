@@ -1,4 +1,4 @@
-import { canPerformAction, isSystemAdmin, isChurchAdmin, isSuperUser, roomRolesExtended, groupRoles, memberRoles, roomRoles } from '@/components/auth/permission/permission'
+import { canPerformAction, isSystemAdmin, isChurchAdmin, isSuperUser, roomRolesExtended, groupRoles, memberRoles, roomRoles, eventOrganizerRoles, canPerformEvent } from '@/components/auth/permission/permission'
 import { useAuth } from '@/hooks/useAuth'
 import { IFacility } from '@/lib/database/models/facility.model'
 import { IGroup } from '@/lib/database/models/group.model'
@@ -29,10 +29,10 @@ const SingleAssignmentDetails = ({type, className, loading, GroupData, currentRo
     const router = useRouter();
 
     const {user} = useAuth();
-    const groupReader = canPerformAction(user!, 'reader', {groupRoles});
+    const groupReader = canPerformAction(user!, 'reader', {groupRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
     const showMember = canPerformAction(user!, 'reader', {memberRoles});
-    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
-    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
 
     useEffect(()=>{
         if(user && !roomAssign){

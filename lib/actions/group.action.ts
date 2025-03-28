@@ -466,6 +466,7 @@ export async function getGroups() {
             .populate('members')     
             .populate('roomIds')
             .populate('churchId')
+            .populate('eventId')
             .lean();
             // console.log('Groups: ', groups);
         return JSON.parse(JSON.stringify(groups));

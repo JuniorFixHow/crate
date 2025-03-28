@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { generateNumberArray } from '@/functions/misc';
 import { IFacility } from '@/lib/database/models/facility.model';
 import { enqueueSnackbar } from 'notistack';
-import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
+import SearchSelectEventsV4 from '@/components/features/SearchSelectEventsV4';
 import SearchSelectVenuesV2 from '@/components/features/SearchSelectVenuesV2';
 import SearchSelectVenueFacilities from '@/components/features/SearchSelectVenueFacilities';
 import { IEvent } from '@/lib/database/models/event.model';
@@ -37,6 +37,10 @@ const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:N
 
     const event = currentRoom?.eventId as IEvent;
     const venue = currentRoom?.venueId as IVenue;
+
+    const mine = currentRoom?.churchId.toString() === user?.churchId;
+
+    const canUpdate = updater && mine;
 
     const formRef = useRef<HTMLFormElement>(null)
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
@@ -122,10 +126,10 @@ const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:N
                 <span className='text-[1.5rem] font-bold dark:text-slate-200' >{currentRoom ? "Edit Room":"Create Room"}</span>
                 <div className="flex flex-col gap-6">
 
-                    <div className="flex gap-12 items-end">
+                    <div className="flex flex-col md:flex-row gap-5 md:gap-12">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                            <SearchSelectEventsV2 value={event?.name} setSelect={setEventId} require={!currentRoom} />
+                            <SearchSelectEventsV4 value={event?.name} setSelect={setEventId} require={!currentRoom} />
                         </div>
 
                         <div className="flex flex-col">
@@ -179,7 +183,7 @@ const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:N
                         </div>
                     </div>
 
-                    <div className="flex gap-12 items-end">
+                    <div className="flex flex-col md:flex-row gap-5 md:gap-12">
                         <div className="flex flex-col">
                             <span className='text-slate-500 text-[0.8rem]' >Room number</span>
                             <input onChange={handleChange} name='number' required={!currentRoom} defaultValue={currentRoom?.number} type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />
@@ -204,7 +208,7 @@ const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:N
                 }
 
                 <div className="flex flex-row items-center gap-6">
-                    <AddButton disabled={loading} type='submit'  className={`${currentRoom && !updater && 'hidden'} rounded w-[45%] justify-center`} text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
+                    <AddButton disabled={loading} type='submit'  className={`${currentRoom && !canUpdate && 'hidden'} rounded w-[45%] justify-center`} text={loading ? 'loading...' : currentRoom? 'Update':'Add'} smallText noIcon />
                     <AddButton disabled={loading} className='rounded w-[45%] justify-center' text='Cancel' isCancel onClick={handleClose} smallText noIcon />
                 </div>
             </form>

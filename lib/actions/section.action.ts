@@ -5,6 +5,7 @@ import Question, { IQuestion } from "../database/models/question.model";
 import Section, { ISection } from "../database/models/section.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import Event from "../database/models/event.model";
 
 export async function createSection(section:Partial<ISection>){
     try {
@@ -72,10 +73,35 @@ export async function getSections(){
     }
 }
 
+export async function getPublicSections(){
+    try {
+        await connectDB();
+        const events  = await Event.find({forAll:true}).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const sets = await CYPSet.find({eventId: {$in:eventIds}}).select('_id');
+        const setIds = sets.map((item)=>item._id);
+        const sections = await Section.find({cypsetId:{$in:setIds}})
+        .populate('questions')
+        .populate('responses')
+        .populate('cypsetId')
+        .lean();
+        return JSON.parse(JSON.stringify(sections));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching sections', true)
+    }
+}
+
 export async function getSectionsForChurch(churchId:string){
     try {
         await connectDB();
-        const sections = await Section.find({churchId})
+        const events  = await Event.find({
+            forAll:false, churchId
+        }).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const sets = await CYPSet.find({eventId: {$in:eventIds}}).select('_id');
+        const setIds = sets.map((item)=>item._id);
+        const sections = await Section.find({cypsetId:{$in:setIds}})
         .populate('questions')
         .populate('responses')
         .populate('cypsetId')
@@ -93,7 +119,13 @@ export async function getSection(id:string){
         const section = await Section.findById(id)
         .populate('questions')
         .populate('responses')
-        .populate('cypsetId')
+        .populate({
+            path:'cypsetId',
+            populate:{
+                path:'eventId',
+                model:'Event'
+            }
+        })
         .lean();
         return JSON.parse(JSON.stringify(section));
     } catch (error) {
@@ -125,10 +157,33 @@ export async function getSectionsWithQuestions(){
     }
 }
 
+export async function getPublicSectionsWithQuestions(){
+    try {
+        await connectDB();
+        const events  = await Event.find({
+            forAll:true,
+        }).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const sets = await CYPSet.find({eventId: {$in:eventIds}}).select('_id');
+        const setIds = sets.map((item)=>item._id);
+        const sections = await Section.find({ questions: { $exists: true, $ne: [] }, cypsetId:{$in: setIds} }).populate('cypsetId').lean();
+        return JSON.parse(JSON.stringify(sections));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching sections', true)
+    }
+}
+
 export async function getSectionsWithQuestionsForChurch(churchId:string){
     try {
         await connectDB();
-        const sections = await Section.find({ questions: { $exists: true, $ne: [] }, churchId })
+        const events  = await Event.find({
+            forAll:false, churchId
+        }).select('_id');
+        const eventIds = events.map((item)=>item._id);
+        const sets = await CYPSet.find({eventId: {$in:eventIds}}).select('_id');
+        const setIds = sets.map((item)=>item._id);
+        const sections = await Section.find({ questions: { $exists: true, $ne: [] }, churchId,  cypsetId:{$in: setIds}})
         .populate('cypsetId').lean();
         return JSON.parse(JSON.stringify(sections));
     } catch (error) {

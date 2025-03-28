@@ -12,6 +12,7 @@ export interface IEvent extends Document {
     type: 'Convention' | 'Camp Meeting - Adult' | 'Conference' | 'Retreat' | 'Camp Meeting - YAYA' | 'Camp Meeting - Children';
     organizers: 'NAGACU' | 'NAGSDA' | 'Church';
     note?: string;
+    forAll: boolean;
     adultPrice?: number;
     childPrice?: number;
     sessions?: number;
@@ -29,6 +30,7 @@ const EventSchema = new Schema<IEvent>({
     type:String,
     organizers:String,
     note:String,
+    forAll:{type:Boolean, default:false},
     adultPrice:{type:Number, default:0},
     childPrice:{type:Number, default:0},
     sessions:{type:Number, default:0},

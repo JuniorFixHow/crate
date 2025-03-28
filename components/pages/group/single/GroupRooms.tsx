@@ -12,7 +12,8 @@ import { removeGroupFromAllRooms, removeGroupFromRoom } from "@/lib/actions/room
 import { IVenue } from "@/lib/database/models/venue.model"
 import { enqueueSnackbar } from "notistack"
 import { SessionPayload } from "@/lib/session"
-import { canPerformAction, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission"
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission"
+import { IEvent } from "@/lib/database/models/event.model"
 
 type GroupRoomsProps = {
     currentGroup:IGroup;
@@ -25,19 +26,26 @@ const GroupRooms = ({currentGroup, user, roomAssign}:GroupRoomsProps) => {
     const [removeMode, setRemoveMode] = useState<boolean>(false);
     const [currentRoom, setCurrentRoom] = useState<IRoom|null>(null);
     const [response, setResponse] = useState<ErrorProps>(null);
-
+    const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
+    const [removeLoading, setRemoveLoading] = useState<boolean>(false)
+    
+    const currentEvent = currentGroup?.eventId as IEvent;
     const venueReader = canPerformAction(user!, 'reader', {venueRoles});
     const roomReader = canPerformAction(user!, 'reader', {roomRoles});
     const facReader = canPerformAction(user!, 'reader', {facilityRoles});
 
-    const [deleteLoading, setDeleteLoading] = useState<boolean>()
-    const [removeLoading, setRemoveLoading] = useState<boolean>()
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+
+    const canVenue = currentEvent?.forAll ? orgReader : venueReader; 
+    const canRoom = currentEvent?.forAll ? orgReader : roomReader; 
+    const canFac = currentEvent?.forAll ? orgReader : facReader; 
 
     const {groupRooms, loading, refetch} = useFetchRoomsForGroup(currentGroup?._id);
 
     const paginationModel = { page: 0, pageSize: 10 };
     const removeMessae = `You're about to remove this room from the group. Continue?`
     const deleteMessae = `You're about to remove all groups assoiciated with this group. Continue?`;
+
 
     const handleRemove = async(data:IRoom)=>{
         setRemoveMode(true);
@@ -110,7 +118,7 @@ const GroupRooms = ({currentGroup, user, roomAssign}:GroupRoomsProps) => {
                     rows={groupRooms}
                     getRowId={(row:IRoom)=>row._id}
                     loading={loading}
-                    columns={SingleGrpRoomColumns(handleRemove, venueReader, facReader, roomReader, roomAssign)}
+                    columns={SingleGrpRoomColumns(handleRemove, canVenue, canFac, canRoom, roomAssign)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 20, 30, 50, 100]}
                     slots={{toolbar:GridToolbar}}

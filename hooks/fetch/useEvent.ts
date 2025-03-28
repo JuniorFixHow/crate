@@ -1,4 +1,4 @@
-import { getChurchEvents, getCYPEvents, getEvents, getUnregisteredMembers, getUserEvents } from "@/lib/actions/event.action";
+import { getChurchEvents, getChurchEventsV2, getCYPEvents, getEvents, getPublicEvents, getUnregisteredMembers, getUserEvents } from "@/lib/actions/event.action";
 import { IEvent } from "@/lib/database/models/event.model"
 import { IMember } from "@/lib/database/models/member.model";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
+import { eventOrganizerRoles } from "@/components/auth/permission/permission";
 
 export const useFetchEvents = ()=>{
  
@@ -18,12 +19,50 @@ export const useFetchEvents = ()=>{
             let evts:IEvent[];
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
+            const orgReader = eventOrganizerRoles.reader(user);
             if(id){
                 evts = await getUserEvents(id);
             }
            
             else{
-                evts = isAdmin ? await getEvents() : await getChurchEvents(user?.churchId);
+                evts = isAdmin ? await getEvents() : (orgReader && !isAdmin) ? await getPublicEvents() : await getChurchEventsV2(user?.churchId);
+            }
+
+            return evts;
+            
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:events=[], isPending:loading, refetch} = useQuery({
+        queryKey:['events', searchParams],
+        queryFn:fetchEvents,
+        enabled:!!user
+    })
+    return {events, refetch, loading}
+}
+
+
+export const useFetchEventsV2 = ()=>{
+ 
+    const searchParams = useSearchParams();
+    const {user} = useAuth();
+
+    const fetchEvents = async():Promise<IEvent[]>=>{
+        const id = searchParams.get('userId');
+        try {
+            let evts:IEvent[];
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const orgReader = eventOrganizerRoles.reader(user);
+            if(id){
+                evts = await getUserEvents(id);
+            }
+           
+            else{
+                evts = isAdmin ? await getEvents() : (orgReader && !isAdmin) ? await getPublicEvents() : await getChurchEvents(user?.churchId);
             }
 
             return evts;

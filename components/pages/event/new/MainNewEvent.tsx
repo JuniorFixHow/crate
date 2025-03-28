@@ -1,5 +1,5 @@
 'use client'
-import { canPerformAction, eventRoles } from '@/components/auth/permission/permission'
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRoles } from '@/components/auth/permission/permission'
 import AddButton from '@/components/features/AddButton'
 import Address from '@/components/shared/Address'
 import { today } from '@/functions/dates'
@@ -11,6 +11,7 @@ import { Alert } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
+import CustomCheck from '../../group/new/CustomCheck'
 
 
 const MainNewEvent = () => {
@@ -18,12 +19,14 @@ const MainNewEvent = () => {
   const [location, setLocation] =useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorProps>(null);
+  const [forAll, setForAll] = useState<boolean>(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const { user } = useAuth();
   const router = useRouter();
 
-   const creator = canPerformAction(user!, 'creator', {eventRoles});
+  const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+  const creator = canPerformAction(user!, 'creator', {eventRoles}) || orgCreator;
   
     useEffect(()=>{
         if(user && !creator){
@@ -78,7 +81,7 @@ const MainNewEvent = () => {
                 required
                 onChange={handleChange}
                 placeholder="type here..."
-                className="border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                className="border-b p-1 outline-none w-[95%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
                 type="text"
                 name="name"
               />
@@ -90,7 +93,7 @@ const MainNewEvent = () => {
                 required
                 onChange={handleChange}
                 placeholder="type here..."
-                className="border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                className="border-b p-1 outline-none w-[95%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
                 type="text"
                 name="location"
               /> */}
@@ -201,13 +204,20 @@ const MainNewEvent = () => {
               </select>
             </div>
              
+            {
+              orgCreator &&
+              <div className="flex items-center gap-4">
+                <span className="text-slate-400 font-semibold text-[0.8rem]">This event is public for all churches</span>
+                <CustomCheck checked={forAll} onClick={()=>setForAll((pre)=>!pre)} />
+              </div>
+            }
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 font-semibold text-[0.8rem]">Description</span>
               <textarea
                 
                 onChange={handleChange}
                 placeholder="type here..."
-                className="border p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
+                className="border p-1 outline-none w-[95%] md:w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]"
                 name="note"
               />
             </div>

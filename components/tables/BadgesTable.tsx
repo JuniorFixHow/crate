@@ -17,7 +17,7 @@ import { IMember } from '@/lib/database/models/member.model'
 import { enqueueSnackbar } from 'notistack'
 import AddButton from '../features/AddButton'
 import { useAuth } from '@/hooks/useAuth'
-import {  campusRoles, canPerformAction, eventRegistrationRoles,  groupRoles,  memberRoles, roomRoles } from '../auth/permission/permission'
+import {  campusRoles, canPerformAction, eventOrganizerRoles, eventRegistrationRoles,  groupRoles,  memberRoles, roomRoles } from '../auth/permission/permission'
 
 type BadgesTableProps = {
     // noHeader?:boolean,
@@ -93,13 +93,15 @@ const BadgesTable = ({eventId}:BadgesTableProps) => {
     // if(!user) return;
     const isAdmin = checkIfAdmin(user);
 
-    const showView = canPerformAction(user!, 'reader', {eventRegistrationRoles})
-    const showDelete = canPerformAction(user!, 'deleter', {eventRegistrationRoles})
-    const showCampus = canPerformAction(user!, 'reader', {campusRoles});
-    const showMember = canPerformAction(user!, 'reader', {memberRoles});
-    const showRoom = canPerformAction(user!, 'reader', {roomRoles});
-    const showGroup = canPerformAction(user!, 'reader', {groupRoles});
-    const showPrint = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+    const reader = canPerformAction(user!, 'reader', {eventOrganizerRoles});
+
+    const showView = canPerformAction(user!, 'reader', {eventRegistrationRoles}) || reader
+    const showDelete = canPerformAction(user!, 'deleter', {eventRegistrationRoles}) || reader
+    const showCampus = canPerformAction(user!, 'reader', {campusRoles}) || reader;
+    const showMember = canPerformAction(user!, 'reader', {memberRoles}) || reader;
+    const showRoom = canPerformAction(user!, 'reader', {roomRoles}) || reader;
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles}) || reader;
+    const showPrint = canPerformAction(user!, 'updater', {eventRegistrationRoles}) || reader;
 
 
 

@@ -9,9 +9,9 @@ import { Alert } from "@mui/material";
 import { ICYPSet } from "@/lib/database/models/cypset.model";
 import { createCpySet } from "@/lib/actions/cypset.action";
 import { useAuth } from "@/hooks/useAuth";
-import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import SearchSelectEventsV4 from "@/components/features/SearchSelectEventsV4";
 import { enqueueSnackbar } from "notistack";
-import { canPerformAction, questionSetRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, questionSetRoles } from "@/components/auth/permission/permission";
 import { useRouter } from "next/navigation";
 
 
@@ -28,7 +28,7 @@ const NewCYPSet = () => {
     const router = useRouter();
 
     const formRef = useRef<HTMLFormElement>(null);
-    const creator = canPerformAction(user!, 'creator', {questionSetRoles});
+    const creator = canPerformAction(user!, 'creator', {questionSetRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles});
 
     useEffect(()=>{
         if(user && !creator){
@@ -79,7 +79,7 @@ const NewCYPSet = () => {
         }
         <form ref={formRef} onSubmit={handleNewSet}  className="flex flex-col justify-between grow">
             <div className="flex flex-col gap-5">
-                <SearchSelectEventsV2 setSelect={setEventId} require />
+                <SearchSelectEventsV4 setSelect={setEventId} require />
                 <div className="flex flex-col md:max-w-[50%]">
                     <span className='text-slate-500 text-[0.8rem]' >Title</span>
                     <input onChange={(e)=>setTitle(e.target.value)} name='title' required  type="text" className='border-b px-[0.3rem] dark:bg-transparent dark:text-slate-300 py-1 border-b-slate-300 outline-none placeholder:text-[0.7rem]' placeholder='type here' />

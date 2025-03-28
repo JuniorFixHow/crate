@@ -17,8 +17,9 @@ import ArrivalInfoModal from "./ArrivalInfoModal";
 import { updateReg } from "@/lib/actions/registration.action";
 import { useAuth } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
-import { campusRoles, canPerformAction, eventRegistrationRoles, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
+import { campusRoles, canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
 import { useRouter } from "next/navigation";
+import { IEvent } from "@/lib/database/models/event.model";
 
 const ArrivalTable = () => {
     const {user} = useAuth();
@@ -29,23 +30,33 @@ const ArrivalTable = () => {
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
+    const [currentEvent, setCurrentEvent] = useState<IEvent|null>(null);
+
     const router = useRouter();
 
     // console.log(date);
     const {events} = useFetchEvents();
     const {checkRegistrations, refetch, loading} = useFetchCheckedInRegistrations(eventId);
 
+    const mine = currentEvent?.churchId.toString() === user?.churchId;
+    const isAdmin = isSuperUser(user!) || isSystemAdmin.updater(user!);
+
     const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
-    const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles});
+    const updater = (canPerformAction(user!, 'updater', {eventRegistrationRoles}) && mine && !currentEvent?.forAll) || isAdmin;
     const showMember = canPerformAction(user!, 'reader', {memberRoles});
     const showChurch = isSuperUser(user!) || isSystemAdmin.reader(user!);
     const showCampus = canPerformAction(user!, 'reader', {campusRoles});
 
+    const orgUpdate = canPerformEvent(user!, 'updater', {eventOrganizerRoles}) && currentEvent?.forAll;
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const canRead = reader || orgReader;
+    const canUpdate = updater || orgUpdate
+
     useEffect(()=>{
-      if(user && (!reader && !updater)){
+      if(user && (!canRead && !canUpdate)){
         router.replace('/dashboard/forbidden?p=Event Registration Reader')
       }
-    },[reader, updater, user, router])
+    },[user, router, canRead, canUpdate])
 
     const handleInfo = (data:IRegistration)=>{
       setInfoMode(true);
@@ -84,15 +95,15 @@ const ArrivalTable = () => {
     const message = `You're about to delete an arrival record. This will not affect the registration data of the member. Continue?`
 
     const paginationModel = { page: 0, pageSize: 15 };
-    if(!reader && !updater) return;
+    if(!canRead && !canUpdate) return;
   return (
     <div className="table-main2" >
-        <ArrivalTop eventId={eventId} setEventId={setEventId} />
+        <ArrivalTop setCurrentEvent={setCurrentEvent} eventId={eventId} setEventId={setEventId} />
 
         <div className="flex items-start gap-4 justify-end">
           {/* <ArrivalSearch setDate={setDate} setSearch={setSearch} /> */}
           {
-            updater &&
+            canUpdate &&
             <Link href={'/dashboard/events/arrivals/new'} >
               <AddButton text="New Arrival" noIcon smallText className="rounded" />
             </Link>
@@ -112,7 +123,7 @@ const ArrivalTable = () => {
               <DataGrid
                   getRowId={(row:IRegistration):string=> row?._id as string}
                   rows={checkRegistrations}
-                  columns={ArrivalColumns(handleInfo, handleDelete, reader, updater, showMember, showChurch, showCampus)}
+                  columns={ArrivalColumns(handleInfo, handleDelete, canRead, canUpdate!, showMember, showChurch, showCampus)}
                   initialState={{ 
                     pagination: { paginationModel },
                     columns:{

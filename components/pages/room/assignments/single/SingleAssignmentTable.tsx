@@ -16,7 +16,7 @@ import { addGroupToRoom, addMemberToRoom } from '@/lib/actions/room.action';
 import { IMember } from '@/lib/database/models/member.model';
 import { enqueueSnackbar } from 'notistack';
 import { useAuth } from '@/hooks/useAuth';
-import { isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
+import { canPerformEvent, eventOrganizerRoles, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
 
 type SingleAssignmentTableProps = {
     type:string,
@@ -37,7 +37,7 @@ const SingleAssignmentTable = ({type, currentGroup, currentRegistration, setCurr
     const [addLoading, setAddLoading] = useState<boolean>(false);
 
     const {rooms, loading} = useFetchAvailableRooms(eventId);
-    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!);
+    const roomAssign = isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || isSuperUser(user!) || roomRolesExtended.assign(user!) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
 
     const handleSelect =(id:string)=>{
         setRoomIds((prev)=>(

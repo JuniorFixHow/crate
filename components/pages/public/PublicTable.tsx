@@ -13,11 +13,11 @@ import { PublicColumns } from './PublicComuns';
 import DeleteDialog from '@/components/DeleteDialog';
 import { deleteCYPSet } from '@/lib/actions/cypset.action';
 import Link from 'next/link';
-import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
+import SearchSelectEventsV4 from '@/components/features/SearchSelectEventsV4';
 import PublicEditModal from './PublicEditModal';
 import { enqueueSnackbar } from 'notistack';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, eventRoles, questionSetRoles } from '@/components/auth/permission/permission';
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRoles, questionSetRoles } from '@/components/auth/permission/permission';
 import { useRouter } from 'next/navigation';
 
 const PublicTable = () => {
@@ -33,12 +33,12 @@ const PublicTable = () => {
 
     const {cypsets, loading, refetch} = useFetchCYPSetForEvent(eventId);
 
-    const creator = canPerformAction(user!, 'creator', {questionSetRoles});
-    const updater = canPerformAction(user!, 'updater', {questionSetRoles});
-    const deleter = canPerformAction(user!, 'deleter', {questionSetRoles});
-    const reader = canPerformAction(user!, 'reader', {questionSetRoles});
+    const creator = canPerformAction(user!, 'creator', {questionSetRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    const updater = canPerformAction(user!, 'updater', {questionSetRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const deleter = canPerformAction(user!, 'deleter', {questionSetRoles}) || canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const reader = canPerformAction(user!, 'reader', {questionSetRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
     const eReader = canPerformAction(user!, 'reader', {eventRoles});
-    const admin = canPerformAction(user!, 'admin', {questionSetRoles});
+    const admin = canPerformAction(user!, 'admin', {questionSetRoles}) || canPerformEvent(user!, 'admin', {eventOrganizerRoles});;
 
     useEffect(()=>{
       if(user && !admin){
@@ -81,7 +81,7 @@ const PublicTable = () => {
   return (
     <div className='table-main2' >
         <div className="flex flex-col md:flex-row justify-between gap-4">
-            <SearchSelectEventsV2 setSelect={setEventId} />
+            <SearchSelectEventsV4 setSelect={setEventId} />
             <div className="flex gap-4 items-center">
                 {
                   creator &&

@@ -1,5 +1,5 @@
 'use client'
-import { canPerformAction, eventRoles } from '@/components/auth/permission/permission'
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRoles } from '@/components/auth/permission/permission'
 import BottomActionItems from '@/components/features/BottomActionItems'
 import Title from '@/components/features/Title'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import React, { ChangeEvent, FormEvent,   useEffect,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
+import CustomCheck from '../group/new/CustomCheck'
 
 type EventMainProps = {
     event:IEvent
@@ -25,6 +26,7 @@ const EventMain = ({event}:EventMainProps) => {
     const [updateLoading, setUpdateLoading] = useState<boolean>(false);
     // const [loadingError, setLoadingError] = useState<string|null>(null);
     const [error, setError] = useState<ErrorProps>(null);
+    const [forAll, setForAll] = useState<boolean>(false);
 
     const router = useRouter();
 
@@ -40,14 +42,38 @@ const EventMain = ({event}:EventMainProps) => {
     const reader = canPerformAction(user!, 'reader', {eventRoles});
     const updater = canPerformAction(user!, 'updater', {eventRoles});
     const deleter = canPerformAction(user!, 'deleter', {eventRoles});
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const orgDeleter = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+
+    const org = orgDeleter || orgUpdater || orgReader;
+    const chc = reader || updater || deleter;
+    const access = org||chc;
+
+    const showDelete = (event?.forAll && orgDeleter) || (!event?.forAll && deleter);
+    const showUpdate = (event?.forAll && orgUpdater) || (!event?.forAll && updater);
 
     useEffect(()=>{
-        if(user && (!reader && !updater)){
-            router.replace('/dashboard/forbidden?p=Event Reader')
+        if(user ){
+            if(!access){
+                router.replace('/dashboard/forbidden?p=Event Reader')
+            }
+            else if(event?.forAll && (!org)){
+                router.replace('/dashboard/forbidden?p=Event Organization Reader')
+            }
+            else if(!event?.forAll && (event.churchId.toString() !== user?.churchId)){
+                router.replace('/dashboard/forbidden?p=Event Owner')
+            }
+            else if(!event?.forAll && !chc){
+                router.replace('/dashboard/forbidden?p=Event Reader')
+            }
         }
-    },[reader, user, updater, router])
+    },[access, chc, event.churchId, event?.forAll, org, router, user])
     
 
+    useEffect(()=>{
+        setForAll(event?.forAll)
+    },[event?.forAll])
 
     const handleUpdateEvent = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -61,6 +87,7 @@ const EventMain = ({event}:EventMainProps) => {
               from:data.from||event.from,
               to:data.to||event.to,
               note:data.note||event.note,
+              forAll,
               organizers:data.organizers||event.organizers,
               type:data.type||event.type,
               childPrice:data.childPrice||event.childPrice,
@@ -173,6 +200,14 @@ const EventMain = ({event}:EventMainProps) => {
                             </select>
                         </div>
 
+                        {
+                            orgUpdater &&
+                            <div className="flex items-center gap-4">
+                            <span className="text-slate-400 font-semibold text-[0.8rem]">This event is public for all churches</span>
+                            <CustomCheck checked={forAll} onClick={()=>setForAll((pre)=>!pre)} />
+                            </div>
+                        }
+
                         <div className="flex flex-col gap-1">
                             <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
                             <textarea onChange={handleChange} defaultValue={event?.note} placeholder='say something about this event' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
@@ -183,7 +218,7 @@ const EventMain = ({event}:EventMainProps) => {
                             error?.message &&
                             <Alert onClose={()=>setError(null)} severity={error.error ? 'error':'success'} >{error.message}</Alert>
                         }
-                        <BottomActionItems deleter={deleter} updater={updater} updateLoading={updateLoading} setError={setError} event={event!} />
+                        <BottomActionItems deleter={showDelete} updater={showUpdate} updateLoading={updateLoading} setError={setError} event={event!} />
                 </div>
                </div>
 

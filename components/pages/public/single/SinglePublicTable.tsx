@@ -16,8 +16,10 @@ import { enqueueSnackbar } from 'notistack';
 import ResponseMain from './responses/ResponseMain';
 import { ICYPSet } from '@/lib/database/models/cypset.model';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, questionSectionRoles } from '@/components/auth/permission/permission';
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, questionSectionRoles } from '@/components/auth/permission/permission';
 import { useRouter } from 'next/navigation';
+import { IEvent } from '@/lib/database/models/event.model';
+import { checkIfAdmin } from '@/components/Dummy/contants';
 
 type SinglePublicTableProps = {
     cypset:ICYPSet
@@ -31,6 +33,8 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
     const [response, setResponse] = useState<ErrorProps>(null);
     const [title, setStitle]= useState<string>('Sections');
 
+    const currentEvent = cypset?.eventId as IEvent;
+
     const router = useRouter();
 
     const {sections, loading, refetch} = useFetchSectionsForSet(cypset?._id)
@@ -41,12 +45,14 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
 
     const titles = hasQuestions ? ['Sections', 'Responses'] : ['Sections'];
 
+    const isAdmin = checkIfAdmin(user);
+
     const mine = cypset.createdBy.toString() === user?.userId
-    const creator = canPerformAction(user!, 'creator', {questionSectionRoles}) || mine;
-    const reader = canPerformAction(user!, 'reader', {questionSectionRoles}) || mine;
-    const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || mine;
-    const deleter = canPerformAction(user!, 'deleter', {questionSectionRoles}) || mine;
-    const admin = canPerformAction(user!, 'admin', {questionSectionRoles}) || mine;
+    const creator = (canPerformAction(user!, 'creator', {questionSectionRoles}) && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || mine || (canPerformEvent(user!, 'creator', {eventOrganizerRoles}) && currentEvent?.forAll) || isAdmin;
+    const reader = (canPerformAction(user!, 'reader', {questionSectionRoles}) && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || mine || (canPerformEvent(user!, 'reader', {eventOrganizerRoles}) && currentEvent?.forAll) || isAdmin;
+    const updater = (canPerformAction(user!, 'updater', {questionSectionRoles}) && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || mine || (canPerformEvent(user!, 'updater', {eventOrganizerRoles}) && currentEvent?.forAll) || isAdmin;
+    const deleter = (canPerformAction(user!, 'deleter', {questionSectionRoles}) && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || mine || (canPerformEvent(user!, 'deleter', {eventOrganizerRoles}) && currentEvent?.forAll) || isAdmin;
+    const admin = (canPerformAction(user!, 'admin', {questionSectionRoles}) && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || mine || (canPerformEvent(user!, 'admin', {eventOrganizerRoles}) && currentEvent?.forAll) || isAdmin;
 
     useEffect(()=>{
         if(user && (!admin)){
@@ -106,7 +112,7 @@ const SinglePublicTable = ({cypset}:SinglePublicTableProps) => {
         </div>
 
         <DeleteDialog title={`Delete ${currentSection?.title}`} message={message} value={deleteMode} setValue={setDeleteMode} onTap={handleDeleteSection} />
-        <SectionSelector setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypset?._id} />
+        <SectionSelector refetch={refetch} setInfoMode={setInfoMode} infoMode={infoMode} cypsetId={cypset?._id} />
         {
             response?.message &&
             <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>

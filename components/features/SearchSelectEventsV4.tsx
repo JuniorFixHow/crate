@@ -1,33 +1,30 @@
 'use client'
-import { useFetchEvents } from "@/hooks/fetch/useEvent";
+import { useFetchEventsV2 } from "@/hooks/fetch/useEvent";
 import { IEvent } from "@/lib/database/models/event.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react"
 
-type SearchSelectEventsV2Props = {
+type SearchSelectEventsV4Props = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
-    width?:number;
-    setCurrentEvent?:Dispatch<SetStateAction<IEvent|null>>
+    width?:number
 }
 
-const SearchSelectEventsV2 = ({setSelect, width, setCurrentEvent, require, value}:SearchSelectEventsV2Props) => {
-    const {events, loading} = useFetchEvents();
+const SearchSelectEventsV4 = ({setSelect, width, require, value}:SearchSelectEventsV4Props) => {
+    const {events, loading} = useFetchEventsV2();
     const [search, setSearch] = useState<string>('');
     useEffect(()=>{
       if(events.length){
         setSelect!(events[0]?._id);
-        if(setCurrentEvent) setCurrentEvent(events[0])
       }
-    },[events, setCurrentEvent, setSelect])
+    },[events, setSelect])
   return (
     <Autocomplete
       disablePortal
       options={events as IEvent[]}
       onChange={(_, v:IEvent|null)=>{
-        setSelect!(v?._id as string);
-        if(setCurrentEvent) setCurrentEvent(v); 
+        setSelect!(v?._id as string); 
       }}
       inputValue={search}
       onInputChange={(_, v)=>{
@@ -63,4 +60,4 @@ const SearchSelectEventsV2 = ({setSelect, width, setCurrentEvent, require, value
   )
 }
 
-export default SearchSelectEventsV2
+export default SearchSelectEventsV4

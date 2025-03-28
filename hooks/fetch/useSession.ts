@@ -1,19 +1,27 @@
-import { getEventSessions, getSessions, getUserSessionsWithoutEvent } from "@/lib/actions/session.action";
+import { getChurchSessions, getEventSessions, getPublicSessions, getSessions, getUserSessionsWithoutEvent } from "@/lib/actions/session.action";
 import { ISession } from "@/lib/database/models/session.model"
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "../useAuth";
+import { checkIfAdmin } from "@/components/Dummy/contants";
+import { eventOrganizerRoles } from "@/components/auth/permission/permission";
 
 export const useFetchSessions = ()=>{
     const searchParams = useSearchParams();
+    const {user} = useAuth();
 
     const fetchSessions = async():Promise<ISession[]>=>{
         const id = searchParams.get('id');
+
         try {
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const orgReader = eventOrganizerRoles.reader(user);
             let evts:ISession[];
             if(id){
                evts = await getUserSessionsWithoutEvent(id)
             }else{  
-                evts = await getSessions();
+                evts = isAdmin ? await getSessions() : (!isAdmin && orgReader) ? await getPublicSessions() : await getChurchSessions(user?.churchId);
             }
             const sorted =  evts.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
@@ -26,6 +34,7 @@ export const useFetchSessions = ()=>{
     const {data:sessions=[], isPending:loading, refetch} = useQuery({
         queryKey:['sessions', searchParams],
         queryFn:fetchSessions,
+        enabled: !!user
     })
 
     return {sessions, refetch, loading}

@@ -13,14 +13,15 @@ import NewSingleFacility from "./NewSingleFacility";
 // import { SearchFacility } from "./fxn";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, facilityRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 type SingleFacilityTableProps ={
     facilities:IFacility[],
-    venueId:string
+    venueId:string,
+    mine?:boolean
 }
 
-const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => {
+const SingleFacilityTable = ({facilities, mine, venueId}:SingleFacilityTableProps) => {
     const {user} = useAuth();
 
     const [currentFacility, setCurrentFacility] = useState<IFacility|null>(null);
@@ -28,9 +29,23 @@ const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => 
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     // const sorted = facilities && facilities?.sort((a, b)=> new Date(a.createdAt) < new Date(b.createdAt) ? 1:-1)
 
+    // const mine = user?.churchId === currentFacility?.churchId.toString();
+
+    const isAdmin = isSystemAdmin.updater(user!) || isSuperUser(user!);
+
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const orgDeleter = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    
+
     const creator = canPerformAction(user!, 'creator', {facilityRoles});
     const updater = canPerformAction(user!, 'updater', {facilityRoles});
     const deleter = canPerformAction(user!, 'deleter', {facilityRoles});
+
+    const canCreate = (creator && mine) || (orgCreator && mine) || isAdmin;
+    const canUpdate = (updater && mine) || (orgUpdater && mine) || isAdmin;
+    const canDelete = (deleter && mine) || (orgDeleter && mine) || isAdmin;
+
 
     const handleDeleteMode = (data:IFacility)=>{
         setDeleteMode(true);
@@ -67,14 +82,14 @@ const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => 
 
         <div className="flex flex-col gap-3">
             {
-                creator &&
+                canCreate &&
                 <div className="flex flex-row gap-4  items-center px-0  w-full md:justify-end">                
                     <AddButton onClick={handleNew} type="button" smallText text='Add Facility' noIcon className='rounded' />
                 </div>
             }
         </div>
 
-        <NewSingleFacility venueId={venueId} currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={editMode} setInfoMode={setEditMode} />
+        <NewSingleFacility mine={mine} venueId={venueId} currentFacility={currentFacility} setCurrentFacility={setCurrentFacility} infoMode={editMode} setInfoMode={setEditMode} />
         <DeleteDialog onTap={handledeleteFacility} message={message} title={`Delete ${currentFacility?.name}`} value={deleteMode} setValue={setDeleteMode} />
 
         {/* {
@@ -86,7 +101,7 @@ const SingleFacilityTable = ({facilities, venueId}:SingleFacilityTableProps) => 
                 <DataGrid
                     getRowId={(row:IFacility):string=> row?._id as string}
                     rows={facilities}
-                    columns={SingleFacilityColumns(handleEditMode, handleDeleteMode, updater, deleter)}
+                    columns={SingleFacilityColumns(handleEditMode, handleDeleteMode, canUpdate, canDelete)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15,20]}
                     slots={{toolbar:GridToolbar}}

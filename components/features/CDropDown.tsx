@@ -9,6 +9,7 @@ import { IZone } from '@/lib/database/models/zone.model'
 
 import React, { ChangeEvent, Dispatch, SetStateAction, useEffect } from 'react'
 import { checkIfAdmin } from '../Dummy/contants'
+import { canPerformAction, eventOrganizerRoles } from '../auth/permission/permission'
 
 export type xAxisProps = {
     isEvent:boolean,
@@ -52,12 +53,12 @@ const CDropDown = ({
 
     }, [churches, eventId, members, registrations, setEventXaxis, setEventYaxis, setXaxis, setYaxis, zones]);
     const {user} = useAuth();
-    const isAdmin = checkIfAdmin(user);
+    const isAdmin = checkIfAdmin(user) || canPerformAction(user!, 'reader', {eventOrganizerRoles});
   return (
     <>
     {
         isEvent ?
-        <select onChange={handleSelectEventChange} className='bg-transparent outline-none border rounded py-1 font-bold' defaultValue='Age Range' >
+        <select onChange={handleSelectEventChange} className='bg-transparent outline-none border rounded py-2 font-bold' defaultValue='Age Range' >
             {
                 (isAdmin ? CBarFiltersEvent : CBarFiltersEventAdmin).map((item:string)=>(
                     <option className='dark:bg-[#0F1214]' value={item} key={item} >{item}</option>

@@ -16,7 +16,7 @@ import SearchSelectChurchesV2 from "@/components/features/SearchSelectChurchesV2
 import { useAuth } from "@/hooks/useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { enqueueSnackbar } from "notistack";
-import { canPerformAction, facilityRoles, venueRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles, venueRoles } from "@/components/auth/permission/permission";
 import { useRouter } from "next/navigation";
 
 const VenueTable = () => {
@@ -30,22 +30,34 @@ const VenueTable = () => {
 
     const {venues, loading, refetch} = useFetchVenues();
     const router = useRouter();
-
+    
     const {user} = useAuth();
+    
+    // const mine = user?.churchId === currentVenue?.churchId.toString();
+    
+    const orgAdmin = canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+    const orgReader = canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+    const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const orgDelete = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
 
     const isAdmin = checkIfAdmin(user);
-    const creator = canPerformAction(user!, 'creator', {venueRoles});
-    const reader = canPerformAction(user!, 'reader', {venueRoles});
-    const updater = canPerformAction(user!, 'updater', {venueRoles});
+    const creator = canPerformAction(user!, 'creator', {venueRoles}) || orgCreator;
+    const reader = canPerformAction(user!, 'reader', {venueRoles}) || orgReader;
+    const updater = canPerformAction(user!, 'updater', {venueRoles}) || orgUpdater;
     const deleter = canPerformAction(user!, 'deleter', {venueRoles});
-    const admin = canPerformAction(user!, 'admin', {venueRoles});
-    const facReader = canPerformAction(user!, 'reader', {facilityRoles});
+    const admin = canPerformAction(user!, 'admin', {venueRoles}) || orgAdmin;
+    const facReader = canPerformAction(user!, 'reader', {facilityRoles}) || orgReader;
+
+    const canDelete = (orgDelete) || (deleter) || isAdmin;
+
+    const canAdmin = admin || orgAdmin;
 
     useEffect(()=>{
-        if(user && !admin){
+        if(user && !canAdmin){
             router.replace('/dashboard/forbidden?p=Venue Admin');
         }
-    },[admin, user, router])
+    },[canAdmin, user, router])
 
 
     const handleDeleteMode = (data:IVenue)=>{
@@ -74,14 +86,14 @@ const VenueTable = () => {
     const message = `You're about to delete a venue. This will delete facilties, rooms and keys depending on it`;
     const paginationModel = { page: 0, pageSize: 10 };
 
-    if(!admin) return;
+    if(!canAdmin) return;
   return (
     <div className='table-main2' >
 
         <div className="flex flex-col gap-3">
             <div className="flex flex-col md:items-end gap-4 md:flex-row">
                 {
-                    isAdmin &&
+                    (isAdmin) &&
                     <SearchSelectChurchesV2 setSelect={setChurchId}/>
                 }
             </div>
@@ -106,12 +118,12 @@ const VenueTable = () => {
           <Alert severity={response.error ? 'error':'success'} onClose={()=>setResponse(null)} >{response.message}</Alert>
         } */}
         <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 480, }}>
+            <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     loading={loading}
                     getRowId={(row:IVenue):string=> row?._id as string}
                     rows={SearchVenueWithchurchV2(venues,  churchId)}
-                    columns={VenueColumns(handleInfoMode, handleDeleteMode, reader, updater, deleter, facReader)}
+                    columns={VenueColumns(handleInfoMode, handleDeleteMode, reader, updater, canDelete, facReader)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 15, 20, 30, 50]}
                     slots={{toolbar:GridToolbar}}

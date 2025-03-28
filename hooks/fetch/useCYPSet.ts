@@ -1,9 +1,9 @@
 'use client'
-import { getCYPSets, getCYPSetsForChurch, getCYPSetsForEvent } from "@/lib/actions/cypset.action";
+import { getCYPSets, getCYPSetsForChurch, getCYPSetsForEvent, getPublicCYPSets } from "@/lib/actions/cypset.action";
 import { ICYPSet } from "@/lib/database/models/cypset.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
+import {  eventOrganizerRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 export const useFetchCYPSet = ()=>{
     const {user} = useAuth();
@@ -11,7 +11,8 @@ export const useFetchCYPSet = ()=>{
         try {
             if(!user) return [];
             const isAdmin = isSystemAdmin.reader(user) || isSuperUser(user);
-            const cyps:ICYPSet[] = isAdmin ? await getCYPSets(): await getCYPSetsForChurch(user?.churchId);
+            const orgReader = eventOrganizerRoles.reader(user);;
+            const cyps:ICYPSet[] = isAdmin ? await getCYPSets(): (orgReader && !isAdmin) ? await getPublicCYPSets() : await getCYPSetsForChurch(user?.churchId);
             const sorted = cyps.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
         } catch (error) {

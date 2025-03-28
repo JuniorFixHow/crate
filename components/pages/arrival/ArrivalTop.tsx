@@ -6,13 +6,15 @@ import { useFetchRegistrations } from "@/hooks/fetch/useRegistration";
 import { checkCheckedIn } from "./fxn";
 // import SearchSelectEvents from "@/components/features/SearchSelectEvents";
 import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import { IEvent } from "@/lib/database/models/event.model";
 
 type ArrivalTopProps = {
     eventId:string,
-    setEventId:Dispatch<SetStateAction<string>>
+    setEventId:Dispatch<SetStateAction<string>>,
+    setCurrentEvent:Dispatch<SetStateAction<IEvent|null>>
 } & ComponentProps<'div'>
 
-const ArrivalTop = ({ setEventId,eventId, className, ...props}:ArrivalTopProps) => {
+const ArrivalTop = ({ setEventId, setCurrentEvent, eventId, className, ...props}:ArrivalTopProps) => {
     // const [value, setValue] = useState<boolean>(false);
     // const [selected, setSelected] = useState<string>('');
     const {events} = useFetchEvents();
@@ -22,7 +24,7 @@ const ArrivalTop = ({ setEventId,eventId, className, ...props}:ArrivalTopProps) 
   return (
     <div {...props}  className={`flex flex-col md:flex-row md:items-end gap-8 ${className}`}>
         <div className="flex flex-row relative">
-            <SearchSelectEventsV2 setSelect={setEventId}  />
+            <SearchSelectEventsV2 setCurrentEvent={setCurrentEvent} setSelect={setEventId}  />
             {/* {
                 value &&
                 <IoCloseSharp className="text-red-700 cursor-pointer absolute -top-4 right-0 z-50" onClick={()=>setValue(false)} />

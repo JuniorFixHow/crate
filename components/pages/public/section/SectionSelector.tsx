@@ -11,15 +11,17 @@ import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react"
 import SectionSelectCenter from "./SectionSelectCenter";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, questionSectionRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, questionSectionRoles } from "@/components/auth/permission/permission";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 type SectionSelectorProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>,
-    cypsetId:string
+    cypsetId:string,
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ISection[], Error>>
 }
 
-const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps) => {
+const SectionSelector = ({infoMode, refetch, setInfoMode, cypsetId}:SectionSelectorProps) => {
     const {user} = useAuth();
     const [loading, setLoading] = useState<boolean>(false);
     const [title, setTitle] = useState<string>('');
@@ -32,7 +34,7 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
     const router = useRouter();
 
     const formRef = useRef<HTMLFormElement>(null);
-    const creator = canPerformAction(user!, 'creator', {questionSectionRoles});
+    const creator = canPerformAction(user!, 'creator', {questionSectionRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles});
 
     // useEffect(()=>{
     //     if(user && !creator){
@@ -67,6 +69,8 @@ const SectionSelector = ({infoMode, setInfoMode, cypsetId}:SectionSelectorProps)
                 // setInfoMode(false);
             }
             enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+            setInfoMode(false);
+            refetch();
         } catch (error) {
             console.log(error);
             enqueueSnackbar('Error occured creating section', {variant:'error'});

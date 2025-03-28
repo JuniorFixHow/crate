@@ -25,7 +25,7 @@ const Roles = ({selection, user}:RolesProps) => {
     // const [response, setResponse] = useState<ErrorProps>(null);
     const superUser = isSuperUser(user);
     const sa = isSystemAdmin.controller(user);
-    const protectedRoles = ['Church Admin', 'Church', 'Contracts', 'Service', 'Zone'];
+    const protectedRoles = ['Church Admin', 'Church', 'Contracts', 'Service', 'Zone', 'Event Organizer'];
 
     useEffect(()=>{
         if(selection.length === 1){

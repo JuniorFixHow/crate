@@ -1,5 +1,5 @@
 'use client'
-import { attendanceRoles, canPerformAction } from '@/components/auth/permission/permission';
+import { attendanceRoles, canPerformAction, canPerformEvent, eventOrganizerRoles } from '@/components/auth/permission/permission';
 import OpenScanner from '@/components/features/sessions/OpenScanner';
 import ScanSuccess from '@/components/features/sessions/ScanSuccess';
 import SelectSessionScan from '@/components/features/sessions/SelectSessionScan'
@@ -18,14 +18,15 @@ const Scanner = () => {
     const router = useRouter();
 
     const creator = canPerformAction(user!, 'creator', {attendanceRoles});
+    const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
 
     useEffect(()=>{
-        if(user && !creator){
+        if(user && (!creator && !orgCreator)){
             router.replace('/dashboard/forbidden?p=Attendance Creator');
         }
-    },[user, creator, router])
+    },[user, creator, orgCreator, router])
 
-    if(!creator) return;
+    if(!creator && !orgCreator) return;
   return (
     <div className='w-full' >
         {

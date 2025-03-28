@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { IEvent } from '@/lib/database/models/event.model';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, eventRegistrationRoles, groupRoles, groupRolesExtended, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles, groupRoles, groupRolesExtended, isChurchAdmin, isSuperUser, isSystemAdmin, roomRolesExtended } from '@/components/auth/permission/permission';
 
 type SingleGroupTableProps = {
   currentGroup:IGroup
@@ -42,6 +42,8 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
     const [showRooms, setShowRooms] = useState<boolean>(false);
     const router = useRouter();
 
+    const event = currentGroup?.eventId as IEvent;
+
     const searchParams = useSearchParams();
 
     const reader = canPerformAction(user!, 'reader', {eventRegistrationRoles});
@@ -50,12 +52,19 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
     const groupReader = canPerformAction(user!, 'reader', {groupRoles});
     const groupAssign = groupRolesExtended.assign(user!) || isChurchAdmin.creator(user!) || isSystemAdmin.creator(user!) || isSuperUser(user!);
     const roomAssign = roomRolesExtended.assign(user!) || isChurchAdmin.creator(user!) || isSystemAdmin.creator(user!) || isSuperUser(user!);
+
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const orgUpdate = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const canRead = orgReader || groupReader;
+    const eventReder = orgReader || reader;
+
+    const canAssignRoom = event?.forAll ? orgUpdate : roomAssign;
     
     useEffect(()=>{
-      if(user && (!deleter && !groupUpdater && !groupReader && !groupAssign)){
+      if(user && (!deleter && !groupUpdater && !canRead && !groupAssign)){
         router.replace('/dashboard/forbidden?p=Group Reader')
       }
-    },[deleter, groupAssign, groupReader, groupUpdater, user, router])
+    },[deleter, groupAssign, canRead, groupUpdater, user, router])
 
     const fetchRegistrations = async ():Promise<IRegistration[]> => {
       try {
@@ -104,9 +113,9 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
 
     const handleRemoveMember = async()=>{
       try {
-        const event = currentGroup?.eventId as IEvent;
+        // const event = currentGroup?.eventId as IEvent;
         if(currentMember){
-          const res = await removeMemberFromGroup(currentGroup._id, currentMember._id, event._id);
+          const res = await removeMemberFromGroup(currentGroup._id, currentMember._id, event?._id);
           enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
           setRemoveMode(false);
           refetch()
@@ -121,7 +130,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
     const warn = `You're about to remove this member from the group. Are you aware?`
     const message = `Deleting will remove all members in the group as well. You're rather advised to remove the unwanted members. Do you still want to delete the group?`
 
-    if(!deleter && !groupUpdater && !groupReader && !groupAssign) return;
+    if(!deleter && !groupUpdater && !canRead && !groupAssign) return;
 
   return (
     <div className='table-main2' >
@@ -145,7 +154,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
                 <AddButton onClick={()=>setNewMode(true)} text='Add a member' smallText className='rounded' />
               }
               {
-                roomAssign &&
+                canAssignRoom &&
                 <AddButton onClick={()=>setShowRooms(true)} noIcon smallText className='rounded' text={(currentGroup?.roomIds && currentGroup?.roomIds.length >0) ? 'Add Rooms' :'Assign Rooms'} />
               }
             </div>
@@ -178,7 +187,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
                     rows={registrations}
                     loading={loading}
                     getRowId={(row:IRegistration)=>row._id}
-                    columns={SingleGroupColumns(handleRemove, reader, groupAssign)}
+                    columns={SingleGroupColumns(handleRemove, eventReder, groupAssign)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10, 20, 30, 50, 100]}
                     slots={{toolbar:GridToolbar}}
@@ -199,7 +208,7 @@ const SingleGroupTable = ({currentGroup}:SingleGroupTableProps) => {
             </div>
 
             :
-            <GroupRooms user={user!} roomAssign={roomAssign} currentGroup={currentGroup} />
+            <GroupRooms user={user!} roomAssign={canAssignRoom} currentGroup={currentGroup} />
 
           }
 

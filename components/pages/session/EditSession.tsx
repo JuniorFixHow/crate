@@ -10,9 +10,10 @@ import {  updateSession } from '@/lib/actions/session.action'
 // import CircularIndeterminate from '@/components/misc/CircularProgress'
 import { ErrorProps } from '@/types/Types'
 import { Alert } from '@mui/material'
-import { canPerformAction, sessionRoles } from '@/components/auth/permission/permission'
+import { canPerformAction, canPerformEvent, eventRegistrationRoles, sessionRoles } from '@/components/auth/permission/permission'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
+import { IEvent } from '@/lib/database/models/event.model'
 
 type EditSessionProps = {
   currentSession:ISession,
@@ -21,6 +22,7 @@ type EditSessionProps = {
 const EditSession = ({currentSession}:EditSessionProps) => {
   const {user} = useAuth();
   const router = useRouter();
+  const event = currentSession?.eventId as IEvent;
   const [data, setData] = useState<Partial<ISession>>({});
   const [eventId, setEventId] = useState<string>('');
   // const [currentSession, setCurrentSession] = useState<ISession|null>(null);
@@ -32,12 +34,15 @@ const EditSession = ({currentSession}:EditSessionProps) => {
   const [to, setTo] =useState<Date|null>(null);
 
   const updater = canPerformAction(user!, 'updater', {sessionRoles});
+  const orgUpdater = canPerformEvent(user!, 'updater', {eventRegistrationRoles});
+
+  const canUpdate = (event?.forAll && orgUpdater) || (!event?.forAll && updater && event.churchId.toString() === user?.churchId )
 
   useEffect(()=>{
-    if(user && !updater){
+    if(user && (!canUpdate)){
       router.replace('/dashboard/forbidden?p=Session Updater');
     }
-  },[user, updater, router])
+  },[user, canUpdate, router])
 
   const handleChange=(e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
@@ -152,7 +157,7 @@ const EditSession = ({currentSession}:EditSessionProps) => {
               }
 
               <div className="flex gap-6 flex-row items-center">
-                <AddButton text={updateLoading ? 'loading...': 'Save Changes'} noIcon smallText className='rounded px-4' />
+                <AddButton text={updateLoading ? 'loading...': 'Save Changes'} noIcon smallText className={`${!canUpdate && 'hidden'} rounded px-4`} />
                 <Link href='/dashboard/events/sessions' >
                   <AddButton text='Cancel' isCancel noIcon smallText className='rounded px-4' />
                 </Link>

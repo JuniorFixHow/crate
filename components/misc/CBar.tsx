@@ -1,6 +1,6 @@
 'use client'
 import CDropDown from '@/components/features/CDropDown'
-import SearchSelectEvents from '@/components/features/SearchSelectEvents'
+// import SearchSelectEvents from '@/components/features/SearchSelectEvents'
 import { IChurch } from '@/lib/database/models/church.model'
 import { IEvent } from '@/lib/database/models/event.model'
 import { IMember } from '@/lib/database/models/member.model'
@@ -9,6 +9,7 @@ import { IZone } from '@/lib/database/models/zone.model'
 import { CircularProgress } from '@mui/material'
 import { AxisConfig, BarChart, ChartsXAxisProps } from '@mui/x-charts'
 import React, { ComponentProps, Dispatch, SetStateAction, useEffect, useState } from 'react'
+import SearchSelectEventsV2 from '../features/SearchSelectEventsV2'
 
 export type CBarProps = {
     isEvent?:boolean,
@@ -46,7 +47,7 @@ const CBar = ({
             <div className="flex gap-5 items-end">
                 {
                     isEvent &&
-                    <SearchSelectEvents setSelect={setEventId!} isGeneric />
+                    <SearchSelectEventsV2 setSelect={setEventId!}  />
                 }
                 <CDropDown 
                     isEvent={isEvent!} 

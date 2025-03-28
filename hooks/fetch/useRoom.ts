@@ -1,4 +1,4 @@
-import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getMergedRegistrationDataForChurch,  getRooms, getRoomsForChurch, getRoomsInaVenue } from "@/lib/actions/room.action";
+import { getAvailableRooms, getMembersInRoom, getMergedRegistrationData,  getMergedRegistrationDataForChurch,  getPublicRooms,  getRooms, getRoomsForChurchV2, getRoomsInaVenue } from "@/lib/actions/room.action";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import {  IMergedRegistrationData } from "@/types/Types";
@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useAuth } from "../useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
-import { isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
+import { eventOrganizerRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 
 
 export const useFetchRooms = () => {
@@ -17,7 +17,8 @@ export const useFetchRooms = () => {
         try {
             if(!user) return [];
             const isAdmin = checkIfAdmin(user);
-            const fetchedRooms:IRoom[] = isAdmin ? await getRooms(): await getRoomsForChurch(user?.churchId) ;
+            const orgReader = eventOrganizerRoles.reader(user);
+            const fetchedRooms:IRoom[] = isAdmin ? await getRooms(): (orgReader && !isAdmin) ? await getPublicRooms() : await getRoomsForChurchV2(user?.churchId) ;
             const sorted = fetchedRooms.sort((a, b)=> new Date(a.createdAt!)<new Date(b.createdAt!) ? 1:-1);
             return sorted;
         } catch (err) {

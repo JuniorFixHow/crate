@@ -17,9 +17,9 @@ import { IRoom } from "@/lib/database/models/room.model";
 import { useFetchRooms } from "@/hooks/fetch/useRoom";
 // import { ErrorProps } from "@/types/Types";
 import { enqueueSnackbar } from "notistack";
-import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2";
+import SearchSelectEventsV4 from "@/components/features/SearchSelectEventsV4";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, eventRoles, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRoles, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
 
 const RoomTable = () => {
     const {user} = useAuth();
@@ -36,14 +36,14 @@ const RoomTable = () => {
 
     const {rooms, loading, refetch} = useFetchRooms();
 
-    const reader = canPerformAction(user!, 'reader', {roomRoles});
-    const updater = canPerformAction(user!, 'updater', {roomRoles});
-    const deleter = canPerformAction(user!, 'deleter', {roomRoles});
-    const creator = canPerformAction(user!, 'creator', {roomRoles});
-    const admin = canPerformAction(user!, 'admin', {roomRoles});
-    const facReader = canPerformAction(user!, 'reader', {facilityRoles});
-    const venueReader = canPerformAction(user!, 'reader', {venueRoles});
-    const eventReader = canPerformAction(user!, 'reader', {eventRoles});
+    const reader = canPerformAction(user!, 'reader', {roomRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const updater = canPerformAction(user!, 'updater', {roomRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles}) ;
+    const deleter = canPerformAction(user!, 'deleter', {roomRoles}) || canPerformEvent(user!, 'deleter', {eventOrganizerRoles}) ;
+    const creator = canPerformAction(user!, 'creator', {roomRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles}) ;
+    const admin = canPerformAction(user!, 'admin', {roomRoles}) || canPerformEvent(user!, 'admin', {eventOrganizerRoles}) ;
+    const facReader = canPerformAction(user!, 'reader', {facilityRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles}) ;
+    const venueReader = canPerformAction(user!, 'reader', {venueRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles}) ;
+    const eventReader = canPerformAction(user!, 'reader', {eventRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles}) ;
 
     useEffect(()=>{
         if(user && !admin){
@@ -106,7 +106,7 @@ const RoomTable = () => {
     return (
       <div className='table-main2' >
           <div className="flex flex-col gap-5 lg:flex-row items-start lg:justify-between w-full">
-            <SearchSelectEventsV2 setSelect={setEventId} />
+            <SearchSelectEventsV4 setSelect={setEventId} />
             <div className="flex flex-row gap-4  items-center px-0 lg:px-4">
                 {/* <SearchBar className='py-[0.15rem]' setSearch={setSearch} reversed={false} /> */}
                 {

@@ -11,13 +11,15 @@ import DeleteDialog from "../DeleteDialog";
 import { deleteAttendance } from "@/lib/actions/attendance.action";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
-import { attendanceRoles, canPerformAction, memberRoles, sessionRoles } from "../auth/permission/permission";
+import { attendanceRoles, canPerformAction, canPerformEvent, eventOrganizerRoles, memberRoles, sessionRoles } from "../auth/permission/permission";
+import { IEvent } from "@/lib/database/models/event.model";
 
 type AttendanceTableProps = {
-    currentSession:ISession
+    currentSession:ISession,
+    currentEvent:IEvent|null
 }
 
-const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
+const AttendanceTable = ({currentSession, currentEvent}:AttendanceTableProps) => {
     const [currentAttendance, setCurrentAttendance] = useState<IAttendance|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
@@ -54,6 +56,12 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
     const showSession = canPerformAction(user, 'reader', {sessionRoles});
     const showDelete = canPerformAction(user, 'deleter', {attendanceRoles});
 
+    const orgReader = canPerformEvent(user, 'reader', {eventOrganizerRoles});
+    const orgDeleter = canPerformEvent(user, 'deleter', {eventOrganizerRoles});
+
+    const canShowSession = (currentEvent?.forAll && orgReader) || (!currentEvent?.forAll && showSession);
+    const canShowDelete = (currentEvent?.forAll && orgDeleter) || (!currentEvent?.forAll && showDelete);
+
   return (
     <div className="table-main2">
         {/* <div className="flex items-center flex-row justify-between w-full">
@@ -68,7 +76,7 @@ const AttendanceTable = ({currentSession}:AttendanceTableProps) => {
                     <DataGrid
                         loading={loading}
                         rows={attendances}
-                        columns={AttendanceColumns(handleDelete, showMember, showSession, showDelete)}
+                        columns={AttendanceColumns(handleDelete, showMember, canShowSession, canShowDelete)}
                         initialState={{ pagination: { paginationModel } }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
                         getRowId={(row:IAttendance)=>row._id}

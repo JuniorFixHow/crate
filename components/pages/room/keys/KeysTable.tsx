@@ -16,11 +16,11 @@ import { deleteKey, getKey } from "@/lib/actions/key.action"
 import { useRouter, useSearchParams } from "next/navigation"
 // import SearchSelectEvents from "@/components/features/SearchSelectEvents"
 import KeyInfoModal from "./KeyInfoModal"
-import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2"
+import SearchSelectEventsV4 from "@/components/features/SearchSelectEventsV4"
 import SearchSelectRoomsV2 from "@/components/features/SearchSelectRoomsV2"
 import { enqueueSnackbar } from "notistack"
 import { useAuth } from "@/hooks/useAuth"
-import { canPerformAction, isChurchAdmin, isSuperUser, isSystemAdmin, keyRoles, keyRolesExtended, memberRoles, roomRoles } from "@/components/auth/permission/permission"
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, isChurchAdmin, isSuperUser, isSystemAdmin, keyRoles, keyRolesExtended, memberRoles, roomRoles } from "@/components/auth/permission/permission"
 
 const KeysTable = () => {
     const {user} = useAuth();
@@ -36,14 +36,21 @@ const KeysTable = () => {
 
     const {keys, loading, refetch} = useFetchKeys();
 
-    const creator = canPerformAction(user!, 'creator', {keyRoles});
-    const updater = canPerformAction(user!, 'updater', {keyRoles});
-    const reader = canPerformAction(user!, 'reader', {keyRoles});
-    const deleter = canPerformAction(user!, 'deleter', {keyRoles});
-    const admin = canPerformAction(user!, 'admin', {keyRoles});
-    const roomReader = canPerformAction(user!, 'reader', {roomRoles});
+    const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    const orgDeleter = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const orgAdmin = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+
+    const creator = canPerformAction(user!, 'creator', {keyRoles}) || orgCreator;
+    const updater = canPerformAction(user!, 'updater', {keyRoles}) || orgUpdater;
+    const reader = canPerformAction(user!, 'reader', {keyRoles}) || orgReader;
+    const deleter = canPerformAction(user!, 'deleter', {keyRoles}) || orgDeleter;
+    const admin = canPerformAction(user!, 'admin', {keyRoles}) || orgAdmin;
+    const roomReader = canPerformAction(user!, 'reader', {roomRoles}) || orgReader;
     const showMember = canPerformAction(user!, 'reader', {memberRoles});
-    const assign = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || keyRolesExtended.assign(user!);
+    const assign = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || keyRolesExtended.assign(user!) || orgUpdater;
+
 
     useEffect(()=>{
         if(user && !admin){
@@ -114,7 +121,7 @@ const KeysTable = () => {
     <div className="table-main2" >
         <div className="flex w-full flex-col items-center gap-4 md:flex-row md:justify-between">
             <div className="flex items-center flex-col md:flex-row gap-4">
-                <SearchSelectEventsV2 setSelect={setEventId} />
+                <SearchSelectEventsV4 setSelect={setEventId} />
                 <SearchSelectRoomsV2 eventId={eventId} setSelect={setRoomId} />
             </div>
             <div className="flex items-end gap-4">

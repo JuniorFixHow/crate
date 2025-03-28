@@ -9,7 +9,7 @@ import Link from 'next/link'
 import TipUser from '@/components/misc/TipUser'
 import { LinearProgress } from '@mui/material'
 import { useAuth } from '@/hooks/useAuth'
-import { eventRegistrationRoles,  isChurchAdmin, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission'
+import { eventOrganizerRoles, eventRegistrationRoles,  isChurchAdmin, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission'
 import { useRouter } from 'next/navigation'
 
 type NewBadgeSearchProps = {
@@ -24,7 +24,7 @@ const NewBadgeSearch = ({isRegisterItem}:NewBadgeSearchProps) => {
     const router = useRouter();
     // console.log(members.length)
     
-    const creator  = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || eventRegistrationRoles.assign(user!) || eventRegistrationRoles.creator(user!)
+    const creator  = isSuperUser(user!) || isSystemAdmin.creator(user!) || isChurchAdmin.creator(user!) || eventRegistrationRoles.assign(user!) || eventRegistrationRoles.creator(user!) || eventOrganizerRoles.creator(user!)
     
     useEffect(()=>{
       if(user && !creator){

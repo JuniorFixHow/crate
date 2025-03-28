@@ -55,6 +55,7 @@ export const classSessionRoles = createRoleCheckers("CLS");
 export const contractRoles = createRoleCheckers("CO");
 export const questionSetRoles = createRoleCheckers("CY");
 export const eventRoles = createRoleCheckers("EV");
+export const eventOrganizerRoles = createRoleCheckers("EVO");
 export const facilityRoles = createRoleCheckers("FA");
 export const groupRoles = createRoleCheckers("GR");
 export const keyRoles = createRoleCheckers("KE");
@@ -101,6 +102,19 @@ export const canPerformAction = (
     isSuperUser(user) || 
     (action in isSystemAdmin && isSystemAdmin[action]?.(user)) || 
     (action in isChurchAdmin && isChurchAdmin[action]?.(user)) || 
+    Object.values(entityRoles).some(role => action in role && role[action]?.(user))
+  );
+};
+
+
+export const canPerformEvent = (
+  user: SessionPayload,
+  action: keyof (typeof isSystemAdmin  & ReturnType<typeof createRoleCheckers>),
+  entityRoles: { [key: string]: Partial<ReturnType<typeof createRoleCheckers>> }
+) => {
+  return (
+    isSuperUser(user) || 
+    (action in isSystemAdmin && isSystemAdmin[action]?.(user)) || 
     Object.values(entityRoles).some(role => action in role && role[action]?.(user))
   );
 };

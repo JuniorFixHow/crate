@@ -21,7 +21,7 @@ import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import SearchSelectChurchesV3 from "@/components/features/SearchSelectChurchesV3";
-import { canPerformAction, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, facilityRoles, roomRoles, venueRoles } from "@/components/auth/permission/permission";
 
 
 
@@ -42,13 +42,13 @@ const FacilityTable = () => {
 
    const {user} = useAuth();
    const isAdmin = checkIfAdmin(user);
-   const creator = canPerformAction(user!, 'creator', {facilityRoles});
-   const deleter = canPerformAction(user!, 'deleter', {facilityRoles});
-   const reader = canPerformAction(user!, 'reader', {facilityRoles});
-   const admin = canPerformAction(user!, 'admin', {facilityRoles});
-   const updater = canPerformAction(user!, 'updater', {facilityRoles});
-   const venueReader = canPerformAction(user!, 'reader', {venueRoles});
-   const roomReader = canPerformAction(user!, 'reader', {roomRoles});
+   const creator = canPerformAction(user!, 'creator', {facilityRoles}) || canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+   const deleter = canPerformAction(user!, 'deleter', {facilityRoles}) || canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+   const reader = canPerformAction(user!, 'reader', {facilityRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+   const admin = canPerformAction(user!, 'admin', {facilityRoles}) || canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+   const updater = canPerformAction(user!, 'updater', {facilityRoles}) || canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+   const venueReader = canPerformAction(user!, 'reader', {venueRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+   const roomReader = canPerformAction(user!, 'reader', {roomRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
 
    useEffect(()=>{
     if(user && (!admin)){
@@ -137,7 +137,7 @@ const FacilityTable = () => {
                 <Alert severity={response.error ? 'error':'success'} >{response.message}</Alert>
             } */}
           <div className="flex w-full">
-            <Paper className='w-full' sx={{ height: 480, }}>
+            <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
                     rows={SearchFacilityWithChurchV2(facilities,  churchId)}
                     columns={FacilityColumns(hadndleInfo, handleNewFacility, handleDelete, reader, updater, deleter, venueReader)}

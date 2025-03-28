@@ -1,7 +1,7 @@
 'use client'
 
 import AddButton from "@/components/features/AddButton"
-import SearchSelectEventsV2 from "@/components/features/SearchSelectEventsV2"
+import SearchSelectEventsV4 from "@/components/features/SearchSelectEventsV4"
 import SearchSelectMemberForKey from "@/components/features/SearchSelectMemberForKey"
 import SearchSelectRoomsV2 from "@/components/features/SearchSelectRoomsV2"
 import { useFetchMembersInRoom } from "@/hooks/fetch/useRoom"
@@ -151,7 +151,7 @@ const NewKey = ({editMode, assign, updater, setEditMode, currentKey, setCurrentK
 
                 <div className="flex flex-col">
                     <span className='text-slate-500 text-[0.8rem]' >Select Event</span>
-                    <SearchSelectEventsV2 setSelect={setEventId} />
+                    <SearchSelectEventsV4 setSelect={setEventId} />
                 </div>
 
                 <div className="flex gap-12 items-end">

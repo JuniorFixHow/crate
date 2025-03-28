@@ -49,10 +49,50 @@ export async function getEvents(){
     }
 }
 
+export async function getPublicEvents(){
+    try {
+        await connectDB();
+        const events = await Event.find({forAll:true}).populate('createdBy').lean();
+        return JSON.parse(JSON.stringify(events));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching events:', error.message);
+            throw new Error(`Error occurred during events fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during events fetch');
+        }
+    }
+}
+
 export async function getChurchEvents(churchId:string){
     try {
         await connectDB();
-        const events = await Event.find({churchId}).populate('createdBy').lean();
+        const events = await Event.find({
+           forAll:false,
+           churchId
+        }).populate('createdBy').lean();
+        return JSON.parse(JSON.stringify(events));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching events:', error.message);
+            throw new Error(`Error occurred during events fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during events fetch');
+        }
+    }
+}
+
+export async function getChurchEventsV2(churchId:string){
+    try {
+        await connectDB();
+        const events = await Event.find({
+            $or:[
+                {churchId},
+                {forAll:true}
+            ]
+        }).populate('createdBy').lean();
         return JSON.parse(JSON.stringify(events));
     } catch (error) {
         if (error instanceof Error) {

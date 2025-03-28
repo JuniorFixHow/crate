@@ -13,8 +13,10 @@ import { getSection } from "@/lib/actions/section.action"
 import { ISection } from "@/lib/database/models/section.model"
 import { enqueueSnackbar } from "notistack"
 import { useAuth } from "@/hooks/useAuth"
-import { canPerformAction, questionSectionRoles, questionSetRoles } from "@/components/auth/permission/permission"
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, questionSectionRoles, questionSetRoles } from "@/components/auth/permission/permission"
 import { ICYPSet } from "@/lib/database/models/cypset.model"
+import { IEvent } from "@/lib/database/models/event.model"
+import { checkIfAdmin } from "@/components/Dummy/contants"
 // import { ICYPSet } from "@/lib/database/models/cypset.model"
 
 const NewEditor = ({currentSection}:NewPlaygroundProps) => {
@@ -26,12 +28,21 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
   const searchParams = useSearchParams();
 //   const cyp = currentSection.cypsetId as unknown as ICYPSet
   const set = currentSection?.cypsetId as ICYPSet;
+  const currentEvent = set?.eventId as IEvent;
   const mine = set?.createdBy.toString() === user?.userId;
+  const isAdmin = checkIfAdmin(user);
   const router = useRouter();
   // alert(mine)
 
   const updater = canPerformAction(user!, 'updater', {questionSectionRoles}) || canPerformAction(user!, 'updater', {questionSetRoles}) || mine;
   const reader = canPerformAction(user!, 'reader', {questionSectionRoles}) || canPerformAction(user!, 'reader', {questionSetRoles}) || mine;
+
+  const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+  const orgReader = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+
+  const canRead = (orgReader && currentEvent?.forAll) || (reader && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || isAdmin;
+  const canUpdate = (orgUpdater && currentEvent?.forAll) || (updater && !currentEvent?.forAll && currentEvent?.churchId === user?.churchId) || isAdmin;
+  
 
   const handleSaveQuestions = async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
@@ -49,10 +60,10 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
   }
 
   useEffect(()=>{
-    if(user && (!updater && !reader)){
+    if(user && (!canUpdate && !canRead)){
       router.replace('/dashboard/forbidden?p=Section Reader');
     }
-  },[user, reader, updater, router])
+  },[user, canRead, canUpdate, router])
 
   useEffect(() => {
     const id = searchParams.get("copy");
@@ -79,7 +90,7 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
   }, [currentSection._id, searchParams]);
   
 
-  if(!reader && !updater) return;
+  if(!canRead && !canUpdate) return;
   return (
     <form onSubmit={handleSaveQuestions}  className="bg-white dark:bg-[#0F1214]/50 dark:border py-6 rounded w-full min-h-[80vh] flex flex-col" >
         <div className="flex justify-between w-full border-b border-b-slate-300 pb-3 px-6">
@@ -94,7 +105,7 @@ const NewEditor = ({currentSection}:NewPlaygroundProps) => {
                     <span className="font-bold" >{questions.length}</span>
                 </div>
                 {
-                  updater &&
+                  canUpdate &&
                   <AddButton disabled={loading} text={loading ? "loading..." : "Save"} noIcon smallText className="rounded" />
                 }
                 <AddButton type="button" onClick={()=>setOpen(true)} text="Preview" isCancel noIcon smallText className="rounded" />

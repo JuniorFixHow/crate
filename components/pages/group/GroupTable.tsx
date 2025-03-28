@@ -13,7 +13,7 @@ import {  useFetchGroupsForEvent } from '@/hooks/fetch/useGroups';
 import { IGroup } from '@/lib/database/models/group.model';
 import SearchSelectEventsV2 from '@/components/features/SearchSelectEventsV2';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, churchRoles, groupRoles, groupRolesExtended, roomRoles } from '@/components/auth/permission/permission';
+import { canPerformAction, canPerformEvent, churchRoles, eventOrganizerRoles, groupRoles, groupRolesExtended, roomRoles } from '@/components/auth/permission/permission';
 import Link from 'next/link';
 import { checkIfAdmin } from '@/components/Dummy/contants';
 
@@ -40,11 +40,23 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     const showRoom = canPerformAction(user!, 'reader', {roomRoles});
     const isAdmin = checkIfAdmin(user);
 
+    const orgReader = canPerformEvent(user!, 'reader', {eventOrganizerRoles});
+    // const orgCreator = canPerformEvent(user!, 'creator', {eventOrganizerRoles});
+    const orgUpdater = canPerformEvent(user!, 'updater', {eventOrganizerRoles});
+    // const orgDeleter = canPerformEvent(user!, 'deleter', {eventOrganizerRoles});
+    const orgAdmin = canPerformEvent(user!, 'admin', {eventOrganizerRoles});
+
+    const canAdmin = admin || orgAdmin;
+    const canRead = reader || orgReader;
+    // const canCreate = creator || orgCreator;
+    const canUpdate = updater || orgUpdater;
+    const canRoom = orgReader || showRoom;
+
     useEffect(()=>{
-      if(user && (!admin)){
+      if(user && (!canAdmin)){
         router.replace('/dashboard/forbidden?p=Group Admin');
       }
-    },[user, admin, router])
+    },[user, canAdmin, router])
 
     useEffect(() => {
       const fetchChurch = async () => {
@@ -62,7 +74,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
     
     const paginationModel = { page: 0, pageSize: 10 };
 
-    if(!admin) return;
+    if(!canAdmin) return;
     // const router = useRouter()
   return (
     <div className='table-main2' >
@@ -83,7 +95,7 @@ const GroupTable = ({eventId, setEventId}:GroupTableProps) => {
               <DataGrid
                   rows={groups}
                   getRowId={(row:IGroup)=>row._id}
-                  columns={GroupColumns(reader, updater, showChurch, showRoom)}
+                  columns={GroupColumns(canRead, canUpdate, showChurch, canRoom)}
                   initialState={{ 
                     pagination: { paginationModel },
                     columns:{columnVisibilityModel:{churchId:isAdmin}}
