@@ -8,6 +8,7 @@ import ByQuestion from "./ByQuestion"
 import { SearchQuestion, SearchResponseMemberWithoutSection, ViewProps } from "./fxn"
 import ByRespondent from "./ByRespondent"
 import NoResponse from "./NoResponse"
+import ByTable from "./ByTable"
 
 type ResponseMainProps = {
     setId:string
@@ -38,12 +39,13 @@ const ResponseMain = ({setId}:ResponseMainProps) => {
                 <select className="border px-2 w-fit outline-none py-[0.3rem] rounded bg-transparent" onChange={(e)=>setViewMode(e.target.value)}>
                     <option className="dark:bg-black dark:text-white" value="By Question">By Question</option>
                     <option className="dark:bg-black dark:text-white" value="By Respondent">By Respondent</option>
+                    <option className="dark:bg-black dark:text-white" value="Table">Table</option>
                 </select>
                 <SearchBar className="py-[0.3rem] w-fit" setSearch={setSearch} reversed />
             </div>
         </div>
         {
-            viewMode === 'By Question' ?
+            viewMode === 'By Question' &&
             <div className="flex flex-col">
                 {
                     isPending ? 
@@ -61,7 +63,9 @@ const ResponseMain = ({setId}:ResponseMainProps) => {
                     </div>
                 }
             </div>
-            :
+        }
+        {
+            viewMode === 'By Respondent' &&
             <div className="flex flex-col">
                 {
                     isPending ? 
@@ -79,6 +83,11 @@ const ResponseMain = ({setId}:ResponseMainProps) => {
                     </div>
                 }
             </div>
+        }
+
+        {
+            viewMode === 'Table' &&
+            <ByTable sectionId={sectionId} setId={setId} />
         }
     </div>
   )

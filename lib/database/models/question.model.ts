@@ -9,8 +9,8 @@ export interface IQuestion extends Document{
     type: string; 
     options?: string[];
     sectionId:string|Types.ObjectId|ISection;
-    createdAt?:Date;
-    updatedAt?:Date; 
+    createdAt:Date;
+    updatedAt:Date; 
 }
 
 

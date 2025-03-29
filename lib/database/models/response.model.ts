@@ -13,8 +13,8 @@ export interface IResponse extends Document{
     cypsetId:string|Types.ObjectId|ICYPSet;
     sectionId:string|Types.ObjectId|ISection;
     memberId:string|Types.ObjectId|IMember;
-    createdAt?:Date;
-    updatedAt?:Date; 
+    createdAt:Date;
+    updatedAt:Date; 
 }
 
 
