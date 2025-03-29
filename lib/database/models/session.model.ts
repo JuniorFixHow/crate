@@ -9,6 +9,7 @@ export interface ISession extends Document {
     venue?: string;
     from: string;
     to: string;
+    type:string;
     eventId: Types.ObjectId | string | IEvent; // Reference to the Event
     createdBy: Types.ObjectId | string | IVendor; // Reference to the Vendor
     createdAt?: Date; // Automatically added by Mongoose
@@ -18,6 +19,7 @@ export interface ISession extends Document {
 const SessionSchema = new Schema<ISession>({
     name:String,
     venue:String,
+    type:{type:String, default:'Adult'},
     from:{type:String, required:true},
     to:{type:String, required:true},
     eventId:{type:Schema.Types.ObjectId, ref:'Event', required:true},

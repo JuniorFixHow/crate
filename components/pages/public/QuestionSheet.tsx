@@ -14,13 +14,14 @@ import { IRegistration } from "@/lib/database/models/registration.model";
 type QuestionSheetProps = {
   setOpen:Dispatch<SetStateAction<boolean>>,
   eventId:string;
+  setStart:Dispatch<SetStateAction<boolean>>;
   memberId:string
   sections:ISection[]
 } & ComponentProps<'div'>
 
 
 
-const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: QuestionSheetProps) => {
+const QuestionSheet = ({ setOpen, eventId, setStart, memberId, sections, ...props }: QuestionSheetProps) => {
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
     const [responses, setResponses] = useState<{ [key: string]: Partial<IResponse> }>({});
     const [loading, setLoading] = useState<boolean>(false);
@@ -127,6 +128,7 @@ const QuestionSheet = ({ setOpen, eventId, memberId, sections, ...props }: Quest
         enqueueSnackbar("Error occurred submitting responses", { variant: "error" });
       } finally {
         setLoading(false);
+        setStart(false)
       }
     };
 

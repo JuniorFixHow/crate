@@ -72,7 +72,7 @@ export async function getSession(id:string){
 export async function getSessions(){
     try {
         await connectDB();
-        const sess = await Session.find().populate('eventId').populate('createdBy').lean();
+        const sess = await Session.find({type:'Adult'}).populate('eventId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
     } catch (error) {
@@ -92,7 +92,8 @@ export async function getPublicSessions(){
         const events = await Event.find({forAll:true}).select('_id');
         const eventIds = events.map((item)=>item?._id);
         const sess = await Session.find({
-            eventId: {$in: eventIds}
+            eventId: {$in: eventIds},
+            type:'Adult'
         }).populate('eventId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
@@ -116,7 +117,8 @@ export async function getChurchSessions(churchId:string){
         }).select('_id');
         const eventIds = events.map((item)=>item?._id);
         const sess = await Session.find({
-            eventId: {$in: eventIds}
+            eventId: {$in: eventIds},
+            type:'Adult'
         }).populate('eventId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
@@ -144,7 +146,8 @@ export async function getChurchSessionsV2(churchId:string){
         }).select('_id');
         const eventIds = events.map((item)=>item?._id);
         const sess = await Session.find({
-            eventId: {$in: eventIds}
+            eventId: {$in: eventIds},
+            type:'Adult'
         }).populate('eventId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
@@ -184,7 +187,7 @@ export async function getUserSessions(id: string, userId: string) {
 export async function getEventSessions(id: string) {
     try {
         await connectDB();
-        const sessions = await Session.find({ eventId: id })
+        const sessions = await Session.find({ eventId: id, type:'Adult' })
             .populate('eventId')
             .populate('createdBy')
             .lean(); // Use lean() for plain JS objects

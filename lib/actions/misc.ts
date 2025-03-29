@@ -235,3 +235,12 @@ export async function getAndUpdateRegsAtOnce(){
 
 
 
+export async function updateAllSessionsToAdult() {
+    try {
+        await connectDB();
+        await Session.updateMany({}, {type:'Adult'})
+        return 'Updated successfully';
+    } catch (error) {
+        console.log(error)
+    }
+}

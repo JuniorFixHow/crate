@@ -51,6 +51,7 @@ export async function createAttendance(eventId:string, att:Partial<IAttendance>)
 
 export async function updateAttendance(id:string, att:Partial<IAttendance>){
     try {
+        await connectDB();
         const attendance = await Attendance.findByIdAndUpdate(id, att, {new:true});
         return JSON.parse(JSON.stringify(attendance));
     } catch (error) {
@@ -68,7 +69,33 @@ export async function updateAttendance(id:string, att:Partial<IAttendance>){
 
 export async function getAttendances(sessionId:string){
     try {
-        const attendances = await Attendance.find({sessionId})
+        await connectDB();
+        const children = ['0-5', '6-10'];
+        const members = await Member.find({ageRange: {$nin:children}}).select('_id');
+        const memberIds = members.map((item)=>item?._id);
+        const attendances = await Attendance.find({sessionId, member:{$in: memberIds}})
+        .populate('member')
+        .populate('sessionId')
+        .lean();
+        return JSON.parse(JSON.stringify(attendances));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching attendance:', error.message);
+            throw new Error(`Error occurred during attendance fetch: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('Error occurred during attendance fetch');
+        }
+    }
+}
+
+export async function getChildrenAttendances(sessionId:string){
+    try {
+        await connectDB();
+        const children = ['0-5', '6-10'];
+        const members = await Member.find({ageRange: {$in:children}}).select('_id');
+        const memberIds = members.map((item)=>item?._id);
+        const attendances = await Attendance.find({sessionId, member:{$in: memberIds}})
         .populate('member')
         .populate('sessionId')
         .lean();
@@ -86,6 +113,7 @@ export async function getAttendances(sessionId:string){
 
 export async function getAttendance(id:string){
     try {
+        await connectDB();
         const attendance = await Attendance.findById(id).populate('member');
         return JSON.parse(JSON.stringify(attendance));
     } catch (error) {
@@ -101,6 +129,7 @@ export async function getAttendance(id:string){
 
 export async function deleteAttendance(id:string){
     try {
+        await connectDB();
         await Attendance.findByIdAndDelete(id);
         return handleResponse('Attendance deleted successfully', false);
     } catch (error) {

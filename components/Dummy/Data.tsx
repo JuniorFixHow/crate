@@ -22,6 +22,7 @@ import { FiActivity } from "react-icons/fi";
 import { FaRegAddressCard } from "react-icons/fa";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { LiaUserShieldSolid } from "react-icons/lia";
+import { FaChildReaching } from "react-icons/fa6";
 
 
 
@@ -92,6 +93,11 @@ export const NavItems:NavigationProps[] = [
                 text:'Public',
                 image:<CiGlobe />,
                 path:'/dashboard/events/public'
+            },
+            {
+                text:`Children's Hub`,
+                image:<FaChildReaching className="opacity-70" />,
+                path:'/dashboard/events/children'
             },
             {
               text:'Records',

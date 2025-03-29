@@ -73,7 +73,7 @@ const QuestionStarter = ({start, eventId, memberId, setStart}:QuestionStarterPro
                 {
                     openQuestion &&
                     <div className="flex h-[95%] w-[90%] lg:w-[60%]">
-                        <QuestionSheet memberId={memberId} eventId={eventId} sections={sections} setOpen={setOpenQuestion} />
+                        <QuestionSheet setStart={setStart} memberId={memberId} eventId={eventId} sections={sections} setOpen={setOpenQuestion} />
                     </div>
                 }
         </div>
