@@ -23,7 +23,7 @@ const ChildrenContent = () => {
     console.log(eventId)
   return (
     <div className="table-main2" >
-        <div className="flex gap-10">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-10">
             <SearchSelectEventsV4 setSelect={setEventId} />
             <div className="flex gap-3">
                 {

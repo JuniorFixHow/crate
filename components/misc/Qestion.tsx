@@ -84,12 +84,16 @@ const QuestionForm = ({ customQuestions, sectionId, setCustomQuestions }: Questi
                       </select>
                       {["select", "radio", "checkbox"].includes(question.type!) && (
                         <textarea
-                          placeholder="Enter options, separated by commas"
-                          value={question.options?.join(", ") || ""}
+                          placeholder="Enter options, separated by semicolons (;)"
+                          value={question.options?.join("; ") || ""}
                           className="border w-full p-1 outline-none bg-transparent"
-                          onChange={(e) =>
+                          onChange={(e) => updateCustomQuestion(question.id!, { options: [e.target.value] })} // Temporary text input
+                          onBlur={(e) =>
                             updateCustomQuestion(question.id!, {
-                              options: e.target.value.split(",").map((opt) => opt.trim()),
+                              options: e.target.value
+                                .split(";")
+                                .map((opt) => opt.trim())
+                                .filter((opt) => opt !== ""),
                             })
                           }
                         />
