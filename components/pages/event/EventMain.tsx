@@ -14,6 +14,7 @@ import { enqueueSnackbar } from 'notistack'
 import React, { ChangeEvent, FormEvent,   useEffect,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 import CustomCheck from '../group/new/CustomCheck'
+import { checkIfAdmin } from '@/components/Dummy/contants'
 
 type EventMainProps = {
     event:IEvent
@@ -49,6 +50,7 @@ const EventMain = ({event}:EventMainProps) => {
     const org = orgDeleter || orgUpdater || orgReader;
     const chc = reader || updater || deleter;
     const access = org||chc;
+    const isAdmin = checkIfAdmin(user);
 
     const showDelete = (event?.forAll && orgDeleter) || (!event?.forAll && deleter);
     const showUpdate = (event?.forAll && orgUpdater) || (!event?.forAll && updater);
@@ -61,14 +63,14 @@ const EventMain = ({event}:EventMainProps) => {
             else if(event?.forAll && (!org)){
                 router.replace('/dashboard/forbidden?p=Event Organization Reader')
             }
-            else if(!event?.forAll && (event.churchId.toString() !== user?.churchId)){
+            else if(!event?.forAll && (event.churchId.toString() !== user?.churchId) && !isAdmin){
                 router.replace('/dashboard/forbidden?p=Event Owner')
             }
             else if(!event?.forAll && !chc){
                 router.replace('/dashboard/forbidden?p=Event Reader')
             }
         }
-    },[access, chc, event.churchId, event?.forAll, org, router, user])
+    },[access, chc, event.churchId, event?.forAll, isAdmin, org, router, user])
     
 
     useEffect(()=>{
