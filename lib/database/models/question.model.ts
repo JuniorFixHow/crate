@@ -6,7 +6,8 @@ export interface IQuestion extends Document{
     _id:string;
     id: string; 
     label: string; 
-    type: string; 
+    type: string;
+    required:boolean; 
     options?: string[];
     sectionId:string|Types.ObjectId|ISection;
     createdAt:Date;
@@ -18,6 +19,7 @@ const QuestionSchema =  new Schema<IQuestion>({
     id:String,
     label:String,
     type:String,
+    required:{type:Boolean, default:false},
     options:[String],
     sectionId:{type:Schema.Types.ObjectId, ref:'Section'},
 },{timestamps:true})

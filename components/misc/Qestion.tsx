@@ -53,14 +53,14 @@ const QuestionForm = ({ customQuestions, sectionId, setCustomQuestions }: Questi
         <Droppable droppableId="questionsList">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-              {customQuestions.map((question, index) => (
+             {customQuestions.map((question, index) => (
                 <Draggable key={question.id} draggableId={question.id!} index={index}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="border p-4 rounded space-y-2 bg-white shadow-md cursor-move relative z-10"
+                      className="border p-4 rounded space-y-2 bg-white dark:bg-transparent shadow-md cursor-move relative z-10"
                     >
                       <input
                         type="text"
@@ -75,13 +75,25 @@ const QuestionForm = ({ customQuestions, sectionId, setCustomQuestions }: Questi
                         onChange={(e) => updateCustomQuestion(question.id!, { type: e.target.value })}
                         className="border p-1 w-full outline-none bg-transparent"
                       >
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="select">Select</option>
-                        <option value="radio">Radio</option>
-                        <option value="checkbox">Checkbox</option>
-                        <option value="textarea">Textarea</option>
+                        <option className="dark:bg-[#0F1214]" value="text">Text</option>
+                        <option className="dark:bg-[#0F1214]" value="number">Number</option>
+                        <option className="dark:bg-[#0F1214]" value="select">Select</option>
+                        <option className="dark:bg-[#0F1214]" value="radio">Radio</option>
+                        <option className="dark:bg-[#0F1214]" value="checkbox">Checkbox</option>
+                        <option className="dark:bg-[#0F1214]" value="textarea">Textarea</option>
                       </select>
+                      
+                      {/* Required Checkbox */}
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={question.required || false}
+                          onChange={(e) => updateCustomQuestion(question.id!, { required: e.target.checked })}
+                          className="cursor-pointer"
+                        />
+                        Required
+                      </label>
+
                       {["select", "radio", "checkbox"].includes(question.type!) && (
                         <textarea
                           placeholder="Enter options, separated by semicolons (;)"
@@ -98,6 +110,7 @@ const QuestionForm = ({ customQuestions, sectionId, setCustomQuestions }: Questi
                           }
                         />
                       )}
+                      
                       <button
                         type="button"
                         onClick={() => removeCustomQuestion(question.id!)}

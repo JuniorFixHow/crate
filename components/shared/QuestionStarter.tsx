@@ -38,8 +38,8 @@ const QuestionStarter = ({start, eventId, memberId, setStart}:QuestionStarterPro
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         >
-        <div className="flex-center fixed inset-0 flex items-center justify-center bg-gradient-to-br from-white to-blue-500 bg-opacity-30 backdrop-blur-lg">
-            <IoClose onClick={handleClose}  className="absolute right-4 top-4 text-white cursor-pointer" size={30} />
+        <div className="flex-center fixed inset-0 flex items-center justify-center bg-[#F0EBF8]">
+            <IoClose onClick={handleClose}  className="absolute right-4 top-4 text-red-600 cursor-pointer" size={30} />
                 {
                     loading ? 
                     <CircularProgress size='3rem' />
