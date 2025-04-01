@@ -96,7 +96,7 @@ const NewRoom = ({infoMode, setInfoMode, updater, currentRoom, setCurrentRoom}:N
                     nob:data.nob || currentRoom.nob,
                     features:data.features || currentRoom.features,
                     eventId: eventId||currentRoom.eventId,
-                    venueId: eventId||currentRoom.venueId,
+                    venueId: venueId||currentRoom.venueId,
                     facId: facId||currentRoom.facId,
                 }
                 const res=  await updateRoom(currentRoom._id, body);

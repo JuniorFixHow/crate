@@ -82,6 +82,43 @@ export const useFetchEventsV2 = ()=>{
 }
 
 
+export const useFetchEventsV5 = ()=>{
+ 
+    const searchParams = useSearchParams();
+    const {user} = useAuth();
+
+    const fetchEvents = async():Promise<IEvent[]>=>{
+        const id = searchParams.get('userId');
+        try {
+            let evts:IEvent[];
+            if(!user) return [];
+            const isAdmin = checkIfAdmin(user);
+            const orgReader = eventOrganizerRoles.reader(user);
+            if(id){
+                evts = await getUserEvents(id);
+            }
+           
+            else{
+                evts = isAdmin ? await getEvents() : (orgReader && !isAdmin) ? await getPublicEvents() : await getChurchEvents(user?.churchId);
+            }
+
+            return evts;
+            
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:events=[], isPending:loading, refetch} = useQuery({
+        queryKey:['events', searchParams],
+        queryFn:fetchEvents,
+        enabled:!!user
+    })
+    return {events, refetch, loading}
+}
+
+
 export const useFetchCYPEvents = ()=>{
     const [cypevents, setCYPEvents] = useState<IEvent[]>([]);
     const [error, setError] = useState<string|null>(null);

@@ -25,5 +25,5 @@ const ChildrenroleSchema = new Schema<IChildrenrole>({
 },{timestamps:true})
 
 
-const Childrenrole = models?.Childrenroles || model('Childrenrole', ChildrenroleSchema);
+const Childrenrole = models?.Childrenrole || model('Childrenrole', ChildrenroleSchema);
 export default Childrenrole

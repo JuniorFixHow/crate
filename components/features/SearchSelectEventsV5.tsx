@@ -1,32 +1,32 @@
-import {  useFetchChurchesV2, } from "@/hooks/fetch/useChurch";
-import { IChurch } from "@/lib/database/models/church.model";
+'use client'
+import { useFetchEventsV5 } from "@/hooks/fetch/useEvent";
+import { IEvent } from "@/lib/database/models/event.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
-import { Dispatch, Fragment, SetStateAction, useState } from "react"
-import { SearchChurchWithZoneV2 } from "../pages/vendor/fxn";
+import { Dispatch, Fragment, SetStateAction,  useState } from "react"
 
-type SearchSelectChurchesWithZoneProps = {
+type SearchSelectEventsV5Props = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
     width?:number
-    zoneId:string;
 }
 
-const SearchSelectChurchesWithZone = ({setSelect, zoneId, width, require, value}:SearchSelectChurchesWithZoneProps) => {
-    const {churches, isPending} = useFetchChurchesV2();
-    const [search, setSearch] = useState<string>('')
+const SearchSelectEventsV5 = ({setSelect, width, require, value}:SearchSelectEventsV5Props) => {
+    const {events, loading} = useFetchEventsV5();
+    const [search, setSearch] = useState<string>('');
+    
   return (
     <Autocomplete
       disablePortal
-      options={SearchChurchWithZoneV2(churches, zoneId)}
-      onChange={(_, v:IChurch|null)=>{
+      options={events as IEvent[]}
+      onChange={(_, v:IEvent|null)=>{
         setSelect!(v?._id as string); 
       }}
       inputValue={search}
       onInputChange={(_, v)=>{
         setSearch(v)
     }}
-    loading={isPending}
+    loading={loading}
     isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.name}
       sx={{ width: width ?? 250 }}
@@ -35,7 +35,7 @@ const SearchSelectChurchesWithZone = ({setSelect, zoneId, width, require, value}
           {...params}
           required={require}
           size='small'
-          label={value ?? "Church"}
+          label= {value??"Event"}
           color='primary'
           defaultValue={value}
           className="dark:bg-slate-400 rounded"
@@ -44,7 +44,7 @@ const SearchSelectChurchesWithZone = ({setSelect, zoneId, width, require, value}
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {isPending ? <CircularProgress color="inherit" size={20} /> : null}
+                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),
@@ -56,4 +56,4 @@ const SearchSelectChurchesWithZone = ({setSelect, zoneId, width, require, value}
   )
 }
 
-export default SearchSelectChurchesWithZone
+export default SearchSelectEventsV5

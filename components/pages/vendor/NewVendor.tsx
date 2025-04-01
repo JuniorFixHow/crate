@@ -67,7 +67,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
         try {
             setLoading(true);
             const body:Partial<IVendor> = {
-                ...data, password, church:churchId as string
+                ...data, password, church:churchId as string,
             }
             const res = await createVendor(body);
             if(res?.code === 201){

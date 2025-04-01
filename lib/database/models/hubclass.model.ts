@@ -35,5 +35,5 @@ HubclassSchema.pre('deleteOne', {document:false, query:true}, async function(nex
     }
 })
 
-const Hubclass = models?.Hubclasses || model('HubClass', HubclassSchema);
+const Hubclass = models?.HubClass || model('HubClass', HubclassSchema);
 export default Hubclass
