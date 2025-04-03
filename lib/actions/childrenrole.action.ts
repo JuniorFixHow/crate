@@ -43,7 +43,26 @@ export async function getChildrenrole(id:string){
 export async function getChildrenroles(){
     try {
         await connectDB();
-        const roles = await Childrenrole.find();
+        const roles = await Childrenrole.find().populate('memberId').lean();
+        return JSON.parse(JSON.stringify(roles));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching the roles', true, {}, 500);
+    }
+}
+
+export async function getChildrenrolesByClass(classId:string){
+    try {
+        await connectDB();
+        const roles = await Childrenrole.find({classId})
+        .populate({
+            path:'memberId',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .lean();
         return JSON.parse(JSON.stringify(roles));
     } catch (error) {
         console.log(error);

@@ -9,6 +9,7 @@ import HubclassModal from "./HubclassModal"
 import { enqueueSnackbar } from "notistack"
 import { deleteHubclass } from "@/lib/actions/hubclass.action"
 import DeleteDialog from "@/components/DeleteDialog"
+import HubLeadersTable from "./HubLeadersTable"
 
 type ClassContentProps = {
     currentClass:IHubclass;
@@ -72,6 +73,10 @@ const ClassContent = ({currentClass,  eventId, updater, setCurrentClass}:ClassCo
         {
             title === 'Members' &&
             <HubMembersTable eventId={eventId} refetch={refetch} loading={loading} hubClass={currentClass} />
+        }
+        {
+            title === 'Leaders' &&
+            <HubLeadersTable hubClass={currentClass} />
         }
     </div>
   )

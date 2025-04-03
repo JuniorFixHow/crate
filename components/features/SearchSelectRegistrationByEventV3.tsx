@@ -1,11 +1,11 @@
-import { useFetchRegistrationsAllGroups } from "@/hooks/fetch/useRegistration";
+import { useFetchRegistrationsAllGroupsV2 } from "@/hooks/fetch/useRegistration";
 import { IChurch } from "@/lib/database/models/church.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectRegistrationByEventV2Props = {
+type SearchSelectRegistrationByEventV3Props = {
     setSelect?:Dispatch<SetStateAction<string>>,
     setSelectChurchId?:Dispatch<SetStateAction<string>>,
     setSelectMemberId?:Dispatch<SetStateAction<string>>,
@@ -15,8 +15,8 @@ type SearchSelectRegistrationByEventV2Props = {
     eventId:string;
 }
 
-const SearchSelectRegistrationByEventV2 = ({setSelect, setSelectMemberId, setSelectChurchId, eventId, width, require, value}:SearchSelectRegistrationByEventV2Props) => {
-    const {eventRegistrations, loading} = useFetchRegistrationsAllGroups(eventId);
+const SearchSelectRegistrationByEventV3 = ({setSelect, setSelectMemberId, setSelectChurchId, eventId, width, require, value}:SearchSelectRegistrationByEventV3Props) => {
+    const {eventRegistrations, loading} = useFetchRegistrationsAllGroupsV2(eventId);
     const [search, setSearch] = useState<string>('')
   return (
     <Autocomplete
@@ -66,4 +66,4 @@ const SearchSelectRegistrationByEventV2 = ({setSelect, setSelectMemberId, setSel
   )
 }
 
-export default SearchSelectRegistrationByEventV2
+export default SearchSelectRegistrationByEventV3

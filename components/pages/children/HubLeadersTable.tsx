@@ -7,68 +7,71 @@ import { IHubclass } from "@/lib/database/models/hubclass.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { Paper } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useState } from "react"
-import { HubMembersColumns } from "./HubMembersColumn";
 import AddButton from "@/components/features/AddButton";
 import DeleteDialog from "@/components/DeleteDialog";
 import { enqueueSnackbar } from "notistack";
-import { removeMemberFromHubclass } from "@/lib/actions/hubclass.action";
-import HubClassAddMemberTable from "./HubClassAddMemberTable";
-import { useFetchMembersForHubClass } from "@/hooks/fetch/useHubclass";
 
-type HubMembersTableProps = {
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IHubclass[], Error>>;
-    loading:boolean;
+import { useFetchChildrenrole } from "@/hooks/fetch/useChildrenrole";
+import { IChildrenrole } from "@/lib/database/models/childrenrole.model";
+import { deleteChildrenrole } from "@/lib/actions/childrenrole.action";
+import { HubLeadersColumns } from "./HubLeadersColumn";
+import HubclassLeaderModal from "./HubclassLeaderModal";
+
+type HubLeadersTableProps = {
     hubClass:IHubclass;
-    eventId:string;
 }
 
-const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableProps) => {
+const HubLeadersTable = ({ hubClass}:HubLeadersTableProps) => {
     const {user} = useAuth();
-    const [currentMember, setCurrentMember] = useState<IMember|null>(null);
+    const [currentRole, setCurrentRole] = useState<IChildrenrole|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
-    const [openMembers, setOpenMembers] = useState<boolean>(false);
-    const {refetch:reload} = useFetchMembersForHubClass(eventId);
+    const [openLeaders, setOpenLeaders] = useState<boolean>(false);
+    const {refetch, roles, isPending} = useFetchChildrenrole(hubClass?._id);
 
-    const children = hubClass?.children as IMember[];
     // console.log("Children: ", children)
+    const roleMember = currentRole?.memberId as IMember;
 
     const isAdmin = checkIfAdmin(user);
     const showMember = canPerformAction(user!, 'reader', {memberRoles});
     const deleter = canPerformAction(user!, 'deleter', {eventRegistrationRoles, eventOrganizerRoles});
     const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles, eventOrganizerRoles});
 
-    const handleDelete = (data:IMember)=>{
-        setCurrentMember(data);
+    const handleDelete = (data:IChildrenrole)=>{
+        setCurrentRole(data);
         setDeleteMode(true);
     }
 
-    const deleteMember = async()=>{
+    const deleteRole = async()=>{
         try {
-            if(currentMember){
-                const res = await removeMemberFromHubclass(hubClass?._id, [currentMember?._id]);
+            if(currentRole){
+                const res = await deleteChildrenrole(currentRole?._id);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
                 refetch();
-                reload();
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured removing member from class', {variant:'error'});
+            enqueueSnackbar('Error occured removing leader from class', {variant:'error'});
         }finally{
             setDeleteMode(false);
         }
     }
 
-    const handleOpenMembers = ()=>{
+    const handleOpenLeaders = ()=>{
         if(!hubClass){
             enqueueSnackbar("Please choose a class", {variant:'error'});
         }else{
-            setOpenMembers(true);
+            setOpenLeaders(true);
+            setCurrentRole(null);
         }
     }
 
-    const message = `You're about to remove ${currentMember?.name} from '${hubClass?.title}' class. Proceed?`
+    const handleEdit = (data:IChildrenrole)=>{
+        setOpenLeaders(true);
+        setCurrentRole(data);
+    }
+
+    const message = `You're about to remove ${roleMember?.name} as ${currentRole?.title}. Proceed?`
 
     const paginationModel = { page: 0, pageSize: 10 };
 
@@ -76,20 +79,28 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
     <div className="flex flex-col gap-5">
         {
             updater &&
-            <AddButton onClick={handleOpenMembers} className="self-end rounded" noIcon text="Add Members" isCancel smallText />
+            <AddButton onClick={handleOpenLeaders} className="self-end rounded" noIcon text="Add Leader" isCancel smallText />
         }
-        <HubClassAddMemberTable refetch={refetch!} eventId={eventId} hubClass={hubClass} openMembers={openMembers} setOpenMembers={setOpenMembers} />
-        <DeleteDialog title={`Remove ${currentMember?.name}`} message={message} onTap={deleteMember} value={deleteMode} setValue={setDeleteMode} />
+        <HubclassLeaderModal
+            infoMode={openLeaders}
+            setInfoMode={setOpenLeaders}
+            hubClass={hubClass}
+            refetch={refetch}
+            currentRole={currentRole}
+            setCurrentRole={setCurrentRole}
+            updater={updater}
+        />
+        <DeleteDialog title={`Remove ${roleMember?.name}`} message={message} onTap={deleteRole} value={deleteMode} setValue={setDeleteMode} />
         <div className="flex flex-col gap-4 w-full">
             
             <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
-                    loading={loading && !!eventId}
-                    rows={children}
-                    columns={HubMembersColumns(handleDelete, showMember, isAdmin, deleter)}
+                    loading={isPending && !!hubClass}
+                    rows={roles}
+                    columns={HubLeadersColumns(handleEdit, handleDelete, showMember, isAdmin, deleter)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
-                    getRowId={(row:IMember):string=>row._id}
+                    getRowId={(row:IChildrenrole):string=>row._id}
                     slots={{
                         toolbar:GridToolbar
                     }}
@@ -112,4 +123,4 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
   )
 }
 
-export default HubMembersTable
+export default HubLeadersTable

@@ -87,7 +87,7 @@ export const useFetchRegistrationsAllGroups = (id:string)=>{
  
     const fetchRegistrations = async():Promise<IRegistration[]>=>{
         try {
-            if(!user) return [];
+            if(!user || !id) return [];
             const isAdmin = checkIfAdmin(user);
             const regs:IRegistration[] = isAdmin ? await getRegsWithEventId(id)
             : await getRegsWithEventIdAndChurchId(id, user?.churchId);
@@ -103,6 +103,30 @@ export const useFetchRegistrationsAllGroups = (id:string)=>{
         queryKey:['registrations', id],
         queryFn:fetchRegistrations,
         enabled:!!user && !!id
+    })
+
+    return {eventRegistrations, refetch, loading}
+}
+
+
+export const useFetchRegistrationsAllGroupsV2 = (id:string)=>{
+    
+ 
+    const fetchRegistrations = async():Promise<IRegistration[]>=>{
+        try {
+            if(!id) return [];
+            const regs:IRegistration[] = await getRegsWithEventId(id);            
+            return regs;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:eventRegistrations=[], isPending:loading, refetch} = useQuery({
+        queryKey:['registrationsv2', id],
+        queryFn:fetchRegistrations,
+        enabled:!!id
     })
 
     return {eventRegistrations, refetch, loading}

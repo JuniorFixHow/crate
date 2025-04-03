@@ -12,6 +12,7 @@ import { handleResponse } from "../misc";
 import Response from "../database/models/response.model";
 import {  removeMemberFromAllGroupsBeforeDeletion } from "./group.action";
 import '../database/models/campuse.model'
+import Card from "../database/models/card.model";
 
 export async function createMember(member: Partial<IMember>) {
     try {
@@ -400,6 +401,7 @@ export async function deleteMember(id: string) {
         await Promise.all([
             Attendance.deleteMany({ member: member._id }),
             Response.deleteMany({ memberId: member._id }),
+            Card.deleteMany({member:member._id})
         ])
         // Remove the member's attendance records, if any
 

@@ -35,7 +35,7 @@ const SearchSelectHubClassesByEvent = ({setSelect, eventId, width, setCurrentHub
       onInputChange={(_, v)=>{
         setSearch(v)
     }}
-    loading={loading}
+    loading={loading && !!eventId}
     isOptionEqualToValue={(option, value)=>option._id === value._id}
     getOptionLabel={(item)=>item?.title}
       sx={{ width: width ?? 250 }}
@@ -53,7 +53,7 @@ const SearchSelectHubClassesByEvent = ({setSelect, eventId, width, setCurrentHub
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {(loading && !!eventId) ? <CircularProgress color="inherit" size={20} /> : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),
