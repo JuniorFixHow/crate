@@ -12,7 +12,7 @@ import { enqueueSnackbar } from "notistack";
 import { Dispatch, SetStateAction, useState } from "react"
 import { HubClassAddMemberColumns } from "./HubClassAddMemberCoulmns";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
-import Hubclass, { IHubclass } from "@/lib/database/models/hubclass.model";
+import { IHubclass } from "@/lib/database/models/hubclass.model";
 
 type HubClassAddMemberTableProps={
     hubClass:IHubclass,
