@@ -25,7 +25,7 @@ const HubclassModal = ({infoMode, setInfoMode, updater, currentClass, setCurrent
     const [eventId, setEventId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const {user} = useAuth();
-    const {refetch} = useFetchHubClasses();
+    const {refetch} = useFetchHubClasses(eventId);
 
     const event = currentClass?.eventId as IEvent;
 
@@ -81,10 +81,10 @@ const HubclassModal = ({infoMode, setInfoMode, updater, currentClass, setCurrent
                 const body:Partial<IHubclass> = {
                     _id:currentClass?._id,
                     title:data.title || currentClass.title,
-                    eventId: eventId||currentClass.eventId,
+                    eventId: eventId||event?._id,
                 }
                 const res=  await updateHubclass(body);
-                setCurrentClass(res?.payload as IHubclass);
+                // setCurrentClass(res?.payload as IHubclass);
                 setInfoMode(false);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'})
                 refetch();

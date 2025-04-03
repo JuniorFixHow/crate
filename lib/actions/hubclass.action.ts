@@ -5,6 +5,8 @@ import Hubclass, { IHubclass } from "../database/models/hubclass.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import '../database/models/member.model';
+import Member from "../database/models/member.model";
+import Registration from "../database/models/registration.model";
 
 export async function createHubclass(hub:Partial<IHubclass>){
     try {
@@ -34,7 +36,16 @@ export async function getHubclass(id:string){
     try {
         await connectDB();
         const hub = await Hubclass.findById(id)
-        .populate('children').populate('leaders').lean();
+        .populate({
+            path:'children',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .populate('leaders')
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hub));
     } catch (error) {
         console.log(error);
@@ -99,11 +110,20 @@ export async function removeMemberFromHubclass(id:string, children:string[]){
     }
 }
 
-export async function getHubclasses(){
+export async function getHubclasses(eventId:string){
     try {
         await connectDB();
-        const hubs = await Hubclass.find()
-        .populate('children').populate('leaders').lean();
+        const hubs = await Hubclass.find({eventId})
+        .populate({
+            path:'children',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .populate('leaders')
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hubs));
     } catch (error) {
         console.log(error);
@@ -112,11 +132,20 @@ export async function getHubclasses(){
 }
 
 
-export async function getChurchHubclasses(churchId:string){
+export async function getChurchHubclasses(churchId:string, eventId:string){
     try {
         await connectDB();
-        const hubs = await Hubclass.find({churchId})
-        .populate('children').populate('leaders').lean();
+        const hubs = await Hubclass.find({churchId, eventId})
+        .populate({
+            path:'children',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .populate('leaders')
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hubs));
     } catch (error) {
         console.log(error);
@@ -125,13 +154,43 @@ export async function getChurchHubclasses(churchId:string){
 }
 
 
-export async function getPublicHubclasses(){
+export async function getPublicHubclasses(eventId:string){
+    try {
+        await connectDB();
+        const hubs = await Hubclass.find({eventId})
+        .populate({
+            path:'children',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .populate('eventId')
+        .populate('leaders')
+        .lean();
+        return JSON.parse(JSON.stringify(hubs));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching classes', true, {}, 500);
+    }
+}
+
+export async function getPublicHubclassesV2(){
     try {
         await connectDB();
         const events = await Event.find({forAll:true}).select('_id');
         const eventIds = events.map((item)=>item._id);
         const hubs = await Hubclass.find({eventId:{$in: eventIds}})
-        .populate('children').populate('leaders').lean();
+        .populate({
+            path:'children',
+            populate:{
+                path:'church',
+                model:'Church'
+            }
+        })
+        .populate('eventId')
+        .populate('leaders')
+        .lean();
         return JSON.parse(JSON.stringify(hubs));
     } catch (error) {
         console.log(error);
@@ -148,4 +207,36 @@ export async function deleteHubclass(id:string){
         console.log(error);
         return handleResponse('Error occured deleting the class', true, {}, 500);
     }
+}
+
+
+
+export async function getMembersForChildrenClass(eventId: string) {
+  try {
+    await connectDB();
+
+    const childAgeRanges = ["0-5", "6-10"];
+
+    // Get all registered members for the event
+    const registrations = await Registration.find({ eventId }).select("memberId");
+    const registeredMemberIds = registrations.map((reg) => reg.memberId.toString());
+
+    // Get all children already in a Hubclass for this event
+    const hubClasses = await Hubclass.find({ eventId }).select("children");
+    const hubChildrenIds = hubClasses.flatMap((hub) => hub.children.map((child:string) => child.toString()));
+
+    // Get all members in the specified age range who are registered
+    const members = await Member.find({
+      _id: { $in: registeredMemberIds },
+      ageRange: { $in: childAgeRanges },
+    });
+
+    // Filter members who are NOT in any Hubclass
+    const filteredMembers = members.filter((member) => !hubChildrenIds.includes(member._id.toString()));
+
+    return JSON.parse(JSON.stringify(filteredMembers));
+  } catch (error) {
+    console.error(error);
+    return handleResponse("Error occurred fetching members", true, {}, 500);
+  }
 }

@@ -6,6 +6,7 @@ import { IClasssession } from "@/lib/database/models/classsession.model"
 import { IContract } from "@/lib/database/models/contract.model"
 import { IEvent } from "@/lib/database/models/event.model"
 import { IFacility } from "@/lib/database/models/facility.model"
+import { IHubclass } from "@/lib/database/models/hubclass.model"
 import { IMember } from "@/lib/database/models/member.model"
 import { IMinistry } from "@/lib/database/models/ministry.model"
 import { IRegistration } from "@/lib/database/models/registration.model"
@@ -343,4 +344,10 @@ export const SearchNavbar = (items: NavigationProps[], search: string): Navigati
 
 
 
-
+export const SearchHubClass = (hubs:IHubclass[], eventId:string):IHubclass[]=>{
+  const data = hubs.filter((item)=> {
+    const event = item?.eventId as IEvent;
+    return (eventId === '' || eventId === undefined) ? item : event._id === eventId
+  });
+  return data;
+}

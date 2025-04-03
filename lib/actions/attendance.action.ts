@@ -5,6 +5,7 @@ import Registration from "../database/models/registration.model";
 import { connectDB } from "../database/mongoose";
 import Member from "../database/models/member.model";
 import { handleResponse } from "../misc";
+import Session from "../database/models/session.model";
 
 export async function createAttendance(eventId:string, att:Partial<IAttendance>){
     try {
@@ -28,12 +29,25 @@ export async function createAttendance(eventId:string, att:Partial<IAttendance>)
                     error:true
                 }
            }else{
-                await Attendance.create(att);
-                const mem = await Member.findById(member);
-                res = {
-                    message:'Member scanned sussessfully', error:false,
-                    payload:mem
-                }
+               const mem = await Member.findById(member);
+               const session = await Session.findById(sessionId);
+               
+               const child = ['0-5', '6-10'];
+               const isChild = child.includes(mem?.ageGroup);
+               
+               if(session?.type === 'Adult' && isChild){
+                   res = {message:`This member can't take attendance here. Go to the children's hub`, error:true}
+                }else if(session?.type === 'Child' && !isChild){
+                    res = {message:`This member can't take attendance here. Got to Seesions under Events`, error:true}
+               }else{
+
+                   await Attendance.create(att);
+               
+                   res = {
+                       message:'Member scanned sussessfully', error:false,
+                       payload:mem
+                   }
+               }
            }
         }
         return JSON.parse(JSON.stringify(res));

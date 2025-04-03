@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import HubclassModal from "./HubclassModal";
 import { IHubclass } from "@/lib/database/models/hubclass.model";
-import SearchSelectHubClasses from "@/components/features/SearchSelectHubClasses";
+import SearchSelectHubClassesByEvent from "@/components/features/SearchSelectHubClassesByEvent";
 import ClassContent from "./ClassContent";
 
 const ChildrenContent = () => {
@@ -16,6 +16,7 @@ const ChildrenContent = () => {
     const [title, setTitle] = useState<string>('Classes');
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [currentClass, setCurrentClass] = useState<IHubclass|null>(null);
+    // const [classId, setClassId] = useState<string>('');
     const router = useRouter();
     const titles = ['Classes', 'Attendance'];
 
@@ -28,7 +29,7 @@ const ChildrenContent = () => {
         }
     },[router, su, user])
 
-    console.log(eventId)
+    // console.log(eventId)
 
     const handleOpenNew = ()=>{
         setCurrentClass(null);
@@ -38,7 +39,7 @@ const ChildrenContent = () => {
   return (
     <div className="table-main2" >
         <HubclassModal currentClass={currentClass} setCurrentClass={setCurrentClass} infoMode={infoMode} setInfoMode={setInfoMode} updater={updater} />
-        <div className="flex flex-col md:flex-row md:items-center gap-5 md:justify-between">
+        <div className="flex flex-col md:flex-row md:items-center gap-5 md:justify-between flex-wrap">
             <div className="flex flex-col gap-4 md:flex-row md:gap-10">
                 <SearchSelectEventsV4 setSelect={setEventId} />
                 <div className="flex gap-3">
@@ -56,10 +57,13 @@ const ChildrenContent = () => {
             </div>
 
             <div className="flex flex-col md:items-center md:flex-row gap-4">
-                <SearchSelectHubClasses setCurrentHubClass={setCurrentClass} />
+                {
+                    !infoMode &&
+                    <SearchSelectHubClassesByEvent eventId={eventId} setCurrentHubClass={setCurrentClass} />
+                }
                 {
                     updater &&
-                    <AddButton onClick={handleOpenNew} noIcon smallText className="rounded justify-center" text="Add Class" />
+                    <AddButton onClick={handleOpenNew} noIcon smallText className="rounded justify-center w-fit py-2" text="Add Class" />
                 }
             </div>
 
@@ -67,7 +71,7 @@ const ChildrenContent = () => {
 
         {
             title === 'Classes' &&
-            <ClassContent currentClass={currentClass!} />
+            <ClassContent eventId={eventId} updater={updater} setCurrentClass={setCurrentClass} currentClass={currentClass!} />
         }
     </div>
   )
