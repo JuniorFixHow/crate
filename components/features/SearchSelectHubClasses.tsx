@@ -8,12 +8,13 @@ type SearchSelectHubClassesProps = {
     setSelect?:Dispatch<SetStateAction<string>>,
     require?:boolean;
     value?:string;
+    eventId:string;
     width?:number;
     setCurrentHubClass?:Dispatch<SetStateAction<IHubclass|null>>
 }
 
-const SearchSelectHubClasses = ({setSelect, width, setCurrentHubClass, require, value}:SearchSelectHubClassesProps) => {
-    const {hubs, loading} = useFetchHubClasses();
+const SearchSelectHubClasses = ({setSelect, eventId, width, setCurrentHubClass, require, value}:SearchSelectHubClassesProps) => {
+    const {hubs, loading} = useFetchHubClasses(eventId);
     const [search, setSearch] = useState<string>('');
     useEffect(()=>{
       if(hubs.length){
