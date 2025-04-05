@@ -24,7 +24,7 @@ import SearchSelectContractsV2 from "@/components/features/SearchSelectContracts
 import { enqueueSnackbar } from "notistack";
 import { IContract } from "@/lib/database/models/contract.model";
 import { IZone } from "@/lib/database/models/zone.model";
-import { canPerformAction, churchRoles } from "@/components/auth/permission/permission";
+import { canPerformAdmin, churchRoles } from "@/components/auth/permission/permission";
 
 export type SocialProps = {
     id:string,
@@ -62,11 +62,11 @@ const ChurchDetails = ({currentChurch}:ChurchDetailsProps) => {
     const buttonRef = useRef<HTMLButtonElement>(null);
 
     // const creator = isSuperUser(user!) || isSystemAdmin.creator(user!);
-    const updater = canPerformAction(user!, 'updater', {churchRoles});
-    const creator = canPerformAction(user!, 'creator', {churchRoles});
-    const deleter = canPerformAction(user!, 'deleter', {churchRoles});
+    const updater = canPerformAdmin(user!, 'updater', {churchRoles});
+    const creator = canPerformAdmin(user!, 'creator', {churchRoles});
+    const deleter = canPerformAdmin(user!, 'deleter', {churchRoles});
     // const reader = isSuperUser(user!) || isSystemAdmin.reader(user!);
-    const admin = canPerformAction(user!, 'admin', {churchRoles});
+    const admin = canPerformAdmin(user!, 'admin', {churchRoles});
 
 
     useEffect(()=>{

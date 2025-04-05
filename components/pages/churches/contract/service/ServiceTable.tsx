@@ -16,7 +16,7 @@ import NewService from "./NewService";
 import ServiceInfoModal from "./ServiceInfoModal";
 import { useAuth } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
-import { canPerformAction, contractRoles, serviceRoles } from "@/components/auth/permission/permission";
+import { canPerformAdmin, contractRoles, serviceRoles } from "@/components/auth/permission/permission";
 
 const ServicesTable = () => {
     const {user} = useAuth();
@@ -31,12 +31,12 @@ const ServicesTable = () => {
     const {services, loading, refetch} = useFetchServices();
     const searchParams = useSearchParams();
 
-    const creator = canPerformAction(user!, 'creator', {serviceRoles});
-    const reader = canPerformAction(user!, 'reader', {serviceRoles});
-    const deleter = canPerformAction(user!, 'deleter', {serviceRoles});
-    const updater = canPerformAction(user!, 'updater', {serviceRoles});
-    const admin = canPerformAction(user!, 'admin', {serviceRoles});
-    const showContracts = canPerformAction(user!, 'reader', {contractRoles});
+    const creator = canPerformAdmin(user!, 'creator', {serviceRoles});
+    const reader = canPerformAdmin(user!, 'reader', {serviceRoles});
+    const deleter = canPerformAdmin(user!, 'deleter', {serviceRoles});
+    const updater = canPerformAdmin(user!, 'updater', {serviceRoles});
+    const admin = canPerformAdmin(user!, 'admin', {serviceRoles});
+    const showContracts = canPerformAdmin(user!, 'reader', {contractRoles});
 
     useEffect(()=>{
       if(user && !admin){

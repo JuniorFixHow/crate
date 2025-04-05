@@ -119,3 +119,15 @@ export const canPerformEvent = (
   );
 };
 
+export const canPerformAdmin = (
+  user: SessionPayload,
+  action: keyof (typeof isSystemAdmin  & ReturnType<typeof createRoleCheckers>),
+  entityRoles: { [key: string]: Partial<ReturnType<typeof createRoleCheckers>> }
+) => {
+  return (
+    isSuperUser(user) || 
+    (action in isSystemAdmin && isSystemAdmin[action]?.(user)) || 
+    Object.values(entityRoles).some(role => action in role && role[action]?.(user))
+  );
+};
+

@@ -13,7 +13,7 @@ import ContractPreview from "../single/ContractPreview";
 import { IService } from "@/lib/database/models/service.model";
 import { useFetchServices } from "@/hooks/fetch/useService";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { canPerformAction, contractRoles } from "@/components/auth/permission/permission";
+import { canPerformAdmin, contractRoles } from "@/components/auth/permission/permission";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
@@ -47,11 +47,11 @@ const ContractDetails = ({currentContract}:ContractDetailsProps) => {
     const cservs = currentContract?.services as IService[];
     const quants = currentContract?.quantity;
 
-    const reader = canPerformAction(user!, 'reader', {contractRoles});
-    const updater = canPerformAction(user!, 'updater', {contractRoles});
-    const creator = canPerformAction(user!, 'creator', {contractRoles});
-    const deleter = canPerformAction(user!, 'deleter', {contractRoles});
-    const admin = canPerformAction(user!, 'admin', {contractRoles});
+    const reader = canPerformAdmin(user!, 'reader', {contractRoles});
+    const updater = canPerformAdmin(user!, 'updater', {contractRoles});
+    const creator = canPerformAdmin(user!, 'creator', {contractRoles});
+    const deleter = canPerformAdmin(user!, 'deleter', {contractRoles});
+    const admin = canPerformAdmin(user!, 'admin', {contractRoles});
 
     useEffect(()=>{
         if(user && !admin){

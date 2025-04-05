@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { ContractColumns } from "./ContractColumns";
 import ContractInfoModal from "./ContractInfoModal";
 import { useAuth } from "@/hooks/useAuth";
-import { canPerformAction, contractRoles, serviceRoles } from "@/components/auth/permission/permission";
+import { canPerformAdmin, contractRoles, serviceRoles } from "@/components/auth/permission/permission";
 import { enqueueSnackbar } from "notistack";
 import { deleteContract } from "@/lib/actions/contract.action";
 import { useRouter } from "next/navigation";
@@ -28,12 +28,12 @@ const ContractTable = () => {
 
     const {contracts, loading, refetch} = useFetchContracts();
 
-    const creator = canPerformAction(user!, 'creator', {contractRoles});
-    const reader = canPerformAction(user!, 'reader', {contractRoles});
-    const updater = canPerformAction(user!, 'updater', {contractRoles});
-    const deleter = canPerformAction(user!, 'deleter', {contractRoles});
-    const admin = canPerformAction(user!, 'admin', {contractRoles});
-    const serviceReader = canPerformAction(user!, 'creator', {serviceRoles});
+    const creator = canPerformAdmin(user!, 'creator', {contractRoles});
+    const reader = canPerformAdmin(user!, 'reader', {contractRoles});
+    const updater = canPerformAdmin(user!, 'updater', {contractRoles});
+    const deleter = canPerformAdmin(user!, 'deleter', {contractRoles});
+    const admin = canPerformAdmin(user!, 'admin', {contractRoles});
+    const serviceReader = canPerformAdmin(user!, 'creator', {serviceRoles});
 
     useEffect(()=>{
       if(user && !admin){

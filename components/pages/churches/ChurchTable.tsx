@@ -18,7 +18,7 @@ import Link from 'next/link';
 import SearchSelectZoneV2 from '@/components/features/SearchSelectZonesV2';
 import { enqueueSnackbar } from 'notistack';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, churchRoles, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission';
+import { canPerformAdmin, churchRoles, isSuperUser, isSystemAdmin } from '@/components/auth/permission/permission';
 
 const ChurchTable = () => {
     // const [search, setSearch] = useState<string>('');
@@ -36,10 +36,10 @@ const ChurchTable = () => {
     const {churches, isPending, refetch} = useFetchChurchesV2();
     const searchParams = useSearchParams();
 
-    const creator = canPerformAction(user!, 'creator', {churchRoles})
-    const updater = canPerformAction(user!, 'updater', {churchRoles})
-    const reader = canPerformAction(user!, 'reader', {churchRoles})
-    const admin = canPerformAction(user!, 'admin', {churchRoles})
+    const creator = canPerformAdmin(user!, 'creator', {churchRoles})
+    const updater = canPerformAdmin(user!, 'updater', {churchRoles})
+    const reader = canPerformAdmin(user!, 'reader', {churchRoles})
+    const admin = canPerformAdmin(user!, 'admin', {churchRoles})
     const deleter = isSuperUser(user!) || isSystemAdmin.deleter(user!);
 
     const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);

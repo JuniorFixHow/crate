@@ -16,7 +16,7 @@ import { deleteZone, getZone } from '@/lib/actions/zone.action';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import { useAuth } from '@/hooks/useAuth';
-import { canPerformAction, churchRoles, isSuperUser, isSystemAdmin, zoneRoles } from '@/components/auth/permission/permission';
+import { canPerformAdmin, churchRoles, isSuperUser, isSystemAdmin, zoneRoles } from '@/components/auth/permission/permission';
 
 const ZonesTable = () => {
   const {user} = useAuth();
@@ -29,12 +29,12 @@ const ZonesTable = () => {
   const paginationModel = { page: 0, pageSize: 10 };
   // const [deleteState, setDeleteState]=useState<ErrorProps>({message:'', error:false});
   
-  const creator = canPerformAction(user!, 'creator', {zoneRoles});
-  const updater = canPerformAction(user!, 'updater', {zoneRoles});
-  const reader = canPerformAction(user!, 'reader', {zoneRoles});
-  const admin = canPerformAction(user!, 'admin', {zoneRoles});
+  const creator = canPerformAdmin(user!, 'creator', {zoneRoles});
+  const updater = canPerformAdmin(user!, 'updater', {zoneRoles});
+  const reader = canPerformAdmin(user!, 'reader', {zoneRoles});
+  const admin = canPerformAdmin(user!, 'admin', {zoneRoles});
   const deleter = isSuperUser(user!) || isSystemAdmin.deleter(user!);
-  const churchReader = canPerformAction(user!, 'reader', {churchRoles});
+  const churchReader = canPerformAdmin(user!, 'reader', {churchRoles});
 
   useEffect(()=>{
     if(user && !admin){
