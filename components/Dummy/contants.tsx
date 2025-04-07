@@ -16,6 +16,7 @@ import { IChurch } from "@/lib/database/models/church.model";
 import { IGroup } from "@/lib/database/models/group.model";
 import { IRoom } from "@/lib/database/models/room.model";
 import { ISession } from "@/lib/database/models/session.model";
+import { IEvent } from "@/lib/database/models/event.model";
 
 export const Grey = '#949191';
 export const Blue = '#3C60CA';
@@ -257,6 +258,17 @@ export const EventColumns=(
         field:'type',
         headerName:'Type',
         width:130
+    },
+    {
+        field:'forAll',
+        headerName:'Visibility',
+        width:130,
+        valueFormatter:(_, event:IEvent)=>{
+            return event?.forAll ? 'Public' :'Private'
+        },
+        valueGetter:(_, event:IEvent)=>{
+            return event?.forAll ? 'Public' :'Private'
+        }
     },
     {
         field:'sessions',
