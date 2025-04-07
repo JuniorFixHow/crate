@@ -10,6 +10,7 @@ import Group from "../database/models/group.model";
 import { handleResponse } from "../misc";
 import './contract.action';
 import Campuse from "../database/models/campuse.model";
+import mongoose from "mongoose";
 
 export async function createChurch(church: Partial<IChurch>) {
     try {
@@ -126,56 +127,54 @@ export async function getChurch(id:string){
     }
 }
 
+
 export async function deleteChurch(id: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         await connectDB();
 
-        // Find the church by its ID
-        const church = await Church.findById(id);
+        const church = await Church.findById(id).session(session);
         if (!church) {
             return handleResponse('Church not found!', true, {}, 404);
         }
-        if(church.name === 'CRATE Main'){
+        if (church.name === 'CRATE Main') {
             return handleResponse('You cannot delete this church', true, {}, 403);
         }
 
-        // Find members related to this church
-        const members = await Member.find({ church: church._id });
-        const memberIds = members.map((member) => member._id);
+        // Get all related member IDs
+        const memberIds = await Member.find({ church: church._id }, '_id').session(session);
+        const memberIdList = memberIds.map(m => m._id);
 
-        if (memberIds.length > 0) {
-            // Delete registrations associated with these members
-            await Registration.deleteMany({ memberId: { $in: memberIds } });
-
-            // Remove members from groups
-            await Group.updateMany(
-                { members: { $in: memberIds } },
-                { $pull: { members: { $in: memberIds } } }
-            );
-
-            // Remove members from rooms
-            await Registration.updateMany(
-                { memberId: { $in: memberIds } },
-                { $set: { roomIds: [] } }
-            );
-
-            // Delete attendance records for these members
-            await Attendance.deleteMany({ member: { $in: memberIds } });
+        if (memberIdList.length > 0) {
+            await Promise.all([
+                Registration.deleteMany({ memberId: { $in: memberIdList } }).session(session),
+                Group.updateMany(
+                    { members: { $in: memberIdList } },
+                    { $pull: { members: { $in: memberIdList } } }
+                ).session(session),
+                Attendance.deleteMany({ member: { $in: memberIdList } }).session(session)
+            ]);
         }
 
-        // Delete members and vendors related to this church
-        await Member.deleteMany({ church: church._id });
-        await Vendor.deleteMany({ church: church._id });
-        await Campuse.deleteMany({churchId:church._id});
+        // Delete members, groups, vendors, campuses
+        await Promise.all([
+            Member.deleteMany({ church: church._id }).session(session),
+            Group.deleteMany({ churchId: church._id }).session(session),
+            Vendor.deleteMany({ church: church._id }).session(session),
+            Campuse.deleteMany({ churchId: church._id }).session(session),
+            Zone.findByIdAndUpdate(church.zoneId, { $inc: { churches: -1 } }, { new: true }).session(session),
+            Church.findByIdAndDelete(church._id).session(session)
+        ]);
 
-        // Decrement the 'churches' count in the zone
-        await Zone.findByIdAndUpdate(church.zoneId, { $inc: { churches: -1 } }, { new: true });
-
-        // Delete the church itself
-        await Church.findByIdAndDelete(church._id);
+        await session.commitTransaction();
+        session.endSession();
 
         return handleResponse('Church deleted successfully', false, {}, 201);
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error('Error deleting church:', error);
         return handleResponse('Error occurred during church deletion', true, {}, 500);
     }

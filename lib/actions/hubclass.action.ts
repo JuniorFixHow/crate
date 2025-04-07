@@ -5,8 +5,8 @@ import Hubclass, { IHubclass } from "../database/models/hubclass.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import '../database/models/member.model';
-import Member from "../database/models/member.model";
 import Registration from "../database/models/registration.model";
+import { IMember } from "../database/models/member.model";
 
 export async function createHubclass(hub:Partial<IHubclass>){
     try {
@@ -116,10 +116,20 @@ export async function getHubclasses(eventId:string){
         const hubs = await Hubclass.find({eventId})
         .populate({
             path:'children',
-            populate:{
-                path:'church',
-                model:'Church'
-            }
+            populate:[
+                {
+                    path:'memberId',
+                    model:'Member',
+                    populate:{
+                        path:'church',
+                        model:'Church'
+                    }
+                },
+                {
+                    path:'groupId',
+                    model:'Group'
+                }
+            ]
         })
         .populate('leaders')
         .populate('eventId')
@@ -138,10 +148,20 @@ export async function getChurchHubclasses(churchId:string, eventId:string){
         const hubs = await Hubclass.find({churchId, eventId})
         .populate({
             path:'children',
-            populate:{
-                path:'church',
-                model:'Church'
-            }
+            populate:[
+                {
+                    path:'memberId',
+                    model:'Member',
+                    populate:{
+                        path:'church',
+                        model:'Church'
+                    }
+                },
+                {
+                    path:'groupId',
+                    model:'Group'
+                }
+            ]
         })
         .populate('leaders')
         .populate('eventId')
@@ -160,10 +180,20 @@ export async function getPublicHubclasses(eventId:string){
         const hubs = await Hubclass.find({eventId})
         .populate({
             path:'children',
-            populate:{
-                path:'church',
-                model:'Church'
-            }
+            populate:[
+                {
+                    path:'memberId',
+                    model:'Member',
+                    populate:{
+                        path:'church',
+                        model:'Church'
+                    }
+                },
+                {
+                    path:'groupId',
+                    model:'Group'
+                }
+            ]
         })
         .populate('eventId')
         .populate('leaders')
@@ -183,10 +213,20 @@ export async function getPublicHubclassesV2(){
         const hubs = await Hubclass.find({eventId:{$in: eventIds}})
         .populate({
             path:'children',
-            populate:{
-                path:'church',
-                model:'Church'
-            }
+            populate:[
+                {
+                    path:'memberId',
+                    model:'Member',
+                    populate:{
+                        path:'church',
+                        model:'Church'
+                    }
+                },
+                {
+                    path:'groupId',
+                    model:'Group'
+                }
+            ]
         })
         .populate('eventId')
         .populate('leaders')
@@ -212,31 +252,45 @@ export async function deleteHubclass(id:string){
 
 
 export async function getMembersForChildrenClass(eventId: string) {
-  try {
-    await connectDB();
+    try {
+      await connectDB();
+  
+      const childAgeRanges = ["0-5", "6-10"];
+  
+      // Get all registered members for the event
+      const registrations = await Registration.find({ eventId })
+        .populate({
+          path: "memberId",
+          populate: { path: "church", model: "Church" }
+        })
+        .populate("groupId")
+        .lean();
 
-    const childAgeRanges = ["0-5", "6-10"];
-
-    // Get all registered members for the event
-    const registrations = await Registration.find({ eventId }).select("memberId");
-    const registeredMemberIds = registrations.map((reg) => reg.memberId.toString());
-
-    // Get all children already in a Hubclass for this event
-    const hubClasses = await Hubclass.find({ eventId }).select("children");
-    const hubChildrenIds = hubClasses.flatMap((hub) => hub.children.map((child:string) => child.toString()));
-
-    // Get all members in the specified age range who are registered
-    const members = await Member.find({
-      _id: { $in: registeredMemberIds },
-      ageRange: { $in: childAgeRanges },
-    });
-
-    // Filter members who are NOT in any Hubclass
-    const filteredMembers = members.filter((member) => !hubChildrenIds.includes(member._id.toString()));
-
-    return JSON.parse(JSON.stringify(filteredMembers));
-  } catch (error) {
-    console.error(error);
-    return handleResponse("Error occurred fetching members", true, {}, 500);
+        // console.log('Regs: ', registrations);
+  
+      // Get all children already in a Hubclass for this event
+      const hubClasses = await Hubclass.find({ eventId })
+        .select("children")
+        .populate("children", "_id")
+        .lean();
+  
+      // Get all child member IDs already in Hubclasses
+      const hubChildrenIds = new Set(
+        hubClasses.flatMap(h => h.children).map(child => child._id.toString())
+      );
+  
+      // Filter registrations for eligible children
+      const filtered = registrations.filter(reg => {
+        const member = reg.memberId as IMember;
+        const isInRange = childAgeRanges.includes(member?.ageRange);
+        const isInHubClass = hubChildrenIds.has(member._id.toString());
+        return isInRange && !isInHubClass;
+      });
+  
+      return JSON.parse(JSON.stringify(filtered));
+    } catch (error) {
+      console.error("Error in getMembersForChildrenClass:", error);
+      return handleResponse("Error occurred fetching members", true, {}, 500);
+    }
   }
-}
+  

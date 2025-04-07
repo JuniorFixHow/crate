@@ -1,11 +1,10 @@
 'use client'
 
-import { canPerformAction, isSuperUser, isSystemAdmin, memberRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles, groupRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 import AddButton from "@/components/features/AddButton";
 import { useFetchMembersForHubClass } from "@/hooks/fetch/useHubclass";
 import { useAuth } from "@/hooks/useAuth";
 import { addMemberToHubclass } from "@/lib/actions/hubclass.action";
-import { IMember } from "@/lib/database/models/member.model";
 import { Modal, Paper } from "@mui/material"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { enqueueSnackbar } from "notistack";
@@ -13,6 +12,7 @@ import { Dispatch, SetStateAction, useState } from "react"
 import { HubClassAddMemberColumns } from "./HubClassAddMemberCoulmns";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { IHubclass } from "@/lib/database/models/hubclass.model";
+import { IRegistration } from "@/lib/database/models/registration.model";
 
 type HubClassAddMemberTableProps={
     hubClass:IHubclass,
@@ -30,7 +30,8 @@ const HubClassAddMemberTable = ({hubClass, eventId, refetch, openMembers, setOpe
 
     const {members, loading, refetch:reload} = useFetchMembersForHubClass(eventId);
 
-    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showMember = canPerformAction(user!, 'reader', {eventRegistrationRoles, eventOrganizerRoles});
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
     const isAdmin = isSuperUser(user!) || isSystemAdmin.reader(user!);
 
     const handleClose = ()=>{
@@ -97,10 +98,10 @@ const HubClassAddMemberTable = ({hubClass, eventId, refetch, openMembers, setOpe
                     <Paper className='w-full' sx={{ height: 480, }}>
                         <DataGrid
                             rows={members}
-                            columns={HubClassAddMemberColumns(handleSelect, selectedMembers, showMember, isAdmin)}
+                            columns={HubClassAddMemberColumns(handleSelect, selectedMembers, showMember, isAdmin, showGroup)}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[5, 10]}
-                            getRowId={(row:IMember)=>row._id}
+                            getRowId={(row:IRegistration)=>row._id}
                             loading={loading && !!eventId}
                             slots={{toolbar:GridToolbar}}
                             slotProps={{

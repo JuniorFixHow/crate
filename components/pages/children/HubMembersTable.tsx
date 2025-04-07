@@ -1,6 +1,6 @@
 'use client'
 
-import { canPerformAction, eventOrganizerRoles, eventRegistrationRoles, memberRoles } from "@/components/auth/permission/permission";
+import { canPerformAction, eventOrganizerRoles, eventRegistrationRoles, groupRoles } from "@/components/auth/permission/permission";
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { useAuth } from "@/hooks/useAuth";
 import { IHubclass } from "@/lib/database/models/hubclass.model";
@@ -16,6 +16,7 @@ import { enqueueSnackbar } from "notistack";
 import { removeMemberFromHubclass } from "@/lib/actions/hubclass.action";
 import HubClassAddMemberTable from "./HubClassAddMemberTable";
 import { useFetchMembersForHubClass } from "@/hooks/fetch/useHubclass";
+import { IRegistration } from "@/lib/database/models/registration.model";
 
 type HubMembersTableProps = {
     refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IHubclass[], Error>>;
@@ -31,13 +32,14 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
     const [openMembers, setOpenMembers] = useState<boolean>(false);
     const {refetch:reload} = useFetchMembersForHubClass(eventId);
 
-    const children = hubClass?.children as IMember[];
+    const children = hubClass?.children as IRegistration[];
     // console.log("Children: ", children)
 
     const isAdmin = checkIfAdmin(user);
-    const showMember = canPerformAction(user!, 'reader', {memberRoles});
+    const showMember = canPerformAction(user!, 'reader', {eventRegistrationRoles, eventOrganizerRoles});
     const deleter = canPerformAction(user!, 'deleter', {eventRegistrationRoles, eventOrganizerRoles});
     const updater = canPerformAction(user!, 'updater', {eventRegistrationRoles, eventOrganizerRoles});
+    const showGroup = canPerformAction(user!, 'reader', {groupRoles, eventOrganizerRoles});
 
     const handleDelete = (data:IMember)=>{
         setCurrentMember(data);
@@ -86,10 +88,10 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
                 <DataGrid
                     loading={loading && !!eventId}
                     rows={children}
-                    columns={HubMembersColumns(handleDelete, showMember, isAdmin, deleter)}
+                    columns={HubMembersColumns(handleDelete, showMember, isAdmin, deleter, showGroup)}
                     initialState={{ pagination: { paginationModel } }}
                     pageSizeOptions={[5, 10]}
-                    getRowId={(row:IMember):string=>row._id}
+                    getRowId={(row:IRegistration):string=>row._id}
                     slots={{
                         toolbar:GridToolbar
                     }}

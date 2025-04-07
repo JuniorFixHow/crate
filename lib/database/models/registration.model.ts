@@ -1,4 +1,4 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import { CallbackError, Document, model, models, Schema, Types } from "mongoose";
 import { IMember } from "./member.model";
 import { IGroup } from "./group.model";
 import { IRoom } from "./room.model";
@@ -6,6 +6,7 @@ import { IEvent } from "./event.model";
 import Payment from "./payment.model";
 import { IKey } from "./key.model";
 import { IChurch } from "./church.model";
+import Hubclass from "./hubclass.model";
 
 export interface IRegistration extends Document{
     _id:string;
@@ -36,15 +37,33 @@ const RegistrationSchema = new Schema<IRegistration>({
 
 },{timestamps:true});
 
-RegistrationSchema.pre('deleteOne', {document:false, query:true}, async function(next){
+RegistrationSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
     try {
-        const payerId = this.getQuery().memberId;
-        await Payment.deleteMany({payer:payerId});
-        next();
+      const query = this.getQuery();
+      const regId = query._id;
+  
+      // Look up the registration to get the memberId
+      const registration = await this.model.findOne({ _id: regId }).lean() as IRegistration|null;
+      if (!registration) return next();
+  
+      const payerId = registration.memberId;
+  
+      // Delete related payments
+      await Payment.deleteMany({ payer: payerId });
+  
+      // Remove this registration from any Hubclass children arrays
+      await Hubclass.updateMany(
+        { children: regId },
+        { $pull: { children: regId } }
+      );
+  
+      next();
     } catch (error) {
-        console.log(error);
+      console.error('Error in Registration pre-deleteOne hook:', error);
+      next(error as CallbackError);
     }
-})
+  });
+  
 
 const Registration = models?.Registration || model('Registration', RegistrationSchema);
 export default Registration;

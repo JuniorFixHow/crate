@@ -3,11 +3,12 @@ import { IMember } from "./member.model";
 import { IEvent } from "./event.model";
 import Childrenrole from "./childrenrole.model";
 import { IChurch } from "./church.model";
+import { IRegistration } from "./registration.model";
 
 export interface IHubclass extends Document{
     _id:string;
     title:string;
-    children:string[] | IMember[] | Types.ObjectId[];
+    children:string[] | IRegistration[] | Types.ObjectId[];
     leaders:string[] | IMember[] | Types.ObjectId[];
     eventId:string | IEvent | Types.ObjectId;
     churchId:string | IChurch | Types.ObjectId;
@@ -17,7 +18,7 @@ export interface IHubclass extends Document{
 
 const HubclassSchema = new Schema<IHubclass>({
     title:String,
-    children:[{type:Schema.Types.ObjectId, ref:'Member'}],
+    children:[{type:Schema.Types.ObjectId, ref:'Registration'}],
     leaders:[{type:Schema.Types.ObjectId, ref:'Member'}],
     eventId:{type:Schema.Types.ObjectId, ref:'Event'},
     churchId:{type:Schema.Types.ObjectId, ref:'Church'}
