@@ -68,6 +68,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
             setLoading(true);
             const body:Partial<IVendor> = {
                 ...data, password, church:churchId as string,
+                role: isAdmin? data.role : 'Church Support Staff'
             }
             const res = await createVendor(body);
             if(res?.code === 201){
@@ -113,7 +114,7 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                     email:data.email || currentVendor?.email,
                     phone:data.phone || currentVendor?.phone,
                     country:data.country || currentVendor?.country,
-                    role:data.role || currentVendor?.role,
+                    role: (isAdmin && data.role) ? data?.role : currentVendor?.role,
                     gender:data.gender || currentVendor?.gender,
                     note:data.note || currentVendor?.note,
                     church: church || currentVendor?.church
@@ -208,15 +209,20 @@ const NewVendor = ({openVendor, refetch, setOpenVendor, currentVendor, setCurren
                             </div>
                         }
 
-                        <div className="flex flex-col gap-2">
-                            <span className='text-slate-500 text-[0.8rem]' >User Type</span>
-                            <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.role : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="role" >
-                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Volunteer">Volunteer</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Coordinator">Coordinator</option>
-                                <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Admin">Admin</option>
-                            </select>
-                        </div>
+                        {
+                            isAdmin &&
+                            <div className="flex flex-col gap-2">
+                                <span className='text-slate-500 text-[0.8rem]' >User Role</span>
+                                <select required={!currentVendor} onChange={handleChange} defaultValue={currentVendor ? currentVendor.role : ''}  className='border rounded py-1 dark:bg-transparent outline-none dark:text-white' name="role" >
+                                    <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="">select</option>
+                                    <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="CRATE Research Associate">CRATE Research Associate</option>
+                                    <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="System Admin">System Admin</option>
+                                    <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="Church Support Staff">Church Support Staff</option>
+                                    <option className='bg-white text-black dark:text-white dark:bg-[#0F1214]' value="NAGSDA Support Staff">NAGSDA Support Staff</option>
+                                </select>
+                            </div>
+                        }
+
                     </div>
 
                     <div className="flex flex-col">

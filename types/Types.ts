@@ -202,7 +202,7 @@ export interface IUser {
    photo:string,
    emailVerified:boolean,
    isAdmin:boolean,
-   role:'Admin'|'Coordinator'|'Volunteer';
+   role:string;
    roles:string[];
    createdAt?:FieldValue
 }

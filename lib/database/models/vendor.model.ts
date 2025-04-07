@@ -15,7 +15,7 @@ export interface IVendor extends Document {
     roles:string[];
     church:mongoose.Types.ObjectId|string|IChurch;
     campusId:mongoose.Types.ObjectId|string|ICampuse;
-    role:'Admin'|'Coordinator'|'Volunteer';
+    role:string;
     gender:'Male'|'Female';
     registrants:number;
     createdAt?: Date;

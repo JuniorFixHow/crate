@@ -95,7 +95,8 @@ const Roles = ({selection, user}:RolesProps) => {
                 UserRoles?.slice(1)
                 .filter((item)=> superUser ? item : item.title !== 'System Admin')
                 .filter((item)=>{
-                    return sa ? item :  !protectedRoles.includes(item.title)
+                    if (sa) return true; // show all roles to system admins
+                    return !protectedRoles.includes(item.title); // hide protected roles for others
                 })
                 .map((role)=>{
                     // const checked = roles.includes(code);

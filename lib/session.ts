@@ -21,7 +21,7 @@ export type SessionPayload = {
    isAdmin:boolean,
    uid:string;
    roles:string[];
-   role:'Admin'|'Coordinator'|'Volunteer'
+   role:string;
    expires?:Date
 }
 
