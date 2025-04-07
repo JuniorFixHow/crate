@@ -10,7 +10,7 @@ import { createSession } from '@/lib/actions/session.action'
 import { Alert } from '@mui/material'
 import { useAuth } from '@/hooks/useAuth'
 import { canPerformAction, sessionRoles } from '@/components/auth/permission/permission'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const NewSessions = () => {
   const [data, setData] = useState<Partial<ISession>>({});
@@ -22,7 +22,11 @@ const NewSessions = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const {user} = useAuth();
 
+  const searchParam = useSearchParams();
+
   const router = useRouter();
+
+  const type = searchParam.get('type');
 
   const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
     const {name, value} = e.target;
@@ -48,6 +52,7 @@ const NewSessions = () => {
       const body:Partial<ISession> = {
         ...data,
         eventId,
+        type:type ? type:'Adult',
         from:from.toISOString(),
         to:to.toISOString(),
         createdBy:user?.userId

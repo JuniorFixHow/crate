@@ -30,8 +30,9 @@ export type SessionSideProps = ComponentProps<'div'> & {
     sessions:ISession[]
     setSelectedTime:Dispatch<SetStateAction<string>>,
     setCurrentEvent?:Dispatch<SetStateAction<IEvent|null>>
+    width?:number;
 }
-const SessionSide = ({currentSession, refetch, setCurrentEvent, sessions, selectedTime, eventId, setEventId, setSelectedTime,   setCurrentSession,className}:SessionSideProps) => {
+const SessionSide = ({currentSession, width, refetch, setCurrentEvent, sessions, selectedTime, eventId, setEventId, setSelectedTime,   setCurrentSession,className}:SessionSideProps) => {
      const [deleteMode, setDeleteMode] = useState<boolean>(false);
      const {user} = useAuth();
      const updater = canPerformAction(user!, 'updater', {sessionRoles});
@@ -73,7 +74,7 @@ const SessionSide = ({currentSession, refetch, setCurrentEvent, sessions, select
     <div className='flex flex-row max-w-[90vw] scrollbar-custom overflow-x-scroll lg:overflow-hidden lg:flex-col lg:w-52 rounded gap-5 py-4 px-2 bg-white border dark:bg-[#0F1214]' >
       <Subtitle className="hidden md:block" text="Sessions" />
       <div className="flex lg:flex-col gap-3">
-        <SearchSelectEventsV2 setCurrentEvent={setCurrentEvent} width={190} setSelect={setEventId} />
+        <SearchSelectEventsV2 setCurrentEvent={setCurrentEvent} width={width ?? 190} setSelect={setEventId} />
         <select onChange={(e)=>setSelectedTime(e.target.value)}  className="bg-transparent h-fit py-2 lg:py-1 border rounded outline-none" defaultValue='All' >
             <option className="dark:bg-[#0F1214]" value="All">All</option>
             <option className="dark:bg-[#0F1214]" value="Morning">Morning</option>

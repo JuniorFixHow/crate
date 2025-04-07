@@ -69,10 +69,10 @@ export async function getSession(id:string){
 }
 
 
-export async function getSessions(){
+export async function getSessions(type:string){
     try {
         await connectDB();
-        const sess = await Session.find({type:'Adult'}).populate('eventId').populate('createdBy').lean();
+        const sess = await Session.find({type}).populate('eventId').populate('createdBy').lean();
         
         return JSON.parse(JSON.stringify(sess));
     } catch (error) {
@@ -86,10 +86,10 @@ export async function getSessions(){
     }
 }
 
-export async function getPublicSessions(){
+export async function getPublicSessions(type:string){
     try {
         await connectDB();
-        const events = await Event.find({forAll:true}).select('_id');
+        const events = await Event.find({forAll:true, type}).select('_id');
         const eventIds = events.map((item)=>item?._id);
         const sess = await Session.find({
             eventId: {$in: eventIds},
@@ -109,11 +109,11 @@ export async function getPublicSessions(){
 }
 
 
-export async function getChurchSessions(churchId:string){
+export async function getChurchSessions(type:string, churchId:string){
     try {
         await connectDB();
         const events = await Event.find({
-            forAll:false, churchId
+            forAll:false, churchId, type
         }).select('_id');
         const eventIds = events.map((item)=>item?._id);
         const sess = await Session.find({
@@ -188,6 +188,26 @@ export async function getEventSessions(id: string) {
     try {
         await connectDB();
         const sessions = await Session.find({ eventId: id, type:'Adult' })
+            .populate('eventId')
+            .populate('createdBy')
+            .lean(); // Use lean() for plain JS objects
+
+        return JSON.parse(JSON.stringify(sessions));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching sessions:', error.message);
+            throw new Error(`Error occurred while fetching sessions: ${error.message}`);
+        } else {
+            console.error('Unknown error:', error);
+            throw new Error('An unknown error occurred while fetching sessions');
+        }
+    }
+}
+
+export async function getEventSessionsForChildren(id: string) {
+    try {
+        await connectDB();
+        const sessions = await Session.find({ eventId: id, type:'Child' })
             .populate('eventId')
             .populate('createdBy')
             .lean(); // Use lean() for plain JS objects

@@ -9,6 +9,7 @@ import HubclassModal from "./HubclassModal";
 import { IHubclass } from "@/lib/database/models/hubclass.model";
 import SearchSelectHubClassesByEvent from "@/components/features/SearchSelectHubClassesByEvent";
 import ClassContent from "./ClassContent";
+import HubSessions from "./hubsession/HubSession";
 
 const ChildrenContent = () => {
     const {user} = useAuth();
@@ -41,7 +42,10 @@ const ChildrenContent = () => {
         <HubclassModal currentClass={currentClass} setCurrentClass={setCurrentClass} infoMode={infoMode} setInfoMode={setInfoMode} updater={updater} />
         <div className="flex flex-col md:flex-row md:items-center gap-5 md:justify-between flex-wrap">
             <div className="flex flex-col gap-4 md:flex-row md:gap-10">
-                <SearchSelectEventsV4 setSelect={setEventId} />
+                {
+                    title === 'Classes' &&
+                    <SearchSelectEventsV4 setSelect={setEventId} />
+                }
                 <div className="flex gap-3">
                     {
                         titles.map((item)=>{
@@ -72,6 +76,10 @@ const ChildrenContent = () => {
         {
             title === 'Classes' &&
             <ClassContent eventId={eventId} updater={updater} setCurrentClass={setCurrentClass} currentClass={currentClass!} />
+        }
+        {
+            title === 'Attendance' &&
+            <HubSessions/>
         }
     </div>
   )
