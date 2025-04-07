@@ -38,10 +38,10 @@ export const GroupColumns=(
         headerName:'Members',
         width:80,
         valueFormatter:(_, group:IGroup)=>{
-            return group?.members?.length;
+            return group?.members ?  group?.members?.length : '0';
         },
         valueGetter:(_, group:IGroup)=>{
-            return group?.members?.length;
+            return group?.members ?  group?.members?.length : '0';
         },
         renderCell:(params:GridRenderCellParams)=>{
             return(
@@ -54,11 +54,11 @@ export const GroupColumns=(
         headerName:'Church',
         valueFormatter:(_, group:IGroup)=>{
             const church = group?.churchId as IChurch;
-            return church?.name;
+            return church ? church?.name : '';
         },
         valueGetter:(_, group:IGroup)=>{
             const church = group?.churchId as IChurch;
-            return Object.values(church);
+            return church ? Object.values(church) : '';
         },
         width:180,
         renderCell:(params:GridRenderCellParams)=>{
