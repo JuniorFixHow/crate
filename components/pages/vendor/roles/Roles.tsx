@@ -95,7 +95,7 @@ const Roles = ({selection, user}:RolesProps) => {
                 UserRoles?.slice(1)
                 .filter((item)=> superUser ? item : item.title !== 'System Admin')
                 .filter((item)=>{
-                    if (sa) return true; // show all roles to system admins
+                    if (sa || superUser) return true; // show all roles to system admins
                     return !protectedRoles.includes(item.title); // hide protected roles for others
                 })
                 .map((role)=>{
