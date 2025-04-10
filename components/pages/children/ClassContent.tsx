@@ -23,7 +23,7 @@ const ClassContent = ({currentClass,  eventId, updater, setCurrentClass}:ClassCo
     const [infoMode, setInfoMode] = useState<boolean>(false);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
 
-    const {refetch, loading} = useFetchHubClasses(eventId);
+    const {refetch} = useFetchHubClasses(eventId);
 
     const deleteClass = async()=>{
         try {
@@ -72,7 +72,7 @@ const ClassContent = ({currentClass,  eventId, updater, setCurrentClass}:ClassCo
         </div>
         {
             title === 'Members' &&
-            <HubMembersTable eventId={eventId} refetch={refetch} loading={loading} hubClass={currentClass} />
+            <HubMembersTable eventId={eventId} hubClass={currentClass} />
         }
         {
             title === 'Leaders' &&

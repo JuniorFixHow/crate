@@ -2,7 +2,7 @@
 
 import { canPerformAction, canPerformEvent, eventOrganizerRoles, eventRegistrationRoles, groupRoles, isSuperUser, isSystemAdmin } from "@/components/auth/permission/permission";
 import AddButton from "@/components/features/AddButton";
-import { useFetchMembersForHubClass } from "@/hooks/fetch/useHubclass";
+import { useFetchMembersForHubClassV2 } from "@/hooks/fetch/useHubclass";
 import { useAuth } from "@/hooks/useAuth";
 import { addMemberToHubclass } from "@/lib/actions/hubclass.action";
 import { Modal, Paper } from "@mui/material"
@@ -13,13 +13,14 @@ import { HubClassAddMemberColumns } from "./HubClassAddMemberCoulmns";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { IHubclass } from "@/lib/database/models/hubclass.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
+import { RegistrationWithRelationships } from "@/types/Types";
 
 type HubClassAddMemberTableProps={
     hubClass:IHubclass,
     eventId:string;
     openMembers:boolean;
     setOpenMembers:Dispatch<SetStateAction<boolean>>;
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IHubclass[], Error>>;
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<RegistrationWithRelationships[], Error>>;
 }
 
 const HubClassAddMemberTable = ({hubClass, eventId, refetch, openMembers, setOpenMembers}:HubClassAddMemberTableProps) => {
@@ -28,7 +29,7 @@ const HubClassAddMemberTable = ({hubClass, eventId, refetch, openMembers, setOpe
     
     const [addLoading, setAddLoading] = useState<boolean>(false);
 
-    const {members, loading, refetch:reload} = useFetchMembersForHubClass(eventId);
+    const {members, loading, refetch:reload} = useFetchMembersForHubClassV2(eventId);
 
     const showMember = canPerformAction(user!, 'reader', {eventRegistrationRoles, eventOrganizerRoles});
     const showGroup = canPerformAction(user!, 'reader', {groupRoles}) || canPerformEvent(user!, 'reader', {eventOrganizerRoles});
@@ -99,7 +100,14 @@ const HubClassAddMemberTable = ({hubClass, eventId, refetch, openMembers, setOpe
                         <DataGrid
                             rows={members}
                             columns={HubClassAddMemberColumns(handleSelect, selectedMembers, showMember, isAdmin, showGroup)}
-                            initialState={{ pagination: { paginationModel } }}
+                            initialState={{ 
+                                pagination: { paginationModel },
+                                columns:{
+                                    columnVisibilityModel:{
+                                        rel:false
+                                    }
+                                }
+                            }}
                             pageSizeOptions={[5, 10]}
                             getRowId={(row:IRegistration)=>row._id}
                             loading={loading && !!eventId}

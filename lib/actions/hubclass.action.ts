@@ -5,8 +5,9 @@ import Hubclass, { IHubclass } from "../database/models/hubclass.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
 import '../database/models/member.model';
-import Registration from "../database/models/registration.model";
+import Registration, { IRegistration } from "../database/models/registration.model";
 import { IMember } from "../database/models/member.model";
+import Relationship, { IRelationship } from "../database/models/relationship.model";
 
 export async function createHubclass(hub:Partial<IHubclass>){
     try {
@@ -288,6 +289,151 @@ export async function getMembersForChildrenClass(eventId: string) {
       });
   
       return JSON.parse(JSON.stringify(filtered));
+    } catch (error) {
+      console.error("Error in getMembersForChildrenClass:", error);
+      return handleResponse("Error occurred fetching members", true, {}, 500);
+    }
+  }
+  
+
+ 
+
+  export async function getMembersForChildrenClassWithRels(eventId: string) {
+    try {
+      await connectDB();
+  
+      const childAgeRanges = ["0-5", "6-10"];
+  
+      // Step 1: Get all registrations for this event with member and group/church populated
+      const registrations = await Registration.find({ eventId })
+          .populate({
+              path: "memberId",
+              populate: { path: "church", model: "Church" }
+          })
+          .populate("groupId")
+          .lean() as unknown as IRegistration[];
+  
+      // Step 2: Get all child member IDs already in a Hubclass
+      const hubClasses = await Hubclass.find({ eventId })
+        .select("children")
+        .populate("children","_id")
+        .lean();
+  
+        // console.log('Children: ',hubClasses[0].children[0]);
+      const hubChildrenIds = new Set(
+        hubClasses.flatMap(h => h.children).map(child => child._id.toString())
+      );
+    //   console.log(hubChildrenIds)
+  
+      // Step 3: Filter eligible children (right age and not in any hub class)
+      const filtered = registrations.filter(reg => {
+        const member = reg.memberId as IMember;
+        const isInRange = childAgeRanges.includes(member?.ageRange);
+        const isInHubClass = hubChildrenIds.has(reg._id.toString());
+        return isInRange && !isInHubClass;
+      });
+  
+      // Step 4: Get relationships for these members
+      const memberIds = filtered.map(reg => (reg.memberId as IMember)._id);
+  
+      const relationships = await Relationship.find({
+          members: { $in: memberIds }
+      })
+          .populate({
+              path: "members",
+              model: "Member",
+              //   populate: { path: "church", model: "Church" }
+          })
+          .lean() as unknown as IRelationship[];
+  
+      // Step 5: Map memberId -> their relationships
+      const memberToRelationships = new Map<string, IRelationship[]>();
+      for (const rel of relationships) {
+        for (const mem of rel.members as IMember[]) {
+          const memId = mem._id.toString();
+          if (!memberToRelationships.has(memId)) {
+            memberToRelationships.set(memId, []);
+          }
+          memberToRelationships.get(memId)!.push(rel);
+        }
+      }
+  
+      // Step 6: Add relationship data to each registration
+      const enriched = filtered.map(reg => {
+        const member = reg.memberId as IMember;
+        const relationships = memberToRelationships.get(member._id.toString()) || [];
+        return {
+          ...reg,
+          relationships
+        };
+      });
+  
+      return JSON.parse(JSON.stringify(enriched));
+    } catch (error) {
+      console.error("Error in getMembersForChildrenClass:", error);
+      return handleResponse("Error occurred fetching members", true, {}, 500);
+    }
+  }
+
+  
+  export async function getMembersForClassV2(classId: string) {
+    try {
+      await connectDB();
+  
+    //   const childAgeRanges = ["0-5", "6-10"];
+  
+      // Step 1: Get all registrations for this event with member and group/church populated
+      const hub = await Hubclass.findById(classId)
+          .populate({
+              path: 'children',
+              populate: {
+                  path: "memberId",
+                  model:'Member',
+                  populate: { path: "church", model: "Church" }
+              }
+          }).lean() as unknown as IHubclass;
+
+      const registrations = hub?.children as IRegistration[];
+  
+  
+     
+  
+      // Step 4: Get relationships for these members
+      const memberIds = registrations.map(reg => (reg.memberId as IMember)._id);
+  
+      const relationships = await Relationship.find({
+          members: { $in: memberIds }
+      })
+          .populate({
+              path: "members",
+              model: "Member",
+              //   populate: { path: "church", model: "Church" }
+          })
+          .lean() as unknown as IRelationship[];
+  
+      // Step 5: Map memberId -> their relationships
+      const memberToRelationships = new Map<string, IRelationship[]>();
+      for (const rel of relationships) {
+        for (const mem of rel.members as IMember[]) {
+          const memId = mem._id.toString();
+          if (!memberToRelationships.has(memId)) {
+            memberToRelationships.set(memId, []);
+          }
+          memberToRelationships.get(memId)!.push(rel);
+        }
+      }
+  
+      // Step 6: Add relationship data to each registration
+      const enriched = registrations.map(reg => {
+        const member = reg.memberId as IMember;
+        const relationships = memberToRelationships.get(member._id.toString()) || [];
+        return {
+          ...reg,
+          relationships
+        };
+      });
+  
+      return JSON.parse(JSON.stringify(enriched));
     } catch (error) {
       console.error("Error in getMembersForChildrenClass:", error);
       return handleResponse("Error occurred fetching members", true, {}, 500);

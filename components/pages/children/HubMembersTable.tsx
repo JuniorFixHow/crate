@@ -7,7 +7,6 @@ import { IHubclass } from "@/lib/database/models/hubclass.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { Paper } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useState } from "react"
 import { HubMembersColumns } from "./HubMembersColumn";
 import AddButton from "@/components/features/AddButton";
@@ -15,24 +14,23 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { enqueueSnackbar } from "notistack";
 import { removeMemberFromHubclass } from "@/lib/actions/hubclass.action";
 import HubClassAddMemberTable from "./HubClassAddMemberTable";
-import { useFetchMembersForHubClass } from "@/hooks/fetch/useHubclass";
+import { useFetchClassChildren, useFetchMembersForHubClassV2 } from "@/hooks/fetch/useHubclass";
 import { IRegistration } from "@/lib/database/models/registration.model";
 
 type HubMembersTableProps = {
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IHubclass[], Error>>;
-    loading:boolean;
     hubClass:IHubclass;
     eventId:string;
 }
 
-const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableProps) => {
+const HubMembersTable = ({ hubClass, eventId, }:HubMembersTableProps) => {
     const {user} = useAuth();
     const [currentMember, setCurrentMember] = useState<IMember|null>(null);
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [openMembers, setOpenMembers] = useState<boolean>(false);
-    const {refetch:reload} = useFetchMembersForHubClass(eventId);
+    const {refetch:reload, children, loading:preparing} = useFetchClassChildren(hubClass?._id);
+    const {refetch} = useFetchMembersForHubClassV2(eventId);
 
-    const children = hubClass?.children as IRegistration[];
+    // const children = hubClass?.children as IRegistration[];
     // console.log("Children: ", children)
 
     const isAdmin = checkIfAdmin(user);
@@ -51,8 +49,8 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
             if(currentMember){
                 const res = await removeMemberFromHubclass(hubClass?._id, [currentMember?._id]);
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
-                refetch();
                 reload();
+                refetch();
             }
         } catch (error) {
             console.log(error);
@@ -80,16 +78,23 @@ const HubMembersTable = ({ hubClass, eventId, refetch, loading}:HubMembersTableP
             updater &&
             <AddButton onClick={handleOpenMembers} className="self-end rounded" noIcon text="Add Members" isCancel smallText />
         }
-        <HubClassAddMemberTable refetch={refetch!} eventId={eventId} hubClass={hubClass} openMembers={openMembers} setOpenMembers={setOpenMembers} />
+        <HubClassAddMemberTable refetch={reload} eventId={eventId} hubClass={hubClass} openMembers={openMembers} setOpenMembers={setOpenMembers} />
         <DeleteDialog title={`Remove ${currentMember?.name}`} message={message} onTap={deleteMember} value={deleteMode} setValue={setDeleteMode} />
         <div className="flex flex-col gap-4 w-full">
             
             <Paper className='w-full' sx={{ height: 'auto', }}>
                 <DataGrid
-                    loading={loading && !!eventId}
+                    loading={preparing && !!hubClass?._id}
                     rows={children}
                     columns={HubMembersColumns(handleDelete, showMember, isAdmin, deleter, showGroup)}
-                    initialState={{ pagination: { paginationModel } }}
+                    initialState={{ 
+                        pagination: { paginationModel },
+                        columns:{
+                            columnVisibilityModel:{
+                                rel:false
+                            }
+                        }
+                    }}
                     pageSizeOptions={[5, 10]}
                     getRowId={(row:IRegistration):string=>row._id}
                     slots={{

@@ -4,6 +4,8 @@ import { IEvent } from "@/lib/database/models/event.model"
 import { IGroup } from "@/lib/database/models/group.model"
 import { IKey } from "@/lib/database/models/key.model"
 import { IMember } from "@/lib/database/models/member.model"
+import { IRegistration } from "@/lib/database/models/registration.model"
+import { IRelationship } from "@/lib/database/models/relationship.model"
 import { IRoom } from "@/lib/database/models/room.model"
 import { FieldValue } from "firebase/firestore"
 import mongoose, { Types } from "mongoose"
@@ -245,3 +247,20 @@ export interface IExpectedRevenue{
    total:number;
    church:IChurch
 }
+
+
+export interface RegistrationWithRelationships extends Omit<IRegistration, 'memberId'> {
+   _id:string;
+   memberId: IMember; // fully populated
+   groupId?: IGroup;
+   roomIds?: IRoom[];
+   eventId: IEvent;
+   churchId: IChurch;
+   keyId: IKey;
+   relationships: RelationshipWithMembers[];
+ }
+ 
+ export interface RelationshipWithMembers extends Omit<IRelationship, 'members'> {
+   members: IMember[]; // fully populated members inside the relationship
+ }
+ 

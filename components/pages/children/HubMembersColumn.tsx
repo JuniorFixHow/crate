@@ -2,9 +2,11 @@ import { IChurch } from "@/lib/database/models/church.model";
 import { IGroup } from "@/lib/database/models/group.model";
 import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
+import { RegistrationWithRelationships } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 import { IoTrashBinOutline } from "react-icons/io5";
+import { ConvertibleRelationship, getOtherUserFirst, getRelationValue } from "../members/relationships/fxn";
 
 export const HubMembersColumns=(
     handleDelete:(data:IMember)=>void,
@@ -121,6 +123,83 @@ export const HubMembersColumns=(
             </>
         )
     },
+    {
+        field:'rel',
+        headerName:'Relationship',
+        width:100,
+        valueFormatter:(_, data:RegistrationWithRelationships)=>{
+            const member = data.memberId as IMember;
+            const rel = data?.relationships?.[0];
+            const members = rel?.members as IMember[];
+            return rel ? getRelationValue(members, member, rel?.type as ConvertibleRelationship):'None';
+        },
+        valueGetter:(_, data:RegistrationWithRelationships)=>{
+            const member = data.memberId as IMember;
+            const rel = data?.relationships?.[0];
+            const members = rel?.members as IMember[];
+            return rel ? getRelationValue(members, member, rel?.type as ConvertibleRelationship):'None';
+        }
+    },
+
+
+    {
+        field:'relatedTo',
+        headerName:'Related To',
+        width:200,
+        valueFormatter:(_, data:RegistrationWithRelationships)=>{
+            const member = data.memberId as IMember;
+            const rel = data?.relationships?.[0];
+            if(rel){
+                const members = rel?.members as IMember[];
+                const morethan2 = rel?.members?.length > 2;
+                const suffix = `+${rel?.members?.length - 2} ${rel?.members?.length === 3 ? 'other':'others'}`
+                return `${getOtherUserFirst(members, member)?.name} ${morethan2 && suffix}`;
+                
+            }
+            return 'N/A';
+        },
+        valueGetter:(_, data:RegistrationWithRelationships)=>{
+            const rel = data?.relationships?.[0];
+            if(rel){
+                const member = data.memberId as IMember;
+                const members = rel?.members as IMember[];
+                const morethan2 = rel?.members?.length > 2;
+                const suffix = `+${rel?.members?.length - 2} ${rel?.members?.length === 3 ? 'other':'others'}`
+                return `${getOtherUserFirst(members, member)?.name} ${morethan2 && suffix}`;
+                
+            }
+            return 'N/A';
+        },
+        renderCell:({row}:GridRenderCellParams)=>
+            {
+                const member = row?.memberId as IMember;
+                const members = row?.relationships?.[0]?.members;
+            return(
+            <div className="flex gap-1">
+                {
+                    members?.length > 0 ?
+                    <>
+                        <>
+                        {
+                            showMember?
+                            <Link href={`/dashboard/members/${getOtherUserFirst(members, member)?._id}`} className="table-link" >{getOtherUserFirst(members, member)?.name}</Link>
+                            :
+                            <span >{getOtherUserFirst(members, member)?.name}</span>
+                        }
+                        </>
+                        {
+                            members?.length > 2 &&
+                            <span>{`+${members?.length - 2} ${members?.length === 3 ? 'other':'others'}`}</span>
+                        }
+                    </>
+                    :
+                    <span>N/A</span>
+                }
+            </div>
+        )}
+    },
+
+
     {
         field:'id',
         headerName:'Action',

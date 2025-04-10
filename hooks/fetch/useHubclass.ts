@@ -3,10 +3,11 @@ import { IHubclass } from "@/lib/database/models/hubclass.model";
 import { useAuth } from "../useAuth"
 import { checkIfAdmin } from "@/components/Dummy/contants";
 import { eventOrganizerRoles } from "@/components/auth/permission/permission";
-import { getChurchHubclasses, getHubclasses, getMembersForChildrenClass, getPublicHubclasses } from "@/lib/actions/hubclass.action";
+import { getChurchHubclasses, getHubclasses, getMembersForChildrenClass, getMembersForChildrenClassWithRels, getMembersForClassV2, getPublicHubclasses } from "@/lib/actions/hubclass.action";
 import { useQuery } from "@tanstack/react-query";
 // import { IMember } from "@/lib/database/models/member.model";
 import { IRegistration } from "@/lib/database/models/registration.model";
+import { RegistrationWithRelationships } from "@/types/Types";
 
 export const useFetchHubClasses = (eventId:string)=>{
     const {user} = useAuth();
@@ -59,4 +60,47 @@ export const useFetchMembersForHubClass = (eventId:string)=>{
     })
 
     return {members, loading, refetch}
+}
+
+
+export const useFetchMembersForHubClassV2 = (eventId:string)=>{
+    const fetchMembers = async():Promise<RegistrationWithRelationships[]>=>{
+        try {
+            if(!eventId) return [];
+            const res:RegistrationWithRelationships[] = await getMembersForChildrenClassWithRels(eventId);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:members=[], isPending:loading, refetch} = useQuery({
+        queryKey:['membersforhubclassv2', eventId],
+        queryFn:fetchMembers,
+        enabled:!!eventId
+    })
+
+    return {members, loading, refetch}
+}
+
+export const useFetchClassChildren = (classId:string)=>{
+    const fetchMembers = async():Promise<RegistrationWithRelationships[]>=>{
+        try {
+            if(!classId) return [];
+            const res:RegistrationWithRelationships[] = await getMembersForClassV2(classId);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:children=[], isPending:loading, refetch} = useQuery({
+        queryKey:['membersforhubclassv3', classId],
+        queryFn:fetchMembers,
+        enabled:!!classId
+    })
+
+    return {children, loading, refetch}
 }
