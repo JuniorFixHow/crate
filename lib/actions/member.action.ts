@@ -13,6 +13,7 @@ import Response from "../database/models/response.model";
 import {  removeMemberFromAllGroupsBeforeDeletion } from "./group.action";
 import '../database/models/campuse.model'
 import Card from "../database/models/card.model";
+import TravelHub from "../database/models/travelhub.model";
 
 export async function createMember(member: Partial<IMember>) {
     try {
@@ -395,7 +396,10 @@ export async function deleteMember(id: string) {
             }
 
             // Delete the registration entry for the member
-            await Registration.findByIdAndDelete(registration._id);
+            await Promise.all([
+                TravelHub.deleteMany({regId:registration._id}),
+                Registration.deleteOne({_id:registration._id}),
+            ])
         }
 
         await Promise.all([

@@ -4,7 +4,8 @@ import React from "react"
 import { RxDashboard } from 'react-icons/rx'
 import { 
   // MdOutlineInbox, 
-  MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney, MdOutlineOtherHouses } from "react-icons/md"
+  MdOutlineMeetingRoom, MdEventAvailable, MdOutlineEvent, MdOutlineAdminPanelSettings, MdOutlineRoomPreferences, MdHistory, MdAttachMoney, MdOutlineOtherHouses, 
+  MdOutlineHub} from "react-icons/md"
 import { LuUserPlus, LuScanLine } from "react-icons/lu";
 import { GrGroup, GrPowerCycle } from "react-icons/gr";
 import {  NavigationProps,  } from "@/types/Types";
@@ -13,12 +14,12 @@ import { IoKeyOutline, IoLocationOutline } from "react-icons/io5";
 import { TbBuildingChurch, TbCash, TbCirclesRelation, TbDoorExit, TbProgressCheck } from "react-icons/tb";
 import { CiGlobe } from "react-icons/ci";
 import { RiCalendarEventLine, RiMoneyDollarBoxLine, RiPoliceBadgeLine, RiSchoolLine } from "react-icons/ri";
-import { PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
+import { PiAirplaneTakeoffLight, PiCross, PiSealCheck, PiUsersThreeThin } from "react-icons/pi";
 import { HiOutlineBuildingLibrary, 
   // HiOutlineMegaphone
  } from "react-icons/hi2";
 import { GoBriefcase } from "react-icons/go";
-import { FiActivity } from "react-icons/fi";
+import { FiActivity, FiMusic } from "react-icons/fi";
 import { FaRegAddressCard } from "react-icons/fa";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { LiaUserShieldSolid } from "react-icons/lia";
@@ -94,11 +95,7 @@ export const NavItems:NavigationProps[] = [
                 image:<CiGlobe />,
                 path:'/dashboard/events/public'
             },
-            {
-                text:`Children's Hub`,
-                image:<FaChildReaching className="opacity-70" />,
-                path:'/dashboard/events/children'
-            },
+            
             {
               text:'Records',
               path:'/dashboard/events/summary',
@@ -165,91 +162,118 @@ export const NavItems:NavigationProps[] = [
         },
       ],
     },
-      {
-        title: 'Communities',
-        isAdmin:true,
-        icon: <IoMdGlobe/>,
-        children:[
-          {
-            text:'Zones',
-            path:'/dashboard/zones',
-            image:<IoLocationOutline/>
-          },
-          {
-            text:'Churches',
-            path:'/dashboard/churches',
-            image:<TbBuildingChurch/>
-          },
-          
-          {
-            text:'Campuses',
-            path:'/dashboard/churches/campuses',
-            image:<RiSchoolLine />
-          },
-        ]
-      },
-      {
-        title:'Ministries',
-        isAdmin:true,
-        icon:<PiCross />,
-        children:[
-          {
-            text:'Manage Ministries',
-            path:'/dashboard/ministries',
-            image:<IoIosGitNetwork />
-          },
-          {
-            text:'Manage Activities',
-            path:'/dashboard/activities',
-            image:<FiActivity/>
-          },
-          {
-            text:'Cards',
-            path:'/dashboard/activities/cards',
-            image:<FaRegAddressCard />
-          },
-          {
-            text:'Sessions',
-            path:'/dashboard/ministries/sessions',
-            image:<TbProgressCheck />
-          },
 
-        ]
-      },
-      {
-        title:'Contract Management',
-        icon:<RiPoliceBadgeLine />,
-        isAdmin:true,
-        children:[
-          {
-            text:'Contracts',
-            path:'/dashboard/churches/contracts',
-            image:<PiSealCheck />
-          },
-          {
-            text:'Services',
-            path:'/dashboard/churches/contracts/services',
-            image:<GrPowerCycle />
-          },
-        ]
-      },
-      {
-        title:'Revenue',
-        icon:<RiMoneyDollarBoxLine />,
-        isAdmin:true,
-        children:[
-          {
-            text:'Payments',
-            path:'/dashboard/revenue',
-            image:<MdAttachMoney />
-          },
-          {
-            text:'Expected Income',
-            path:'/dashboard/income',
-            image:<TbCash />
-          },
-        ]
-      },
+    {
+      title: 'Communities',
+      isAdmin:true,
+      icon: <IoMdGlobe/>,
+      children:[
+        {
+          text:'Zones',
+          path:'/dashboard/zones',
+          image:<IoLocationOutline/>
+        },
+        {
+          text:'Churches',
+          path:'/dashboard/churches',
+          image:<TbBuildingChurch/>
+        },
+        
+        {
+          text:'Campuses',
+          path:'/dashboard/churches/campuses',
+          image:<RiSchoolLine />
+        },
+      ]
+    },
+
+    {
+      title:'Ministries',
+      isAdmin:true,
+      icon:<PiCross />,
+      children:[
+        {
+          text:'Manage Ministries',
+          path:'/dashboard/ministries',
+          image:<IoIosGitNetwork />
+        },
+        {
+          text:'Manage Activities',
+          path:'/dashboard/activities',
+          image:<FiActivity/>
+        },
+        {
+          text:'Cards',
+          path:'/dashboard/activities/cards',
+          image:<FaRegAddressCard />
+        },
+        {
+          text:'Sessions',
+          path:'/dashboard/ministries/sessions',
+          image:<TbProgressCheck />
+        },
+
+      ]
+    },
+
+    {
+      title:'Contract Management',
+      icon:<RiPoliceBadgeLine />,
+      isAdmin:true,
+      children:[
+        {
+          text:'Contracts',
+          path:'/dashboard/churches/contracts',
+          image:<PiSealCheck />
+        },
+        {
+          text:'Services',
+          path:'/dashboard/churches/contracts/services',
+          image:<GrPowerCycle />
+        },
+      ]
+    },
+
+    {
+      title:'Hubs',
+      icon:<MdOutlineHub />,
+      isAdmin:true,
+      children:[
+        {
+          text:`Children`,
+          image:<FaChildReaching className="opacity-70" />,
+          path:'/dashboard/events/children'
+        },
+        {
+          text:'Music',
+          path:'/dashboard/music',
+          image:<FiMusic />
+        },
+        {
+          text:'Travel',
+          path:'/dashboard/travel',
+          image:<PiAirplaneTakeoffLight />
+        },
+      ]
+    },
+
+    {
+      title:'Revenue',
+      icon:<RiMoneyDollarBoxLine />,
+      isAdmin:true,
+      children:[
+        {
+          text:'Payments',
+          path:'/dashboard/revenue',
+          image:<MdAttachMoney />
+        },
+        {
+          text:'Expected Income',
+          path:'/dashboard/income',
+          image:<TbCash />
+        },
+      ]
+    },
       
       // {
       //     title: 'Announcements',

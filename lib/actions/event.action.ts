@@ -188,7 +188,10 @@ export async function updateBadgeIssuedForMembers(memberIds: string[], eventId: 
 export async function getEvent(id:string){
     try {
         await connectDB();
-        const event = await Event.findById(id).populate('createdBy').lean();
+        const event = await Event.findById(id)
+        .populate('musichubs')
+        .populate('createdBy')
+        .lean();
         return JSON.parse(JSON.stringify(event));
     } catch (error) {
         if (error instanceof Error) {

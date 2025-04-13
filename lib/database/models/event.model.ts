@@ -2,6 +2,7 @@ import { CallbackError, Document, model, models, Schema, Types } from "mongoose"
 import { IVendor } from "./vendor.model";
 import CYPSet from "./cypset.model";
 import { IChurch } from "./church.model";
+import { IMusichub } from "./musichub.model";
 
 export interface IEvent extends Document {
     _id:string
@@ -18,6 +19,7 @@ export interface IEvent extends Document {
     sessions?: number;
     createdBy: Types.ObjectId|string|IVendor; // Assuming createdBy references a Vendor
     churchId: Types.ObjectId|string|IChurch;
+    musichubs:string[] | Types.ObjectId[] | IMusichub[];
     createdAt?: Date; // Automatically added by Mongoose
     updatedAt?: Date; // Automatically added by Mongoose
 }
@@ -35,7 +37,8 @@ const EventSchema = new Schema<IEvent>({
     childPrice:{type:Number, default:0},
     sessions:{type:Number, default:0},
     churchId:{type:Schema.Types.ObjectId, ref:'Church', required:false},
-    createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false}
+    createdBy:{type:Schema.Types.ObjectId, ref:'Vendor', required:false},
+    musichubs:[{type:Schema.Types.ObjectId, ref:'Musichub'}],
 },{timestamps:true})
 
 EventSchema.pre('deleteOne', {document: false, query: true}, async function(next){

@@ -83,6 +83,10 @@ export const UserRoles: RoleProps[] =[
         codes:['MI1', 'MI2', 'MI3', 'MI4',]
     },
     {
+        title:'Music Coordinator',
+        codes:['MH1', 'MH2', 'MH3', 'MH4',]
+    },
+    {
         title:'Payment',
         codes:['PA1', 'PA2', 'PA3', 'PA4',]
     },
@@ -109,6 +113,10 @@ export const UserRoles: RoleProps[] =[
     {
         title:'Session (Activities)',
         codes:['CLS1', 'CLS2', 'CLS3', 'CLS4',]
+    },
+    {
+        title:'Travel Coordinator',
+        codes:['TH1', 'TH2', 'TH3', 'TH4',]
     },
     {
         title:'User',

@@ -15,6 +15,7 @@ import React, { ChangeEvent, FormEvent,   useEffect,   useState } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
 import CustomCheck from '../group/new/CustomCheck'
 import { checkIfAdmin } from '@/components/Dummy/contants'
+import EventMusicHubTable from './music/EventMusicHubTable'
 
 type EventMainProps = {
     event:IEvent
@@ -25,11 +26,13 @@ const EventMain = ({event}:EventMainProps) => {
     const [data, setData] = useState<Partial<IEvent>>({});
     // const [loading, setLoading] = useState<boolean>(true);
     const [updateLoading, setUpdateLoading] = useState<boolean>(false);
-    // const [loadingError, setLoadingError] = useState<string|null>(null);
+    const [title, setTitle] = useState<string>('Details');
     const [error, setError] = useState<ErrorProps>(null);
     const [forAll, setForAll] = useState<boolean>(false);
 
     const router = useRouter();
+
+    const titles = ['Details','Musicians', 'Travellers'];
 
     const handleChange = (e:ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>)=>{
         const {value, name} = e.target;
@@ -121,108 +124,127 @@ const EventMain = ({event}:EventMainProps) => {
                 <Title text='Event Details' />
             </div>
     
-            <form onSubmit={handleUpdateEvent}   className='px-3 md:px-8 py-4 flex-col dark:bg-black dark:border flex gap-8 bg-white' >
-                {/* <span className='font-bold text-xl' >Add Event</span> */}
-                <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
-                <div className="flex flex-1 flex-col gap-5">
-                    <div className="flex flex-col gap-1">
-                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Event Name</span>
-                        <input onChange={handleChange} defaultValue={event?.name}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Location</span>
-                        <input onChange={handleChange} defaultValue={event?.location}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="location"  />
-                    </div>
-
-                    <div className="flex flex-col gap-4 md:flex-row md:gap-12 md:items-center">
-                        <div className="flex flex-col gap-1">
-                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (From)</span>
-                            <input onChange={handleChange} min={today()} defaultValue={event?.from} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="from"  />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (To)</span>
-                            <input onChange={handleChange} min={today()} defaultValue={event?.to} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="to"  />
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
-                        <select onChange={handleChange} name='type' defaultValue={event?.type}  className='border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none'  >
-                            <option className="dark:bg-black" value="Convention">Convention</option>
-                            <option className="dark:bg-black" value="Conference">Conference</option>
-                            <option className="dark:bg-black" value="Retreat">Retreat</option>
-                            <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
-                            <option className="dark:bg-black" value="Camp Meeting - YAYA">Camp Meeting - YAYA</option>
-                            <option className="dark:bg-black" value="Camp Meeting - Children">Camp Meeting - Children</option>
-                        </select>
-                    </div>
-
-                    <div className="flex flex-row gap-12">
+            <form onSubmit={handleUpdateEvent}   className='table-main2' >
+                <div className="flex gap-4">
+                    {
+                        titles.map((item)=>{
+                            const selected = item === title;
+                            return(
+                                <div onClick={()=>setTitle(item)} className={`flex cursor-pointer pb-1 ${selected ? 'border-b-2 border-b-blue-500 dark:border-white':'border-none'}`} key={item} >
+                                    <span className={`font-semibold ${selected ? 'dark:text-white':'text-slate-500'}`} >{item}</span>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+                {
+                    title === 'Details' &&
+                    <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
+                        <div className="flex flex-1 flex-col gap-5">
                             <div className="flex flex-col gap-1">
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >Event Name</span>
+                                <input onChange={handleChange} defaultValue={event?.name}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="name"  />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >Location</span>
+                                <input onChange={handleChange} defaultValue={event?.location}  placeholder='type here...' className='border-b p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type="text" name="location"  />
+                            </div>
+
+                            <div className="flex flex-col gap-4 md:flex-row md:gap-12 md:items-center">
+                                <div className="flex flex-col gap-1">
+                                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (From)</span>
+                                    <input onChange={handleChange} min={today()} defaultValue={event?.from} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="from"  />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Date (To)</span>
+                                    <input onChange={handleChange} min={today()} defaultValue={event?.to} placeholder='DD/MM/YYYY' className='border-b p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='date' name="to"  />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className='text-slate-400 font-semibold text-[0.8rem]' >Type</span>
+                                <select onChange={handleChange} name='type' defaultValue={event?.type}  className='border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none'  >
+                                    <option className="dark:bg-black" value="Convention">Convention</option>
+                                    <option className="dark:bg-black" value="Conference">Conference</option>
+                                    <option className="dark:bg-black" value="Retreat">Retreat</option>
+                                    <option className="dark:bg-black" value="Camp Meeting - Adult">Camp Meeting - Adult</option>
+                                    <option className="dark:bg-black" value="Camp Meeting - YAYA">Camp Meeting - YAYA</option>
+                                    <option className="dark:bg-black" value="Camp Meeting - Children">Camp Meeting - Children</option>
+                                </select>
+                            </div>
+
+                            <div className="flex flex-row gap-12">
+                                    <div className="flex flex-col gap-1">
+                                        {
+                                            data &&
+                                            ( data?.type !== `Camp Meeting - Children` && data?.type !== `Camp Meeting - YAYA`)?
+                                            <span className="text-slate-400 font-semibold text-[0.8rem]">Price</span>
+                                            :
+                                            <span className="text-slate-400 font-semibold text-[0.8rem]">Adult&apos;s Price</span>
+                                        }
+                                        <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
+                                    </div>
                                 {
                                     data &&
-                                    ( data?.type !== `Camp Meeting - Children` && data?.type !== `Camp Meeting - YAYA`)?
-                                    <span className="text-slate-400 font-semibold text-[0.8rem]">Price</span>
-                                    :
-                                    <span className="text-slate-400 font-semibold text-[0.8rem]">Adult&apos;s Price</span>
+                                    (data?.type === `Camp Meeting - Children` || data?.type === `Camp Meeting - YAYA`) &&
+                                    <div className="flex flex-col gap-1">
+                                        <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
+                                        <input onChange={handleChange} min={0} defaultValue={event?.childPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="childPrice"  />
+                                    </div>
                                 }
-                                <input onChange={handleChange} min={0} defaultValue={event?.adultPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="adultPrice"  />
                             </div>
-                        {
-                            data &&
-                            (data?.type === `Camp Meeting - Children` || data?.type === `Camp Meeting - YAYA`) &&
-                            <div className="flex flex-col gap-1">
-                                <span className='text-slate-400 font-semibold text-[0.8rem]' >Children&apos;s price</span>
-                                <input onChange={handleChange} min={0} defaultValue={event?.childPrice} placeholder='$' className='border-b w-36 p-1 outline-none bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]' type='number' name="childPrice"  />
-                            </div>
-                        }
-                    </div>
 
-                    {/* adult price {event?.adultPrice} */}
+                            {/* adult price {event?.adultPrice} */}
 
 
-                </div>
-
-
-            {/* RIGHT */}
-                <div className="flex flex-1 flex-col justify-between">
-
-                    <div className="flex flex-col gap-5">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-slate-400 font-semibold text-[0.8rem]">Organizers</span>
-                            <select
-                                required
-                                onChange={handleChange}
-                                name="organizers"
-                                defaultValue={event?.organizers}
-                                className="border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none"
-                            >
-                                <option className="dark:bg-black" value="NAGACU">NAGACU</option>
-                                <option className="dark:bg-black" value="NAGSDA">NAGSDA</option>
-                                <option className="dark:bg-black" value="Church">Church</option>
-                            </select>
                         </div>
 
-                        {
-                            orgUpdater &&
-                            <div className="flex items-center gap-4">
-                            <span className="text-slate-400 font-semibold text-[0.8rem]">This event is public for all churches</span>
-                            <CustomCheck checked={forAll} onClick={()=>setForAll((pre)=>!pre)} />
-                            </div>
-                        }
 
-                        <div className="flex flex-col gap-1">
-                            <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
-                            <textarea onChange={handleChange} defaultValue={event?.note} placeholder='say something about this event' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
+                    {/* RIGHT */}
+                        <div className="flex flex-1 flex-col justify-between">
+
+                            <div className="flex flex-col gap-5">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-slate-400 font-semibold text-[0.8rem]">Organizers</span>
+                                    <select
+                                        required
+                                        onChange={handleChange}
+                                        name="organizers"
+                                        defaultValue={event?.organizers}
+                                        className="border text-slate-400 p-1 w-fit font-semibold text-[0.8rem] rounded bg-transparent outline-none"
+                                    >
+                                        <option className="dark:bg-black" value="NAGACU">NAGACU</option>
+                                        <option className="dark:bg-black" value="NAGSDA">NAGSDA</option>
+                                        <option className="dark:bg-black" value="Church">Church</option>
+                                    </select>
+                                </div>
+
+                                {
+                                    orgUpdater &&
+                                    <div className="flex items-center gap-4">
+                                    <span className="text-slate-400 font-semibold text-[0.8rem]">This event is public for all churches</span>
+                                    <CustomCheck checked={forAll} onClick={()=>setForAll((pre)=>!pre)} />
+                                    </div>
+                                }
+
+                                <div className="flex flex-col gap-1">
+                                    <span className='text-slate-400 font-semibold text-[0.8rem]' >Description</span>
+                                    <textarea onChange={handleChange} defaultValue={event?.note} placeholder='say something about this event' className='border rounded p-1 outline-none w-80 bg-transparent placeholder:text-slate-400 placeholder:text-[0.8rem]'  name="note"  />
+                                </div>
+                            </div>
+
+                                {
+                                    error?.message &&
+                                    <Alert onClose={()=>setError(null)} severity={error.error ? 'error':'success'} >{error.message}</Alert>
+                                }
+                                <BottomActionItems deleter={showDelete} updater={showUpdate} updateLoading={updateLoading} setError={setError} event={event!} />
                         </div>
                     </div>
+                }
 
-                        {
-                            error?.message &&
-                            <Alert onClose={()=>setError(null)} severity={error.error ? 'error':'success'} >{error.message}</Alert>
-                        }
-                        <BottomActionItems deleter={showDelete} updater={showUpdate} updateLoading={updateLoading} setError={setError} event={event!} />
-                </div>
-               </div>
+                {
+                    title === 'Musicians' &&
+                    <EventMusicHubTable canUpdate={showUpdate} event={event} />
+                }
 
             </form>
         </div>

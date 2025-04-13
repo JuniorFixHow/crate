@@ -7,6 +7,7 @@ import Payment from "./payment.model";
 import { IKey } from "./key.model";
 import { IChurch } from "./church.model";
 import Hubclass from "./hubclass.model";
+import TravelHub from "./travelhub.model";
 
 export interface IRegistration extends Document{
     _id:string;
@@ -38,31 +39,35 @@ const RegistrationSchema = new Schema<IRegistration>({
 },{timestamps:true});
 
 RegistrationSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
-    try {
-      const query = this.getQuery();
-      const regId = query._id;
-  
-      // Look up the registration to get the memberId
-      const registration = await this.model.findOne({ _id: regId }).lean() as IRegistration|null;
-      if (!registration) return next();
-  
-      const payerId = registration.memberId;
-  
-      // Delete related payments
-      await Payment.deleteMany({ payer: payerId });
-  
-      // Remove this registration from any Hubclass children arrays
-      await Hubclass.updateMany(
+  try {
+    const query = this.getQuery();
+    const regId = query._id;
+
+    if (!regId) return next(); // defensive check
+
+    // Fetch registration to get memberId
+    const registration = await this.model.findOne({ _id: regId }).lean() as IRegistration | null;
+    if (!registration) return next();
+
+    const payerId = registration.memberId;
+
+    // Clean up related data
+    await Promise.all([
+      TravelHub.deleteMany({ regId }),
+      Payment.deleteMany({ payer: payerId }),
+      Hubclass.updateMany(
         { children: regId },
         { $pull: { children: regId } }
-      );
-  
-      next();
-    } catch (error) {
-      console.error('Error in Registration pre-deleteOne hook:', error);
-      next(error as CallbackError);
-    }
-  });
+      )
+    ]);
+
+    next();
+  } catch (error) {
+    console.error('Error in Registration pre-deleteOne hook:', error);
+    next(error as CallbackError);
+  }
+});
+
   
 
 const Registration = models?.Registration || model('Registration', RegistrationSchema);
