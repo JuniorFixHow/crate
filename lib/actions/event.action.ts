@@ -10,6 +10,7 @@ import { connectDB } from "../database/mongoose";
 import Member from "../database/models/member.model";
 import { handleResponse } from "../misc";
 import '../database/models/vendor.model';
+import '../database/models/musichub.model';
 
 export async function createEvent(event:Partial<IEvent>){
     try {

@@ -4,6 +4,10 @@ import Event from "../database/models/event.model";
 import TravelHub, { ITravelhub } from "../database/models/travelhub.model";
 import { connectDB } from "../database/mongoose";
 import { handleResponse } from "../misc";
+import '../database/models/registration.model';
+import '../database/models/member.model';
+import '../database/models/church.model';
+import '../database/models/event.model';
 
 export async function createTravelHub(hub:Partial<ITravelhub>) {
     try {
