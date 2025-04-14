@@ -16,6 +16,7 @@ import { IoIosArrowForward } from 'react-icons/io'
 import CustomCheck from '../group/new/CustomCheck'
 import { checkIfAdmin } from '@/components/Dummy/contants'
 import EventMusicHubTable from './music/EventMusicHubTable'
+import EventTravelHubTable from './travel/EventTravelhubTable'
 
 type EventMainProps = {
     event:IEvent
@@ -124,7 +125,7 @@ const EventMain = ({event}:EventMainProps) => {
                 <Title text='Event Details' />
             </div>
     
-            <form onSubmit={handleUpdateEvent}   className='table-main2' >
+            <div    className='table-main2' >
                 <div className="flex gap-4">
                     {
                         titles.map((item)=>{
@@ -139,7 +140,7 @@ const EventMain = ({event}:EventMainProps) => {
                 </div>
                 {
                     title === 'Details' &&
-                    <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
+                    <form onSubmit={handleUpdateEvent}  className="flex flex-col md:flex-row gap-6 md:gap-12 items-stretch">
                         <div className="flex flex-1 flex-col gap-5">
                             <div className="flex flex-col gap-1">
                                 <span className='text-slate-400 font-semibold text-[0.8rem]' >Event Name</span>
@@ -238,15 +239,19 @@ const EventMain = ({event}:EventMainProps) => {
                                 }
                                 <BottomActionItems deleter={showDelete} updater={showUpdate} updateLoading={updateLoading} setError={setError} event={event!} />
                         </div>
-                    </div>
+                    </form>
                 }
 
                 {
                     title === 'Musicians' &&
                     <EventMusicHubTable canUpdate={showUpdate} event={event} />
                 }
+                {
+                    title === 'Travellers' &&
+                    <EventTravelHubTable canUpdate={showUpdate} event={event} />
+                }
 
-            </form>
+            </div>
         </div>
     </div>
   )

@@ -15,6 +15,24 @@ export const minTime = (date:Date): string => {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+export function formatDateTime(dateInput: string | number | Date): string {
+    const date = new Date(dateInput);
+  
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+  
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+  
+    hours = hours % 12 || 12; // Convert 0 to 12 for 12-hour clock
+    const hh = String(hours).padStart(2, '0');
+  
+    return `${mm}/${dd}/${yyyy}, ${hh}:${minutes} ${ampm}`;
+}
+  
+
 export const timeToString = (date:Date): string => {
     
     

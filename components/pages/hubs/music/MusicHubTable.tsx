@@ -96,7 +96,7 @@ const MusicHubTable = () => {
             }
             {
                 creator &&
-                <AddButton onClick={handleNew} text="Add New" noIcon smallText className="rounded justify-end self-end" />
+                <AddButton onClick={handleNew} text="Add New" noIcon smallText className="rounded justify-center self-end" />
             }
         </div>
 

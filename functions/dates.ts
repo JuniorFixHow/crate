@@ -31,4 +31,11 @@ export function formatTimestamp(isoDate: string): string {
 }
 
 
+export function getTodayDate() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+  }
+
 

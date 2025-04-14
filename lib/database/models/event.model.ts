@@ -3,6 +3,7 @@ import { IVendor } from "./vendor.model";
 import CYPSet from "./cypset.model";
 import { IChurch } from "./church.model";
 import { IMusichub } from "./musichub.model";
+import TravelHub from "./travelhub.model";
 
 export interface IEvent extends Document {
     _id:string
@@ -44,7 +45,10 @@ const EventSchema = new Schema<IEvent>({
 EventSchema.pre('deleteOne', {document: false, query: true}, async function(next){
     try {
         const eventId = this.getQuery()._id;
-        await CYPSet.deleteMany({eventId});
+        await Promise.all([
+            TravelHub.deleteMany({eventId}),
+            CYPSet.deleteMany({eventId})
+        ])
         next();
     } catch (error) {
         console.log(error);

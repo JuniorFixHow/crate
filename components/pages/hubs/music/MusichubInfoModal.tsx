@@ -46,6 +46,7 @@ const MusichubInfoModal = ({infoMode,   setInfoMode, currentHub, setCurrentHub}:
             if(currentHub){
                 const res = await removeMusicHubFromEvents(currentHub?._id);     
                 enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+                reload();
             }
         } catch (error) {
             console.log(error);

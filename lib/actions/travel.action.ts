@@ -33,7 +33,20 @@ export async function updateTravelHub(hub:Partial<ITravelhub>) {
 export async function getTravelHub(id:string){
     try {
         await connectDB();
-        const hub = await TravelHub.findById(id);
+        const hub = await TravelHub.findById(id)
+        .populate({
+            path:'regId',
+            populate:{
+                path:'memberId',
+                model:'Member',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            }
+        })
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hub));
     } catch (error) {
         console.log(error);
@@ -45,7 +58,20 @@ export async function getTravelHub(id:string){
 export async function getTravelHubs(){
     try {
         await connectDB();
-        const hubs = await TravelHub.find();
+        const hubs = await TravelHub.find()
+        .populate({
+            path:'regId',
+            populate:{
+                path:'memberId',
+                model:'Member',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            }
+        })
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hubs));
     } catch (error) {
         console.log(error);
@@ -57,7 +83,44 @@ export async function getTravelHubs(){
 export async function getTravelHubsForChurch(churchId:string){
     try {
         await connectDB();
-        const hubs = await TravelHub.find({churchId});
+        const hubs = await TravelHub.find({churchId})
+        .populate({
+            path:'regId',
+            populate:{
+                path:'memberId',
+                model:'Member',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            }
+        })
+        .populate('eventId')
+        .lean();
+        return JSON.parse(JSON.stringify(hubs));
+    } catch (error) {
+        console.log(error);
+        return handleResponse('Error occured fetching travel items', true, {}, 500);
+    }
+}
+
+export async function getTravelHubsForChurchInAnEvent(churchId:string, eventId:string){
+    try {
+        await connectDB();
+        const hubs = await TravelHub.find({churchId, eventId})
+        .populate({
+            path:'regId',
+            populate:{
+                path:'memberId',
+                model:'Member',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            }
+        })
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(hubs));
     } catch (error) {
         console.log(error);
@@ -69,7 +132,20 @@ export async function getTravelHubsForChurch(churchId:string){
 export async function getTravelForEvent(eventId:string){
     try {
         await connectDB();
-        const travels = await TravelHub.find({eventId});
+        const travels = await TravelHub.find({eventId})
+        .populate({
+            path:'regId',
+            populate:{
+                path:'memberId',
+                model:'Member',
+                populate:{
+                    path:'church',
+                    model:'Church'
+                }
+            }
+        })
+        .populate('eventId')
+        .lean();
         return JSON.parse(JSON.stringify(travels));
     } catch (error) {
         console.log(error);
