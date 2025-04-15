@@ -274,13 +274,14 @@ const MRegisteration = ({currentMemeber,  setHasOpen,}:MRegisterationProps ) => 
                     <span className='text-slate-400 font-semibold text-[0.8rem]' >Role</span>
                     <select name='role' onChange={handleChange} className='border text-slate-400 p-1 font-semibold text-[0.8rem] rounded bg-transparent outline-none' defaultValue={currentMemeber?.role} >
                         <option className='dark:bg-black' value="Member">Member</option>
-                        <option className='dark:bg-black' value="Non-member">Non-member</option>
-                        <option className='dark:bg-black' value="Choir Official">Choir Official</option>
-                        <option className='dark:bg-black' value="NAGACU Official">NAGACU Official</option>
+                        <option className='dark:bg-black' value="Local Church Ministry Leader">Local Church Ministry Leader</option>
                         <option className='dark:bg-black' value="NAGSDA Official">NAGSDA Official</option>
                         <option className='dark:bg-black' value="Departmental Leader">Departmental Leader</option>
-                        <option className='dark:bg-black' value="Elder">Elder</option>
+                        <option className='dark:bg-black' value="Local Church Elder">Local Church Elder</option>
                         <option className='dark:bg-black' value="Pastor">Pastor</option>
+                        <option className='dark:bg-black' value="Non-member">Non-member</option>
+                        <option className='dark:bg-black' value="Non-Member (Guest)">Non-Member (Guest)</option>
+                        <option className='dark:bg-black' value="Non-Adventist (Guest)">Non-Adventist (Guest)</option>
                     </select>
                 </div>
                 
